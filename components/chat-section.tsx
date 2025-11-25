@@ -33,21 +33,20 @@ import {
   Trash,
 } from "lucide-react"
 import { useState } from "react"
+import { streamChatResponse } from "@/lib/api-client"
 
-const initialMessages = [
-  {
-    id: 1,
-    role: "assistant",
-    content: "Hello! I'm Syshin's AI assistant. Feel free to ask me anything about my projects, skills, or experience!",
-  },
-]
+interface ChatMessage {
+  id: number
+  role: "user" | "assistant"
+  content: string
+}
 
 export default function ChatSection() {
   const [prompt, setPrompt] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [chatMessages, setChatMessages] = useState(initialMessages)
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!prompt.trim()) return
 
     const userPrompt = prompt.trim()
@@ -55,7 +54,7 @@ export default function ChatSection() {
     setIsLoading(true)
 
     // Add user message immediately
-    const newUserMessage = {
+    const newUserMessage: ChatMessage = {
       id: Date.now(),
       role: "user",
       content: userPrompt,
@@ -63,32 +62,63 @@ export default function ChatSection() {
 
     setChatMessages((prev) => [...prev, newUserMessage])
 
-    // Simulate API response
-    setTimeout(() => {
-      const assistantResponse = {
-        id: Date.now(),
-        role: "assistant",
-        content: `Thanks for your question: "${userPrompt}". This is a demo response. In production, this would connect to an AI API.`,
-      }
+    // Create assistant message placeholder
+    const assistantMessageId = Date.now() + 1
+    const assistantMessage: ChatMessage = {
+      id: assistantMessageId,
+      role: "assistant",
+      content: "",
+    }
 
-      setChatMessages((prev) => [...prev, assistantResponse])
-      setIsLoading(false)
-    }, 1500)
+    setChatMessages((prev) => [...prev, assistantMessage])
+
+    // Stream the response using the API client
+    await streamChatResponse({
+      userMessage: userPrompt,
+      onChunk: (fullContent) => {
+        // Update the assistant message with accumulated content
+        setChatMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantMessageId ? { ...m, content: fullContent } : m
+          )
+        )
+      },
+      onComplete: () => {
+        setIsLoading(false)
+      },
+      onError: (error) => {
+        console.error("Error streaming response:", error)
+
+        // Update with error message
+        setChatMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantMessageId
+              ? {
+                  ...m,
+                  content: "Sorry, I encountered an error. Please try again.",
+                }
+              : m
+          )
+        )
+
+        setIsLoading(false)
+      },
+    })
   }
 
   return (
-    <section className="w-full h-[calc(100vh-73px)] flex flex-col">
-      <div className="container mx-auto px-4 md:px-6 py-8 flex-1 flex flex-col min-h-0">
+    <section className="w-full h-[100dvh] md:h-[calc(100vh-73px)] flex flex-col">
+      <div className="container mx-auto px-4 md:px-6 py-8 flex-1 flex flex-col min-h-0 overflow-hidden">
         <div className="flex flex-col items-center space-y-4 text-center mb-6">
-          <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-            Compare 4 RAG Systems
+          <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+            Ask Me Anything
           </h1>
-          <p className="text-muted-foreground max-w-[700px] text-lg md:text-xl">
-            Ask questions about my blog posts and see how different RAG approaches retrieve and answer.
+          <p className="text-muted-foreground max-w-[700px] text-base md:text-lg">
+            Chat with AI about my projects, blog posts, and technical experience
           </p>
         </div>
 
-        <div className="w-full max-w-6xl mx-auto flex-1 flex flex-col min-h-0">
+        <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col min-h-0">
           <div className="relative flex flex-col flex-1 overflow-hidden min-h-0">
             <ChatContainerRoot className="relative flex-1 space-y-0 overflow-y-auto px-4 py-8">
               <ChatContainerContent className="space-y-8 px-4 py-8">
@@ -100,7 +130,7 @@ export default function ChatSection() {
                     <Message
                       key={message.id}
                       className={cn(
-                        "mx-auto flex w-full max-w-5xl flex-col gap-2 px-0",
+                        "mx-auto flex w-full max-w-full flex-col gap-2 px-0",
                         isAssistant ? "items-start" : "items-end"
                       )}
                     >
@@ -148,8 +178,8 @@ export default function ChatSection() {
                           </MessageActions>
                         </div>
                       ) : (
-                        <div className="group flex flex-col items-end gap-1">
-                          <MessageContent className="bg-muted text-primary max-w-[85%] rounded-3xl px-5 py-2.5 sm:max-w-[75%]">
+                        <div className="group flex flex-col items-end gap-1 w-full">
+                          <MessageContent className="bg-muted text-primary max-w-full rounded-3xl px-5 py-2.5 sm:max-w-[85%] md:max-w-[75%]">
                             {message.content}
                           </MessageContent>
                           <MessageActions
@@ -193,17 +223,17 @@ export default function ChatSection() {
                 <ChatContainerScrollAnchor />
               </ChatContainerContent>
 
-              <div className="absolute right-7 bottom-4 z-10">
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-4 z-10">
                 <ScrollButton
-                  className="bg-primary hover:bg-primary/90 shadow-sm"
-                  variant="default"
+                  className="bg-background/80 hover:bg-background/90 backdrop-blur-sm shadow-lg border border-border/50"
+                  variant="outline"
                   size="icon"
                 />
               </div>
             </ChatContainerRoot>
 
-            <div className="shrink-0 p-4">
-              <div className="max-w-3xl mx-auto">
+            <div className="sticky bottom-0 left-0 right-0 shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t border-border/40 p-4">
+              <div className="max-w-5xl mx-auto">
                 <PromptInput
                   isLoading={isLoading}
                   value={prompt}
