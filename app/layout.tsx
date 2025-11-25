@@ -9,45 +9,45 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Beautiful Shadcn UI Landing Page",
+  title: "Syshin's AI Portfolio Assistant",
   description:
-    "A beautiful landing page built with Shadcn UI, Next.js 15, Tailwind CSS, and Shadcn UI Blocks.",
+    "Chat with AI about Syshin's projects, blog posts, and technical expertise. Powered by RAG technology.",
   keywords: [
-    "Shadcn UI Landing Page",
-    "Shadcn UI Blocks",
-    "Shadcn UI",
-    "Landing Page",
-    "Tailwind CSS Landing Page",
-    "Beautiful Shadcn UI Landing Page",
-    "Next.js 15 Landing Page",
-    "Simple Landing Page",
-    "Landing Page Template",
-    "Landing Page Design",
+    "Portfolio",
+    "AI Assistant",
+    "RAG",
+    "LangGraph",
+    "Syshin",
+    "Blog",
+    "Projects",
+    "Technical Portfolio",
+    "AI Chatbot",
+    "Developer Portfolio",
   ],
   openGraph: {
     type: "website",
-    siteName: "Shadcn Landing Page",
+    siteName: "Syshin's Portfolio",
     locale: "en_US",
-    url: "https://shadcn-landing-page.vercel.app",
-    title: "Shadcn Landing Page",
+    url: "https://portfolio-web.vercel.app",
+    title: "Syshin's AI Portfolio Assistant",
     description:
-      "A beautiful landing page built with Shadcn UI, Next.js 15, Tailwind CSS, and Shadcn UI Blocks.",
+      "Chat with AI about Syshin's projects, blog posts, and technical expertise. Powered by RAG technology.",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Shadcn UI Landing Page Preview",
+        alt: "Syshin's Portfolio Preview",
       },
     ],
   },
   authors: [
     {
-      name: "Akash Moradiya",
-      url: "https://shadcnui-blocks.com",
+      name: "Syshin",
+      url: "https://github.com/syshin0116",
     },
   ],
-  creator: "Akash Moradiya",
+  creator: "Syshin",
   icons: [
     {
       rel: "icon",
