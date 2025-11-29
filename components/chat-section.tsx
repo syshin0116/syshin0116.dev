@@ -34,6 +34,7 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 import { streamChatResponse } from "@/lib/api-client"
+import { Loader } from "@/components/ui/loader"
 
 interface ChatMessage {
   id: number
@@ -136,12 +137,18 @@ export default function ChatSection() {
                     >
                       {isAssistant ? (
                         <div className="group flex w-full flex-col gap-0">
-                          <MessageContent
-                            className="text-foreground prose w-full flex-1 rounded-lg bg-transparent p-0"
-                            markdown
-                          >
-                            {message.content}
-                          </MessageContent>
+                          {message.content ? (
+                            <MessageContent
+                              className="text-foreground prose w-full flex-1 rounded-lg bg-transparent p-0"
+                              markdown
+                            >
+                              {message.content}
+                            </MessageContent>
+                          ) : (
+                            <div className="text-foreground w-full flex-1 rounded-lg bg-transparent p-0">
+                              <Loader variant="text-shimmer" text="Thinking" size="md" />
+                            </div>
+                          )}
                           <MessageActions
                             className={cn(
                               "-ml-2.5 flex gap-0 opacity-0 transition-opacity duration-150 group-hover:opacity-100",
