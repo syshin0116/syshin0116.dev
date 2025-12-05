@@ -33,13 +33,15 @@ import {
   Trash,
 } from "lucide-react"
 import { useState } from "react"
-import { streamChatResponse } from "@/lib/api-client"
+import { streamChatResponse, ToolCall, ToolResult } from "@/lib/api-client"
 import { Loader } from "@/components/ui/loader"
+import { Tool, ToolPart } from "@/components/ui/tool"
 
 interface ChatMessage {
   id: number
   role: "user" | "assistant"
   content: string
+  toolCalls?: Map<string, ToolPart>
 }
 
 export default function ChatSection() {
@@ -69,6 +71,7 @@ export default function ChatSection() {
       id: assistantMessageId,
       role: "assistant",
       content: "",
+      toolCalls: new Map(),
     }
 
     setChatMessages((prev) => [...prev, assistantMessage])
@@ -82,6 +85,44 @@ export default function ChatSection() {
           prev.map((m) =>
             m.id === assistantMessageId ? { ...m, content: fullContent } : m
           )
+        )
+      },
+      onToolCall: (toolCall: ToolCall) => {
+        // Add or update tool call
+        setChatMessages((prev) =>
+          prev.map((m) => {
+            if (m.id === assistantMessageId) {
+              const newToolCalls = new Map(m.toolCalls)
+              newToolCalls.set(toolCall.id, {
+                type: toolCall.name,
+                state: "input-available",
+                input: toolCall.args,
+                toolCallId: toolCall.id,
+              })
+              return { ...m, toolCalls: newToolCalls }
+            }
+            return m
+          })
+        )
+      },
+      onToolResult: (toolResult: ToolResult) => {
+        // Update tool call with result
+        setChatMessages((prev) =>
+          prev.map((m) => {
+            if (m.id === assistantMessageId) {
+              const newToolCalls = new Map(m.toolCalls)
+              const existingTool = newToolCalls.get(toolResult.tool_call_id)
+              if (existingTool) {
+                newToolCalls.set(toolResult.tool_call_id, {
+                  ...existingTool,
+                  state: "output-available",
+                  output: { result: toolResult.content },
+                })
+              }
+              return { ...m, toolCalls: newToolCalls }
+            }
+            return m
+          })
         )
       },
       onComplete: () => {
@@ -137,6 +178,20 @@ export default function ChatSection() {
                     >
                       {isAssistant ? (
                         <div className="group flex w-full flex-col gap-0">
+                          {/* Tool calls display */}
+                          {message.toolCalls && message.toolCalls.size > 0 && (
+                            <div className="mb-4 space-y-2">
+                              {Array.from(message.toolCalls.values()).map((toolPart) => (
+                                <Tool
+                                  key={toolPart.toolCallId}
+                                  toolPart={toolPart}
+                                  defaultOpen={false}
+                                />
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Message content */}
                           {message.content ? (
                             <MessageContent
                               className="text-foreground prose w-full flex-1 rounded-lg bg-transparent p-0"
@@ -144,11 +199,12 @@ export default function ChatSection() {
                             >
                               {message.content}
                             </MessageContent>
-                          ) : (
+                          ) : !message.toolCalls || message.toolCalls.size === 0 ? (
                             <div className="text-foreground w-full flex-1 rounded-lg bg-transparent p-0">
                               <Loader variant="text-shimmer" text="Thinking" size="md" />
                             </div>
-                          )}
+                          ) : null}
+
                           <MessageActions
                             className={cn(
                               "-ml-2.5 flex gap-0 opacity-0 transition-opacity duration-150 group-hover:opacity-100",

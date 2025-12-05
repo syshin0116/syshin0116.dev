@@ -15,9 +15,24 @@ export function getApiClient(): Client {
   return clientInstance
 }
 
+export interface ToolCall {
+  name: string
+  args: Record<string, unknown>
+  id: string
+  type?: string
+}
+
+export interface ToolResult {
+  name: string
+  content: string
+  tool_call_id: string
+}
+
 export interface StreamChatOptions {
   userMessage: string
   onChunk?: (content: string) => void
+  onToolCall?: (toolCall: ToolCall) => void
+  onToolResult?: (toolResult: ToolResult) => void
   onComplete?: (fullContent: string) => void
   onError?: (error: Error) => void
 }
@@ -25,6 +40,8 @@ export interface StreamChatOptions {
 export async function streamChatResponse({
   userMessage,
   onChunk,
+  onToolCall,
+  onToolResult,
   onComplete,
   onError,
 }: StreamChatOptions): Promise<string> {
@@ -49,8 +66,41 @@ export async function streamChatResponse({
           : [chunk.data]
 
         for (const msg of messageChunks) {
-          if (msg.content) {
-            fullContent += msg.content
+          // Handle tool calls - use any to bypass strict typing for streaming chunks
+          const msgAny = msg as any
+
+          if (msgAny.tool_calls && msgAny.tool_calls.length > 0) {
+            for (const toolCall of msgAny.tool_calls) {
+              if (toolCall.name && toolCall.args && toolCall.id) {
+                onToolCall?.({
+                  name: toolCall.name,
+                  args: toolCall.args,
+                  id: toolCall.id,
+                  type: toolCall.type,
+                })
+              }
+            }
+          }
+
+          // Handle tool results
+          if (msgAny.type === "tool" && msgAny.name && msgAny.tool_call_id) {
+            const content = typeof msgAny.content === "string"
+              ? msgAny.content
+              : JSON.stringify(msgAny.content)
+
+            onToolResult?.({
+              name: msgAny.name,
+              content,
+              tool_call_id: msgAny.tool_call_id,
+            })
+          }
+
+          // Handle regular content
+          if (msg.content && msgAny.type !== "tool") {
+            const content = typeof msg.content === "string"
+              ? msg.content
+              : ""
+            fullContent += content
             onChunk?.(fullContent)
           }
         }
