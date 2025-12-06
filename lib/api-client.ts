@@ -71,10 +71,20 @@ export async function streamChatResponse({
 
           if (msgAny.tool_calls && msgAny.tool_calls.length > 0) {
             for (const toolCall of msgAny.tool_calls) {
-              if (toolCall.name && toolCall.args && toolCall.id) {
+              if (toolCall.name && toolCall.id) {
+                // Parse args if it's a string (streaming chunks)
+                let parsedArgs = toolCall.args
+                if (typeof toolCall.args === "string") {
+                  try {
+                    parsedArgs = JSON.parse(toolCall.args)
+                  } catch {
+                    parsedArgs = { raw: toolCall.args }
+                  }
+                }
+
                 onToolCall?.({
                   name: toolCall.name,
-                  args: toolCall.args,
+                  args: parsedArgs || {},
                   id: toolCall.id,
                   type: toolCall.type,
                 })
