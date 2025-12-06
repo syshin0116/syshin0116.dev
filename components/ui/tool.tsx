@@ -15,6 +15,7 @@ import {
   XCircle,
 } from "lucide-react"
 import { useState } from "react"
+import { BlogSearchResult } from "@/components/ui/blog-search-result"
 
 export type ToolPart = {
   type: string
@@ -161,13 +162,19 @@ const Tool = ({ toolPart, defaultOpen = false, className }: ToolProps) => {
                 <h4 className="text-muted-foreground mb-2 text-sm font-medium">
                   Input
                 </h4>
-                <div className="bg-background rounded border p-2 font-mono text-sm">
-                  {Object.entries(input).map(([key, value]) => (
-                    <div key={key} className="mb-1">
-                      <span className="text-muted-foreground">{key}:</span>{" "}
-                      <span>{formatValue(value)}</span>
-                    </div>
-                  ))}
+                <div className="rounded border bg-muted/30 p-3">
+                  <div className="space-y-2">
+                    {Object.entries(input).map(([key, value]) => (
+                      <div key={key} className="flex gap-2">
+                        <span className="text-muted-foreground font-medium text-sm min-w-[80px]">
+                          {key}:
+                        </span>
+                        <span className="text-foreground flex-1 text-sm">
+                          {formatValue(value)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
@@ -177,11 +184,20 @@ const Tool = ({ toolPart, defaultOpen = false, className }: ToolProps) => {
                 <h4 className="text-muted-foreground mb-2 text-sm font-medium">
                   Output
                 </h4>
-                <div className="bg-background max-h-60 overflow-auto rounded border p-2 font-mono text-sm">
-                  <pre className="whitespace-pre-wrap">
-                    {formatValue(output)}
-                  </pre>
-                </div>
+                {toolPart.type === "search_blog_metadata" &&
+                typeof output === "object" &&
+                "result" in output &&
+                typeof output.result === "string" ? (
+                  <div className="max-h-96 overflow-auto rounded border p-3">
+                    <BlogSearchResult content={output.result} />
+                  </div>
+                ) : (
+                  <div className="bg-background max-h-60 overflow-auto rounded border p-2 font-mono text-sm">
+                    <pre className="whitespace-pre-wrap">
+                      {formatValue(output)}
+                    </pre>
+                  </div>
+                )}
               </div>
             )}
 
