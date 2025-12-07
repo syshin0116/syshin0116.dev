@@ -33,15 +33,17 @@ import {
   Trash,
 } from "lucide-react"
 import { useState } from "react"
-import { streamChatResponse, ToolCall, ToolResult } from "@/lib/api-client"
+import { streamChatResponse, ToolCall, ToolResult, SourceInfo } from "@/lib/api-client"
 import { Loader } from "@/components/ui/loader"
 import { Tool, ToolPart } from "@/components/ui/tool"
+import { Source, SourceTrigger, SourceContent } from "@/components/ui/source"
 
 interface ChatMessage {
   id: number
   role: "user" | "assistant"
   content: string
   toolCalls?: Map<string, ToolPart>
+  sources?: SourceInfo[]
 }
 
 export default function ChatSection() {
@@ -72,6 +74,7 @@ export default function ChatSection() {
       role: "assistant",
       content: "",
       toolCalls: new Map(),
+      sources: [],
     }
 
     setChatMessages((prev) => [...prev, assistantMessage])
@@ -123,6 +126,14 @@ export default function ChatSection() {
             }
             return m
           })
+        )
+      },
+      onSources: (sources: SourceInfo[]) => {
+        // Update assistant message with sources
+        setChatMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantMessageId ? { ...m, sources } : m
+          )
         )
       },
       onComplete: () => {
@@ -204,6 +215,24 @@ export default function ChatSection() {
                               <Loader variant="text-shimmer" text="Thinking" size="md" />
                             </div>
                           ) : null}
+
+                          {/* Sources display */}
+                          {message.sources && message.sources.length > 0 && (
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {message.sources.map((source, idx) => (
+                                <Source key={idx} href={source.url}>
+                                  <SourceTrigger 
+                                    label={idx + 1}
+                                    showFavicon={true}
+                                  />
+                                  <SourceContent
+                                    title={source.title}
+                                    description={source.summary || ""}
+                                  />
+                                </Source>
+                              ))}
+                            </div>
+                          )}
 
                           <MessageActions
                             className={cn(
