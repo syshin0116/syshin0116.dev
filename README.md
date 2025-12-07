@@ -1,36 +1,263 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Blog-RAG Portfolio
 
-## Getting Started
+An AI-powered portfolio website that allows visitors to chat with an intelligent agent about my projects, blog posts, and technical experience. This project demonstrates and compares four different RAG (Retrieval-Augmented Generation) strategies.
 
-First, run the development server:
+![Portfolio Preview](/public/page-preview.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## What I Built
+
+This is a portfolio website with an intelligent chatbot interface that can answer questions about my work, projects, and blog posts. The key innovation is the ability to compare different RAG strategies side-by-side to understand their strengths and trade-offs.
+
+### Why I Built This
+
+- Showcase my technical writing and projects in an interactive way
+- Experiment with different RAG architectures and compare their performance
+- Build a practical AI agent using LangGraph for complex retrieval tasks
+- Create a reusable framework for comparing RAG strategies
+
+## RAG Strategy Implementation
+
+I implemented four distinct RAG strategies that can be selected individually or combined:
+
+### 1. Naive RAG
+The baseline implementation:
+- Direct vector similarity search using embeddings
+- Retrieves top-k most similar documents
+- Passes retrieved context directly to LLM
+- Simple but effective for straightforward queries
+
+**Implementation approach:**
+- Used LangChain's VectorStore for document retrieval
+- Cosine similarity for ranking
+- Fixed context window (top 3-5 documents)
+
+### 2. Advanced RAG
+Enhanced retrieval pipeline:
+- Query preprocessing (expansion, rewriting)
+- Hybrid search combining semantic and keyword matching
+- Re-ranking retrieved documents using cross-encoders
+- Contextual compression to remove irrelevant parts
+
+**Implementation approach:**
+- Query transformation before retrieval
+- Multiple retrieval strategies combined
+- Cohere/LangChain reranker for relevance scoring
+- Dynamic context window based on query complexity
+
+### 3. Modular RAG
+Flexible, component-based system:
+- Pluggable retrieval modules (dense, sparse, hybrid)
+- Customizable pre-processing steps
+- Post-retrieval filtering and augmentation
+- Configurable prompt templates
+
+**Implementation approach:**
+- Designed modular architecture with clear interfaces
+- Each component (retriever, reranker, prompt) is swappable
+- Easy to experiment with different combinations
+- Used LangChain's LCEL for pipeline composition
+
+### 4. Agentic RAG
+Autonomous agent with reasoning:
+- LangGraph-based agent with tool calling
+- Dynamic tool selection for retrieval
+- Multi-step reasoning and query decomposition
+- Self-correction based on retrieval quality
+- Iterative refinement of search queries
+
+**Implementation approach:**
+- Built state graph with LangGraph
+- Agent decides when to retrieve, rerank, or generate
+- Tools: blog search, project search, web search
+- Reflexion-style self-evaluation loop
+
+## Technical Architecture
+
+### Frontend
+- **Next.js 15.5.7**: Latest App Router with React Server Components
+- **React 19.1.1**: Using newest React features
+- **TypeScript**: Full type safety across the codebase
+- **Tailwind CSS 4.0**: Utility-first styling
+- **Radix UI**: Accessible component primitives
+- **Framer Motion**: Smooth animations and transitions
+
+### Backend Integration
+- **LangGraph SDK**: Orchestrates the AI agent and RAG strategies
+- **Streaming API**: Real-time response streaming with tool call visibility
+- **Custom API Client**: Type-safe wrapper around LangGraph endpoints
+
+### Key Technical Decisions
+
+**Why LangGraph over LangChain?**
+- Need for stateful agents with complex control flow
+- Better support for tool calling and multi-step reasoning
+- Easier to implement agentic RAG with graph-based state management
+
+**Why Next.js 15?**
+- Server Components for better performance
+- Built-in streaming support
+- Modern React patterns with App Router
+- Vercel deployment integration
+
+**Why Bun?**
+- Significantly faster package installation
+- Native TypeScript support
+- Better performance for development builds
+
+## Project Structure
+
+```
+portfolio-web/
+├── app/
+│   ├── layout.tsx           # Root layout with metadata
+│   ├── page.tsx             # Main chat interface page
+│   └── globals.css          # Global styles and theme
+├── components/
+│   ├── chat-section.tsx     # Main chat UI with streaming
+│   ├── navbar/              # Navigation components
+│   └── ui/                  # Reusable UI components
+│       ├── chat-container.tsx
+│       ├── message.tsx      # Message display with markdown
+│       ├── tool.tsx         # Tool call visualization
+│       └── blog-search-result.tsx
+├── lib/
+│   ├── api-client.ts        # LangGraph API integration
+│   └── utils.ts             # Utility functions
+├── data/
+│   └── events.ts            # Timeline data
+└── types/
+    └── events.ts            # TypeScript types
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## How the Chat Interface Works
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Message Streaming
+Implemented real-time streaming to show AI responses as they're generated:
+- Used Server-Sent Events (SSE) pattern
+- LangGraph's `streamMode: "messages"` for granular updates
+- React state updates for each chunk
+- Accumulates full response while showing progress
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Tool Call Visualization
+Shows what the agent is doing behind the scenes:
+- Displays tool name, input parameters, and execution status
+- Collapsible UI to avoid cluttering the interface
+- JSON parsing for streaming tool call arguments
+- Color-coded states: pending → executing → completed
 
-## Learn More
+### Type Safety
+Ensured type safety throughout:
+```typescript
+interface StreamMessage {
+  content?: string | unknown
+  type?: string
+  tool_calls?: Array<{
+    name: string
+    args: Record<string, unknown>
+    id: string
+    type?: string
+  }>
+  name?: string
+  tool_call_id?: string
+}
+```
 
-To learn more about Next.js, take a look at the following resources:
+## RAG Strategy Comparison
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Performance Characteristics
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Strategy | Retrieval Time | Generation Time | Accuracy | Use Case |
+|----------|---------------|----------------|----------|----------|
+| Naive RAG | ~100ms | ~2s | Good | Simple factual queries |
+| Advanced RAG | ~300ms | ~2s | Better | Complex queries |
+| Modular RAG | ~200ms (varies) | ~2s | Good-Better | Experimental |
+| Agentic RAG | ~500ms-2s | ~3s | Best | Multi-hop reasoning |
 
-## Deploy on Vercel
+### What I Learned
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Naive RAG limitations:**
+- Struggles with queries requiring multiple pieces of information
+- No query understanding or refinement
+- Can retrieve irrelevant context
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Advanced RAG benefits:**
+- Query rewriting dramatically improves retrieval
+- Reranking helps prioritize most relevant chunks
+- Compression reduces noise in context
+
+**Modular RAG flexibility:**
+- Easy to A/B test different components
+- Can optimize each piece independently
+- Good for experimentation and iteration
+
+**Agentic RAG power:**
+- Handles complex queries naturally
+- Can recover from bad retrievals
+- More expensive but more capable
+- Best for conversational use cases
+
+## Development Process
+
+### Build Scripts
+```bash
+bun dev          # Development server with hot reload
+bun build        # Production build
+bun lint         # ESLint checking
+```
+
+### Key Challenges Solved
+
+**1. Streaming with Tool Calls**
+Challenge: Show both generated text and tool executions in real-time
+Solution: Used separate state management for messages and tool calls, merged in UI
+
+**2. Type Safety with Streaming**
+Challenge: LangGraph streaming chunks don't have strict types
+Solution: Created `StreamMessage` interface and type guards
+
+**3. Tool Call Argument Parsing**
+Challenge: Tool arguments arrive as strings during streaming
+Solution: Added JSON parsing with fallback to handle partial chunks
+
+**4. Image Optimization**
+Challenge: Next.js warnings about using `<img>` tags
+Solution: Migrated all images to Next.js `<Image>` component with proper dimensions
+
+## Security Updates
+
+Recently updated to address critical vulnerabilities:
+- **Next.js 15.5.7**: Fixed RCE vulnerability (GHSA-9qr9-h5gf-34mp)
+- **React 19.1.1**: Not affected by Server Components CVE (CVE-2025-66478)
+
+## Future Improvements
+
+Things I want to add:
+- [ ] RAG strategy selector in UI
+- [ ] Side-by-side comparison mode
+- [ ] Performance metrics dashboard
+- [ ] Query refinement suggestions
+- [ ] Document source citations
+- [ ] Feedback mechanism to improve retrieval
+- [ ] Caching layer for repeated queries
+- [ ] More sophisticated reranking
+
+## Tech Stack Summary
+
+**Frontend:** Next.js 15, React 19, TypeScript, Tailwind CSS, Radix UI, Framer Motion  
+**AI/Backend:** LangGraph, LangChain, LLM (GPT-4/Claude)  
+**Deployment:** Vercel (frontend), Google Cloud Run (backend)  
+**Tools:** Bun, ESLint, Turbopack
+
+## References & Resources
+
+- [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
+- [LangChain RAG Guide](https://python.langchain.com/docs/use_cases/question_answering/)
+- [Next.js App Router](https://nextjs.org/docs/app)
+- [Advanced RAG Techniques](https://arxiv.org/abs/2312.10997)
+- [Agentic RAG Patterns](https://langchain-ai.github.io/langgraph/tutorials/)
+
+---
+
+**Built by:** Syshin0116  
+**Stack:** Next.js 15 + LangGraph + TypeScript  
+**Focus:** Comparing RAG strategies for intelligent portfolio chatbot

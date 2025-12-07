@@ -1,4 +1,5 @@
 import { Book, Menu, Sunset, Trees, Zap } from "lucide-react";
+import Image from "next/image";
 
 import {
   Accordion,
@@ -143,9 +144,11 @@ const Navbar1 = ({
           <div className="flex items-center gap-6">
             {/* Logo */}
             <a href={logo.url} className="flex items-center gap-2">
-              <img
+              <Image
                 src={logo.src}
-                className="max-h-8 dark:invert"
+                width={32}
+                height={32}
+                className="max-h-8 w-auto dark:invert"
                 alt={logo.alt}
               />
               <span className="text-lg font-semibold tracking-tighter">
@@ -175,9 +178,11 @@ const Navbar1 = ({
           <div className="flex items-center justify-between">
             {/* Logo */}
             <a href={logo.url} className="flex items-center gap-2">
-              <img
+              <Image
                 src={logo.src}
-                className="max-h-8 dark:invert"
+                width={32}
+                height={32}
+                className="max-h-8 w-auto dark:invert"
                 alt={logo.alt}
               />
             </a>
@@ -191,9 +196,11 @@ const Navbar1 = ({
                 <SheetHeader>
                   <SheetTitle>
                     <a href={logo.url} className="flex items-center gap-2">
-                      <img
+                      <Image
                         src={logo.src}
-                        className="max-h-8 dark:invert"
+                        width={32}
+                        height={32}
+                        className="max-h-8 w-auto dark:invert"
                         alt={logo.alt}
                       />
                     </a>
