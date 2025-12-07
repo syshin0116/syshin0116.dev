@@ -66,10 +66,10 @@ export async function streamChatResponse({
           : [chunk.data]
 
         for (const msg of messageChunks) {
-          // Handle tool calls - use any to bypass strict typing for streaming chunks
-          const msgAny = msg as any
+          // Handle tool calls - bypass strict typing for streaming chunks
+          const msgAny = msg as Record<string, unknown>
 
-          if (msgAny.tool_calls && msgAny.tool_calls.length > 0) {
+          if (msgAny.tool_calls && Array.isArray(msgAny.tool_calls) && msgAny.tool_calls.length > 0) {
             for (const toolCall of msgAny.tool_calls) {
               if (toolCall.name && toolCall.id) {
                 // Parse args if it's a string (streaming chunks)
@@ -99,9 +99,9 @@ export async function streamChatResponse({
               : JSON.stringify(msgAny.content)
 
             onToolResult?.({
-              name: msgAny.name,
+              name: String(msgAny.name),
               content,
-              tool_call_id: msgAny.tool_call_id,
+              tool_call_id: String(msgAny.tool_call_id),
             })
           }
 
