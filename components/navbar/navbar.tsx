@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Book, Menu, Sunset, Trees } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 
@@ -60,9 +61,11 @@ export default function Navbar() {
           {/* Logo - Left */}
           <div className="flex-1">
             <Link href="/" className="flex items-center gap-2">
-              <img
+              <Image
                 src="/logo.png"
-                className="max-h-8"
+                width={32}
+                height={32}
+                className="max-h-8 w-auto"
                 alt="logo"
               />
               <span className="text-lg font-semibold tracking-tighter">
@@ -139,9 +142,11 @@ export default function Navbar() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <img
+              <Image
                 src="/logo.png"
-                className="max-h-8"
+                width={32}
+                height={32}
+                className="max-h-8 w-auto"
                 alt="logo"
               />
             </Link>
@@ -155,9 +160,11 @@ export default function Navbar() {
                 <SheetHeader>
                   <SheetTitle>
                     <Link href="/" className="flex items-center gap-2">
-                      <img
+                      <Image
                         src="/logo.png"
-                        className="max-h-8"
+                        width={32}
+                        height={32}
+                        className="max-h-8 w-auto"
                         alt="logo"
                       />
                     </Link>
