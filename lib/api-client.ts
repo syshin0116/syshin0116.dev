@@ -28,6 +28,19 @@ export interface ToolResult {
   tool_call_id: string
 }
 
+interface StreamMessage {
+  content?: string | unknown
+  type?: string
+  tool_calls?: Array<{
+    name: string
+    args: Record<string, unknown>
+    id: string
+    type?: string
+  }>
+  name?: string
+  tool_call_id?: string
+}
+
 export interface StreamChatOptions {
   userMessage: string
   onChunk?: (content: string) => void
@@ -66,11 +79,11 @@ export async function streamChatResponse({
           : [chunk.data]
 
         for (const msg of messageChunks) {
-          // Handle tool calls - bypass strict typing for streaming chunks
-          const msgAny = msg as Record<string, unknown>
+          // Handle tool calls - properly typed streaming message
+          const streamMsg = msg as StreamMessage
 
-          if (msgAny.tool_calls && Array.isArray(msgAny.tool_calls) && msgAny.tool_calls.length > 0) {
-            for (const toolCall of msgAny.tool_calls) {
+          if (streamMsg.tool_calls && streamMsg.tool_calls.length > 0) {
+            for (const toolCall of streamMsg.tool_calls) {
               if (toolCall.name && toolCall.id) {
                 // Parse args if it's a string (streaming chunks)
                 let parsedArgs = toolCall.args
@@ -93,20 +106,20 @@ export async function streamChatResponse({
           }
 
           // Handle tool results
-          if (msgAny.type === "tool" && msgAny.name && msgAny.tool_call_id) {
-            const content = typeof msgAny.content === "string"
-              ? msgAny.content
-              : JSON.stringify(msgAny.content)
+          if (streamMsg.type === "tool" && streamMsg.name && streamMsg.tool_call_id) {
+            const content = typeof streamMsg.content === "string"
+              ? streamMsg.content
+              : JSON.stringify(streamMsg.content)
 
             onToolResult?.({
-              name: String(msgAny.name),
+              name: streamMsg.name,
               content,
-              tool_call_id: String(msgAny.tool_call_id),
+              tool_call_id: streamMsg.tool_call_id,
             })
           }
 
           // Handle regular content
-          if (msg.content && msgAny.type !== "tool") {
+          if (msg.content && streamMsg.type !== "tool") {
             const content = typeof msg.content === "string"
               ? msg.content
               : ""
