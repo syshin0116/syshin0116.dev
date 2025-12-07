@@ -32,21 +32,21 @@ import {
 
 const projects: { title: string; href: string; description: string; icon: React.ReactNode }[] = [
   {
-    title: "Project 1",
-    href: "#",
-    description: "Description for project 1",
+    title: "SK PharmaAIX MR Assistant",
+    href: "/projects#sk-pharmaaix",
+    description: "제약 영업 지원 AI 챗봇 (AI 파트 리드)",
     icon: <Book className="size-5 shrink-0" />,
   },
   {
-    title: "Project 2",
-    href: "#",
-    description: "Description for project 2",
+    title: "한국자동차연구원 AI 에이전트",
+    href: "/projects#katech-ai-agent",
+    description: "자동차 분야 특화 AI Agent (풀스택 개발 & PL)",
     icon: <Trees className="size-5 shrink-0" />,
   },
   {
-    title: "Project 3",
-    href: "#",
-    description: "Description for project 3",
+    title: "View All Projects",
+    href: "/projects",
+    description: "모든 프로젝트 보기",
     icon: <Sunset className="size-5 shrink-0" />,
   },
 ];
