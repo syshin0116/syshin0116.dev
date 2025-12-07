@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Book, Menu, Sunset, Trees } from "lucide-react";
+import { Book, ExternalLink, Menu, Sunset, Trees } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 
 import { Button } from "@/components/ui/button";
@@ -108,7 +108,15 @@ export default function Navbar() {
                     asChild
                     className={navigationMenuTriggerStyle()}
                   >
-                    <Link href="/blog">Blog</Link>
+                    <Link 
+                      href="https://syshin0116.github.io" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1"
+                    >
+                      Blog
+                      <ExternalLink className="h-3 w-3" />
+                    </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -204,8 +212,14 @@ export default function Navbar() {
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>
-                  <Link href="/blog" className="text-md font-semibold">
+                  <Link 
+                    href="https://syshin0116.github.io" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-md font-semibold inline-flex items-center gap-1.5"
+                  >
                     Blog
+                    <ExternalLink className="h-4 w-4" />
                   </Link>
 
                   <div className="flex flex-col gap-3">
