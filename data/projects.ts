@@ -8,6 +8,7 @@ export interface ProjectTimeline {
   isCompleted: boolean;
   description: string;
   tags: string[];
+  category: "company" | "personal"; // 회사 프로젝트 vs 개인 프로젝트
 }
 
 export interface ProjectDetail {
@@ -57,17 +58,69 @@ export interface ProjectDetail {
 
 // Timeline data for the main projects page
 export const projectsTimeline: ProjectTimeline[] = [
+  // 진행 중인 프로젝트 (최신순)
   {
     id: "apphub",
     title: "AppHub - Living Portfolio 플랫폼",
-    period: "2025.10 ~ 진행 중",
+    period: "2023.09 ~ 진행 중",
     year: 2025,
     periodType: "H",
     periodNumber: 2,
     isCompleted: false,
-    description: "실제 동작하는 프로젝트들을 통합 관리하는 Living Portfolio 플랫폼",
-    tags: ["Full Stack", "Next.js 15", "React 19", "AI/ML"]
+    description: "실제 동작하는 프로젝트들을 통합 관리하는 Living Portfolio 플랫폼. 개인 블로그 RAG 챗봇부터 시작하여 모든 프로젝트를 통합하는 플랫폼으로 발전.",
+    tags: ["Full Stack", "Next.js 15", "React 19", "RAG", "Vector DB"],
+    category: "personal"
   },
+  {
+    id: "sk-pharmaaix",
+    title: "SK PharmaAIX MR Assistant",
+    period: "2024.07 ~ 진행 중",
+    year: 2024,
+    periodType: "H",
+    periodNumber: 2,
+    isCompleted: false,
+    description: "제약 영업 지원 AI 챗봇 - RAG 기반 질의응답 시스템",
+    tags: ["AI/ML", "LangGraph", "FastAPI", "Azure"],
+    category: "company"
+  },
+  {
+    id: "katech-ai-agent",
+    title: "한국자동차연구원 AI 에이전트",
+    period: "2024.03 ~ 진행 중",
+    year: 2024,
+    periodType: "H",
+    periodNumber: 1,
+    isCompleted: false,
+    description: "자동차 분야 특화 RAG 기반 보고서 자동 생성 시스템",
+    tags: ["Full Stack", "RAG", "Next.js", "FastAPI"],
+    category: "company"
+  },
+  {
+    id: "podlybot",
+    title: "PodlyBot - 카카오톡 LLM 챗봇",
+    period: "2024.09 ~ 진행 중",
+    year: 2024,
+    periodType: "H",
+    periodNumber: 2,
+    isCompleted: false,
+    description: "개인 비서 LLM 챗봇 - URL 요약 및 Notion 자동 정리",
+    tags: ["챗봇", "LLM", "Notion API", "JavaScript"],
+    category: "personal"
+  },
+  {
+    id: "labq-bot",
+    title: "LabQ Bot - 회사 카카오톡 챗봇",
+    period: "2024.09 ~ 진행 중",
+    year: 2024,
+    periodType: "H",
+    periodNumber: 2,
+    isCompleted: false,
+    description: "회사 업무용 챗봇 - LLM 서비스 연동 및 테스트 환경 제공",
+    tags: ["챗봇", "LLM", "회사 내부 시스템"],
+    category: "company"
+  },
+  
+  // 완료된 프로젝트 (최신순)
   {
     id: "naver-hackathon",
     title: "네이버 부스트캠프 기업 해커톤",
@@ -77,7 +130,8 @@ export const projectsTimeline: ProjectTimeline[] = [
     periodNumber: 1,
     isCompleted: true,
     description: "기업 평가 챗봇 개발 해커톤 기획 및 운영",
-    tags: ["해커톤", "멘토링", "챗봇"]
+    tags: ["해커톤", "멘토링", "챗봇"],
+    category: "company"
   },
   {
     id: "langchain-tutorial",
@@ -88,18 +142,8 @@ export const projectsTimeline: ProjectTimeline[] = [
     periodNumber: 1,
     isCompleted: true,
     description: "2,000+ 커밋 오픈소스 프로젝트에 RAG 튜토리얼 작성",
-    tags: ["오픈소스", "LangChain", "RAG", "LangGraph"]
-  },
-  {
-    id: "sk-pharmaaix",
-    title: "SK PharmaAIX MR Assistant",
-    period: "2024.07 ~ 현재",
-    year: 2024,
-    periodType: "H",
-    periodNumber: 2,
-    isCompleted: false,
-    description: "제약 영업 지원 AI 챗봇 - RAG 기반 질의응답 시스템",
-    tags: ["AI/ML", "LangGraph", "FastAPI", "Azure"]
+    tags: ["오픈소스", "LangChain", "RAG", "LangGraph"],
+    category: "personal"
   },
   {
     id: "greentech",
@@ -110,29 +154,8 @@ export const projectsTimeline: ProjectTimeline[] = [
     periodNumber: 2,
     isCompleted: true,
     description: "하수처리 공정 수질 예측 및 이상탐지 AI 시스템",
-    tags: ["AI/ML", "LightGBM", "PyTorch", "Time Series"]
-  },
-  {
-    id: "podlybot",
-    title: "PodlyBot - 카카오톡 LLM 챗봇",
-    period: "2024.09 ~ 현재",
-    year: 2024,
-    periodType: "H",
-    periodNumber: 2,
-    isCompleted: false,
-    description: "개인 비서 LLM 챗봇 - URL 요약 및 Notion 자동 정리",
-    tags: ["챗봇", "LLM", "Notion API", "JavaScript"]
-  },
-  {
-    id: "labq-bot",
-    title: "LabQ Bot - 회사 카카오톡 챗봇",
-    period: "2024.09 ~ 현재",
-    year: 2024,
-    periodType: "H",
-    periodNumber: 2,
-    isCompleted: false,
-    description: "회사 업무용 챗봇 - LLM 서비스 연동 및 테스트 환경 제공",
-    tags: ["챗봇", "LLM", "회사 내부 시스템"]
+    tags: ["AI/ML", "LightGBM", "PyTorch", "Time Series"],
+    category: "company"
   },
   {
     id: "podly",
@@ -143,7 +166,8 @@ export const projectsTimeline: ProjectTimeline[] = [
     periodNumber: 2,
     isCompleted: true,
     description: "AI 기반 맞춤형 음성 뉴스 및 관심사 정보 제공 서비스",
-    tags: ["AI/ML", "RAG", "TTS", "Flutter"]
+    tags: ["AI/ML", "RAG", "TTS", "Flutter"],
+    category: "personal"
   },
   {
     id: "employment-data",
@@ -154,7 +178,8 @@ export const projectsTimeline: ProjectTimeline[] = [
     periodNumber: 1,
     isCompleted: true,
     description: "고용노동 공공데이터 분석 및 Plotly 시각화",
-    tags: ["데이터 분석", "Plotly", "Python"]
+    tags: ["데이터 분석", "Plotly", "Python"],
+    category: "personal"
   },
   {
     id: "prop",
@@ -165,18 +190,8 @@ export const projectsTimeline: ProjectTimeline[] = [
     periodNumber: 1,
     isCompleted: true,
     description: "제안서 및 문서 생성 자동화 시스템",
-    tags: ["AI/ML", "OpenAI API", "Flask"]
-  },
-  {
-    id: "katech-ai-agent",
-    title: "한국자동차연구원 AI 에이전트",
-    period: "2024.03 ~ 2025.11",
-    year: 2024,
-    periodType: "H",
-    periodNumber: 1,
-    isCompleted: true,
-    description: "자동차 분야 특화 RAG 기반 보고서 자동 생성 시스템",
-    tags: ["Full Stack", "RAG", "Next.js", "FastAPI"]
+    tags: ["AI/ML", "OpenAI API", "Flask"],
+    category: "company"
   },
   {
     id: "men-in-black",
@@ -187,18 +202,8 @@ export const projectsTimeline: ProjectTimeline[] = [
     periodNumber: 2,
     isCompleted: true,
     description: "블랙박스 영상 속 교통 법규 위반 차량 감지 시스템",
-    tags: ["Computer Vision", "YOLOv8", "OCR", "PyTorch"]
-  },
-  {
-    id: "blog-rag-chatbot",
-    title: "Blog RAG 챗봇",
-    period: "2023.09 ~ 2023.12",
-    year: 2023,
-    periodType: "H",
-    periodNumber: 2,
-    isCompleted: true,
-    description: "개인 블로그 글 기반 질의응답 챗봇 시스템",
-    tags: ["RAG", "LangChain", "Python", "Vector DB"]
+    tags: ["Computer Vision", "YOLOv8", "OCR", "PyTorch"],
+    category: "personal"
   },
 ];
 
@@ -666,11 +671,11 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     id: "apphub",
     title: "AppHub - Living Portfolio 플랫폼",
     subtitle: "개인 프로젝트 통합 관리 플랫폼",
-    period: "2025.10 ~ 진행 중",
-    duration: "진행 중",
+    period: "2023.09 ~ 진행 중",
+    duration: "약 2년 3개월",
     role: "1인 풀스택 개발",
     team: "개인 프로젝트",
-    description: "기존 정적 포트폴리오를 넘어 실제 동작하는 프로젝트들을 통합 관리하는 Living Portfolio 플랫폼. 모든 개인 프로젝트에서 재사용 가능한 공통 인프라 플랫폼 구축. 인증, 데이터베이스, RAG, 챗봇 등 반복 기능을 하나의 플랫폼으로 통합.",
+    description: "2023년 9월 개인 블로그 RAG 챗봇으로 시작하여 모든 프로젝트를 통합하는 Living Portfolio 플랫폼으로 발전. 기존 정적 포트폴리오를 넘어 실제 동작하는 프로젝트들을 통합 관리. 인증, 데이터베이스, RAG, 챗봇 등 반복 기능을 하나의 플랫폼으로 통합.",
     techStack: {
       frontend: ["React 19", "Next.js 15", "TypeScript"],
       backend: ["FastAPI", "Python"],
@@ -684,7 +689,17 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     },
     keyFeatures: [
       {
-        title: "공통 인프라 플랫폼",
+        title: "Phase 1: Blog RAG 챗봇 (2023.09 ~ 2023.12)",
+        details: [
+          "Markdown 형식의 블로그 글 자동 수집 및 파싱",
+          "ChromaDB를 활용한 문서 임베딩 저장",
+          "청크 단위 분할 및 최적화",
+          "RAG 기반 질의응답 챗봇 (평균 응답 시간 2초)",
+          "Streamlit 기반 UI 구현"
+        ]
+      },
+      {
+        title: "Phase 2: 공통 인프라 플랫폼 (2024 ~ 진행중)",
         details: [
           "Single Sign-On (SSO): 한 번 로그인으로 모든 프로젝트 접근",
           "통합 AI 백엔드: 프로젝트 간 데이터 공유 및 AI 에이전트",
@@ -701,14 +716,6 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         ]
       },
       {
-        title: "AI 서비스 레이어",
-        details: [
-          "통합 지능 시스템: 모든 프로젝트의 AI 기능 중앙화",
-          "대화형 인터페이스: 프로젝트 안내 챗봇",
-          "RAG 시스템: 모든 프로젝트에서 공통 사용"
-        ]
-      },
-      {
         title: "하이브리드 검색 시스템",
         details: [
           "Qdrant (Vector DB): Dense 벡터 검색",
@@ -718,15 +725,34 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       }
     ],
     achievements: [
-      "최신 기술 스택 경험 (React 19, Next.js 15, better-auth, Drizzle ORM, Biome, Bun)",
+      "Phase 1: 블로그 콘텐츠 100% 벡터화, 평균 응답 시간 2초, 검색 정확도 90% 이상",
+      "Phase 2: 최신 기술 스택 경험 (React 19, Next.js 15, better-auth, Drizzle ORM)",
       "Living Portfolio 콘셉트로 차별화된 기술 역량 증명",
-      "공통 인프라 재사용으로 개발 효율성 극대화"
+      "공통 인프라 재사용으로 개발 효율성 극대화",
+      "약 2년간 지속적인 개발 및 확장"
+    ],
+    challenges: [
+      {
+        title: "Phase 1: 청크 크기 최적화",
+        description: "코드 블록이 포함된 기술 글의 특성상 적절한 청크 크기를 찾는 것이 중요. 여러 실험을 통해 최적 크기 도출"
+      },
+      {
+        title: "Phase 1: 코드 블록 처리",
+        description: "마크다운 코드 블록을 임베딩할 때 정보 손실 최소화. 코드와 설명을 함께 저장하는 방식으로 해결"
+      },
+      {
+        title: "Phase 2: 플랫폼화",
+        description: "개별 프로젝트에서 공통 플랫폼으로 전환. 마이크로서비스 아키텍처 설계 및 구현"
+      }
     ],
     learnings: [
+      "RAG 시스템 구축의 기초: 임베딩, 벡터 DB, 검색 메커니즘",
+      "LangChain 프레임워크 활용 경험",
+      "청크 전략 및 임베딩 최적화 노하우",
       "설계 원칙: 관심사의 분리, 확장 가능한 모듈 구조",
       "최신 기술 스택 빠른 학습 및 적용",
-      "사용자 중심 경험: 일관된 UI/UX 및 실시간 상호작용",
-      "플랫폼 사고: 재사용 가능한 인프라 구축"
+      "플랫폼 사고: 재사용 가능한 인프라 구축",
+      "장기 프로젝트 관리: 약 2년간 지속적인 개발 및 확장 경험"
     ]
   },
   "men-in-black": {
@@ -1055,71 +1081,6 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       "고객사 지원: 간편한 테스트 환경 제공의 가치",
       "팀 협업 도구: 지식 공유 자동화의 효과",
       "PodlyBot 대비 확장: 개인 → 회사 업무용으로 확장"
-    ]
-  },
-  "blog-rag-chatbot": {
-    id: "blog-rag-chatbot",
-    title: "Blog RAG 챗봇",
-    subtitle: "개인 블로그 글 기반 질의응답 챗봇",
-    period: "2023.09 ~ 2023.12",
-    duration: "약 4개월",
-    role: "1인 개발",
-    team: "개인 프로젝트",
-    description: "개인 블로그에 작성한 기술 글들을 벡터 DB에 저장하고, RAG 기반으로 질의응답이 가능한 챗봇 시스템. 블로그 콘텐츠를 효과적으로 검색하고 활용할 수 있는 AI 어시스턴트.",
-    techStack: {
-      backend: ["Python", "FastAPI"],
-      aiml: ["LangChain", "OpenAI API"],
-      database: ["ChromaDB (Vector DB)"],
-      frontend: ["Streamlit"],
-      etc: ["Beautiful Soup", "Markdown Parser"]
-    },
-    keyFeatures: [
-      {
-        title: "블로그 크롤링 및 파싱",
-        details: [
-          "Markdown 형식의 블로그 글 자동 수집",
-          "메타데이터 추출 (제목, 날짜, 카테고리)",
-          "코드 블록 및 이미지 처리"
-        ]
-      },
-      {
-        title: "벡터 DB 구축",
-        details: [
-          "ChromaDB를 활용한 문서 임베딩 저장",
-          "청크 단위 분할 및 최적화",
-          "유사도 기반 검색 구현"
-        ]
-      },
-      {
-        title: "RAG 기반 챗봇",
-        details: [
-          "사용자 질문에 대한 관련 블로그 글 검색",
-          "컨텍스트 기반 답변 생성",
-          "출처 블로그 글 링크 제공"
-        ]
-      }
-    ],
-    achievements: [
-      "블로그 콘텐츠 100% 벡터화 완료",
-      "평균 응답 시간 2초 이내",
-      "관련 글 검색 정확도 90% 이상",
-      "Streamlit 기반 심플한 UI 구현"
-    ],
-    challenges: [
-      {
-        title: "청크 크기 최적화",
-        description: "코드 블록이 포함된 기술 글의 특성상 적절한 청크 크기를 찾는 것이 중요. 여러 실험을 통해 최적 크기 도출"
-      },
-      {
-        title: "코드 블록 처리",
-        description: "마크다운 코드 블록을 임베딩할 때 정보 손실 최소화. 코드와 설명을 함께 저장하는 방식으로 해결"
-      }
-    ],
-    learnings: [
-      "RAG 시스템 구축의 기초: 임베딩, 벡터 DB, 검색 메커니즘",
-      "LangChain 프레임워크 활용 경험",
-      "청크 전략 및 임베딩 최적화 노하우",
-      "개인 프로젝트를 통한 빠른 프로토타이핑 능력"
     ]
   },
   "naver-hackathon": {
