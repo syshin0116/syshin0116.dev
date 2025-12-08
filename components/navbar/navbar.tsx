@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Menu } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 
+import ExternalLinkIcon from "@/components/ui/external-link-icon";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/theme-toggle";
 import {
@@ -67,14 +68,22 @@ export default function Navbar() {
                     <Link href="/projects">Projects</Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink
-                    asChild
-                    className={navigationMenuTriggerStyle()}
-                  >
-                    <Link href="/blog">Blog</Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                asChild
+                className={navigationMenuTriggerStyle()}
+              >
+                <Link 
+                  href="https://syshin0116.github.io" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5"
+                >
+                  <span>Blog</span>
+                  <ExternalLinkIcon size={14} className="opacity-70" />
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
           </div>
@@ -134,26 +143,32 @@ export default function Navbar() {
                     </Link>
                   </SheetTitle>
                 </SheetHeader>
-                <div className="flex flex-col gap-6 p-4">
-                  <Link href="/" className="text-md font-semibold">
-                    Home
-                  </Link>
-                  <Link href="/projects" className="text-md font-semibold">
-                    Projects
-                  </Link>
-                  <Link href="/blog" className="text-md font-semibold">
-                    Blog
-                  </Link>
+            <div className="flex flex-col gap-6 p-4">
+              <Link href="/" className="text-md font-semibold">
+                Home
+              </Link>
+              <Link href="/projects" className="text-md font-semibold">
+                Projects
+              </Link>
+              <Link 
+                href="https://syshin0116.github.io" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-md font-semibold inline-flex items-center gap-2"
+              >
+                <span>Blog</span>
+                <ExternalLinkIcon size={16} className="opacity-70" />
+              </Link>
 
-                  <div className="flex flex-col gap-3">
-                    <Button
-                      asChild
-                      className="bg-black text-white hover:bg-black/90 dark:bg-black dark:text-white dark:hover:bg-black/90"
-                    >
-                      <Link href="/login">Login</Link>
-                    </Button>
-                  </div>
-                </div>
+              <div className="flex flex-col gap-3">
+                <Button
+                  asChild
+                  className="bg-black text-white hover:bg-black/90 dark:bg-black dark:text-white dark:hover:bg-black/90"
+                >
+                  <Link href="/login">Login</Link>
+                </Button>
+              </div>
+            </div>
               </SheetContent>
             </Sheet>
           </div>
