@@ -28,6 +28,12 @@ export interface ToolResult {
   tool_call_id: string
 }
 
+export interface SourceInfo {
+  url: string
+  title: string
+  summary?: string
+}
+
 interface StreamMessage {
   content?: string | unknown
   type?: string
@@ -46,8 +52,38 @@ export interface StreamChatOptions {
   onChunk?: (content: string) => void
   onToolCall?: (toolCall: ToolCall) => void
   onToolResult?: (toolResult: ToolResult) => void
+  onSources?: (sources: SourceInfo[]) => void
   onComplete?: (fullContent: string) => void
   onError?: (error: Error) => void
+}
+
+// Parse URLs from tool result content
+export function parseSourcesFromContent(content: string): SourceInfo[] {
+  const sources: SourceInfo[] = []
+  
+  // Match URL patterns like "URL: https://..."
+  const urlRegex = /URL:\s*(https?:\/\/[^\s\n]+)/gi
+  const titleRegex = /Title:\s*([^\n]+)/gi
+  const summaryRegex = /Summary:\s*([^\n]+)/gi
+  
+  const urlMatches = Array.from(content.matchAll(urlRegex))
+  const titleMatches = Array.from(content.matchAll(titleRegex))
+  const summaryMatches = Array.from(content.matchAll(summaryRegex))
+  
+  // Combine matches
+  for (let i = 0; i < urlMatches.length; i++) {
+    const url = urlMatches[i][1]
+    const title = titleMatches[i]?.[1]?.trim() || new URL(url).hostname
+    const summary = summaryMatches[i]?.[1]?.trim()
+    
+    sources.push({
+      url,
+      title,
+      summary,
+    })
+  }
+  
+  return sources
 }
 
 export async function streamChatResponse({
@@ -55,6 +91,7 @@ export async function streamChatResponse({
   onChunk,
   onToolCall,
   onToolResult,
+  onSources,
   onComplete,
   onError,
 }: StreamChatOptions): Promise<string> {
@@ -71,6 +108,7 @@ export async function streamChatResponse({
     )
 
     let fullContent = ""
+    const allSources: SourceInfo[] = []
 
     for await (const chunk of stream) {
       if (chunk.event === "messages/partial" && chunk.data) {
@@ -116,6 +154,13 @@ export async function streamChatResponse({
               content,
               tool_call_id: streamMsg.tool_call_id,
             })
+
+            // Parse sources from tool results
+            const sources = parseSourcesFromContent(content)
+            if (sources.length > 0) {
+              allSources.push(...sources)
+              onSources?.(allSources)
+            }
           }
 
           // Handle regular content
