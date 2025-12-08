@@ -222,7 +222,7 @@ export default function ChatSection() {
                               {message.sources.map((source, idx) => (
                                 <Source key={idx} href={source.url}>
                                   <SourceTrigger 
-                                    label={idx + 1}
+                                    label={source.title}
                                     showFavicon={true}
                                   />
                                   <SourceContent
