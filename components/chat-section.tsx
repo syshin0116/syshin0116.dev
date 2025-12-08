@@ -23,7 +23,6 @@ import { cn } from "@/lib/utils"
 import {
   ArrowUp,
   Copy,
-  Globe,
   Mic,
   Pencil,
   Plus,
@@ -366,13 +365,6 @@ export default function ChatSection() {
                           className="size-9 rounded-full"
                         >
                           <Plus size={18} />
-                        </Button>
-                      </PromptInputAction>
-
-                      <PromptInputAction tooltip="Search web">
-                        <Button variant="outline" className="rounded-full">
-                          <Globe size={18} />
-                          Web
                         </Button>
                       </PromptInputAction>
 
