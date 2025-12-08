@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Book, Menu, Sunset, Trees } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
+import ExternalLinkIcon from "@/components/ui/external-link-icon";
 
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/theme-toggle";
@@ -108,7 +109,15 @@ export default function Navbar() {
                     asChild
                     className={navigationMenuTriggerStyle()}
                   >
-                    <Link href="/blog">Blog</Link>
+                    <Link 
+                      href="https://syshin0116.github.io" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5"
+                    >
+                      <span>Blog</span>
+                      <ExternalLinkIcon size={14} className="opacity-70" />
+                    </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -204,8 +213,14 @@ export default function Navbar() {
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>
-                  <Link href="/blog" className="text-md font-semibold">
-                    Blog
+                  <Link 
+                    href="https://syshin0116.github.io" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-md font-semibold inline-flex items-center gap-2"
+                  >
+                    <span>Blog</span>
+                    <ExternalLinkIcon size={16} className="opacity-70" />
                   </Link>
 
                   <div className="flex flex-col gap-3">
