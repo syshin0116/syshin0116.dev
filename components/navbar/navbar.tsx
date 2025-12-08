@@ -3,19 +3,18 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Book, Menu, Sunset, Trees } from "lucide-react";
+import { Menu } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import ExternalLinkIcon from "@/components/ui/external-link-icon";
 
+import ExternalLinkIcon from "@/components/ui/external-link-icon";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/theme-toggle";
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import {
@@ -25,33 +24,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 
-const projects: { title: string; href: string; description: string; icon: React.ReactNode }[] = [
-  {
-    title: "SK PharmaAIX MR Assistant",
-    href: "/projects#sk-pharmaaix",
-    description: "제약 영업 지원 AI 챗봇 (AI 파트 리드)",
-    icon: <Book className="size-5 shrink-0" />,
-  },
-  {
-    title: "한국자동차연구원 AI 에이전트",
-    href: "/projects#katech-ai-agent",
-    description: "자동차 분야 특화 AI Agent (풀스택 개발 & PL)",
-    icon: <Trees className="size-5 shrink-0" />,
-  },
-  {
-    title: "View All Projects",
-    href: "/projects",
-    description: "모든 프로젝트 보기",
-    icon: <Sunset className="size-5 shrink-0" />,
-  },
-];
+// Removed projects dropdown - too many projects (12+) to display in dropdown
 
 export default function Navbar() {
   return (
@@ -88,21 +62,12 @@ export default function Navbar() {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger>Projects</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid w-[400px] gap-3 p-4">
-                      {projects.map((project) => (
-                        <ListItem
-                          key={project.title}
-                          title={project.title}
-                          href={project.href}
-                          icon={project.icon}
-                        >
-                          {project.description}
-                        </ListItem>
-                      ))}
-                    </ul>
-                  </NavigationMenuContent>
+                  <NavigationMenuLink
+                    asChild
+                    className={navigationMenuTriggerStyle()}
+                  >
+                    <Link href="/projects">Projects</Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuLink
@@ -183,10 +148,14 @@ export default function Navbar() {
                   <Link href="/" className="text-md font-semibold">
                     Home
                   </Link>
-                  <Accordion
-                    type="single"
-                    collapsible
-                    className="flex w-full flex-col gap-4"
+                  <Link href="/projects" className="text-md font-semibold">
+                    Projects
+                  </Link>
+                  <Link 
+                    href="https://syshin0116.github.io" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-md font-semibold inline-flex items-center gap-2"
                   >
                     <AccordionItem value="projects" className="border-b-0">
                       <AccordionTrigger className="text-md py-0 font-semibold hover:no-underline">
@@ -241,34 +210,4 @@ export default function Navbar() {
   );
 }
 
-function ListItem({
-  title,
-  children,
-  href,
-  icon,
-  ...props
-}: React.ComponentPropsWithoutRef<"li"> & {
-  href: string;
-  icon?: React.ReactNode;
-}) {
-  return (
-    <li {...props}>
-      <NavigationMenuLink asChild>
-        <Link
-          href={href}
-          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-        >
-          <div className="flex items-start gap-4">
-            {icon && <div className="mt-1 text-foreground">{icon}</div>}
-            <div className="flex-1">
-              <div className="text-sm font-medium leading-none">{title}</div>
-              <p className="text-muted-foreground line-clamp-2 text-sm leading-snug mt-1">
-                {children}
-              </p>
-            </div>
-          </div>
-        </Link>
-      </NavigationMenuLink>
-    </li>
-  );
-}
+// Removed ListItem component - no longer needed
