@@ -25,12 +25,15 @@ import {
   Copy,
   Globe,
   Mic,
-  MoreHorizontal,
   Pencil,
   Plus,
   ThumbsDown,
   ThumbsUp,
   Trash,
+  Tag,
+  FolderSearch,
+  Network,
+  GitBranch,
 } from "lucide-react"
 import { useState } from "react"
 import { streamChatResponse, ToolCall, ToolResult, SourceInfo } from "@/lib/api-client"
@@ -50,6 +53,21 @@ export default function ChatSection() {
   const [prompt, setPrompt] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+  
+  // RAG settings state
+  const [ragSettings, setRagSettings] = useState({
+    metadata_search: false,
+    filesystem_search: false,
+    vector_search: false,
+    graph_search: false,
+  })
+
+  const toggleRagSetting = (setting: keyof typeof ragSettings) => {
+    setRagSettings((prev) => ({
+      ...prev,
+      [setting]: !prev[setting],
+    }))
+  }
 
   const handleSubmit = async () => {
     if (!prompt.trim()) return
@@ -340,7 +358,7 @@ export default function ChatSection() {
                   />
 
                   <PromptInputActions className="mt-3 flex w-full items-center justify-between gap-2 px-3 pb-3">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <PromptInputAction tooltip="Add attachment">
                         <Button
                           variant="outline"
@@ -354,17 +372,51 @@ export default function ChatSection() {
                       <PromptInputAction tooltip="Search web">
                         <Button variant="outline" className="rounded-full">
                           <Globe size={18} />
-                          Search
+                          Web
                         </Button>
                       </PromptInputAction>
 
-                      <PromptInputAction tooltip="More options">
+                      <PromptInputAction tooltip="Blog metadata search">
                         <Button
-                          variant="outline"
-                          size="icon"
-                          className="size-9 rounded-full"
+                          variant={ragSettings.metadata_search ? "default" : "outline"}
+                          className="rounded-full"
+                          onClick={() => toggleRagSetting("metadata_search")}
                         >
-                          <MoreHorizontal size={18} />
+                          <Tag size={18} />
+                          Metadata
+                        </Button>
+                      </PromptInputAction>
+
+                      <PromptInputAction tooltip="Filesystem-based search">
+                        <Button
+                          variant={ragSettings.filesystem_search ? "default" : "outline"}
+                          className="rounded-full"
+                          onClick={() => toggleRagSetting("filesystem_search")}
+                        >
+                          <FolderSearch size={18} />
+                          Files
+                        </Button>
+                      </PromptInputAction>
+
+                      <PromptInputAction tooltip="Embedding vector search">
+                        <Button
+                          variant={ragSettings.vector_search ? "default" : "outline"}
+                          className="rounded-full"
+                          onClick={() => toggleRagSetting("vector_search")}
+                        >
+                          <Network size={18} />
+                          Vector
+                        </Button>
+                      </PromptInputAction>
+
+                      <PromptInputAction tooltip="Graph-based search">
+                        <Button
+                          variant={ragSettings.graph_search ? "default" : "outline"}
+                          className="rounded-full"
+                          onClick={() => toggleRagSetting("graph_search")}
+                        >
+                          <GitBranch size={18} />
+                          Graph
                         </Button>
                       </PromptInputAction>
                     </div>
