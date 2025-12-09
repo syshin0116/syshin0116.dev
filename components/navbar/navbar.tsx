@@ -6,8 +6,6 @@ import Image from "next/image";
 import { Menu } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import ExternalLinkIcon from "@/components/ui/external-link-icon";
-
-import ExternalLinkIcon from "@/components/ui/external-link-icon";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/theme-toggle";
 import {
@@ -151,37 +149,6 @@ export default function Navbar() {
                   <Link href="/projects" className="text-md font-semibold">
                     Projects
                   </Link>
-                  <Link 
-                    href="https://syshin0116.github.io" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-md font-semibold inline-flex items-center gap-2"
-                  >
-                    <AccordionItem value="projects" className="border-b-0">
-                      <AccordionTrigger className="text-md py-0 font-semibold hover:no-underline">
-                        Projects
-                      </AccordionTrigger>
-                      <AccordionContent className="mt-2">
-                        {projects.map((project) => (
-                          <Link
-                            key={project.title}
-                            href={project.href}
-                            className="hover:bg-muted hover:text-accent-foreground flex select-none flex-row gap-4 rounded-md p-3 leading-none no-underline outline-none transition-colors"
-                          >
-                            <div className="text-foreground">{project.icon}</div>
-                            <div>
-                              <div className="text-sm font-semibold">
-                                {project.title}
-                              </div>
-                              <p className="text-muted-foreground text-sm leading-snug">
-                                {project.description}
-                              </p>
-                            </div>
-                          </Link>
-                        ))}
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
                   <Link 
                     href="https://syshin0116.github.io" 
                     target="_blank" 
