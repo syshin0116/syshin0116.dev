@@ -33,6 +33,7 @@ import {
   FolderSearch,
   Network,
   GitBranch,
+  Bot,
 } from "lucide-react"
 import { useState } from "react"
 import { streamChatResponse, ToolCall, ToolResult, SourceInfo } from "@/lib/api-client"
@@ -48,10 +49,24 @@ interface ChatMessage {
   sources?: SourceInfo[]
 }
 
+// Available AI models for selection
+const AVAILABLE_MODELS = [
+  "gpt-4.1-nano",
+  "gpt-4o",
+  "gpt-4.1",
+  "gpt-4.1-mini",
+  "gpt-5.1",
+  "gpt-5.1-mini",
+  "gpt-5.1-nano",
+] as const
+
 export default function ChatSection() {
   const [prompt, setPrompt] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+  
+  // Model selection state
+  const [selectedModel, setSelectedModel] = useState("gpt-4.1-nano")
   
   // RAG settings state
   const [ragSettings, setRagSettings] = useState({
@@ -409,6 +424,17 @@ export default function ChatSection() {
                         >
                           <GitBranch size={18} />
                           Graph
+                        </Button>
+                      </PromptInputAction>
+
+                      <PromptInputAction tooltip={`Model: ${selectedModel} (selection coming soon)`}>
+                        <Button
+                          variant="outline"
+                          className="rounded-full"
+                          disabled={true}
+                        >
+                          <Bot size={18} />
+                          {selectedModel}
                         </Button>
                       </PromptInputAction>
                     </div>
