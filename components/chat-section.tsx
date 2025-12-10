@@ -34,7 +34,8 @@ import {
   Network,
   GitBranch,
 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { streamChatResponse, ToolCall, ToolResult, SourceInfo } from "@/lib/api-client"
 import { Loader } from "@/components/ui/loader"
 import { Tool, ToolPart } from "@/components/ui/tool"
@@ -49,6 +50,7 @@ interface ChatMessage {
 }
 
 export default function ChatSection() {
+  const searchParams = useSearchParams()
   const [prompt, setPrompt] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
@@ -60,6 +62,18 @@ export default function ChatSection() {
     vector_search: false,
     graph_search: false,
   })
+
+  // Reset chat when reset parameter is present
+  useEffect(() => {
+    const reset = searchParams.get('reset')
+    if (reset === 'true') {
+      setChatMessages([])
+      setPrompt("")
+      setIsLoading(false)
+      // Clear the URL parameter
+      window.history.replaceState({}, '', '/')
+    }
+  }, [searchParams])
 
   const toggleRagSetting = (setting: keyof typeof ragSettings) => {
     setRagSettings((prev) => ({
