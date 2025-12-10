@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import ExternalLinkIcon from "@/components/ui/external-link-icon";
@@ -26,6 +27,19 @@ import {
 // Removed projects dropdown - too many projects (12+) to display in dropdown
 
 export default function Navbar() {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    // If already on home page, reset the chat by adding reset parameter
+    if (pathname === '/') {
+      router.push('/?reset=true');
+    } else {
+      router.push('/');
+    }
+  };
+
   return (
     <section className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-4">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -33,7 +47,7 @@ export default function Navbar() {
         <nav className="hidden items-center lg:flex relative">
           {/* Logo - Left */}
           <div className="flex-1">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" onClick={handleHomeClick} className="flex items-center gap-2">
               <Image
                 src="/logo.png"
                 width={32}
@@ -56,7 +70,7 @@ export default function Navbar() {
                     asChild
                     className={navigationMenuTriggerStyle()}
                   >
-                    <Link href="/">Home</Link>
+                    <Link href="/" onClick={handleHomeClick}>Home</Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
@@ -113,7 +127,7 @@ export default function Navbar() {
         <div className="block lg:hidden">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" onClick={handleHomeClick} className="flex items-center gap-2">
               <Image
                 src="/logo.png"
                 width={32}
@@ -131,7 +145,7 @@ export default function Navbar() {
               <SheetContent className="overflow-y-auto">
                 <SheetHeader>
                   <SheetTitle>
-                    <Link href="/" className="flex items-center gap-2">
+                    <Link href="/" onClick={handleHomeClick} className="flex items-center gap-2">
                       <Image
                         src="/logo.png"
                         width={32}
@@ -143,7 +157,7 @@ export default function Navbar() {
                   </SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-6 p-4">
-                  <Link href="/" className="text-md font-semibold">
+                  <Link href="/" onClick={handleHomeClick} className="text-md font-semibold">
                     Home
                   </Link>
                   <Link href="/projects" className="text-md font-semibold">
