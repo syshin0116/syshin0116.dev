@@ -15,6 +15,66 @@ This is a portfolio website with an intelligent chatbot interface that can answe
 - Build a practical AI agent using LangGraph for complex retrieval tasks
 - Create a reusable framework for comparing RAG strategies
 
+## Getting Started
+
+### Prerequisites
+
+Before running this project, ensure you have the following installed:
+
+- **Node.js 18+** or **Bun 1.0+** (recommended)
+- **Git** for version control
+- **API Keys** for LangGraph/LangChain services
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd portfolio-web
+   ```
+
+2. **Install dependencies**
+   ```bash
+   # Using Bun (recommended)
+   bun install
+   
+   # Or using npm
+   npm install
+   ```
+
+3. **Set up environment variables**
+   
+   Create a `.env.local` file in the root directory:
+   ```env
+   # LangGraph Configuration
+   LANGGRAPH_API_URL=your_langgraph_api_url
+   LANGGRAPH_API_KEY=your_api_key
+   
+   # Optional: For different RAG strategies
+   OPENAI_API_KEY=your_openai_key
+   COHERE_API_KEY=your_cohere_key
+   ```
+
+4. **Run the development server**
+   ```bash
+   bun dev
+   # or
+   npm run dev
+   ```
+
+5. **Open your browser**
+   
+   Navigate to [http://localhost:3000](http://localhost:3000) to see the application.
+
+### Quick Commands
+
+```bash
+bun dev          # Start development server
+bun build        # Build for production
+bun start        # Start production server
+bun lint         # Run ESLint
+```
+
 ## RAG Strategy Implementation
 
 I implemented four distinct RAG strategies that can be selected individually or combined:
