@@ -19,13 +19,14 @@ import {
 } from "@/components/ui/prompt-input"
 import { ScrollButton } from "@/components/ui/scroll-button"
 import { Button } from "@/components/ui/button"
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import {
   ArrowUp,
@@ -40,11 +41,12 @@ import {
   FolderSearch,
   Network,
   GitBranch,
-  Bot,
+  Database,
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { streamChatResponse, ToolCall, ToolResult, SourceInfo } from "@/lib/api-client"
+import { SiOpenai } from "react-icons/si"
 import { Loader } from "@/components/ui/loader"
 import { Tool, ToolPart } from "@/components/ui/tool"
 import { Source, SourceTrigger, SourceContent } from "@/components/ui/source"
@@ -392,70 +394,78 @@ export default function ChatSection() {
                         </Button>
                       </PromptInputAction>
 
-                      <TooltipProvider>
-                        <ToggleGroup
-                          type="multiple"
-                          value={selectedRagModes}
-                          onValueChange={setSelectedRagModes}
-                          className="gap-2"
-                        >
-                          <Tooltip delayDuration={100}>
-                            <TooltipTrigger asChild>
-                              <ToggleGroupItem
-                                value="metadata_search"
-                                variant="outline"
-                                className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                              >
-                                <Tag size={18} />
-                                Metadata
-                              </ToggleGroupItem>
-                            </TooltipTrigger>
-                            <TooltipContent>Blog metadata search</TooltipContent>
-                          </Tooltip>
-
-                          <Tooltip delayDuration={100}>
-                            <TooltipTrigger asChild>
-                              <ToggleGroupItem
-                                value="filesystem_search"
-                                variant="outline"
-                                className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                              >
-                                <FolderSearch size={18} />
-                                Files
-                              </ToggleGroupItem>
-                            </TooltipTrigger>
-                            <TooltipContent>Filesystem-based search</TooltipContent>
-                          </Tooltip>
-
-                          <Tooltip delayDuration={100}>
-                            <TooltipTrigger asChild>
-                              <ToggleGroupItem
-                                value="vector_search"
-                                variant="outline"
-                                className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                              >
-                                <Network size={18} />
-                                Vector
-                              </ToggleGroupItem>
-                            </TooltipTrigger>
-                            <TooltipContent>Embedding vector search</TooltipContent>
-                          </Tooltip>
-
-                          <Tooltip delayDuration={100}>
-                            <TooltipTrigger asChild>
-                              <ToggleGroupItem
-                                value="graph_search"
-                                variant="outline"
-                                className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                              >
-                                <GitBranch size={18} />
-                                Graph
-                              </ToggleGroupItem>
-                            </TooltipTrigger>
-                            <TooltipContent>Graph-based search</TooltipContent>
-                          </Tooltip>
-                        </ToggleGroup>
-                      </TooltipProvider>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="rounded-full"
+                          >
+                            <Database size={18} />
+                            RAG Modes
+                            {selectedRagModes.length > 0 && (
+                              <span className="ml-1 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                                {selectedRagModes.length}
+                              </span>
+                            )}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-56">
+                          <DropdownMenuLabel>Select RAG Modes</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuCheckboxItem
+                            checked={selectedRagModes.includes("metadata_search")}
+                            onCheckedChange={(checked) => {
+                              setSelectedRagModes(prev =>
+                                checked
+                                  ? [...prev, "metadata_search"]
+                                  : prev.filter(m => m !== "metadata_search")
+                              )
+                            }}
+                          >
+                            <Tag size={16} className="mr-2" />
+                            Metadata Search
+                          </DropdownMenuCheckboxItem>
+                          <DropdownMenuCheckboxItem
+                            checked={selectedRagModes.includes("filesystem_search")}
+                            onCheckedChange={(checked) => {
+                              setSelectedRagModes(prev =>
+                                checked
+                                  ? [...prev, "filesystem_search"]
+                                  : prev.filter(m => m !== "filesystem_search")
+                              )
+                            }}
+                          >
+                            <FolderSearch size={16} className="mr-2" />
+                            Filesystem Search
+                          </DropdownMenuCheckboxItem>
+                          <DropdownMenuCheckboxItem
+                            checked={selectedRagModes.includes("vector_search")}
+                            onCheckedChange={(checked) => {
+                              setSelectedRagModes(prev =>
+                                checked
+                                  ? [...prev, "vector_search"]
+                                  : prev.filter(m => m !== "vector_search")
+                              )
+                            }}
+                          >
+                            <Network size={16} className="mr-2" />
+                            Vector Search
+                          </DropdownMenuCheckboxItem>
+                          <DropdownMenuCheckboxItem
+                            checked={selectedRagModes.includes("graph_search")}
+                            onCheckedChange={(checked) => {
+                              setSelectedRagModes(prev =>
+                                checked
+                                  ? [...prev, "graph_search"]
+                                  : prev.filter(m => m !== "graph_search")
+                              )
+                            }}
+                          >
+                            <GitBranch size={16} className="mr-2" />
+                            Graph Search
+                          </DropdownMenuCheckboxItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
 
                       <PromptInputAction tooltip={`Model: ${selectedModel} (selection coming soon)`}>
                         <Button
@@ -463,7 +473,7 @@ export default function ChatSection() {
                           className="rounded-full"
                           disabled={true}
                         >
-                          <Bot size={18} />
+                          <SiOpenai size={18} />
                           {selectedModel}
                         </Button>
                       </PromptInputAction>

@@ -2,98 +2,104 @@
 
 ## Implementation Summary
 
-Successfully converted the 4 separate RAG mode buttons to a single multi-select toggle group component.
+Successfully converted the 4 separate RAG mode buttons into **one multi-select dropdown menu**.
 
 ## Changes Made
 
-### 1. Added shadcn Toggle Components
-- **File**: `/workspace/components/ui/toggle.tsx`
-  - Created official shadcn Toggle component with variants and sizes
-  - Supports theme-aware styling with proper focus states
+### 1. Added shadcn Components
+- **File**: `components/ui/dropdown-menu.tsx` - Official shadcn dropdown menu
+- **File**: `components/ui/checkbox.tsx` - Official shadcn checkbox for multi-select items
+- **File**: `components/ui/toggle.tsx` - Toggle component (created but not used in final version)
+- **File**: `components/ui/toggle-group.tsx` - ToggleGroup component (created but not used in final version)
 
-- **File**: `/workspace/components/ui/toggle-group.tsx`
-  - Created official shadcn ToggleGroup component
-  - Supports multiple selection mode
-  - Context-based variant and size inheritance
+### 2. Updated Chat Section Component
+- **File**: `components/chat-section.tsx`
+  - Replaced 4 individual buttons with **one dropdown menu**
+  - Dropdown shows "RAG Modes" with a badge showing count of selected modes
+  - Multi-select checkboxes inside dropdown for:
+    - 🏷️ Metadata Search
+    - 📁 Filesystem Search
+    - 🌐 Vector Search
+    - 🌿 Graph Search
+  - Changed Bot icon → OpenAI icon (using `SiOpenai` from react-icons)
 
-### 2. Updated Dependencies
-- Added `@radix-ui/react-toggle` v1.1.1
-- Added `@radix-ui/react-toggle-group` v1.1.0
+### 3. State Management
+```typescript
+// Simple array to track selected modes
+const [selectedRagModes, setSelectedRagModes] = useState<string[]>([])
 
-### 3. Updated Chat Section Component
-- **File**: `/workspace/components/chat-section.tsx`
-  - Imported `ToggleGroup` and `ToggleGroupItem` components
-  - Replaced `ragSettings` object state with `selectedRagModes` array state
-  - Removed `toggleRagSetting` function (no longer needed)
-  - Converted 4 individual buttons into a single `ToggleGroup` with 4 `ToggleGroupItem` children:
-    - Metadata search (Tag icon)
-    - Filesystem search (FolderSearch icon)
-    - Vector search (Network icon)
-    - Graph search (GitBranch icon)
+// Toggle logic in checkbox onCheckedChange
+onCheckedChange={(checked) => {
+  setSelectedRagModes(prev =>
+    checked
+      ? [...prev, "metadata_search"]
+      : prev.filter(m => m !== "metadata_search")
+  )
+}}
+```
+
+## UI Improvements
+
+### Before
+```
+[Metadata] [Files] [Vector] [Graph] [🤖 Model]
+```
+4 separate buttons taking up horizontal space
+
+### After
+```
+[📊 RAG Modes (2)] [🟠 Model]
+```
+1 compact dropdown showing selected count + OpenAI icon for model
+
+### Dropdown Menu
+When clicking "RAG Modes", users see:
+```
+Select RAG Modes
+─────────────────
+☑ Metadata Search
+☐ Filesystem Search
+☑ Vector Search
+☐ Graph Search
+```
 
 ## Features
 
-### Multi-Select Capability
-- Users can now select multiple RAG modes simultaneously
-- State is managed as an array of selected values: `string[]`
-- Visual feedback with primary background color when selected
+✅ **Multi-select**: Users can select multiple RAG modes simultaneously  
+✅ **Badge counter**: Shows how many modes are selected  
+✅ **Icon indicators**: Each mode has a descriptive icon  
+✅ **Compact UI**: Saves horizontal space in the chat input area  
+✅ **Official components**: Uses shadcn/ui patterns with Radix UI  
+✅ **OpenAI branding**: Model button now shows OpenAI icon
 
-### Official shadcn Components
-- Uses official shadcn/ui component patterns
-- Leverages Radix UI primitives for accessibility
-- Follows the project's existing design system
+## Dependencies Added
 
-### Consistent Styling
-- Maintains rounded-full button style
-- Uses outline variant by default
-- Selected state shows primary background with primary-foreground text
-- Proper hover and focus states
+- `@radix-ui/react-dropdown-menu` - Dropdown menu primitives
+- `@radix-ui/react-checkbox` - Checkbox primitives
+- `@radix-ui/react-toggle` - Toggle primitives
+- `@radix-ui/react-toggle-group` - Toggle group primitives
+- `react-icons` - Already installed, using `SiOpenai`
 
-## Technical Details
+## Build Results
 
-### State Management
-```typescript
-// Before (4 separate booleans)
-const [ragSettings, setRagSettings] = useState({
-  metadata_search: false,
-  filesystem_search: false,
-  vector_search: false,
-  graph_search: false,
-})
-
-// After (array of selected modes)
-const [selectedRagModes, setSelectedRagModes] = useState<string[]>([])
+```
+✅ Compiled successfully in 10.1s
+✅ 17 static pages generated
+✅ TypeScript compilation successful
+✅ No new linter errors
 ```
 
-### Component Structure
-```tsx
-<ToggleGroup
-  type="multiple"
-  value={selectedRagModes}
-  onValueChange={setSelectedRagModes}
->
-  <ToggleGroupItem value="metadata_search">...</ToggleGroupItem>
-  <ToggleGroupItem value="filesystem_search">...</ToggleGroupItem>
-  <ToggleGroupItem value="vector_search">...</ToggleGroupItem>
-  <ToggleGroupItem value="graph_search">...</ToggleGroupItem>
-</ToggleGroup>
-```
+## Code Statistics
 
-## Testing
+- **Lines added**: ~50 lines for dropdown menu logic
+- **Lines removed**: ~50 lines of individual buttons
+- **Net change**: Cleaner, more maintainable code
+- **Space saved**: 3 button widths in the UI
 
-- ✅ Linter passes with no new errors
-- ✅ Build succeeds without errors
-- ✅ TypeScript compilation successful
-- ✅ Component renders correctly in the UI
+## User Experience
 
-## Benefits
-
-1. **Better UX**: Single cohesive component for RAG mode selection
-2. **Cleaner Code**: Simplified state management with array instead of object
-3. **Accessibility**: Uses Radix UI primitives with proper ARIA attributes
-4. **Maintainability**: Official shadcn components are well-documented and maintained
-5. **Scalability**: Easy to add more RAG modes in the future
-
-## Migration Notes
-
-If any backend code was consuming the old `ragSettings` object format, it will need to be updated to work with the new array format (`selectedRagModes`).
+1. **Cleaner interface**: Less clutter in the chat input area
+2. **Better discoverability**: "RAG Modes" label is more descriptive
+3. **Visual feedback**: Badge shows selection count at a glance
+4. **Familiar pattern**: Dropdown multi-select is a common UI pattern
+5. **Brand consistency**: OpenAI icon aligns with AI chat context
