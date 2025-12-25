@@ -6,9 +6,12 @@ import { ChevronDown, Briefcase, Calendar, CheckCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Events } from "@/types/events";
-import { events } from "@/data/events";
 
-export default function VerticalEventTimeline() {
+interface VerticalEventTimelineProps {
+  events: Events;
+}
+
+export default function VerticalEventTimeline({ events }: VerticalEventTimelineProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
 
   const toggleExpand = (index: number) => {

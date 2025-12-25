@@ -50,10 +50,17 @@ Before running this project, ensure you have the following installed:
    LANGGRAPH_API_URL=your_langgraph_api_url
    LANGGRAPH_API_KEY=your_api_key
    
+   # Supabase Configuration (Optional - falls back to static data)
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+   
    # Optional: For different RAG strategies
    OPENAI_API_KEY=your_openai_key
    COHERE_API_KEY=your_cohere_key
    ```
+   
+   **Note**: See [Supabase Setup Guide](./docs/SUPABASE_SETUP.md) for detailed instructions on setting up the database.
 
 4. **Run the development server**
    ```bash
