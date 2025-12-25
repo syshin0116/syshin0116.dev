@@ -20,6 +20,12 @@ import {
 import { ScrollButton } from "@/components/ui/scroll-button"
 import { Button } from "@/components/ui/button"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import {
   ArrowUp,
@@ -386,56 +392,70 @@ export default function ChatSection() {
                         </Button>
                       </PromptInputAction>
 
-                      <ToggleGroup
-                        type="multiple"
-                        value={selectedRagModes}
-                        onValueChange={setSelectedRagModes}
-                        className="gap-2"
-                      >
-                        <PromptInputAction tooltip="Blog metadata search">
-                          <ToggleGroupItem
-                            value="metadata_search"
-                            variant="outline"
-                            className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                          >
-                            <Tag size={18} />
-                            Metadata
-                          </ToggleGroupItem>
-                        </PromptInputAction>
+                      <TooltipProvider>
+                        <ToggleGroup
+                          type="multiple"
+                          value={selectedRagModes}
+                          onValueChange={setSelectedRagModes}
+                          className="gap-2"
+                        >
+                          <Tooltip delayDuration={100}>
+                            <TooltipTrigger asChild>
+                              <ToggleGroupItem
+                                value="metadata_search"
+                                variant="outline"
+                                className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                              >
+                                <Tag size={18} />
+                                Metadata
+                              </ToggleGroupItem>
+                            </TooltipTrigger>
+                            <TooltipContent>Blog metadata search</TooltipContent>
+                          </Tooltip>
 
-                        <PromptInputAction tooltip="Filesystem-based search">
-                          <ToggleGroupItem
-                            value="filesystem_search"
-                            variant="outline"
-                            className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                          >
-                            <FolderSearch size={18} />
-                            Files
-                          </ToggleGroupItem>
-                        </PromptInputAction>
+                          <Tooltip delayDuration={100}>
+                            <TooltipTrigger asChild>
+                              <ToggleGroupItem
+                                value="filesystem_search"
+                                variant="outline"
+                                className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                              >
+                                <FolderSearch size={18} />
+                                Files
+                              </ToggleGroupItem>
+                            </TooltipTrigger>
+                            <TooltipContent>Filesystem-based search</TooltipContent>
+                          </Tooltip>
 
-                        <PromptInputAction tooltip="Embedding vector search">
-                          <ToggleGroupItem
-                            value="vector_search"
-                            variant="outline"
-                            className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                          >
-                            <Network size={18} />
-                            Vector
-                          </ToggleGroupItem>
-                        </PromptInputAction>
+                          <Tooltip delayDuration={100}>
+                            <TooltipTrigger asChild>
+                              <ToggleGroupItem
+                                value="vector_search"
+                                variant="outline"
+                                className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                              >
+                                <Network size={18} />
+                                Vector
+                              </ToggleGroupItem>
+                            </TooltipTrigger>
+                            <TooltipContent>Embedding vector search</TooltipContent>
+                          </Tooltip>
 
-                        <PromptInputAction tooltip="Graph-based search">
-                          <ToggleGroupItem
-                            value="graph_search"
-                            variant="outline"
-                            className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-                          >
-                            <GitBranch size={18} />
-                            Graph
-                          </ToggleGroupItem>
-                        </PromptInputAction>
-                      </ToggleGroup>
+                          <Tooltip delayDuration={100}>
+                            <TooltipTrigger asChild>
+                              <ToggleGroupItem
+                                value="graph_search"
+                                variant="outline"
+                                className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                              >
+                                <GitBranch size={18} />
+                                Graph
+                              </ToggleGroupItem>
+                            </TooltipTrigger>
+                            <TooltipContent>Graph-based search</TooltipContent>
+                          </Tooltip>
+                        </ToggleGroup>
+                      </TooltipProvider>
 
                       <PromptInputAction tooltip={`Model: ${selectedModel} (selection coming soon)`}>
                         <Button
