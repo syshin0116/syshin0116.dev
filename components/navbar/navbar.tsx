@@ -23,12 +23,15 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useAuth } from "@/contexts/AuthContext";
+import UserMenu from "@/components/auth/UserMenu";
 
 // Removed projects dropdown - too many projects (12+) to display in dropdown
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { user, loading } = useAuth();
 
   const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -113,13 +116,19 @@ export default function Navbar() {
               </Link>
             </Button>
             <ThemeToggle />
-            <Button
-              asChild
-              size="sm"
-              className="bg-black text-white hover:bg-black/90 dark:bg-black dark:text-white dark:hover:bg-black/90"
-            >
-              <Link href="/login">Login</Link>
-            </Button>
+            {!loading && (
+              user ? (
+                <UserMenu />
+              ) : (
+                <Button
+                  asChild
+                  size="sm"
+                  className="bg-black text-white hover:bg-black/90 dark:bg-black dark:text-white dark:hover:bg-black/90"
+                >
+                  <Link href="/login">Login</Link>
+                </Button>
+              )
+            )}
           </div>
         </nav>
 
@@ -174,12 +183,26 @@ export default function Navbar() {
                   </Link>
 
                   <div className="flex flex-col gap-3">
-                    <Button
-                      asChild
-                      className="bg-black text-white hover:bg-black/90 dark:bg-black dark:text-white dark:hover:bg-black/90"
-                    >
-                      <Link href="/login">Login</Link>
-                    </Button>
+                    {!loading && (
+                      user ? (
+                        <div className="flex items-center gap-3 p-3 rounded-lg border bg-card">
+                          <UserMenu />
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium">
+                              {user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0]}
+                            </span>
+                            <span className="text-xs text-muted-foreground">{user.email}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <Button
+                          asChild
+                          className="bg-black text-white hover:bg-black/90 dark:bg-black dark:text-white dark:hover:bg-black/90"
+                        >
+                          <Link href="/login">Login</Link>
+                        </Button>
+                      )
+                    )}
                   </div>
                 </div>
               </SheetContent>
