@@ -19,6 +19,20 @@ import {
 } from "@/components/ui/prompt-input"
 import { ScrollButton } from "@/components/ui/scroll-button"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import {
   ArrowUp,
@@ -33,11 +47,13 @@ import {
   FolderSearch,
   Network,
   GitBranch,
-  Bot,
+  Database,
+  Info,
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { streamChatResponse, ToolCall, ToolResult, SourceInfo } from "@/lib/api-client"
+import { SiOpenai } from "react-icons/si"
 import { Loader } from "@/components/ui/loader"
 import { Tool, ToolPart } from "@/components/ui/tool"
 import { Source, SourceTrigger, SourceContent } from "@/components/ui/source"
@@ -70,13 +86,8 @@ export default function ChatSection() {
   // Model selection state
   const [selectedModel, setSelectedModel] = useState("gpt-4.1-nano")
   
-  // RAG settings state
-  const [ragSettings, setRagSettings] = useState({
-    metadata_search: false,
-    filesystem_search: false,
-    vector_search: false,
-    graph_search: false,
-  })
+  // RAG settings state - array of selected modes
+  const [selectedRagModes, setSelectedRagModes] = useState<string[]>([])
 
   // Reset chat when reset parameter is present
   useEffect(() => {
@@ -89,13 +100,6 @@ export default function ChatSection() {
       window.history.replaceState({}, '', '/')
     }
   }, [searchParams])
-
-  const toggleRagSetting = (setting: keyof typeof ragSettings) => {
-    setRagSettings((prev) => ({
-      ...prev,
-      [setting]: !prev[setting],
-    }))
-  }
 
   const handleSubmit = async () => {
     if (!prompt.trim()) return
@@ -397,49 +401,123 @@ export default function ChatSection() {
                         </Button>
                       </PromptInputAction>
 
-                      <PromptInputAction tooltip="Blog metadata search">
-                        <Button
-                          variant={ragSettings.metadata_search ? "default" : "outline"}
-                          className="rounded-full"
-                          onClick={() => toggleRagSetting("metadata_search")}
-                        >
-                          <Tag size={18} />
-                          Metadata
-                        </Button>
-                      </PromptInputAction>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="rounded-full cursor-pointer"
+                          >
+                            <Database size={18} />
+                            RAG Modes
+                            {selectedRagModes.length > 0 && (
+                              <span className="ml-1 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                                {selectedRagModes.length}
+                              </span>
+                            )}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-72">
+                          <DropdownMenuLabel>Select RAG Modes</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <TooltipProvider>
+                            <DropdownMenuCheckboxItem
+                              checked={selectedRagModes.includes("metadata_search")}
+                              onCheckedChange={(checked) => {
+                                setSelectedRagModes(prev =>
+                                  checked
+                                    ? [...prev, "metadata_search"]
+                                    : prev.filter(m => m !== "metadata_search")
+                                )
+                              }}
+                              onSelect={(e) => e.preventDefault()}
+                              className="cursor-pointer"
+                            >
+                              <Tag size={16} className="mr-2" />
+                              <span className="flex-1">Metadata Search</span>
+                              <Tooltip delayDuration={100}>
+                                <TooltipTrigger asChild>
+                                  <Info size={14} className="ml-2 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent side="right" className="max-w-xs">
+                                  Search through blog post metadata including titles, tags, categories, and dates
+                                </TooltipContent>
+                              </Tooltip>
+                            </DropdownMenuCheckboxItem>
 
-                      <PromptInputAction tooltip="Filesystem-based search">
-                        <Button
-                          variant={ragSettings.filesystem_search ? "default" : "outline"}
-                          className="rounded-full"
-                          onClick={() => toggleRagSetting("filesystem_search")}
-                        >
-                          <FolderSearch size={18} />
-                          Files
-                        </Button>
-                      </PromptInputAction>
+                            <DropdownMenuCheckboxItem
+                              checked={selectedRagModes.includes("filesystem_search")}
+                              onCheckedChange={(checked) => {
+                                setSelectedRagModes(prev =>
+                                  checked
+                                    ? [...prev, "filesystem_search"]
+                                    : prev.filter(m => m !== "filesystem_search")
+                                )
+                              }}
+                              onSelect={(e) => e.preventDefault()}
+                              className="cursor-pointer"
+                            >
+                              <FolderSearch size={16} className="mr-2" />
+                              <span className="flex-1">Filesystem Search</span>
+                              <Tooltip delayDuration={100}>
+                                <TooltipTrigger asChild>
+                                  <Info size={14} className="ml-2 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent side="right" className="max-w-xs">
+                                  Search through project files and code repositories using file system structure
+                                </TooltipContent>
+                              </Tooltip>
+                            </DropdownMenuCheckboxItem>
 
-                      <PromptInputAction tooltip="Embedding vector search">
-                        <Button
-                          variant={ragSettings.vector_search ? "default" : "outline"}
-                          className="rounded-full"
-                          onClick={() => toggleRagSetting("vector_search")}
-                        >
-                          <Network size={18} />
-                          Vector
-                        </Button>
-                      </PromptInputAction>
+                            <DropdownMenuCheckboxItem
+                              checked={selectedRagModes.includes("vector_search")}
+                              onCheckedChange={(checked) => {
+                                setSelectedRagModes(prev =>
+                                  checked
+                                    ? [...prev, "vector_search"]
+                                    : prev.filter(m => m !== "vector_search")
+                                )
+                              }}
+                              onSelect={(e) => e.preventDefault()}
+                              className="cursor-pointer"
+                            >
+                              <Network size={16} className="mr-2" />
+                              <span className="flex-1">Vector Search</span>
+                              <Tooltip delayDuration={100}>
+                                <TooltipTrigger asChild>
+                                  <Info size={14} className="ml-2 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent side="right" className="max-w-xs">
+                                  Semantic search using AI embeddings to find contextually relevant content
+                                </TooltipContent>
+                              </Tooltip>
+                            </DropdownMenuCheckboxItem>
 
-                      <PromptInputAction tooltip="Graph-based search">
-                        <Button
-                          variant={ragSettings.graph_search ? "default" : "outline"}
-                          className="rounded-full"
-                          onClick={() => toggleRagSetting("graph_search")}
-                        >
-                          <GitBranch size={18} />
-                          Graph
-                        </Button>
-                      </PromptInputAction>
+                            <DropdownMenuCheckboxItem
+                              checked={selectedRagModes.includes("graph_search")}
+                              onCheckedChange={(checked) => {
+                                setSelectedRagModes(prev =>
+                                  checked
+                                    ? [...prev, "graph_search"]
+                                    : prev.filter(m => m !== "graph_search")
+                                )
+                              }}
+                              onSelect={(e) => e.preventDefault()}
+                              className="cursor-pointer"
+                            >
+                              <GitBranch size={16} className="mr-2" />
+                              <span className="flex-1">Graph Search</span>
+                              <Tooltip delayDuration={100}>
+                                <TooltipTrigger asChild>
+                                  <Info size={14} className="ml-2 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent side="right" className="max-w-xs">
+                                  Search using knowledge graph relationships between projects, technologies, and concepts
+                                </TooltipContent>
+                              </Tooltip>
+                            </DropdownMenuCheckboxItem>
+                          </TooltipProvider>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
 
                       <PromptInputAction tooltip={`Model: ${selectedModel} (selection coming soon)`}>
                         <Button
@@ -447,7 +525,7 @@ export default function ChatSection() {
                           className="rounded-full"
                           disabled={true}
                         >
-                          <Bot size={18} />
+                          <SiOpenai size={18} />
                           {selectedModel}
                         </Button>
                       </PromptInputAction>

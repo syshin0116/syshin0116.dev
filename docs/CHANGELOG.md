@@ -1,4 +1,37 @@
-# 변경 사항 (2025-12-08)
+# 변경 사항
+
+## 2025-12-25 - SYS-19: RAG Mode Multi-Select
+
+### RAG 모드 선택 UI 개선
+- 4개의 개별 버튼을 하나의 multi-select toggle group으로 통합
+- 사용자가 여러 RAG 모드를 동시에 선택 가능
+- shadcn 공식 컴포넌트 사용 (Toggle, ToggleGroup)
+
+### 기술적 변경사항
+- `@radix-ui/react-toggle` 및 `@radix-ui/react-toggle-group` 추가
+- `components/ui/toggle.tsx` 생성 - shadcn Toggle 컴포넌트
+- `components/ui/toggle-group.tsx` 생성 - shadcn ToggleGroup 컴포넌트
+- `components/chat-section.tsx` 업데이트:
+  - `ragSettings` 객체 → `selectedRagModes` 배열로 상태 관리 변경
+  - 4개의 개별 Button → 1개의 ToggleGroup + 4개의 ToggleGroupItem으로 변경
+  - `toggleRagSetting` 함수 제거 (더 이상 필요 없음)
+
+### RAG 모드
+1. Metadata Search (블로그 메타데이터 검색)
+2. Filesystem Search (파일시스템 기반 검색)
+3. Vector Search (임베딩 벡터 검색)
+4. Graph Search (그래프 기반 검색)
+
+### 빌드 결과
+```
+✅ 빌드 성공
+✅ 린터 에러 없음 (기존 경고만 존재)
+✅ TypeScript 컴파일 성공
+```
+
+---
+
+## 2025-12-08 - 프로젝트 구조 개선
 
 ## 주요 변경사항
 
