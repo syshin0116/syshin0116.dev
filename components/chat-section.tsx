@@ -398,7 +398,7 @@ export default function ChatSection() {
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="outline"
-                            className="rounded-full"
+                            className="rounded-full cursor-pointer"
                           >
                             <Database size={18} />
                             RAG Modes
@@ -421,6 +421,8 @@ export default function ChatSection() {
                                   : prev.filter(m => m !== "metadata_search")
                               )
                             }}
+                            onSelect={(e) => e.preventDefault()}
+                            className="cursor-pointer"
                           >
                             <Tag size={16} className="mr-2" />
                             Metadata Search
@@ -434,6 +436,8 @@ export default function ChatSection() {
                                   : prev.filter(m => m !== "filesystem_search")
                               )
                             }}
+                            onSelect={(e) => e.preventDefault()}
+                            className="cursor-pointer"
                           >
                             <FolderSearch size={16} className="mr-2" />
                             Filesystem Search
@@ -447,6 +451,8 @@ export default function ChatSection() {
                                   : prev.filter(m => m !== "vector_search")
                               )
                             }}
+                            onSelect={(e) => e.preventDefault()}
+                            className="cursor-pointer"
                           >
                             <Network size={16} className="mr-2" />
                             Vector Search
@@ -460,6 +466,8 @@ export default function ChatSection() {
                                   : prev.filter(m => m !== "graph_search")
                               )
                             }}
+                            onSelect={(e) => e.preventDefault()}
+                            className="cursor-pointer"
                           >
                             <GitBranch size={16} className="mr-2" />
                             Graph Search
