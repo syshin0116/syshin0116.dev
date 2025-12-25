@@ -45,15 +45,26 @@ Before running this project, ensure you have the following installed:
 3. **Set up environment variables**
    
    Create a `.env.local` file in the root directory:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+   
+   Then fill in your actual values:
    ```env
    # LangGraph Configuration
    LANGGRAPH_API_URL=your_langgraph_api_url
    LANGGRAPH_API_KEY=your_api_key
    
+   # Supabase Configuration (optional - for future features)
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   
    # Optional: For different RAG strategies
    OPENAI_API_KEY=your_openai_key
    COHERE_API_KEY=your_cohere_key
    ```
+   
+   **Note**: See `docs/SUPABASE_ENV_VARIABLES.md` for detailed Supabase setup guide.
 
 4. **Run the development server**
    ```bash
