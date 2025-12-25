@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/prompt-input"
 import { ScrollButton } from "@/components/ui/scroll-button"
 import { Button } from "@/components/ui/button"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { cn } from "@/lib/utils"
 import {
   ArrowUp,
@@ -70,13 +71,8 @@ export default function ChatSection() {
   // Model selection state
   const [selectedModel, setSelectedModel] = useState("gpt-4.1-nano")
   
-  // RAG settings state
-  const [ragSettings, setRagSettings] = useState({
-    metadata_search: false,
-    filesystem_search: false,
-    vector_search: false,
-    graph_search: false,
-  })
+  // RAG settings state - array of selected modes
+  const [selectedRagModes, setSelectedRagModes] = useState<string[]>([])
 
   // Reset chat when reset parameter is present
   useEffect(() => {
@@ -89,13 +85,6 @@ export default function ChatSection() {
       window.history.replaceState({}, '', '/')
     }
   }, [searchParams])
-
-  const toggleRagSetting = (setting: keyof typeof ragSettings) => {
-    setRagSettings((prev) => ({
-      ...prev,
-      [setting]: !prev[setting],
-    }))
-  }
 
   const handleSubmit = async () => {
     if (!prompt.trim()) return
@@ -397,49 +386,56 @@ export default function ChatSection() {
                         </Button>
                       </PromptInputAction>
 
-                      <PromptInputAction tooltip="Blog metadata search">
-                        <Button
-                          variant={ragSettings.metadata_search ? "default" : "outline"}
-                          className="rounded-full"
-                          onClick={() => toggleRagSetting("metadata_search")}
-                        >
-                          <Tag size={18} />
-                          Metadata
-                        </Button>
-                      </PromptInputAction>
+                      <ToggleGroup
+                        type="multiple"
+                        value={selectedRagModes}
+                        onValueChange={setSelectedRagModes}
+                        className="gap-2"
+                      >
+                        <PromptInputAction tooltip="Blog metadata search">
+                          <ToggleGroupItem
+                            value="metadata_search"
+                            variant="outline"
+                            className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                          >
+                            <Tag size={18} />
+                            Metadata
+                          </ToggleGroupItem>
+                        </PromptInputAction>
 
-                      <PromptInputAction tooltip="Filesystem-based search">
-                        <Button
-                          variant={ragSettings.filesystem_search ? "default" : "outline"}
-                          className="rounded-full"
-                          onClick={() => toggleRagSetting("filesystem_search")}
-                        >
-                          <FolderSearch size={18} />
-                          Files
-                        </Button>
-                      </PromptInputAction>
+                        <PromptInputAction tooltip="Filesystem-based search">
+                          <ToggleGroupItem
+                            value="filesystem_search"
+                            variant="outline"
+                            className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                          >
+                            <FolderSearch size={18} />
+                            Files
+                          </ToggleGroupItem>
+                        </PromptInputAction>
 
-                      <PromptInputAction tooltip="Embedding vector search">
-                        <Button
-                          variant={ragSettings.vector_search ? "default" : "outline"}
-                          className="rounded-full"
-                          onClick={() => toggleRagSetting("vector_search")}
-                        >
-                          <Network size={18} />
-                          Vector
-                        </Button>
-                      </PromptInputAction>
+                        <PromptInputAction tooltip="Embedding vector search">
+                          <ToggleGroupItem
+                            value="vector_search"
+                            variant="outline"
+                            className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                          >
+                            <Network size={18} />
+                            Vector
+                          </ToggleGroupItem>
+                        </PromptInputAction>
 
-                      <PromptInputAction tooltip="Graph-based search">
-                        <Button
-                          variant={ragSettings.graph_search ? "default" : "outline"}
-                          className="rounded-full"
-                          onClick={() => toggleRagSetting("graph_search")}
-                        >
-                          <GitBranch size={18} />
-                          Graph
-                        </Button>
-                      </PromptInputAction>
+                        <PromptInputAction tooltip="Graph-based search">
+                          <ToggleGroupItem
+                            value="graph_search"
+                            variant="outline"
+                            className="rounded-full data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                          >
+                            <GitBranch size={18} />
+                            Graph
+                          </ToggleGroupItem>
+                        </PromptInputAction>
+                      </ToggleGroup>
 
                       <PromptInputAction tooltip={`Model: ${selectedModel} (selection coming soon)`}>
                         <Button
