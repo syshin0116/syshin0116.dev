@@ -372,26 +372,31 @@ export default function ChatSection() {
                         </Button>
                       </PromptInputAction>
 
-                      {/* Search Mode Selection */}
+                      {/* Unified Search Configuration */}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="outline"
                             className="rounded-full cursor-pointer"
                           >
-                            <Zap size={18} />
+                            <Database size={18} />
                             {searchMode === "auto" ? "AUTO" : "MANUAL"}
-                            {searchMode === "auto" && (
+                            {searchMode === "auto" ? (
                               <span className="ml-1 text-xs text-muted-foreground">
                                 ({autoAgentType === "single" ? "Single" : "Multi"})
                               </span>
-                            )}
+                            ) : selectedRagModes.length > 0 ? (
+                              <span className="ml-1 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                                {selectedRagModes.length}
+                              </span>
+                            ) : null}
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="w-72">
-                          <DropdownMenuLabel>Search Mode</DropdownMenuLabel>
+                          <DropdownMenuLabel>Search Configuration</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <TooltipProvider>
+                            {/* AUTO Mode Section */}
                             <DropdownMenuCheckboxItem
                               checked={searchMode === "auto"}
                               onCheckedChange={(checked) => {
@@ -436,9 +441,11 @@ export default function ChatSection() {
                                     Multi Agent (agent routing)
                                   </DropdownMenuCheckboxItem>
                                 </div>
+                                <DropdownMenuSeparator className="my-1" />
                               </>
                             )}
 
+                            {/* MANUAL Mode Section */}
                             <DropdownMenuCheckboxItem
                               checked={searchMode === "manual"}
                               onCheckedChange={(checked) => {
@@ -458,126 +465,108 @@ export default function ChatSection() {
                                 </TooltipContent>
                               </Tooltip>
                             </DropdownMenuCheckboxItem>
-                          </TooltipProvider>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
 
-                      {/* RAG Modes Selection (only for MANUAL mode) */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="rounded-full cursor-pointer"
-                            disabled={searchMode === "auto"}
-                          >
-                            <Database size={18} />
-                            RAG Modes
-                            {selectedRagModes.length > 0 && (
-                              <span className="ml-1 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-                                {selectedRagModes.length}
-                              </span>
+                            {searchMode === "manual" && (
+                              <>
+                                <div className="ml-8 mt-1 space-y-1">
+                                  <DropdownMenuCheckboxItem
+                                    checked={selectedRagModes.includes("metadata_search")}
+                                    onCheckedChange={(checked) => {
+                                      setSelectedRagModes(prev =>
+                                        checked
+                                          ? [...prev, "metadata_search"]
+                                          : prev.filter(m => m !== "metadata_search")
+                                      )
+                                    }}
+                                    onSelect={(e) => e.preventDefault()}
+                                    className="cursor-pointer text-sm"
+                                  >
+                                    <Tag size={14} className="mr-2" />
+                                    <span className="flex-1">Metadata Search</span>
+                                    <Tooltip delayDuration={100}>
+                                      <TooltipTrigger asChild>
+                                        <Info size={12} className="ml-1 text-muted-foreground cursor-help" />
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right" className="max-w-xs text-xs">
+                                        Search through blog post metadata including titles, tags, categories, and dates
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </DropdownMenuCheckboxItem>
+
+                                  <DropdownMenuCheckboxItem
+                                    checked={selectedRagModes.includes("filesystem_search")}
+                                    onCheckedChange={(checked) => {
+                                      setSelectedRagModes(prev =>
+                                        checked
+                                          ? [...prev, "filesystem_search"]
+                                          : prev.filter(m => m !== "filesystem_search")
+                                      )
+                                    }}
+                                    onSelect={(e) => e.preventDefault()}
+                                    className="cursor-pointer text-sm"
+                                  >
+                                    <FolderSearch size={14} className="mr-2" />
+                                    <span className="flex-1">Filesystem Search</span>
+                                    <Tooltip delayDuration={100}>
+                                      <TooltipTrigger asChild>
+                                        <Info size={12} className="ml-1 text-muted-foreground cursor-help" />
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right" className="max-w-xs text-xs">
+                                        Search through project files and code repositories using file system structure
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </DropdownMenuCheckboxItem>
+
+                                  <DropdownMenuCheckboxItem
+                                    checked={selectedRagModes.includes("vector_search")}
+                                    onCheckedChange={(checked) => {
+                                      setSelectedRagModes(prev =>
+                                        checked
+                                          ? [...prev, "vector_search"]
+                                          : prev.filter(m => m !== "vector_search")
+                                      )
+                                    }}
+                                    onSelect={(e) => e.preventDefault()}
+                                    className="cursor-pointer text-sm"
+                                  >
+                                    <Network size={14} className="mr-2" />
+                                    <span className="flex-1">Vector Search</span>
+                                    <Tooltip delayDuration={100}>
+                                      <TooltipTrigger asChild>
+                                        <Info size={12} className="ml-1 text-muted-foreground cursor-help" />
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right" className="max-w-xs text-xs">
+                                        Semantic search using AI embeddings to find contextually relevant content
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </DropdownMenuCheckboxItem>
+
+                                  <DropdownMenuCheckboxItem
+                                    checked={selectedRagModes.includes("graph_search")}
+                                    onCheckedChange={(checked) => {
+                                      setSelectedRagModes(prev =>
+                                        checked
+                                          ? [...prev, "graph_search"]
+                                          : prev.filter(m => m !== "graph_search")
+                                      )
+                                    }}
+                                    onSelect={(e) => e.preventDefault()}
+                                    className="cursor-pointer text-sm"
+                                  >
+                                    <GitBranch size={14} className="mr-2" />
+                                    <span className="flex-1">Graph Search</span>
+                                    <Tooltip delayDuration={100}>
+                                      <TooltipTrigger asChild>
+                                        <Info size={12} className="ml-1 text-muted-foreground cursor-help" />
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right" className="max-w-xs text-xs">
+                                        Knowledge graph-based search to find related concepts and relationships
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </DropdownMenuCheckboxItem>
+                                </div>
+                              </>
                             )}
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-72">
-                          <DropdownMenuLabel>Select RAG Modes</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <TooltipProvider>
-                            <DropdownMenuCheckboxItem
-                              checked={selectedRagModes.includes("metadata_search")}
-                              onCheckedChange={(checked) => {
-                                setSelectedRagModes(prev =>
-                                  checked
-                                    ? [...prev, "metadata_search"]
-                                    : prev.filter(m => m !== "metadata_search")
-                                )
-                              }}
-                              onSelect={(e) => e.preventDefault()}
-                              className="cursor-pointer"
-                            >
-                              <Tag size={16} className="mr-2" />
-                              <span className="flex-1">Metadata Search</span>
-                              <Tooltip delayDuration={100}>
-                                <TooltipTrigger asChild>
-                                  <Info size={14} className="ml-2 text-muted-foreground cursor-help" />
-                                </TooltipTrigger>
-                                <TooltipContent side="right" className="max-w-xs">
-                                  Search through blog post metadata including titles, tags, categories, and dates
-                                </TooltipContent>
-                              </Tooltip>
-                            </DropdownMenuCheckboxItem>
-
-                            <DropdownMenuCheckboxItem
-                              checked={selectedRagModes.includes("filesystem_search")}
-                              onCheckedChange={(checked) => {
-                                setSelectedRagModes(prev =>
-                                  checked
-                                    ? [...prev, "filesystem_search"]
-                                    : prev.filter(m => m !== "filesystem_search")
-                                )
-                              }}
-                              onSelect={(e) => e.preventDefault()}
-                              className="cursor-pointer"
-                            >
-                              <FolderSearch size={16} className="mr-2" />
-                              <span className="flex-1">Filesystem Search</span>
-                              <Tooltip delayDuration={100}>
-                                <TooltipTrigger asChild>
-                                  <Info size={14} className="ml-2 text-muted-foreground cursor-help" />
-                                </TooltipTrigger>
-                                <TooltipContent side="right" className="max-w-xs">
-                                  Search through project files and code repositories using file system structure
-                                </TooltipContent>
-                              </Tooltip>
-                            </DropdownMenuCheckboxItem>
-
-                            <DropdownMenuCheckboxItem
-                              checked={selectedRagModes.includes("vector_search")}
-                              onCheckedChange={(checked) => {
-                                setSelectedRagModes(prev =>
-                                  checked
-                                    ? [...prev, "vector_search"]
-                                    : prev.filter(m => m !== "vector_search")
-                                )
-                              }}
-                              onSelect={(e) => e.preventDefault()}
-                              className="cursor-pointer"
-                            >
-                              <Network size={16} className="mr-2" />
-                              <span className="flex-1">Vector Search</span>
-                              <Tooltip delayDuration={100}>
-                                <TooltipTrigger asChild>
-                                  <Info size={14} className="ml-2 text-muted-foreground cursor-help" />
-                                </TooltipTrigger>
-                                <TooltipContent side="right" className="max-w-xs">
-                                  Semantic search using AI embeddings to find contextually relevant content
-                                </TooltipContent>
-                              </Tooltip>
-                            </DropdownMenuCheckboxItem>
-
-                            <DropdownMenuCheckboxItem
-                              checked={selectedRagModes.includes("graph_search")}
-                              onCheckedChange={(checked) => {
-                                setSelectedRagModes(prev =>
-                                  checked
-                                    ? [...prev, "graph_search"]
-                                    : prev.filter(m => m !== "graph_search")
-                                )
-                              }}
-                              onSelect={(e) => e.preventDefault()}
-                              className="cursor-pointer"
-                            >
-                              <GitBranch size={16} className="mr-2" />
-                              <span className="flex-1">Graph Search</span>
-                              <Tooltip delayDuration={100}>
-                                <TooltipTrigger asChild>
-                                  <Info size={14} className="ml-2 text-muted-foreground cursor-help" />
-                                </TooltipTrigger>
-                                <TooltipContent side="right" className="max-w-xs">
-                                  Search using knowledge graph relationships between projects, technologies, and concepts
-                                </TooltipContent>
-                              </Tooltip>
-                            </DropdownMenuCheckboxItem>
                           </TooltipProvider>
                         </DropdownMenuContent>
                       </DropdownMenu>
