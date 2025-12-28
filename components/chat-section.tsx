@@ -38,17 +38,17 @@ import {
   ArrowUp,
   Copy,
   Mic,
-  Pencil,
   Plus,
   ThumbsDown,
   ThumbsUp,
-  Trash,
   Tag,
   FolderSearch,
   Network,
   GitBranch,
   Database,
   Info,
+  Zap,
+  Settings,
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
@@ -85,8 +85,12 @@ export default function ChatSection() {
   
   // Model selection state
   const [selectedModel, setSelectedModel] = useState("gpt-4.1-nano")
-  
-  // RAG settings state - array of selected modes
+
+  // Search mode state
+  const [searchMode, setSearchMode] = useState<"auto" | "manual">("auto")
+  const [autoAgentType, setAutoAgentType] = useState<"single" | "multi">("single")
+
+  // RAG settings state - array of selected modes (for MANUAL mode)
   const [selectedRagModes, setSelectedRagModes] = useState<string[]>([])
 
   // Reset chat when reset parameter is present
@@ -132,6 +136,9 @@ export default function ChatSection() {
     // Stream the response using the API client
     await streamChatResponse({
       userMessage: userPrompt,
+      searchMode,
+      autoAgentType,
+      ragModes: selectedRagModes,
       onChunk: (fullContent) => {
         // Update the assistant message with accumulated content
         setChatMessages((prev) =>
@@ -233,12 +240,11 @@ export default function ChatSection() {
                     <Message
                       key={message.id}
                       className={cn(
-                        "mx-auto flex w-full max-w-full flex-col gap-2 px-0",
-                        isAssistant ? "items-start" : "items-end"
+                        isAssistant ? "justify-start" : "justify-end"
                       )}
                     >
                       {isAssistant ? (
-                        <div className="group flex w-full flex-col gap-0">
+                        <div className="group flex flex-col gap-2 max-w-[85%]">
                           {/* Tool calls display */}
                           {message.toolCalls && message.toolCalls.size > 0 && (
                             <div className="mb-4 space-y-2">
@@ -255,13 +261,13 @@ export default function ChatSection() {
                           {/* Message content */}
                           {message.content ? (
                             <MessageContent
-                              className="text-foreground prose w-full flex-1 rounded-lg bg-transparent p-0"
+                              className="prose max-w-none"
                               markdown
                             >
                               {message.content}
                             </MessageContent>
                           ) : !message.toolCalls || message.toolCalls.size === 0 ? (
-                            <div className="text-foreground w-full flex-1 rounded-lg bg-transparent p-0">
+                            <div className="rounded-lg bg-secondary p-2">
                               <Loader variant="text-shimmer" text="Thinking" size="md" />
                             </div>
                           ) : null}
@@ -320,44 +326,9 @@ export default function ChatSection() {
                           </MessageActions>
                         </div>
                       ) : (
-                        <div className="group flex flex-col items-end gap-1 w-full">
-                          <MessageContent className="bg-muted text-primary max-w-full rounded-3xl px-5 py-2.5 sm:max-w-[85%] md:max-w-[75%]">
-                            {message.content}
-                          </MessageContent>
-                          <MessageActions
-                            className={cn(
-                              "flex gap-0 opacity-0 transition-opacity duration-150 group-hover:opacity-100"
-                            )}
-                          >
-                            <MessageAction tooltip="Edit" delayDuration={100}>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-full"
-                              >
-                                <Pencil />
-                              </Button>
-                            </MessageAction>
-                            <MessageAction tooltip="Delete" delayDuration={100}>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-full"
-                              >
-                                <Trash />
-                              </Button>
-                            </MessageAction>
-                            <MessageAction tooltip="Copy" delayDuration={100}>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-full"
-                              >
-                                <Copy />
-                              </Button>
-                            </MessageAction>
-                          </MessageActions>
-                        </div>
+                        <MessageContent className="bg-primary text-primary-foreground max-w-[85%]">
+                          {message.content}
+                        </MessageContent>
                       )}
                     </Message>
                   )
@@ -401,11 +372,103 @@ export default function ChatSection() {
                         </Button>
                       </PromptInputAction>
 
+                      {/* Search Mode Selection */}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="outline"
                             className="rounded-full cursor-pointer"
+                          >
+                            <Zap size={18} />
+                            {searchMode === "auto" ? "AUTO" : "MANUAL"}
+                            {searchMode === "auto" && (
+                              <span className="ml-1 text-xs text-muted-foreground">
+                                ({autoAgentType === "single" ? "Single" : "Multi"})
+                              </span>
+                            )}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-72">
+                          <DropdownMenuLabel>Search Mode</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <TooltipProvider>
+                            <DropdownMenuCheckboxItem
+                              checked={searchMode === "auto"}
+                              onCheckedChange={(checked) => {
+                                if (checked) setSearchMode("auto")
+                              }}
+                              onSelect={(e) => e.preventDefault()}
+                              className="cursor-pointer"
+                            >
+                              <Zap size={16} className="mr-2" />
+                              <span className="flex-1">AUTO Mode</span>
+                              <Tooltip delayDuration={100}>
+                                <TooltipTrigger asChild>
+                                  <Info size={14} className="ml-2 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent side="right" className="max-w-xs">
+                                  AI automatically selects the best search strategy for your query
+                                </TooltipContent>
+                              </Tooltip>
+                            </DropdownMenuCheckboxItem>
+
+                            {searchMode === "auto" && (
+                              <>
+                                <div className="ml-8 mt-1 space-y-1">
+                                  <DropdownMenuCheckboxItem
+                                    checked={autoAgentType === "single"}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) setAutoAgentType("single")
+                                    }}
+                                    onSelect={(e) => e.preventDefault()}
+                                    className="cursor-pointer text-sm"
+                                  >
+                                    Single Agent (tool selection)
+                                  </DropdownMenuCheckboxItem>
+                                  <DropdownMenuCheckboxItem
+                                    checked={autoAgentType === "multi"}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) setAutoAgentType("multi")
+                                    }}
+                                    onSelect={(e) => e.preventDefault()}
+                                    className="cursor-pointer text-sm"
+                                  >
+                                    Multi Agent (agent routing)
+                                  </DropdownMenuCheckboxItem>
+                                </div>
+                              </>
+                            )}
+
+                            <DropdownMenuCheckboxItem
+                              checked={searchMode === "manual"}
+                              onCheckedChange={(checked) => {
+                                if (checked) setSearchMode("manual")
+                              }}
+                              onSelect={(e) => e.preventDefault()}
+                              className="cursor-pointer"
+                            >
+                              <Settings size={16} className="mr-2" />
+                              <span className="flex-1">MANUAL Mode</span>
+                              <Tooltip delayDuration={100}>
+                                <TooltipTrigger asChild>
+                                  <Info size={14} className="ml-2 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent side="right" className="max-w-xs">
+                                  Manually select specific RAG modes to use
+                                </TooltipContent>
+                              </Tooltip>
+                            </DropdownMenuCheckboxItem>
+                          </TooltipProvider>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      {/* RAG Modes Selection (only for MANUAL mode) */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="rounded-full cursor-pointer"
+                            disabled={searchMode === "auto"}
                           >
                             <Database size={18} />
                             RAG Modes
