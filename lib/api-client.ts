@@ -49,6 +49,9 @@ interface StreamMessage {
 
 export interface StreamChatOptions {
   userMessage: string
+  searchMode?: "auto" | "manual"
+  autoAgentType?: "single" | "multi"
+  ragModes?: string[]
   onChunk?: (content: string) => void
   onToolCall?: (toolCall: ToolCall) => void
   onToolResult?: (toolResult: ToolResult) => void
@@ -88,6 +91,9 @@ export function parseSourcesFromContent(content: string): SourceInfo[] {
 
 export async function streamChatResponse({
   userMessage,
+  searchMode = "auto",
+  autoAgentType = "single",
+  ragModes = [],
   onChunk,
   onToolCall,
   onToolResult,
@@ -98,11 +104,23 @@ export async function streamChatResponse({
   try {
     const client = getApiClient()
 
+    // Prepare config based on search mode
+    const config: Record<string, unknown> = {
+      searchMode,
+    }
+
+    if (searchMode === "auto") {
+      config.autoAgentType = autoAgentType
+    } else {
+      config.ragModes = ragModes
+    }
+
     const stream = client.runs.stream(
       null, // thread_id (stateless)
       "agent",
       {
         input: { messages: [{ role: "user", content: userMessage }] },
+        config,
         streamMode: "messages",
       }
     )
