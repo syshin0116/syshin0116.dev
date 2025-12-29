@@ -4,9 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu } from "lucide-react";
+import { Menu, ExternalLink } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
-import ExternalLinkIcon from "@/components/ui/external-link-icon";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/theme-toggle";
 import {
@@ -89,14 +88,14 @@ export default function Navbar() {
                     asChild
                     className={navigationMenuTriggerStyle()}
                   >
-                    <Link 
-                      href="https://syshin0116.github.io" 
-                      target="_blank" 
+                    <Link
+                      href="https://syshin0116.github.io"
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5"
                     >
                       <span>Blog</span>
-                      <ExternalLinkIcon size={14} className="opacity-70" />
+                      <ExternalLink className="h-3.5 w-3.5 opacity-70" />
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
@@ -172,14 +171,14 @@ export default function Navbar() {
                   <Link href="/projects" className="text-md font-semibold">
                     Projects
                   </Link>
-                  <Link 
-                    href="https://syshin0116.github.io" 
-                    target="_blank" 
+                  <Link
+                    href="https://syshin0116.github.io"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-md font-semibold inline-flex items-center gap-2"
                   >
                     <span>Blog</span>
-                    <ExternalLinkIcon size={16} className="opacity-70" />
+                    <ExternalLink className="h-4 w-4 opacity-70" />
                   </Link>
 
                   <div className="flex flex-col gap-3">
