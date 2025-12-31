@@ -62,7 +62,7 @@ export const projectsTimeline: ProjectTimeline[] = [
   {
     id: "apphub",
     title: "AppHub - Living Portfolio 플랫폼",
-    period: "2023.09 ~ 진행 중",
+    period: "2025.09 ~ 진행 중",
     year: 2025,
     periodType: "H",
     periodNumber: 2,
@@ -74,8 +74,8 @@ export const projectsTimeline: ProjectTimeline[] = [
   {
     id: "sk-pharmaaix",
     title: "SK PharmaAIX MR Assistant",
-    period: "2024.07 ~ 진행 중",
-    year: 2024,
+    period: "2025.07 ~ 진행 중",
+    year: 2025,
     periodType: "H",
     periodNumber: 2,
     isCompleted: false,
@@ -95,31 +95,7 @@ export const projectsTimeline: ProjectTimeline[] = [
     tags: ["Full Stack", "RAG", "Next.js", "FastAPI"],
     category: "company"
   },
-  {
-    id: "podlybot",
-    title: "PodlyBot - 카카오톡 LLM 챗봇",
-    period: "2024.09 ~ 진행 중",
-    year: 2024,
-    periodType: "H",
-    periodNumber: 2,
-    isCompleted: false,
-    description: "개인 비서 LLM 챗봇 - URL 요약 및 Notion 자동 정리",
-    tags: ["챗봇", "LLM", "Notion API", "JavaScript"],
-    category: "personal"
-  },
-  {
-    id: "labq-bot",
-    title: "LabQ Bot - 회사 카카오톡 챗봇",
-    period: "2024.09 ~ 진행 중",
-    year: 2024,
-    periodType: "H",
-    periodNumber: 2,
-    isCompleted: false,
-    description: "회사 업무용 챗봇 - LLM 서비스 연동 및 테스트 환경 제공",
-    tags: ["챗봇", "LLM", "회사 내부 시스템"],
-    category: "company"
-  },
-  
+
   // 완료된 프로젝트 (최신순)
   {
     id: "naver-hackathon",
@@ -156,6 +132,18 @@ export const projectsTimeline: ProjectTimeline[] = [
     description: "하수처리 공정 수질 예측 및 이상탐지 AI 시스템",
     tags: ["AI/ML", "LightGBM", "PyTorch", "Time Series"],
     category: "company"
+  },
+  {
+    id: "podlybot",
+    title: "PodlyBot - 카카오톡 LLM 챗봇",
+    period: "2024.09",
+    year: 2024,
+    periodType: "H",
+    periodNumber: 2,
+    isCompleted: true,
+    description: "개인 비서 & 회사 업무용 LLM 챗봇 - URL 요약, Notion 자동 정리, 회사 LLM 서비스 연동",
+    tags: ["챗봇", "LLM", "Notion API", "JavaScript"],
+    category: "personal"
   },
   {
     id: "podly",
@@ -213,7 +201,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     id: "sk-pharmaaix",
     title: "SK PharmaAIX MR Assistant",
     subtitle: "제약 영업 지원 AI 챗봇",
-    period: "2024.07 ~ 현재 (진행 중)",
+    period: "2025.07 ~ 현재 (진행 중)",
     duration: "약 6개월",
     role: "AI 파트 리드 / 랩큐 팀 PL",
     team: "랩큐 팀원 3명 + BCG RA 5~6명 리딩",
@@ -671,8 +659,8 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     id: "apphub",
     title: "AppHub - Living Portfolio 플랫폼",
     subtitle: "개인 프로젝트 통합 관리 플랫폼",
-    period: "2023.09 ~ 진행 중",
-    duration: "약 2년 3개월",
+    period: "2025.09 ~ 진행 중",
+    duration: "약 4개월",
     role: "1인 풀스택 개발",
     team: "개인 프로젝트",
     description: "2023년 9월 개인 블로그 RAG 챗봇으로 시작하여 모든 프로젝트를 통합하는 Living Portfolio 플랫폼으로 발전. 기존 정적 포트폴리오를 넘어 실제 동작하는 프로젝트들을 통합 관리. 인증, 데이터베이스, RAG, 챗봇 등 반복 기능을 하나의 플랫폼으로 통합.",
@@ -960,22 +948,22 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
   "podlybot": {
     id: "podlybot",
     title: "PodlyBot - 카카오톡 LLM 챗봇",
-    subtitle: "개인 비서 LLM 챗봇 - URL 요약 및 Notion 자동 정리",
-    period: "2024.09 ~ 현재",
-    duration: "운영 중",
+    subtitle: "개인 비서 & 회사 업무용 LLM 챗봇",
+    period: "2024.09",
+    duration: "약 1개월",
     role: "1인 개발 (기획, 개발, 운영)",
-    team: "개인 프로젝트",
-    description: "안드로이드 폰에 구현한 카카오톡 기반 개인 비서 LLM 챗봇. 단체 채팅방에서 즉시 호출 가능한 LLM 서비스. URL 요약 및 Notion 자동 정리 기능으로 정보 수집 워크플로우 자동화.",
+    team: "개인 프로젝트 + 회사 내부 프로젝트",
+    description: "안드로이드 폰에 구현한 카카오톡 기반 LLM 챗봇. 개인용(PodlyBot)과 회사용(LabQ Bot) 두 가지 버전으로 배포. 단체 채팅방에서 즉시 호출 가능한 LLM 서비스. URL 요약 및 Notion 자동 정리 기능으로 정보 수집 워크플로우 자동화. 회사용은 자체 LLM 서비스 연동 및 고객사 테스트 환경 제공.",
     techStack: {
       platform: ["메신저봇R (Android)"],
       language: ["JavaScript (Rhino JavaScript Engine)"],
-      ai: ["LLM API (OpenAI GPT 등)"],
-      integration: ["Notion API", "Web Scraping"],
+      ai: ["LLM API (OpenAI GPT 등)", "회사 자체 LLM 서비스"],
+      integration: ["Notion API (개인/회사 워크스페이스)", "Web Scraping"],
       deployment: ["안드로이드 공기계"]
     },
     keyFeatures: [
       {
-        title: "LLM 대화 기능",
+        title: "공통 기능: LLM 대화 기능",
         details: [
           "카카오톡 단체 채팅방에서 바로 호출 가능",
           "별도 설명 없이 즉시 사용 가능한 직관적 인터페이스",
@@ -984,7 +972,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         ]
       },
       {
-        title: "URL 요약 및 Notion 정리",
+        title: "공통 기능: URL 요약 및 Notion 정리",
         details: [
           "채팅방에 공유된 URL 자동 감지",
           "웹 페이지 내용 크롤링 및 요약 생성",
@@ -993,20 +981,30 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         ]
       },
       {
-        title: "개인 워크플로우 최적화",
+        title: "개인용 (PodlyBot): 워크플로우 최적화",
         details: [
           "유용한 URL 발견 시 카톡으로 전송",
-          "자동으로 요약 및 Notion 정리",
+          "자동으로 요약 및 개인 Notion에 정리",
           "Notion에서 체계적으로 정리된 내용 검토",
           "24/7 상시 운영 (안드로이드 공기계)"
+        ]
+      },
+      {
+        title: "회사용 (LabQ Bot): LLM 서비스 연동 및 테스트",
+        details: [
+          "(주)랩큐에서 개발한 AI 서비스들과 연동",
+          "고객사가 카톡으로 간편하게 테스트 가능",
+          "데모 및 프로토타입 공유 용도",
+          "팀원들이 공유하는 기술 자료, 뉴스 회사 Notion에 정리"
         ]
       }
     ],
     achievements: [
-      "일상적인 정보 수집 및 정리 워크플로우 자동화",
+      "개인용과 회사용 두 가지 버전으로 배포하여 다양한 사용 케이스 대응",
+      "개인용: 일상적인 정보 수집 및 정리 워크플로우 자동화, 지인들도 사용 요청",
+      "회사용: 고객사가 별도 환경 설정 없이 LLM 서비스 테스트 가능",
       "URL 공유 시 즉시 요약 및 Notion 정리로 생산성 향상",
-      "단체 채팅방에서 LLM 서비스 간편하게 활용",
-      "지인들도 사용 요청할 정도로 편리함 인정"
+      "단체 채팅방에서 LLM 서비스 간편하게 활용"
     ],
     challenges: [
       {
@@ -1022,65 +1020,10 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       "작은 불편함 해결이 큰 가치: 개인 문제 해결이 주변 사람들 생산성 향상으로",
       "레거시 환경 극복: Rhino JavaScript 제약 속에서 구현",
       "24/7 운영 경험: 안드로이드 공기계 활용 노하우",
-      "실용주의: 수익보다 실제 문제 해결에 집중"
-    ]
-  },
-  "labq-bot": {
-    id: "labq-bot",
-    title: "LabQ Bot - 회사 카카오톡 챗봇",
-    subtitle: "회사 업무용 챗봇 - LLM 서비스 연동 및 테스트 환경",
-    period: "2024.09 ~ 현재",
-    duration: "운영 중",
-    role: "1인 개발 (기획, 개발, 운영)",
-    team: "랩큐 내부 프로젝트",
-    description: "회사 카카오톡 채팅방에서 사용하는 업무용 챗봇. 회사에서 개발한 LLM 서비스들과 연동. 고객사 및 팀원들의 빠른 테스트 지원. URL 요약 및 회사 Notion 정리 자동화.",
-    techStack: {
-      platform: ["메신저봇R (Android)"],
-      language: ["JavaScript (Rhino JavaScript Engine)"],
-      ai: ["회사 자체 LLM 서비스"],
-      integration: ["Notion API (회사 워크스페이스)"],
-      deployment: ["안드로이드 공기계"]
-    },
-    keyFeatures: [
-      {
-        title: "회사 LLM 서비스 연동",
-        details: [
-          "(주)랩큐에서 개발한 AI 서비스들과 연동",
-          "고객사가 카톡으로 간편하게 테스트 가능",
-          "데모 및 프로토타입 공유 용도",
-          "별도 환경 설정 없이 즉시 테스트"
-        ]
-      },
-      {
-        title: "URL 요약 및 회사 Notion 정리",
-        details: [
-          "회사 채팅방에 공유되는 URL 자동 감지",
-          "웹 페이지 요약 생성 및 회사 Notion에 정리",
-          "팀원들이 공유하는 기술 자료, 뉴스 체계적 관리",
-          "회사 Notion 워크스페이스 연동"
-        ]
-      },
-      {
-        title: "업무 자동화",
-        details: [
-          "자주 사용하는 정보 조회 기능",
-          "팀 내부 지식 베이스 구축 지원",
-          "반복적인 질문에 대한 자동 응답",
-          "고객사 테스트 환경 제공"
-        ]
-      }
-    ],
-    achievements: [
-      "고객사가 별도 환경 설정 없이 LLM 서비스 테스트 가능",
-      "회사 내부 지식 공유 및 정리 자동화",
-      "팀원들의 생산성 향상",
-      "데모 및 프로토타입 공유 간소화"
-    ],
-    learnings: [
-      "회사 내부 시스템 연동: 자체 LLM 서비스와 Notion 워크스페이스",
-      "고객사 지원: 간편한 테스트 환경 제공의 가치",
-      "팀 협업 도구: 지식 공유 자동화의 효과",
-      "PodlyBot 대비 확장: 개인 → 회사 업무용으로 확장"
+      "실용주의: 수익보다 실제 문제 해결에 집중",
+      "확장 가능한 설계: 같은 기술 베이스로 개인용과 회사용 두 버전 배포",
+      "회사 내부 시스템 연동: 자체 LLM 서비스와 Notion 워크스페이스 통합",
+      "고객사 지원: 간편한 테스트 환경 제공의 가치"
     ]
   },
   "naver-hackathon": {

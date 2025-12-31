@@ -410,7 +410,13 @@ export default function ChatSection() {
                               <span className="flex-1">AUTO Mode</span>
                               <Tooltip delayDuration={100}>
                                 <TooltipTrigger asChild>
-                                  <Info size={14} className="ml-2 text-muted-foreground cursor-help" />
+                                  <div
+                                    className="ml-2"
+                                    onClick={(e) => e.stopPropagation()}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                  >
+                                    <Info size={14} className="text-muted-foreground cursor-help" />
+                                  </div>
                                 </TooltipTrigger>
                                 <TooltipContent side="right" className="max-w-xs">
                                   AI automatically selects the best search strategy for your query
@@ -419,48 +425,59 @@ export default function ChatSection() {
                             </DropdownMenuCheckboxItem>
 
                             {searchMode === "auto" && (
-                              <>
-                                <div className="ml-8 mt-1 space-y-1">
-                                  <DropdownMenuCheckboxItem
-                                    checked={autoAgentType === "single"}
-                                    onCheckedChange={(checked) => {
-                                      if (checked) setAutoAgentType("single")
-                                    }}
-                                    onSelect={(e) => e.preventDefault()}
-                                    className="cursor-pointer text-sm"
-                                  >
-                                    <span className="flex-1">Single Agent (tool selection)</span>
-                                    <Tooltip delayDuration={100}>
-                                      <TooltipTrigger asChild>
-                                        <Info size={12} className="ml-1 text-muted-foreground cursor-help" />
-                                      </TooltipTrigger>
-                                      <TooltipContent side="right" className="max-w-xs text-xs">
-                                        One AI agent with multiple tools to choose from
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </DropdownMenuCheckboxItem>
-                                  <DropdownMenuCheckboxItem
-                                    checked={autoAgentType === "multi"}
-                                    onCheckedChange={(checked) => {
-                                      if (checked) setAutoAgentType("multi")
-                                    }}
-                                    onSelect={(e) => e.preventDefault()}
-                                    className="cursor-pointer text-sm"
-                                  >
-                                    <span className="flex-1">Multi Agent (agent routing)</span>
-                                    <Tooltip delayDuration={100}>
-                                      <TooltipTrigger asChild>
-                                        <Info size={12} className="ml-1 text-muted-foreground cursor-help" />
-                                      </TooltipTrigger>
-                                      <TooltipContent side="right" className="max-w-xs text-xs">
-                                        Multiple specialized AI agents routed based on query type
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </DropdownMenuCheckboxItem>
-                                </div>
-                                <DropdownMenuSeparator className="my-1" />
-                              </>
+                              <div className="ml-8 mt-1 mb-1 space-y-1">
+                                <DropdownMenuCheckboxItem
+                                  checked={autoAgentType === "single"}
+                                  onCheckedChange={(checked) => {
+                                    if (checked) setAutoAgentType("single")
+                                  }}
+                                  onSelect={(e) => e.preventDefault()}
+                                  className="cursor-pointer text-sm"
+                                >
+                                  <span className="flex-1">Single Agent (tool selection)</span>
+                                  <Tooltip delayDuration={100}>
+                                    <TooltipTrigger asChild>
+                                      <div
+                                        className="ml-1"
+                                        onClick={(e) => e.stopPropagation()}
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                      >
+                                        <Info size={12} className="text-muted-foreground cursor-help" />
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" className="max-w-xs text-xs">
+                                      One AI agent with multiple tools to choose from
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </DropdownMenuCheckboxItem>
+                                <DropdownMenuCheckboxItem
+                                  checked={autoAgentType === "multi"}
+                                  onCheckedChange={(checked) => {
+                                    if (checked) setAutoAgentType("multi")
+                                  }}
+                                  onSelect={(e) => e.preventDefault()}
+                                  className="cursor-pointer text-sm"
+                                >
+                                  <span className="flex-1">Multi Agent (agent routing)</span>
+                                  <Tooltip delayDuration={100}>
+                                    <TooltipTrigger asChild>
+                                      <div
+                                        className="ml-1"
+                                        onClick={(e) => e.stopPropagation()}
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                      >
+                                        <Info size={12} className="text-muted-foreground cursor-help" />
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" className="max-w-xs text-xs">
+                                      Multiple specialized AI agents routed based on query type
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </DropdownMenuCheckboxItem>
+                              </div>
                             )}
+
+                            <DropdownMenuSeparator className="my-1" />
 
                             {/* MANUAL Mode Section */}
                             <DropdownMenuCheckboxItem
@@ -475,7 +492,13 @@ export default function ChatSection() {
                               <span className="flex-1">MANUAL Mode</span>
                               <Tooltip delayDuration={100}>
                                 <TooltipTrigger asChild>
-                                  <Info size={14} className="ml-2 text-muted-foreground cursor-help" />
+                                  <div
+                                    className="ml-2"
+                                    onClick={(e) => e.stopPropagation()}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                  >
+                                    <Info size={14} className="text-muted-foreground cursor-help" />
+                                  </div>
                                 </TooltipTrigger>
                                 <TooltipContent side="right" className="max-w-xs">
                                   Manually select specific RAG modes to use
@@ -484,105 +507,127 @@ export default function ChatSection() {
                             </DropdownMenuCheckboxItem>
 
                             {searchMode === "manual" && (
-                              <>
-                                <div className="ml-8 mt-1 space-y-1">
-                                  <DropdownMenuCheckboxItem
-                                    checked={selectedRagModes.includes("metadata_search")}
-                                    onCheckedChange={(checked) => {
-                                      setSelectedRagModes(prev =>
-                                        checked
-                                          ? [...prev, "metadata_search"]
-                                          : prev.filter(m => m !== "metadata_search")
-                                      )
-                                    }}
-                                    onSelect={(e) => e.preventDefault()}
-                                    className="cursor-pointer text-sm"
-                                  >
-                                    <Tag size={14} className="mr-2" />
-                                    <span className="flex-1">Metadata Search</span>
-                                    <Tooltip delayDuration={100}>
-                                      <TooltipTrigger asChild>
-                                        <Info size={12} className="ml-1 text-muted-foreground cursor-help" />
-                                      </TooltipTrigger>
-                                      <TooltipContent side="right" className="max-w-xs text-xs">
-                                        Search through blog post metadata including titles, tags, categories, and dates
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </DropdownMenuCheckboxItem>
+                              <div className="ml-8 mt-1 space-y-1">
+                                <DropdownMenuCheckboxItem
+                                  checked={selectedRagModes.includes("metadata_search")}
+                                  onCheckedChange={(checked) => {
+                                    setSelectedRagModes(prev =>
+                                      checked
+                                        ? [...prev, "metadata_search"]
+                                        : prev.filter(m => m !== "metadata_search")
+                                    )
+                                  }}
+                                  onSelect={(e) => e.preventDefault()}
+                                  className="cursor-pointer text-sm"
+                                >
+                                  <Tag size={14} className="mr-2" />
+                                  <span className="flex-1">Metadata Search</span>
+                                  <Tooltip delayDuration={100}>
+                                    <TooltipTrigger asChild>
+                                      <div
+                                        className="ml-1"
+                                        onClick={(e) => e.stopPropagation()}
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                      >
+                                        <Info size={12} className="text-muted-foreground cursor-help" />
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" className="max-w-xs text-xs">
+                                      Search through blog post metadata including titles, tags, categories, and dates
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </DropdownMenuCheckboxItem>
 
-                                  <DropdownMenuCheckboxItem
-                                    checked={selectedRagModes.includes("filesystem_search")}
-                                    onCheckedChange={(checked) => {
-                                      setSelectedRagModes(prev =>
-                                        checked
-                                          ? [...prev, "filesystem_search"]
-                                          : prev.filter(m => m !== "filesystem_search")
-                                      )
-                                    }}
-                                    onSelect={(e) => e.preventDefault()}
-                                    className="cursor-pointer text-sm"
-                                  >
-                                    <FolderSearch size={14} className="mr-2" />
-                                    <span className="flex-1">Filesystem Search</span>
-                                    <Tooltip delayDuration={100}>
-                                      <TooltipTrigger asChild>
-                                        <Info size={12} className="ml-1 text-muted-foreground cursor-help" />
-                                      </TooltipTrigger>
-                                      <TooltipContent side="right" className="max-w-xs text-xs">
-                                        Search through project files and code repositories using file system structure
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </DropdownMenuCheckboxItem>
+                                <DropdownMenuCheckboxItem
+                                  checked={selectedRagModes.includes("filesystem_search")}
+                                  onCheckedChange={(checked) => {
+                                    setSelectedRagModes(prev =>
+                                      checked
+                                        ? [...prev, "filesystem_search"]
+                                        : prev.filter(m => m !== "filesystem_search")
+                                    )
+                                  }}
+                                  onSelect={(e) => e.preventDefault()}
+                                  className="cursor-pointer text-sm"
+                                >
+                                  <FolderSearch size={14} className="mr-2" />
+                                  <span className="flex-1">Filesystem Search</span>
+                                  <Tooltip delayDuration={100}>
+                                    <TooltipTrigger asChild>
+                                      <div
+                                        className="ml-1"
+                                        onClick={(e) => e.stopPropagation()}
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                      >
+                                        <Info size={12} className="text-muted-foreground cursor-help" />
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" className="max-w-xs text-xs">
+                                      Search through project files and code repositories using file system structure
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </DropdownMenuCheckboxItem>
 
-                                  <DropdownMenuCheckboxItem
-                                    checked={selectedRagModes.includes("vector_search")}
-                                    onCheckedChange={(checked) => {
-                                      setSelectedRagModes(prev =>
-                                        checked
-                                          ? [...prev, "vector_search"]
-                                          : prev.filter(m => m !== "vector_search")
-                                      )
-                                    }}
-                                    onSelect={(e) => e.preventDefault()}
-                                    className="cursor-pointer text-sm"
-                                  >
-                                    <Network size={14} className="mr-2" />
-                                    <span className="flex-1">Vector Search</span>
-                                    <Tooltip delayDuration={100}>
-                                      <TooltipTrigger asChild>
-                                        <Info size={12} className="ml-1 text-muted-foreground cursor-help" />
-                                      </TooltipTrigger>
-                                      <TooltipContent side="right" className="max-w-xs text-xs">
-                                        Semantic search using AI embeddings to find contextually relevant content
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </DropdownMenuCheckboxItem>
+                                <DropdownMenuCheckboxItem
+                                  checked={selectedRagModes.includes("vector_search")}
+                                  onCheckedChange={(checked) => {
+                                    setSelectedRagModes(prev =>
+                                      checked
+                                        ? [...prev, "vector_search"]
+                                        : prev.filter(m => m !== "vector_search")
+                                    )
+                                  }}
+                                  onSelect={(e) => e.preventDefault()}
+                                  className="cursor-pointer text-sm"
+                                >
+                                  <Network size={14} className="mr-2" />
+                                  <span className="flex-1">Vector Search</span>
+                                  <Tooltip delayDuration={100}>
+                                    <TooltipTrigger asChild>
+                                      <div
+                                        className="ml-1"
+                                        onClick={(e) => e.stopPropagation()}
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                      >
+                                        <Info size={12} className="text-muted-foreground cursor-help" />
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" className="max-w-xs text-xs">
+                                      Semantic search using AI embeddings to find contextually relevant content
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </DropdownMenuCheckboxItem>
 
-                                  <DropdownMenuCheckboxItem
-                                    checked={selectedRagModes.includes("graph_search")}
-                                    onCheckedChange={(checked) => {
-                                      setSelectedRagModes(prev =>
-                                        checked
-                                          ? [...prev, "graph_search"]
-                                          : prev.filter(m => m !== "graph_search")
-                                      )
-                                    }}
-                                    onSelect={(e) => e.preventDefault()}
-                                    className="cursor-pointer text-sm"
-                                  >
-                                    <GitBranch size={14} className="mr-2" />
-                                    <span className="flex-1">Graph Search</span>
-                                    <Tooltip delayDuration={100}>
-                                      <TooltipTrigger asChild>
-                                        <Info size={12} className="ml-1 text-muted-foreground cursor-help" />
-                                      </TooltipTrigger>
-                                      <TooltipContent side="right" className="max-w-xs text-xs">
-                                        Knowledge graph-based search to find related concepts and relationships
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </DropdownMenuCheckboxItem>
-                                </div>
-                              </>
+                                <DropdownMenuCheckboxItem
+                                  checked={selectedRagModes.includes("graph_search")}
+                                  onCheckedChange={(checked) => {
+                                    setSelectedRagModes(prev =>
+                                      checked
+                                        ? [...prev, "graph_search"]
+                                        : prev.filter(m => m !== "graph_search")
+                                    )
+                                  }}
+                                  onSelect={(e) => e.preventDefault()}
+                                  className="cursor-pointer text-sm"
+                                >
+                                  <GitBranch size={14} className="mr-2" />
+                                  <span className="flex-1">Graph Search</span>
+                                  <Tooltip delayDuration={100}>
+                                    <TooltipTrigger asChild>
+                                      <div
+                                        className="ml-1"
+                                        onClick={(e) => e.stopPropagation()}
+                                        onMouseDown={(e) => e.stopPropagation()}
+                                      >
+                                        <Info size={12} className="text-muted-foreground cursor-help" />
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" className="max-w-xs text-xs">
+                                      Knowledge graph-based search to find related concepts and relationships
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </DropdownMenuCheckboxItem>
+                              </div>
                             )}
                           </TooltipProvider>
                         </DropdownMenuContent>
