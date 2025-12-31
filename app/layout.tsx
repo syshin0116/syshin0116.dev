@@ -27,11 +27,12 @@ export const metadata: Metadata = {
     "AI Chatbot",
     "Developer Portfolio",
   ],
+  metadataBase: new URL("https://syshin0116.vercel.app"),
   openGraph: {
     type: "website",
     siteName: "Syshin's Portfolio",
     locale: "en_US",
-    url: "https://portfolio-web.vercel.app",
+    url: "https://syshin0116.vercel.app",
     title: "Syshin's AI Portfolio Assistant",
     description:
       "Chat with AI about Syshin's projects, blog posts, and technical expertise. Powered by RAG technology.",
