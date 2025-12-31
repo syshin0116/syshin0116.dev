@@ -62,13 +62,13 @@ export const projectsTimeline: ProjectTimeline[] = [
   {
     id: "apphub",
     title: "AppHub - Living Portfolio 플랫폼",
-    period: "2025.09 ~ 진행 중",
+    period: "2025.11 ~ 진행 중",
     year: 2025,
     periodType: "H",
     periodNumber: 2,
     isCompleted: false,
-    description: "실제 동작하는 프로젝트들을 통합 관리하는 Living Portfolio 플랫폼. 개인 블로그 RAG 챗봇부터 시작하여 모든 프로젝트를 통합하는 플랫폼으로 발전.",
-    tags: ["Full Stack", "Next.js 15", "React 19", "RAG", "Vector DB"],
+    description: "실제 동작하는 프로젝트들을 통합 관리하는 Living Portfolio 플랫폼. 모든 개인 프로젝트를 통합하는 플랫폼으로 개발. 인증, 데이터베이스, AI 백엔드 등을 통합 관리.",
+    tags: ["Full Stack", "Next.js 15", "React 19", "LangGraph", "Supabase"],
     category: "personal"
   },
   {
@@ -659,88 +659,92 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     id: "apphub",
     title: "AppHub - Living Portfolio 플랫폼",
     subtitle: "개인 프로젝트 통합 관리 플랫폼",
-    period: "2025.09 ~ 진행 중",
-    duration: "약 4개월",
+    period: "2025.11 ~ 진행 중",
+    duration: "약 2개월",
     role: "1인 풀스택 개발",
     team: "개인 프로젝트",
-    description: "2023년 9월 개인 블로그 RAG 챗봇으로 시작하여 모든 프로젝트를 통합하는 Living Portfolio 플랫폼으로 발전. 기존 정적 포트폴리오를 넘어 실제 동작하는 프로젝트들을 통합 관리. 인증, 데이터베이스, RAG, 챗봇 등 반복 기능을 하나의 플랫폼으로 통합.",
+    description: "2025년 11월부터 개발한 Living Portfolio 플랫폼. 기존 정적 포트폴리오를 넘어 실제 동작하는 프로젝트들을 통합 관리. 인증, 데이터베이스, AI 백엔드 등 반복 기능을 하나의 플랫폼으로 통합.",
     techStack: {
-      frontend: ["React 19", "Next.js 15", "TypeScript"],
-      backend: ["FastAPI", "Python"],
-      database: ["Drizzle ORM", "PostgreSQL", "Qdrant (Vector DB)", "Neo4j (Graph DB)"],
-      authentication: ["better-auth"],
-      statemanagement: ["Zustand"],
-      aiml: ["LangChain", "RAG", "OpenAI API"],
-      linting: ["Biome"],
-      packagemanager: ["Bun"],
-      deployment: ["Vercel", "Railway", "Fly.io"]
+      frontend: ["React 19", "Next.js 15", "TypeScript", "Tailwind CSS 4", "Radix UI", "Framer Motion"],
+      backend: ["FastAPI", "Python 3.13", "LangGraph"],
+      database: ["Supabase (PostgreSQL)", "LangGraph Checkpoint Postgres"],
+      authentication: ["Supabase Auth", "Google OAuth 2.0", "GitHub OAuth 2.0"],
+      aiml: ["LangChain", "LangGraph", "OpenAI API", "Anthropic Claude"],
+      statemanagement: ["React 19 (use hook)", "Context API"],
+      deployment: ["Vercel (웹)", "Google Cloud (AI 백엔드)"],
+      devtools: ["ESLint", "TypeScript", "Ruff", "UV Package Manager"]
     },
     keyFeatures: [
       {
-        title: "Phase 1: Blog RAG 챗봇 (2023.09 ~ 2023.12)",
+        title: "통합 인증 시스템",
         details: [
-          "Markdown 형식의 블로그 글 자동 수집 및 파싱",
-          "ChromaDB를 활용한 문서 임베딩 저장",
-          "청크 단위 분할 및 최적화",
-          "RAG 기반 질의응답 챗봇 (평균 응답 시간 2초)",
-          "Streamlit 기반 UI 구현"
+          "Supabase Auth 기반 사용자 인증",
+          "Google OAuth 2.0 소셜 로그인",
+          "세션 관리 및 보안 토큰 처리",
+          "향후 모든 개인 프로젝트에서 공통 사용 예정"
         ]
       },
       {
-        title: "Phase 2: 공통 인프라 플랫폼 (2024 ~ 진행중)",
+        title: "LangGraph AI 백엔드",
         details: [
-          "Single Sign-On (SSO): 한 번 로그인으로 모든 프로젝트 접근",
-          "통합 AI 백엔드: 프로젝트 간 데이터 공유 및 AI 에이전트",
-          "통합 검색: 모든 프로젝트의 데이터를 한 번에 검색",
-          "마이크로서비스 아키텍처: 확장 가능한 설계"
+          "FastAPI 기반 RESTful API 서버",
+          "LangGraph 멀티 에이전트 시스템",
+          "LangChain을 활용한 AI 워크플로우",
+          "LangGraph Checkpoint로 대화 상태 영속화",
+          "Google Cloud에 배포된 AI 백엔드"
         ]
       },
       {
-        title: "Living Portfolio 차별점",
+        title: "Supabase 데이터베이스",
         details: [
-          "실증적 기술 역량 증명: '만들 수 있어요' → '만들어서 운영하고 있어요'",
-          "즉시 체험: 면접관이 직접 프로젝트를 사용하고 테스트 가능",
-          "통합 아키텍처: 개별 인프라 → 통합 플랫폼"
+          "PostgreSQL 기반 관계형 데이터베이스",
+          "실시간 구독 기능 활용 가능",
+          "Row Level Security (RLS) 보안 정책",
+          "Supabase Storage로 파일 관리 (향후 확장)"
         ]
       },
       {
-        title: "하이브리드 검색 시스템",
+        title: "모던 프론트엔드",
         details: [
-          "Qdrant (Vector DB): Dense 벡터 검색",
-          "Neo4j (Graph DB): 관계 기반 검색",
-          "pgvector: PostgreSQL 기반 벡터 검색 실험"
+          "React 19 최신 기능 활용 (use hook 등)",
+          "Next.js 15 App Router 아키텍처",
+          "Tailwind CSS 4 스타일링",
+          "Radix UI 접근성 높은 컴포넌트",
+          "Framer Motion 애니메이션",
+          "Vercel에 배포된 웹 애플리케이션"
         ]
       }
     ],
     achievements: [
-      "Phase 1: 블로그 콘텐츠 100% 벡터화, 평균 응답 시간 2초, 검색 정확도 90% 이상",
-      "Phase 2: 최신 기술 스택 경험 (React 19, Next.js 15, better-auth, Drizzle ORM)",
-      "Living Portfolio 콘셉트로 차별화된 기술 역량 증명",
-      "공통 인프라 재사용으로 개발 효율성 극대화",
-      "약 2년간 지속적인 개발 및 확장"
+      "최신 기술 스택 활용 (React 19, Next.js 15, Tailwind CSS 4)",
+      "Supabase를 활용한 완전한 백엔드 인프라 구축",
+      "Google Cloud에 LangGraph AI 백엔드 성공적으로 배포",
+      "Vercel을 통한 웹 애플리케이션 자동 배포 및 운영",
+      "개인 프로젝트들을 위한 재사용 가능한 공통 인프라 구축",
+      "Living Portfolio 콘셉트로 차별화된 기술 역량 증명"
     ],
     challenges: [
       {
-        title: "Phase 1: 청크 크기 최적화",
-        description: "코드 블록이 포함된 기술 글의 특성상 적절한 청크 크기를 찾는 것이 중요. 여러 실험을 통해 최적 크기 도출"
+        title: "최신 기술 스택 학습",
+        description: "React 19, Next.js 15, Tailwind CSS 4 등 최신 버전 학습. 공식 문서와 실험을 통해 빠르게 습득"
       },
       {
-        title: "Phase 1: 코드 블록 처리",
-        description: "마크다운 코드 블록을 임베딩할 때 정보 손실 최소화. 코드와 설명을 함께 저장하는 방식으로 해결"
+        title: "LangGraph 백엔드 배포",
+        description: "Google Cloud에 FastAPI + LangGraph 백엔드 배포. Docker 컨테이너화 및 환경 변수 관리로 해결"
       },
       {
-        title: "Phase 2: 플랫폼화",
-        description: "개별 프로젝트에서 공통 플랫폼으로 전환. 마이크로서비스 아키텍처 설계 및 구현"
+        title: "Supabase 통합",
+        description: "Supabase Auth, Database, Storage 통합. 공식 SDK와 문서를 통해 체계적으로 구현"
       }
     ],
     learnings: [
-      "RAG 시스템 구축의 기초: 임베딩, 벡터 DB, 검색 메커니즘",
-      "LangChain 프레임워크 활용 경험",
-      "청크 전략 및 임베딩 최적화 노하우",
-      "설계 원칙: 관심사의 분리, 확장 가능한 모듈 구조",
-      "최신 기술 스택 빠른 학습 및 적용",
-      "플랫폼 사고: 재사용 가능한 인프라 구축",
-      "장기 프로젝트 관리: 약 2년간 지속적인 개발 및 확장 경험"
+      "최신 프론트엔드 생태계: React 19, Next.js 15의 새로운 기능들",
+      "풀스택 개발 경험: 프론트엔드부터 AI 백엔드까지 전체 스택 구현",
+      "클라우드 배포: Vercel과 Google Cloud 활용한 프로덕션 배포",
+      "Supabase BaaS: 백엔드 인프라를 빠르게 구축하는 방법",
+      "LangGraph 아키텍처: 멀티 에이전트 시스템 구축 및 상태 관리",
+      "설계 원칙: 재사용 가능한 공통 인프라 구축의 중요성",
+      "개발 생산성: 최신 도구와 프레임워크를 활용한 빠른 개발"
     ]
   },
   "men-in-black": {
