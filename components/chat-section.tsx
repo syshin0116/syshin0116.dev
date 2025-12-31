@@ -418,8 +418,8 @@ export default function ChatSection() {
                                     <Info size={14} className="text-muted-foreground cursor-help" />
                                   </div>
                                 </TooltipTrigger>
-                                <TooltipContent side="right" className="max-w-xs" sideOffset={10}>
-                                  AI automatically selects the best search strategy for your query
+                                <TooltipContent side="right" className="max-w-[240px]" sideOffset={10}>
+                                  <p className="text-balance">AI automatically selects the best search strategy for your query</p>
                                 </TooltipContent>
                               </Tooltip>
                             </DropdownMenuCheckboxItem>
@@ -445,8 +445,8 @@ export default function ChatSection() {
                                         <Info size={12} className="text-muted-foreground cursor-help" />
                                       </div>
                                     </TooltipTrigger>
-                                    <TooltipContent side="right" className="max-w-xs text-xs" sideOffset={10}>
-                                      One AI agent with multiple tools to choose from
+                                    <TooltipContent side="right" className="max-w-[200px] text-xs" sideOffset={10}>
+                                      <p className="text-balance">One AI agent with multiple tools to choose from</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </DropdownMenuCheckboxItem>
@@ -469,8 +469,8 @@ export default function ChatSection() {
                                         <Info size={12} className="text-muted-foreground cursor-help" />
                                       </div>
                                     </TooltipTrigger>
-                                    <TooltipContent side="right" className="max-w-xs text-xs" sideOffset={10}>
-                                      Multiple specialized AI agents routed based on query type
+                                    <TooltipContent side="right" className="max-w-[200px] text-xs" sideOffset={10}>
+                                      <p className="text-balance">Multiple specialized AI agents routed based on query type</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </DropdownMenuCheckboxItem>
@@ -500,8 +500,8 @@ export default function ChatSection() {
                                     <Info size={14} className="text-muted-foreground cursor-help" />
                                   </div>
                                 </TooltipTrigger>
-                                <TooltipContent side="right" className="max-w-xs" sideOffset={10}>
-                                  Manually select specific RAG modes to use
+                                <TooltipContent side="right" className="max-w-[200px]" sideOffset={10}>
+                                  <p className="text-balance">Manually select specific RAG modes to use</p>
                                 </TooltipContent>
                               </Tooltip>
                             </DropdownMenuCheckboxItem>
@@ -532,8 +532,8 @@ export default function ChatSection() {
                                         <Info size={12} className="text-muted-foreground cursor-help" />
                                       </div>
                                     </TooltipTrigger>
-                                    <TooltipContent side="right" className="max-w-xs text-xs" sideOffset={10}>
-                                      Search through blog post metadata including titles, tags, categories, and dates
+                                    <TooltipContent side="right" className="max-w-[240px] text-xs" sideOffset={10}>
+                                      <p className="text-balance">Search through blog post metadata including titles, tags, categories, and dates</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </DropdownMenuCheckboxItem>
@@ -562,8 +562,8 @@ export default function ChatSection() {
                                         <Info size={12} className="text-muted-foreground cursor-help" />
                                       </div>
                                     </TooltipTrigger>
-                                    <TooltipContent side="right" className="max-w-xs text-xs" sideOffset={10}>
-                                      Search through project files and code repositories using file system structure
+                                    <TooltipContent side="right" className="max-w-[240px] text-xs" sideOffset={10}>
+                                      <p className="text-balance">Search through project files and code repositories using file system structure</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </DropdownMenuCheckboxItem>
@@ -592,8 +592,8 @@ export default function ChatSection() {
                                         <Info size={12} className="text-muted-foreground cursor-help" />
                                       </div>
                                     </TooltipTrigger>
-                                    <TooltipContent side="right" className="max-w-xs text-xs" sideOffset={10}>
-                                      Semantic search using AI embeddings to find contextually relevant content
+                                    <TooltipContent side="right" className="max-w-[240px] text-xs" sideOffset={10}>
+                                      <p className="text-balance">Semantic search using AI embeddings to find contextually relevant content</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </DropdownMenuCheckboxItem>
@@ -622,8 +622,8 @@ export default function ChatSection() {
                                         <Info size={12} className="text-muted-foreground cursor-help" />
                                       </div>
                                     </TooltipTrigger>
-                                    <TooltipContent side="right" className="max-w-xs text-xs" sideOffset={10}>
-                                      Knowledge graph-based search to find related concepts and relationships
+                                    <TooltipContent side="right" className="max-w-[240px] text-xs" sideOffset={10}>
+                                      <p className="text-balance">Knowledge graph-based search to find related concepts and relationships</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </DropdownMenuCheckboxItem>
