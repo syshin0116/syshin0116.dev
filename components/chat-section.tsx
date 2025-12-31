@@ -66,25 +66,14 @@ interface ChatMessage {
   sources?: SourceInfo[]
 }
 
-// Available AI models for selection
-const AVAILABLE_MODELS = [
-  "gpt-4.1-nano",
-  "gpt-4o",
-  "gpt-4.1",
-  "gpt-4.1-mini",
-  "gpt-5.1",
-  "gpt-5.1-mini",
-  "gpt-5.1-nano",
-] as const
-
 export default function ChatSection() {
   const searchParams = useSearchParams()
   const [prompt, setPrompt] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
-  
+
   // Model selection state
-  const [selectedModel, setSelectedModel] = useState("gpt-4.1-nano")
+  const selectedModel = "gpt-4.1-nano"
 
   // Search mode state
   const [searchMode, setSearchMode] = useState<"auto" | "manual">("auto")

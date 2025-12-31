@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/hover-card"
 import { cn } from "@/lib/utils"
 import { createContext, useContext } from "react"
+import Image from "next/image"
 
 const SourceContext = createContext<{
   href: string
@@ -68,7 +69,7 @@ export function SourceTrigger({
         )}
       >
         {showFavicon && (
-          <img
+          <Image
             src={`https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(
               href
             )}`}
@@ -106,7 +107,7 @@ export function SourceContent({
         className="flex flex-col gap-2 p-3"
       >
         <div className="flex items-center gap-1.5">
-          <img
+          <Image
             src={`https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(
               href
             )}`}
