@@ -380,6 +380,7 @@ export default function ChatSection() {
                             className="rounded-full cursor-pointer"
                           >
                             <Database size={18} />
+                            <span className="text-xs text-muted-foreground mr-1">RAG Mode:</span>
                             {searchMode === "auto" ? "AUTO" : "MANUAL"}
                             {searchMode === "auto" ? (
                               <span className="ml-1 text-xs text-muted-foreground">
@@ -428,7 +429,15 @@ export default function ChatSection() {
                                     onSelect={(e) => e.preventDefault()}
                                     className="cursor-pointer text-sm"
                                   >
-                                    Single Agent (tool selection)
+                                    <span className="flex-1">Single Agent (tool selection)</span>
+                                    <Tooltip delayDuration={100}>
+                                      <TooltipTrigger asChild>
+                                        <Info size={12} className="ml-1 text-muted-foreground cursor-help" />
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right" className="max-w-xs text-xs">
+                                        One AI agent with multiple tools to choose from
+                                      </TooltipContent>
+                                    </Tooltip>
                                   </DropdownMenuCheckboxItem>
                                   <DropdownMenuCheckboxItem
                                     checked={autoAgentType === "multi"}
@@ -438,7 +447,15 @@ export default function ChatSection() {
                                     onSelect={(e) => e.preventDefault()}
                                     className="cursor-pointer text-sm"
                                   >
-                                    Multi Agent (agent routing)
+                                    <span className="flex-1">Multi Agent (agent routing)</span>
+                                    <Tooltip delayDuration={100}>
+                                      <TooltipTrigger asChild>
+                                        <Info size={12} className="ml-1 text-muted-foreground cursor-help" />
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right" className="max-w-xs text-xs">
+                                        Multiple specialized AI agents routed based on query type
+                                      </TooltipContent>
+                                    </Tooltip>
                                   </DropdownMenuCheckboxItem>
                                 </div>
                                 <DropdownMenuSeparator className="my-1" />
@@ -578,6 +595,7 @@ export default function ChatSection() {
                           disabled={true}
                         >
                           <SiOpenai size={18} />
+                          <span className="text-xs text-muted-foreground mr-1">LLM Model:</span>
                           {selectedModel}
                         </Button>
                       </PromptInputAction>
