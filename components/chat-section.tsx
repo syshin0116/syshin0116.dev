@@ -377,11 +377,11 @@ export default function ChatSection() {
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="outline"
-                            className="rounded-full cursor-pointer"
+                            className="flex items-center gap-1.5 rounded-full cursor-pointer"
                           >
                             <Database size={18} />
-                            <span className="text-xs text-muted-foreground mr-1">RAG Mode:</span>
-                            {searchMode === "auto" ? "AUTO" : "MANUAL"}
+                            <span className="text-xs text-muted-foreground">RAG Mode:</span>
+                            <span className="text-xs font-medium">{searchMode === "auto" ? "AUTO" : "MANUAL"}</span>
                             {searchMode === "auto" ? (
                               <span className="ml-1 text-xs text-muted-foreground">
                                 ({autoAgentType === "single" ? "Single" : "Multi"})
@@ -408,7 +408,7 @@ export default function ChatSection() {
                             >
                               <Zap size={16} className="mr-2" />
                               <span className="flex-1">AUTO Mode</span>
-                              <Tooltip delayDuration={100}>
+                              <Tooltip delayDuration={0}>
                                 <TooltipTrigger asChild>
                                   <div
                                     className="ml-2"
@@ -418,7 +418,7 @@ export default function ChatSection() {
                                     <Info size={14} className="text-muted-foreground cursor-help" />
                                   </div>
                                 </TooltipTrigger>
-                                <TooltipContent side="right" className="max-w-xs">
+                                <TooltipContent side="right" className="max-w-xs" sideOffset={10}>
                                   AI automatically selects the best search strategy for your query
                                 </TooltipContent>
                               </Tooltip>
@@ -435,7 +435,7 @@ export default function ChatSection() {
                                   className="cursor-pointer text-sm"
                                 >
                                   <span className="flex-1">Single Agent (tool selection)</span>
-                                  <Tooltip delayDuration={100}>
+                                  <Tooltip delayDuration={0}>
                                     <TooltipTrigger asChild>
                                       <div
                                         className="ml-1"
@@ -445,7 +445,7 @@ export default function ChatSection() {
                                         <Info size={12} className="text-muted-foreground cursor-help" />
                                       </div>
                                     </TooltipTrigger>
-                                    <TooltipContent side="right" className="max-w-xs text-xs">
+                                    <TooltipContent side="right" className="max-w-xs text-xs" sideOffset={10}>
                                       One AI agent with multiple tools to choose from
                                     </TooltipContent>
                                   </Tooltip>
@@ -459,7 +459,7 @@ export default function ChatSection() {
                                   className="cursor-pointer text-sm"
                                 >
                                   <span className="flex-1">Multi Agent (agent routing)</span>
-                                  <Tooltip delayDuration={100}>
+                                  <Tooltip delayDuration={0}>
                                     <TooltipTrigger asChild>
                                       <div
                                         className="ml-1"
@@ -469,7 +469,7 @@ export default function ChatSection() {
                                         <Info size={12} className="text-muted-foreground cursor-help" />
                                       </div>
                                     </TooltipTrigger>
-                                    <TooltipContent side="right" className="max-w-xs text-xs">
+                                    <TooltipContent side="right" className="max-w-xs text-xs" sideOffset={10}>
                                       Multiple specialized AI agents routed based on query type
                                     </TooltipContent>
                                   </Tooltip>
@@ -490,7 +490,7 @@ export default function ChatSection() {
                             >
                               <Settings size={16} className="mr-2" />
                               <span className="flex-1">MANUAL Mode</span>
-                              <Tooltip delayDuration={100}>
+                              <Tooltip delayDuration={0}>
                                 <TooltipTrigger asChild>
                                   <div
                                     className="ml-2"
@@ -500,7 +500,7 @@ export default function ChatSection() {
                                     <Info size={14} className="text-muted-foreground cursor-help" />
                                   </div>
                                 </TooltipTrigger>
-                                <TooltipContent side="right" className="max-w-xs">
+                                <TooltipContent side="right" className="max-w-xs" sideOffset={10}>
                                   Manually select specific RAG modes to use
                                 </TooltipContent>
                               </Tooltip>
@@ -522,7 +522,7 @@ export default function ChatSection() {
                                 >
                                   <Tag size={14} className="mr-2" />
                                   <span className="flex-1">Metadata Search</span>
-                                  <Tooltip delayDuration={100}>
+                                  <Tooltip delayDuration={0}>
                                     <TooltipTrigger asChild>
                                       <div
                                         className="ml-1"
@@ -532,7 +532,7 @@ export default function ChatSection() {
                                         <Info size={12} className="text-muted-foreground cursor-help" />
                                       </div>
                                     </TooltipTrigger>
-                                    <TooltipContent side="right" className="max-w-xs text-xs">
+                                    <TooltipContent side="right" className="max-w-xs text-xs" sideOffset={10}>
                                       Search through blog post metadata including titles, tags, categories, and dates
                                     </TooltipContent>
                                   </Tooltip>
@@ -552,7 +552,7 @@ export default function ChatSection() {
                                 >
                                   <FolderSearch size={14} className="mr-2" />
                                   <span className="flex-1">Filesystem Search</span>
-                                  <Tooltip delayDuration={100}>
+                                  <Tooltip delayDuration={0}>
                                     <TooltipTrigger asChild>
                                       <div
                                         className="ml-1"
@@ -562,7 +562,7 @@ export default function ChatSection() {
                                         <Info size={12} className="text-muted-foreground cursor-help" />
                                       </div>
                                     </TooltipTrigger>
-                                    <TooltipContent side="right" className="max-w-xs text-xs">
+                                    <TooltipContent side="right" className="max-w-xs text-xs" sideOffset={10}>
                                       Search through project files and code repositories using file system structure
                                     </TooltipContent>
                                   </Tooltip>
@@ -582,7 +582,7 @@ export default function ChatSection() {
                                 >
                                   <Network size={14} className="mr-2" />
                                   <span className="flex-1">Vector Search</span>
-                                  <Tooltip delayDuration={100}>
+                                  <Tooltip delayDuration={0}>
                                     <TooltipTrigger asChild>
                                       <div
                                         className="ml-1"
@@ -592,7 +592,7 @@ export default function ChatSection() {
                                         <Info size={12} className="text-muted-foreground cursor-help" />
                                       </div>
                                     </TooltipTrigger>
-                                    <TooltipContent side="right" className="max-w-xs text-xs">
+                                    <TooltipContent side="right" className="max-w-xs text-xs" sideOffset={10}>
                                       Semantic search using AI embeddings to find contextually relevant content
                                     </TooltipContent>
                                   </Tooltip>
@@ -612,7 +612,7 @@ export default function ChatSection() {
                                 >
                                   <GitBranch size={14} className="mr-2" />
                                   <span className="flex-1">Graph Search</span>
-                                  <Tooltip delayDuration={100}>
+                                  <Tooltip delayDuration={0}>
                                     <TooltipTrigger asChild>
                                       <div
                                         className="ml-1"
@@ -622,7 +622,7 @@ export default function ChatSection() {
                                         <Info size={12} className="text-muted-foreground cursor-help" />
                                       </div>
                                     </TooltipTrigger>
-                                    <TooltipContent side="right" className="max-w-xs text-xs">
+                                    <TooltipContent side="right" className="max-w-xs text-xs" sideOffset={10}>
                                       Knowledge graph-based search to find related concepts and relationships
                                     </TooltipContent>
                                   </Tooltip>
@@ -636,12 +636,12 @@ export default function ChatSection() {
                       <PromptInputAction tooltip={`Model: ${selectedModel} (selection coming soon)`}>
                         <Button
                           variant="outline"
-                          className="rounded-full"
+                          className="flex items-center gap-1.5 rounded-full"
                           disabled={true}
                         >
                           <SiOpenai size={18} />
-                          <span className="text-xs text-muted-foreground mr-1">LLM Model:</span>
-                          {selectedModel}
+                          <span className="text-xs text-muted-foreground">LLM Model:</span>
+                          <span className="text-xs font-medium">{selectedModel}</span>
                         </Button>
                       </PromptInputAction>
                     </div>
