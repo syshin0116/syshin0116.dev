@@ -1,0 +1,162 @@
+# Syshin's AI Portfolio
+
+> AI-powered portfolio assistant with RAG technology
+
+## Site Information
+
+- **Name**: Syshin's Portfolio
+- **URL**: https://syshin0116.vercel.app
+- **Type**: Interactive AI Portfolio Platform
+- **Owner**: Syshin (신승연)
+- **GitHub**: https://github.com/syshin0116
+- **Contact**: Available through the portfolio website
+
+## Description
+
+This is a living portfolio platform featuring an AI chatbot assistant that can answer questions about Syshin's projects, technical expertise, and professional experience. The platform uses RAG (Retrieval-Augmented Generation) technology to provide accurate, context-aware responses about the portfolio content.
+
+## Key Features
+
+- Interactive AI chatbot for portfolio Q&A
+- Real-time project showcase
+- Dynamic content management
+- Google authentication
+- Responsive design with dark/light mode
+- Integration with Supabase and Vector databases
+
+## Main Sections
+
+### Home (/)
+- AI chatbot interface
+- Portfolio introduction
+- Quick access to projects
+
+### Projects (/projects)
+- Timeline view of all projects
+- Categorized by company and personal projects
+- Filterable by technology stack and completion status
+
+### Individual Project Pages (/projects/[id])
+- Detailed project information
+- Technical stack breakdown
+- Key achievements and metrics
+- Challenges and learnings
+- Architecture evolution (for major projects)
+
+## Featured Projects
+
+### Current Projects (In Progress)
+
+1. **AppHub - Living Portfolio Platform**
+   - Tech: Next.js 15, React 19, RAG, Vector DB
+   - Focus: Integrated project management platform
+   - URL: /projects/apphub
+
+2. **SK PharmaAIX MR Assistant**
+   - Tech: LangGraph, FastAPI, Azure, Qdrant
+   - Focus: Pharmaceutical sales AI chatbot with RAG
+   - URL: /projects/sk-pharmaaix
+
+3. **KATECH AI Agent**
+   - Tech: Next.js, FastAPI, LangGraph, Qdrant
+   - Focus: Automotive industry RAG-based report generation
+   - URL: /projects/katech-ai-agent
+
+### Completed Projects
+
+1. **LangChain Open Tutorial Contribution**
+   - Tech: LangChain, LangGraph, RAG
+   - Contribution to 2,000+ commit open-source project
+   - URL: /projects/langchain-tutorial
+
+2. **Greentech Water Treatment AI**
+   - Tech: LightGBM, PyTorch, Time Series Analysis
+   - Focus: Water quality prediction and anomaly detection
+   - URL: /projects/greentech
+
+3. **PodlyBot - KakaoTalk LLM Chatbot**
+   - Tech: JavaScript, LLM API, Notion API
+   - Focus: Personal assistant and company LLM service integration
+   - URL: /projects/podlybot
+
+4. **Podly - AI Voice News Service**
+   - Tech: RAG, TTS, Flutter, FastAPI
+   - Focus: AI-powered personalized voice news
+   - URL: /projects/podly
+
+5. **Men-in-Black - Traffic Violation Detection**
+   - Tech: YOLOv8, SORT, EasyOCR, ZoeDepth
+   - Focus: Automated traffic violation detection from dashcam footage
+   - URL: /projects/men-in-black
+
+6. **PROP - Proposal Generation AI Agent**
+   - Tech: Flask, Celery, OpenAI API
+   - Focus: Automated proposal and document generation
+   - URL: /projects/prop
+
+## Technical Expertise
+
+### AI/ML
+- RAG (Retrieval-Augmented Generation)
+- LangChain & LangGraph
+- Multi-Agent Systems
+- Vector Databases (Qdrant, ChromaDB)
+- Computer Vision (YOLO, OCR)
+- Time Series Forecasting
+
+### Full Stack Development
+- **Frontend**: React 19, Next.js 15, TypeScript, TailwindCSS
+- **Backend**: FastAPI, Python, Node.js
+- **Database**: PostgreSQL, Supabase, Vector DBs
+- **Infrastructure**: Docker, Vercel, Azure, AWS
+- **Authentication**: Supabase Auth, Keycloak SSO
+
+### Notable Achievements
+- Led AI development for 350+ pharmaceutical MR users
+- Achieved 83% response time improvement (3min → 30sec)
+- Built 1-person full-stack systems from scratch
+- Contributed to major open-source projects
+- Managed teams across multiple organizations
+
+## Technologies Used in This Portfolio
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: TailwindCSS, Radix UI
+- **Backend**: FastAPI (separate AI backend)
+- **Database**: Supabase (PostgreSQL), Qdrant (Vector DB)
+- **AI**: LangChain, RAG, OpenAI API
+- **Authentication**: Supabase Auth (Google OAuth)
+- **Analytics**: Vercel Analytics, Speed Insights
+- **Deployment**: Vercel
+
+## Navigation
+
+- Home: https://syshin0116.vercel.app
+- Projects: https://syshin0116.vercel.app/projects
+- Sitemap: https://syshin0116.vercel.app/sitemap.xml
+- Robots: https://syshin0116.vercel.app/robots.txt
+
+## Additional Resources
+
+- GitHub Repository: https://github.com/syshin0116/portfolio-web
+- Blog Posts: Accessible through the AI chatbot
+- Project Details: Available on individual project pages
+
+## AI Chatbot Capabilities
+
+The portfolio includes an AI assistant that can:
+- Answer questions about any project
+- Explain technical implementations
+- Discuss challenges and solutions
+- Provide code examples and architecture details
+- Share insights from blog posts and documentation
+
+## Update Frequency
+
+- Projects: Updated as new work is completed
+- Content: Dynamic updates through RAG system
+- Sitemap: Automatically regenerated on deployment
+
+---
+
+This portfolio represents a living, breathing showcase of technical work, continuously updated and enhanced with new projects and capabilities.
