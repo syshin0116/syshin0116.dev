@@ -206,14 +206,14 @@ export default function ChatSection() {
   }
 
   return (
-    <section className="w-full h-[100dvh] md:h-[calc(100vh-73px)] flex flex-col">
+    <section className="w-full h-[70vh] min-h-[500px] flex flex-col">
       <div className="container mx-auto px-4 md:px-6 py-8 flex-1 flex flex-col min-h-0 overflow-hidden">
-        <div className="flex flex-col items-center space-y-4 text-center mb-6">
-          <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-            Ask Me Anything
-          </h1>
-          <p className="text-muted-foreground max-w-[700px] text-base md:text-lg">
-            Chat with AI about my projects, blog posts, and technical experience
+        <div className="flex flex-col items-center space-y-3 text-center mb-6">
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            AI 어시스턴트에게 물어보세요
+          </h2>
+          <p className="text-muted-foreground max-w-[600px] text-sm md:text-base">
+            블로그 포스트, 프로젝트, 기술 경험에 대해 무엇이든 질문하세요
           </p>
         </div>
 

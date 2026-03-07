@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, ExternalLink } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/theme-toggle";
@@ -80,6 +80,14 @@ export default function Navbar() {
                     asChild
                     className={navigationMenuTriggerStyle()}
                   >
+                    <Link href="/blog">Blog</Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink
+                    asChild
+                    className={navigationMenuTriggerStyle()}
+                  >
                     <Link href="/projects">Projects</Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
@@ -88,22 +96,25 @@ export default function Navbar() {
                     asChild
                     className={navigationMenuTriggerStyle()}
                   >
-                    <Link
-                      href="https://syshin0116.github.io"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Blog
-                      <ExternalLink className="ml-1.5 h-3.5 w-3.5 opacity-70 inline-block" />
-                    </Link>
+                    <Link href="/about">About</Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
           </div>
 
-          {/* Right side Login */}
+          {/* Right side */}
           <div className="flex-1 flex justify-end items-center gap-2">
+            {pathname.startsWith("/blog") && (
+              <button
+                onClick={() => document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }))}
+                className="hidden sm:flex items-center gap-1 rounded-md border bg-muted px-3 py-1.5 text-sm text-muted-foreground cursor-pointer hover:bg-muted/80 transition-colors select-none"
+              >
+                <Search className="h-3.5 w-3.5 mr-1" />
+                Search
+                <kbd className="ml-2 text-xs opacity-60">⌘K</kbd>
+              </button>
+            )}
             <Button
               asChild
               variant="ghost"
@@ -145,7 +156,7 @@ export default function Navbar() {
             </Link>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" suppressHydrationWarning>
                   <Menu className="size-4" />
                 </Button>
               </SheetTrigger>
@@ -167,17 +178,14 @@ export default function Navbar() {
                   <Link href="/" onClick={handleHomeClick} className="text-md font-semibold">
                     Home
                   </Link>
+                  <Link href="/blog" className="text-md font-semibold">
+                    Blog
+                  </Link>
                   <Link href="/projects" className="text-md font-semibold">
                     Projects
                   </Link>
-                  <Link
-                    href="https://syshin0116.github.io"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-md font-semibold inline-flex items-center gap-2"
-                  >
-                    <span>Blog</span>
-                    <ExternalLink className="h-4 w-4 opacity-70" />
+                  <Link href="/about" className="text-md font-semibold">
+                    About
                   </Link>
 
                   <div className="flex flex-col gap-3">

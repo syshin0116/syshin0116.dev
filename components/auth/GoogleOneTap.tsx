@@ -39,6 +39,8 @@ export default function GoogleOneTap() {
   const supabase = createClient()
   const router = useRouter()
 
+  if (!supabase) return null
+
   const initializeGoogleOneTap = () => {
     console.log('Initializing Google One Tap')
 
