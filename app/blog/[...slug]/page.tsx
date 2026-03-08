@@ -24,7 +24,9 @@ function readingTime(raw: string): number {
 }
 
 async function getMarkdownFile(slug: string[]): Promise<string | null> {
-  const filePath = path.join(CONTENT_DIR, ...slug) + ".md"
+  // Decode URL-encoded slug parts (handles Korean characters, etc.)
+  const decodedSlug = slug.map(s => decodeURIComponent(s))
+  const filePath = path.join(CONTENT_DIR, ...decodedSlug) + ".md"
   try {
     return await fs.readFile(filePath, "utf-8")
   } catch {
@@ -53,7 +55,9 @@ async function getAllSlugs(): Promise<string[][]> {
 }
 
 async function getFolderFiles(slug: string[]) {
-  const folderPath = path.join(CONTENT_DIR, ...slug)
+  // Decode URL-encoded slug parts (handles Korean characters, etc.)
+  const decodedSlug = slug.map(s => decodeURIComponent(s))
+  const folderPath = path.join(CONTENT_DIR, ...decodedSlug)
   try {
     const stat = await fs.stat(folderPath)
     if (!stat.isDirectory()) return null
@@ -61,7 +65,7 @@ async function getFolderFiles(slug: string[]) {
     return null
   }
   const allFiles = await getAllMarkdownFiles(CONTENT_DIR)
-  const prefix = slug.join("/") + "/"
+  const prefix = decodedSlug.join("/") + "/"
   return allFiles
     .filter((f) => f.slug.startsWith(prefix))
     .sort((a, b) => {
