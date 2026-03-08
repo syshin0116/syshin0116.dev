@@ -11,7 +11,7 @@ const getCachedBlogData = unstable_cache(
   async () => {
     const files = await getAllMarkdownFiles(CONTENT_DIR)
     return {
-      tree: buildFileTree(files, { sortBy: "modified" }),
+      tree: buildFileTree(files, { sortBy: "date" }),
       searchEntries: buildSearchIndex(files),
     }
   },
