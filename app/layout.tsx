@@ -12,38 +12,36 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Syshin's AI Portfolio Assistant",
+  title: {
+    default: "Syshin's Portfolio",
+    template: "%s | Syshin's Portfolio",
+  },
   description:
-    "Chat with AI about Syshin's projects, blog posts, and technical expertise. Powered by RAG technology.",
+    "AI Engineer portfolio & tech blog. Projects, blog posts, and technical expertise.",
   keywords: [
     "Portfolio",
-    "AI Assistant",
+    "AI Engineer",
     "RAG",
     "LangGraph",
     "Syshin",
     "Blog",
     "Projects",
     "Technical Portfolio",
-    "AI Chatbot",
-    "Developer Portfolio",
   ],
   metadataBase: new URL("https://syshin0116.vercel.app"),
   openGraph: {
     type: "website",
     siteName: "Syshin's Portfolio",
-    locale: "en_US",
+    locale: "ko_KR",
     url: "https://syshin0116.vercel.app",
-    title: "Syshin's AI Portfolio Assistant",
+    title: "Syshin's Portfolio",
     description:
-      "Chat with AI about Syshin's projects, blog posts, and technical expertise. Powered by RAG technology.",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Syshin's Portfolio Preview",
-      },
-    ],
+      "AI Engineer portfolio & tech blog.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Syshin's Portfolio",
+    description: "AI Engineer portfolio & tech blog.",
   },
   authors: [
     {
@@ -78,7 +76,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ko" suppressHydrationWarning>
       <body className={`${geistSans.className} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>

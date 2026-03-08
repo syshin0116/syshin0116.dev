@@ -1,9 +1,6 @@
 import { getAllMarkdownFiles, renderMarkdown } from "nuartz"
 import { NextResponse } from "next/server"
-
-const CONTENT_DIR =
-  process.env.BLOG_CONTENT_PATH ||
-  "/Users/dante/Documents/github/personal/syshin0116.github.io/content"
+import { CONTENT_DIR } from "@/lib/content"
 
 export const dynamic = "force-dynamic"
 

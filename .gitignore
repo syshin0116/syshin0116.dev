@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 
+# obsidian vault settings (local only)
+content/.obsidian
+
 # debug
 npm-debug.log*
 yarn-debug.log*

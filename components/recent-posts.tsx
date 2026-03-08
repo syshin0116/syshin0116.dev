@@ -2,10 +2,7 @@ import { getAllMarkdownFiles } from "nuartz";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, ArrowRight } from "lucide-react";
-
-const CONTENT_PATH =
-  process.env.BLOG_CONTENT_PATH ||
-  "/Users/dante/Documents/github/personal/syshin0116.github.io/content";
+import { CONTENT_DIR } from "@/lib/content";
 
 function formatDate(date: string | Date | undefined): string {
   if (!date) return "";
@@ -16,7 +13,7 @@ function formatDate(date: string | Date | undefined): string {
 export async function RecentPosts() {
   let posts: Awaited<ReturnType<typeof getAllMarkdownFiles>> = [];
   try {
-    const all = await getAllMarkdownFiles(CONTENT_PATH);
+    const all = await getAllMarkdownFiles(CONTENT_DIR);
     posts = all
       .filter((f) => !f.frontmatter.draft)
       .sort((a, b) => {

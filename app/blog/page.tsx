@@ -4,15 +4,12 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import type { Metadata } from "next"
+import { CONTENT_DIR } from "@/lib/content"
 
 export const metadata: Metadata = {
   title: "Blog | Syshin's Portfolio",
   description: "AI, 개발, 프로젝트에 관한 기술 블로그",
 }
-
-const CONTENT_DIR =
-  process.env.BLOG_CONTENT_PATH ||
-  "/Users/dante/Documents/github/personal/syshin0116.github.io/content"
 
 export default async function BlogPage() {
   let files: MarkdownFile[] = []

@@ -4,10 +4,7 @@ import { NavSidebar } from "@/components/blog/nav-sidebar"
 import { MobileNav } from "@/components/blog/mobile-nav"
 import { CommandPaletteDynamic } from "@/components/blog/command-palette-dynamic"
 import { Navbar } from "@/components/navbar"
-
-const CONTENT_DIR =
-  process.env.BLOG_CONTENT_PATH ||
-  "/Users/dante/Documents/github/personal/syshin0116.github.io/content"
+import { CONTENT_DIR } from "@/lib/content"
 
 export default async function BlogLayout({
   children,

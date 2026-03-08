@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import fs from "node:fs/promises"
 import path from "node:path"
 import matter from "gray-matter"
-
-const CONTENT_DIR =
-  process.env.BLOG_CONTENT_PATH ||
-  "/Users/dante/Documents/github/personal/syshin0116.github.io/content"
+import { CONTENT_DIR } from "@/lib/content"
 
 export async function GET(request: NextRequest) {
   const slug = request.nextUrl.searchParams.get("slug")
