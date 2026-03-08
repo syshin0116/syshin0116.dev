@@ -138,7 +138,7 @@ This is a living portfolio platform featuring an AI chatbot assistant that can a
 
 ## Additional Resources
 
-- GitHub Repository: https://github.com/syshin0116/portfolio-web
+- GitHub Repository: https://github.com/syshin0116/syshin0116.dev
 - Blog Posts: Accessible through the AI chatbot
 - Project Details: Available on individual project pages
 

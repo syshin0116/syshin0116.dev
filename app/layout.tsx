@@ -32,16 +32,26 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Syshin's Portfolio",
-    locale: "ko_KR",
+    locale: "en_US",
     url: "https://syshin0116.vercel.app",
     title: "Syshin's Portfolio",
     description:
       "AI Engineer portfolio & tech blog.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Syshin Portfolio",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Syshin's Portfolio",
     description: "AI Engineer portfolio & tech blog.",
+    creator: "@syshin0116",
+    images: ["/og-image.png"],
   },
   authors: [
     {
@@ -70,6 +80,23 @@ export const metadata: Metadata = {
   },
 };
 
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Syshin Portfolio",
+  url: "https://syshin0116.vercel.app",
+  sameAs: ["https://github.com/syshin0116", "https://twitter.com/syshin0116"],
+};
+
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Syshin",
+  url: "https://syshin0116.vercel.app",
+  jobTitle: "Software Developer",
+  sameAs: ["https://github.com/syshin0116", "https://twitter.com/syshin0116"],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -77,6 +104,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
+      </head>
       <body className={`${geistSans.className} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>

@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation"
-import { renderMarkdown, getAllMarkdownFiles, buildBacklinkIndex, getBacklinks } from "nuartz"
+import { renderMarkdown, getAllMarkdownFiles } from "nuartz"
 import fs from "node:fs/promises"
 import path from "node:path"
 import matter from "gray-matter"
@@ -10,12 +10,14 @@ import { Separator } from "@/components/ui/separator"
 import { Breadcrumb } from "@/components/blog/breadcrumb"
 import { TableOfContents } from "@/components/blog/toc"
 import { Backlinks } from "@/components/blog/backlinks"
-import { MermaidRenderer } from "@/components/blog/mermaid-renderer"
-import { GraphView } from "@/components/blog/graph-view"
+import { MermaidRendererDynamic } from "@/components/blog/mermaid-renderer-dynamic"
+import { GraphViewDynamic } from "@/components/blog/graph-view-dynamic"
 import { HeadingAnchors } from "@/components/blog/heading-anchors"
 import { PopoverPreview } from "@/components/blog/popover-preview"
 import { CopyCode } from "@/components/blog/copy-code"
 import { CONTENT_DIR } from "@/lib/content"
+
+export const revalidate = 60
 
 function readingTime(raw: string): number {
   const body = raw.replace(/^---[\s\S]*?---\n?/, "")
@@ -134,11 +136,13 @@ export async function generateMetadata({
       description,
       type: "article",
       url: `/blog/${slugStr}`,
+      images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
+      images: ["/og-image.png"],
     },
   }
 }
@@ -254,17 +258,33 @@ export default async function BlogPostPage({
     html,
   }
 
-  // Build backlink index
+  // Build backlink index — use raw text wikilink detection instead of full renderMarkdown
   const slugStr = slug.join("/")
-  const pages = new Map<string, { result: Awaited<ReturnType<typeof renderMarkdown>>; raw: string }>()
-  await Promise.all(
-    files.map(async (file) => {
-      const r = file.slug === slugStr ? result : await renderMarkdown(file.raw, { resolveLink })
-      pages.set(file.slug, { result: r, raw: file.raw })
-    })
-  )
-  const backlinkIndex = buildBacklinkIndex(pages)
-  const backlinks = getBacklinks(backlinkIndex, slugStr)
+  const wikilinkPattern = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g
+  const backlinkSlugs: { slug: string; title: string }[] = []
+  for (const file of files) {
+    if (file.slug === slugStr) continue
+    const matches = file.raw.matchAll(wikilinkPattern)
+    for (const match of matches) {
+      const target = match[1].trim()
+      const normalized = target.toLowerCase().replace(/\s+/g, "-").replace(/[^\w/-]/g, "")
+      const targetName = normalized.split("/").pop()!
+      const currentName = slugStr.split("/").pop()!.toLowerCase().replace(/\s+/g, "-")
+      if (normalized === slugStr.toLowerCase() || targetName === currentName) {
+        backlinkSlugs.push({
+          slug: file.slug,
+          title: file.frontmatter.title ?? file.slug.split("/").pop()!,
+        })
+        break
+      }
+    }
+  }
+  const backlinks = backlinkSlugs.map((b) => {
+    const file = files.find((f) => f.slug === b.slug)
+    const rawBody = (file?.raw ?? "").replace(/^---[\s\S]*?---\n?/, "").trim()
+    const excerpt = rawBody.slice(0, 150).replace(/\n/g, " ").trim()
+    return { slug: b.slug, title: b.title, excerpt }
+  })
 
   const date = result.frontmatter.date
     ? new Date(result.frontmatter.date).toLocaleDateString("en-CA")
@@ -274,8 +294,22 @@ export default async function BlogPostPage({
   const fileStat = await fs.stat(filePath)
   const modifiedDate = fileStat.mtime.toLocaleDateString("en-CA")
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: result.frontmatter.title ?? slugStr,
+    datePublished: date,
+    dateModified: modifiedDate,
+    author: { "@type": "Person", name: "Syshin", url: "https://syshin0116.vercel.app" },
+    url: `https://syshin0116.vercel.app/blog/${slugStr}`,
+  }
+
   return (
     <div className="flex min-h-0 gap-8 px-6 py-8 max-w-6xl mx-auto w-full">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Main content */}
       <div className="min-w-0 flex-1">
         {slug.length > 1 && (
@@ -324,7 +358,7 @@ export default async function BlogPostPage({
           className="prose max-w-none"
           dangerouslySetInnerHTML={{ __html: result.html }}
         />
-        <MermaidRenderer />
+        <MermaidRendererDynamic />
         <CopyCode />
 
         <Backlinks backlinks={backlinks} />
@@ -332,7 +366,7 @@ export default async function BlogPostPage({
 
       {/* Right sidebar */}
       <TableOfContents toc={result.toc}>
-        <GraphView currentSlug={slugStr} />
+        <GraphViewDynamic currentSlug={slugStr} />
       </TableOfContents>
     </div>
   )

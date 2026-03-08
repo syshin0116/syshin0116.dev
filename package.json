@@ -1,7 +1,8 @@
 {
-  "name": "portfolio-web",
+  "name": "syshin0116-dev",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "bun@1.3.10",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

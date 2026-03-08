@@ -9,7 +9,13 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "About | Syshin's Portfolio",
-  description: "AI Engineer 소개 페이지",
+  description: "Learn about Syshin and their work",
+  openGraph: {
+    title: "About Syshin",
+    description: "Learn about Syshin and their work",
+    url: "https://syshin0116.vercel.app/about",
+    type: "profile",
+  },
 };
 
 const techStack: { category: string; items: string[] }[] = [

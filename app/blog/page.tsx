@@ -6,6 +6,8 @@ import { Separator } from "@/components/ui/separator"
 import type { Metadata } from "next"
 import { CONTENT_DIR } from "@/lib/content"
 
+export const revalidate = 60
+
 export const metadata: Metadata = {
   title: "Blog | Syshin's Portfolio",
   description: "AI, 개발, 프로젝트에 관한 기술 블로그",
