@@ -184,7 +184,7 @@ export default async function BlogPostPage({
                     )}
                     {tags.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1">
-                        {tags.map((tag) => (
+                        {Array.from(new Set(tags)).map((tag) => (
                           <Badge key={tag} variant="secondary" className="text-xs font-normal">#{tag}</Badge>
                         ))}
                       </div>
@@ -301,7 +301,7 @@ export default async function BlogPostPage({
             )}
             {result.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
-                {result.tags.map((tag) => (
+                {Array.from(new Set(result.tags)).map((tag) => (
                   <Badge key={tag} variant="secondary" className="text-xs font-normal hover:bg-muted">
                     #{tag}
                   </Badge>

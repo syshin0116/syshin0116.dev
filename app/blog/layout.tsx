@@ -12,22 +12,7 @@ export default async function BlogLayout({
   children: React.ReactNode
 }) {
   const files = await getAllMarkdownFiles(CONTENT_DIR)
-
-  // Sort by modification time (newest first)
-  const fs = require("node:fs/promises")
-  const filesWithTime = await Promise.all(
-    files.map(async (file) => {
-      try {
-        const stat = await fs.stat(file.filePath)
-        return { ...file, mtime: stat.mtime }
-      } catch {
-        return { ...file, mtime: new Date(0) }
-      }
-    })
-  )
-  filesWithTime.sort((a, b) => (b.mtime as Date).getTime() - (a.mtime as Date).getTime())
-
-  const tree = buildFileTree(filesWithTime)
+  const tree = buildFileTree(files, { sortBy: 'modified' })
   const searchEntries = buildSearchIndex(files)
 
   return (
