@@ -48,7 +48,7 @@ function NavNode({
 }) {
   const isActive = node.type === "file" && currentSlug === node.path
   const isAncestor = node.type === "folder" && currentSlug.startsWith(node.path + "/")
-  const [open, setOpen] = useState(isAncestor || depth === 0)
+  const [open, setOpen] = useState(isAncestor)
   const indent = depth * 12
 
   if (node.type === "folder") {
