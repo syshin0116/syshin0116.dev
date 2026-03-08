@@ -180,14 +180,61 @@ html.reader-mode main > div {
 }
 
 /* rehype-pretty-code */
+[data-rehype-pretty-code-figure] {
+  position: relative;
+  margin: 1rem 0;
+}
 [data-rehype-pretty-code-figure] pre {
   overflow-x: auto;
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   border-width: 1px;
   background: var(--muted);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   line-height: 1.7;
+}
+
+/* Language label */
+.code-lang-label {
+  position: absolute;
+  top: 0.375rem;
+  right: 2.25rem;
+  font-size: 0.65rem;
+  font-family: ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: color-mix(in srgb, var(--muted-foreground) 60%, transparent);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Copy button — visible on hover */
+.copy-code-btn {
+  position: absolute;
+  top: 0.375rem;
+  right: 0.5rem;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  color: var(--muted-foreground);
+  background-color: color-mix(in srgb, var(--muted) 50%, transparent);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s, background-color 0.15s;
+}
+.copy-code-btn:hover {
+  color: var(--foreground);
+  background-color: var(--muted);
+}
+[data-rehype-pretty-code-figure]:hover .copy-code-btn {
+  opacity: 1;
+}
+
+/* Shiki dual-theme */
+[data-rehype-pretty-code-figure] span[style] {
+  color: var(--shiki-light) !important;
+}
+.dark [data-rehype-pretty-code-figure] span[style] {
+  color: var(--shiki-dark) !important;
 }
 [data-line] {
   padding: 0 0.5rem;
