@@ -16,7 +16,7 @@ const getCachedBlogData = unstable_cache(
     }
   },
   ["blog-layout-data"],
-  { revalidate: 60 }
+  { revalidate: false }
 )
 
 export default async function BlogLayout({

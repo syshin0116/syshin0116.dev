@@ -18,7 +18,7 @@ import { CopyCode } from "@/components/blog/copy-code"
 import { GiscusComments } from "@/components/blog/giscus-comments"
 import { CONTENT_DIR } from "@/lib/content"
 
-export const revalidate = 60
+export const revalidate = false
 
 function readingTime(raw: string): number {
   const body = raw.replace(/^---[\s\S]*?---\n?/, "")

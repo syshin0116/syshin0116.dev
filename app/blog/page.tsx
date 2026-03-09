@@ -17,7 +17,7 @@ import { CONTENT_DIR } from "@/lib/content"
 
 const NOTES_PER_PAGE = 10
 
-export const revalidate = 60
+export const revalidate = false
 
 export const metadata: Metadata = {
   title: "Blog | Syshin's Portfolio",
