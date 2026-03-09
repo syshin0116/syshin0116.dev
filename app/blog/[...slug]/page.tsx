@@ -15,6 +15,7 @@ import { GraphViewDynamic } from "@/components/blog/graph-view-dynamic"
 import { HeadingAnchors } from "@/components/blog/heading-anchors"
 import { PopoverPreview } from "@/components/blog/popover-preview"
 import { CopyCode } from "@/components/blog/copy-code"
+import { GiscusComments } from "@/components/blog/giscus-comments"
 import { CONTENT_DIR } from "@/lib/content"
 
 export const revalidate = 60
@@ -362,6 +363,8 @@ export default async function BlogPostPage({
         <CopyCode />
 
         <Backlinks backlinks={backlinks} />
+
+        <GiscusComments />
       </div>
 
       {/* Right sidebar */}
