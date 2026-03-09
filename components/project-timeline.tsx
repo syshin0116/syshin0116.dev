@@ -44,7 +44,7 @@ export default function ProjectTimelineComponent({ projects }: ProjectTimelineCo
 
       <div className="relative">
         {/* Timeline line */}
-        <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 h-full w-0.5 bg-primary/20 z-0"></div>
+        <div className="absolute left-4 md:left-1/2 transform md:-translate-x-1/2 h-full w-0.5 bg-primary/20 z-0"></div>
 
         {projects.map((project, index) => (
           <motion.div
@@ -57,13 +57,13 @@ export default function ProjectTimelineComponent({ projects }: ProjectTimelineCo
             transition={{ duration: 0.5, delay: index * 0.2 }}
           >
             {/* Timeline dot */}
-            <div className="absolute left-0 md:left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full bg-primary z-10 flex items-center justify-center">
+            <div className="absolute left-4 md:left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full bg-primary z-10 flex items-center justify-center">
               <div className={`w-3 h-3 rounded-full ${project.isCompleted ? 'bg-green-500' : 'bg-white'}`}></div>
             </div>
 
             {/* Date badge */}
             <div
-              className={`md:w-1/2 flex ${
+              className={`md:w-1/2 flex pl-8 md:pl-0 ${
                 index % 2 === 0
                   ? "md:justify-end md:pr-8"
                   : "md:justify-start md:pl-8"
@@ -82,7 +82,7 @@ export default function ProjectTimelineComponent({ projects }: ProjectTimelineCo
 
             {/* Card */}
             <div
-              className={`md:w-1/2 ${index % 2 === 0 ? "md:pl-8" : "md:pr-8"}`}
+              className={`md:w-1/2 pl-8 ${index % 2 === 0 ? "md:pl-8" : "md:pr-8"}`}
             >
               <Link href={`/projects/${project.id}`}>
                 <motion.div

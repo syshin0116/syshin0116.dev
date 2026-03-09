@@ -206,8 +206,8 @@ export default function ChatSection() {
   }
 
   return (
-    <section className="w-full h-[70vh] min-h-[500px] flex flex-col">
-      <div className="container mx-auto px-4 md:px-6 py-8 flex-1 flex flex-col min-h-0 overflow-hidden">
+    <section className="w-full h-[calc(100dvh-8rem)] min-h-[400px] md:h-[70vh] md:min-h-[500px] flex flex-col">
+      <div className="container mx-auto px-4 md:px-6 py-4 flex-1 flex flex-col min-h-0 overflow-hidden">
         <div className="flex flex-col items-center space-y-3 text-center mb-6">
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
             AI 어시스턴트에게 물어보세요
@@ -220,7 +220,7 @@ export default function ChatSection() {
         <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col min-h-0">
           <div className="relative flex flex-col flex-1 overflow-hidden min-h-0">
             <ChatContainerRoot className="relative flex-1 space-y-0 overflow-y-auto px-4 py-8">
-              <ChatContainerContent className="space-y-8 px-4 py-8">
+              <ChatContainerContent className="space-y-8">
                 {chatMessages.map((message, index) => {
                   const isAssistant = message.role === "assistant"
                   const isLastMessage = index === chatMessages.length - 1
@@ -369,10 +369,10 @@ export default function ChatSection() {
                             className="flex items-center gap-1.5 rounded-full cursor-pointer"
                           >
                             <Database size={18} />
-                            <span className="text-xs text-muted-foreground">RAG Mode:</span>
-                            <span className="text-xs font-medium">{searchMode === "auto" ? "AUTO" : "MANUAL"}</span>
+                            <span className="hidden sm:inline text-xs text-muted-foreground">RAG Mode:</span>
+                            <span className="hidden sm:inline text-xs font-medium">{searchMode === "auto" ? "AUTO" : "MANUAL"}</span>
                             {searchMode === "auto" ? (
-                              <span className="ml-1 text-xs text-muted-foreground">
+                              <span className="hidden sm:inline ml-1 text-xs text-muted-foreground">
                                 ({autoAgentType === "single" ? "Single" : "Multi"})
                               </span>
                             ) : selectedRagModes.length > 0 ? (
@@ -629,8 +629,8 @@ export default function ChatSection() {
                           disabled={true}
                         >
                           <SiOpenai size={18} />
-                          <span className="text-xs text-muted-foreground">LLM Model:</span>
-                          <span className="text-xs font-medium">{selectedModel}</span>
+                          <span className="hidden sm:inline text-xs text-muted-foreground">LLM Model:</span>
+                          <span className="hidden sm:inline text-xs font-medium">{selectedModel}</span>
                         </Button>
                       </PromptInputAction>
                     </div>
