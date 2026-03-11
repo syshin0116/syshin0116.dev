@@ -13,8 +13,8 @@ const geistSans = Geist({
 
 export const metadata: Metadata = {
   title: {
-    default: "Syshin's Portfolio",
-    template: "%s | Syshin's Portfolio",
+    default: "Syshin0116 Dev",
+    template: "%s | Syshin0116 Dev",
   },
   description:
     "AI Engineer portfolio & tech blog. Projects, blog posts, and technical expertise.",
@@ -31,10 +31,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://syshin0116.vercel.app"),
   openGraph: {
     type: "website",
-    siteName: "Syshin's Portfolio",
+    siteName: "Syshin0116 Dev",
     locale: "en_US",
     url: "https://syshin0116.vercel.app",
-    title: "Syshin's Portfolio",
+    title: "Syshin0116 Dev",
     description:
       "AI Engineer portfolio & tech blog.",
     images: [
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Syshin's Portfolio",
+    title: "Syshin0116 Dev",
     description: "AI Engineer portfolio & tech blog.",
     creator: "@syshin0116",
     images: ["/og-image.png"],
