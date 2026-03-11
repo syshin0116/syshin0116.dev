@@ -15,10 +15,6 @@ import {
 } from "@/components/ui/command"
 import type { SearchEntry } from "nuartz"
 
-interface CommandPaletteProps {
-  entries: SearchEntry[]
-}
-
 interface Result {
   slug: string
   title: string
@@ -53,28 +49,38 @@ function cjkEncoder(str: string): string[] {
 
 type IndexDoc = { id: number; slug: string; title: string; content: string; tags: string[] }
 
-export function CommandPalette({ entries }: CommandPaletteProps) {
+export function CommandPalette() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<{ notes: Result[]; tags: Result[] }>({ notes: [], tags: [] })
   const indexRef = useRef<FlexDocument<IndexDoc> | null>(null)
+  const entriesRef = useRef<SearchEntry[]>([])
+  const fetchedRef = useRef(false)
 
+  // Fetch search index after mount
   useEffect(() => {
-    const idx = new FlexDocument<IndexDoc>({
-      encode: cjkEncoder,
-      document: {
-        id: "id",
-        index: [
-          { field: "title", tokenize: "forward" },
-          { field: "content", tokenize: "forward" },
-          { field: "tags", tokenize: "forward" },
-        ],
-      },
-    })
-    entries.forEach((e, i) => idx.add({ id: i, slug: e.slug, title: e.title, content: e.content, tags: e.tags }))
-    indexRef.current = idx
-  }, [entries])
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+    fetch("/blog/api/search")
+      .then((r) => r.json())
+      .then((data: SearchEntry[]) => {
+        entriesRef.current = data
+        const idx = new FlexDocument<IndexDoc>({
+          encode: cjkEncoder,
+          document: {
+            id: "id",
+            index: [
+              { field: "title", tokenize: "forward" },
+              { field: "content", tokenize: "forward" },
+              { field: "tags", tokenize: "forward" },
+            ],
+          },
+        })
+        data.forEach((e, i) => idx.add({ id: i, slug: e.slug, title: e.title, content: e.content, tags: e.tags }))
+        indexRef.current = idx
+      })
+  }, [])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -89,6 +95,7 @@ export function CommandPalette({ entries }: CommandPaletteProps) {
 
   const search = useCallback(
     (q: string) => {
+      const entries = entriesRef.current
       if (!q.trim()) { setResults({ notes: [], tags: [] }); return }
 
       if (q.startsWith("#")) {
@@ -127,7 +134,7 @@ export function CommandPalette({ entries }: CommandPaletteProps) {
 
       setResults({ notes, tags: [] })
     },
-    [entries]
+    []
   )
 
   useEffect(() => { search(query) }, [query, search])
@@ -139,7 +146,7 @@ export function CommandPalette({ entries }: CommandPaletteProps) {
   }
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
+    <CommandDialog open={open} onOpenChange={setOpen} shouldFilter={false}>
       <CommandInput
         placeholder="Search notes or type # for tags…"
         value={query}

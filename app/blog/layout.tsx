@@ -1,6 +1,6 @@
 import "katex/dist/katex.min.css"
 import { unstable_cache } from "next/cache"
-import { getAllMarkdownFiles, buildFileTree, buildSearchIndex } from "nuartz"
+import { getAllMarkdownFiles, buildFileTree } from "nuartz"
 import { NavSidebar } from "@/components/blog/nav-sidebar"
 import { MobileNav } from "@/components/blog/mobile-nav"
 import { CommandPaletteDynamic } from "@/components/blog/command-palette-dynamic"
@@ -12,7 +12,6 @@ const getCachedBlogData = unstable_cache(
     const files = await getAllMarkdownFiles(CONTENT_DIR)
     return {
       tree: buildFileTree(files, { sortBy: "date" }),
-      searchEntries: buildSearchIndex(files),
     }
   },
   ["blog-layout-data"],
@@ -24,7 +23,7 @@ export default async function BlogLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { tree, searchEntries } = await getCachedBlogData()
+  const { tree } = await getCachedBlogData()
 
   return (
     <>
@@ -52,7 +51,7 @@ export default async function BlogLayout({
         </main>
       </div>
 
-      <CommandPaletteDynamic entries={searchEntries} />
+      <CommandPaletteDynamic />
     </>
   )
 }

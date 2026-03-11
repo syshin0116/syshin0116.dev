@@ -2,7 +2,7 @@ import { getAllMarkdownFiles, renderMarkdown } from "nuartz"
 import { NextResponse } from "next/server"
 import { CONTENT_DIR } from "@/lib/content"
 
-export const dynamic = "force-dynamic"
+export const dynamic = "force-static"
 
 export interface GraphNode {
   id: string
