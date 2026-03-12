@@ -34,11 +34,12 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
-
-  await supabase.auth.getUser()
+  // Only call getUser() if a session cookie exists — skip the network
+  // round-trip for anonymous visitors so public pages respond instantly.
+  const hasSession = request.cookies.getAll().some((c) => c.name.startsWith('sb-'))
+  if (hasSession) {
+    await supabase.auth.getUser()
+  }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:
