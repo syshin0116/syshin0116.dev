@@ -16,8 +16,7 @@ export const metadata: Metadata = {
     default: "Syshin0116 Dev",
     template: "%s | Syshin0116 Dev",
   },
-  description:
-    "AI Engineer portfolio & tech blog. Projects, blog posts, and technical expertise.",
+  description: "Syshin0116 Dev — AI Engineer · Blog · Projects",
   keywords: [
     "Portfolio",
     "AI Engineer",
@@ -37,21 +36,12 @@ export const metadata: Metadata = {
     title: "Syshin0116 Dev",
     description:
       "AI Engineer portfolio & tech blog.",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Syshin Portfolio",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Syshin0116 Dev",
     description: "AI Engineer portfolio & tech blog.",
     creator: "@syshin0116",
-    images: ["/og-image.png"],
   },
   authors: [
     {
