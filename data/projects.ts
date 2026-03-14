@@ -60,15 +60,39 @@ export interface ProjectDetail {
 export const projectsTimeline: ProjectTimeline[] = [
   // 진행 중인 프로젝트 (최신순)
   {
-    id: "apphub",
-    title: "AppHub - Living Portfolio 플랫폼",
-    period: "2025.11 ~ 진행 중",
-    year: 2025,
-    periodType: "H",
-    periodNumber: 2,
+    id: "clidex",
+    title: "clidex - AI 에이전트를 위한 CLI 도구 검색",
+    period: "2026.03 ~ 진행 중",
+    year: 2026,
+    periodType: "Q",
+    periodNumber: 1,
     isCompleted: false,
-    description: "실제 동작하는 프로젝트들을 통합 관리하는 Living Portfolio 플랫폼. 모든 개인 프로젝트를 통합하는 플랫폼으로 개발. 인증, 데이터베이스, AI 백엔드 등을 통합 관리.",
-    tags: ["Full Stack", "Next.js 15", "React 19", "LangGraph", "Supabase"],
+    description: "AI 에이전트가 CLI 도구를 검색·비교·설치할 수 있는 인덱스. BM25 + 시노님 확장으로 21개 쿼리 기준 100% recall 달성. Rust로 구현.",
+    tags: ["오픈소스", "Rust", "CLI", "AI Agent", "BM25"],
+    category: "personal"
+  },
+  {
+    id: "syshin0116-dev",
+    title: "syshin0116.dev - 블로그 + 포트폴리오 통합",
+    period: "2026.03 ~ 진행 중",
+    year: 2026,
+    periodType: "Q",
+    periodNumber: 1,
+    isCompleted: false,
+    description: "Nuartz 기반 블로그와 포트폴리오를 하나의 사이트로 통합. 4개 레포를 3개로 재편하고 blog-rag(Modular RAG) 백엔드와 연동 계획.",
+    tags: ["Full Stack", "Next.js 15", "Nuartz", "포트폴리오"],
+    category: "personal"
+  },
+  {
+    id: "nuartz",
+    title: "Nuartz - Obsidian → Next.js 오픈소스 라이브러리",
+    period: "2026.03 ~ 진행 중",
+    year: 2026,
+    periodType: "Q",
+    periodNumber: 1,
+    isCompleted: false,
+    description: "Obsidian 볼트를 Next.js 웹사이트로 퍼블리싱하는 headless 라이브러리. 위키링크, 백링크, 그래프뷰, 검색 등 Obsidian 기능을 Next.js에서 구현. npm 패키지로 배포.",
+    tags: ["오픈소스", "Next.js 15", "TypeScript", "Obsidian", "npm"],
     category: "personal"
   },
   {
@@ -655,96 +679,88 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       "기술 블로그 운영: 지식 공유의 선순환"
     ]
   },
-  "apphub": {
-    id: "apphub",
-    title: "AppHub - Living Portfolio 플랫폼",
-    subtitle: "개인 프로젝트 통합 관리 플랫폼",
-    period: "2025.11 ~ 진행 중",
-    duration: "약 2개월",
-    role: "1인 풀스택 개발",
-    team: "개인 프로젝트",
-    description: "2025년 11월부터 개발한 Living Portfolio 플랫폼. 기존 정적 포트폴리오를 넘어 실제 동작하는 프로젝트들을 통합 관리. 인증, 데이터베이스, AI 백엔드 등 반복 기능을 하나의 플랫폼으로 통합.",
+  "nuartz": {
+    id: "nuartz",
+    title: "Nuartz - Obsidian → Next.js 오픈소스 라이브러리",
+    subtitle: "Obsidian 볼트를 Next.js 웹사이트로 퍼블리싱하는 headless 라이브러리",
+    period: "2026.03 ~ 진행 중",
+    duration: "약 2주",
+    role: "1인 개발 / npm 패키지 배포",
+    team: "개인 오픈소스 프로젝트",
+    description: "Obsidian 볼트를 Next.js 웹사이트로 서빙하기 위한 headless 데이터 레이어 라이브러리. Quartz의 한계(커스텀 UI 불가, AI 연동 어려움)를 해결하기 위해 직접 개발. npm 패키지로 배포하여 누구나 자신의 Next.js 앱에 Obsidian 기능을 통합 가능.",
     techStack: {
-      frontend: ["React 19", "Next.js 15", "TypeScript", "Tailwind CSS 4", "Radix UI", "Framer Motion"],
-      backend: ["FastAPI", "Python 3.13", "LangGraph"],
-      database: ["Supabase (PostgreSQL)", "LangGraph Checkpoint Postgres"],
-      authentication: ["Supabase Auth", "Google OAuth 2.0", "GitHub OAuth 2.0"],
-      aiml: ["LangChain", "LangGraph", "OpenAI API", "Anthropic Claude"],
-      statemanagement: ["React 19 (use hook)", "Context API"],
-      deployment: ["Vercel (웹)", "Google Cloud (AI 백엔드)"],
-      devtools: ["ESLint", "TypeScript", "Ruff", "UV Package Manager"]
+      core: ["TypeScript", "unified (remark/rehype)"],
+      features: ["remark-math", "rehype-katex", "rehype-pretty-code", "FlexSearch", "D3.js"],
+      webapp: ["Next.js 15", "Tailwind CSS v4", "shadcn/ui", "next-themes"],
+      build: ["Bun", "tsc"],
+      deployment: ["npm registry", "Vercel", "GitHub Pages"]
     },
     keyFeatures: [
       {
-        title: "통합 인증 시스템",
+        title: "Obsidian 호환 마크다운 렌더링",
         details: [
-          "Supabase Auth 기반 사용자 인증",
-          "Google OAuth 2.0 소셜 로그인",
-          "세션 관리 및 보안 토큰 처리",
-          "향후 모든 개인 프로젝트에서 공통 사용 예정"
+          "위키링크 ([[note]], [[note|alias]]) 파싱 및 라우팅",
+          "양방향 백링크 인덱스 자동 생성",
+          "콜아웃 블록 (> [!note], > [!warning] 등)",
+          "하이라이트 (==text==), 코멘트 (%%text%%), 화살표 (->)",
+          "LaTeX 수식 렌더링 ($...$, $$...$$)"
         ]
       },
       {
-        title: "LangGraph AI 백엔드",
+        title: "콘텐츠 유틸리티",
         details: [
-          "FastAPI 기반 RESTful API 서버",
-          "LangGraph 멀티 에이전트 시스템",
-          "LangChain을 활용한 AI 워크플로우",
-          "LangGraph Checkpoint로 대화 상태 영속화",
-          "Google Cloud에 배포된 AI 백엔드"
+          "재귀적 마크다운 파일 탐색 및 드래프트 필터링",
+          "폴더 기반 파일 트리 생성 (사이드바용)",
+          "FlexSearch 기반 전문 검색 인덱스 (CJK 지원)",
+          "그래프 뷰 데이터 생성 (노트-태그 관계)"
         ]
       },
       {
-        title: "Supabase 데이터베이스",
+        title: "headless 아키텍처",
         details: [
-          "PostgreSQL 기반 관계형 데이터베이스",
-          "실시간 구독 기능 활용 가능",
-          "Row Level Security (RLS) 보안 정책",
-          "Supabase Storage로 파일 관리 (향후 확장)"
+          "UI 없이 데이터 레이어만 제공 — 어떤 디자인이든 적용 가능",
+          "nuartz.config.ts로 설정 (title, baseUrl, nav 등)",
+          "SSG/ISR 모두 지원",
+          "GitHub Pages 정적 배포 지원"
         ]
       },
       {
-        title: "모던 프론트엔드",
+        title: "참고 웹앱 (apps/web)",
         details: [
-          "React 19 최신 기능 활용 (use hook 등)",
-          "Next.js 15 App Router 아키텍처",
-          "Tailwind CSS 4 스타일링",
-          "Radix UI 접근성 높은 컴포넌트",
-          "Framer Motion 애니메이션",
-          "Vercel에 배포된 웹 애플리케이션"
+          "shadcn/ui + Tailwind v4 기반 모던 UI",
+          "다크모드, 반응형 레이아웃",
+          "그래프뷰 (D3.js), 목차, 검색 (cmdk)",
+          "OG 이미지 자동 생성, RSS 피드"
         ]
       }
     ],
     achievements: [
-      "최신 기술 스택 활용 (React 19, Next.js 15, Tailwind CSS 4)",
-      "Supabase를 활용한 완전한 백엔드 인프라 구축",
-      "Google Cloud에 LangGraph AI 백엔드 성공적으로 배포",
-      "Vercel을 통한 웹 애플리케이션 자동 배포 및 운영",
-      "개인 프로젝트들을 위한 재사용 가능한 공통 인프라 구축",
-      "Living Portfolio 콘셉트로 차별화된 기술 역량 증명"
+      "npm 패키지 배포 (nuartz@0.1.7)",
+      "Quartz 핵심 기능을 Next.js 생태계로 포팅",
+      "CJK(한국어/일본어/중국어) 검색 지원",
+      "Vercel + GitHub Pages 양쪽 배포 지원",
+      "개인 블로그로 실사용 중 (syshin0116.github.io)"
     ],
     challenges: [
       {
-        title: "최신 기술 스택 학습",
-        description: "React 19, Next.js 15, Tailwind CSS 4 등 최신 버전 학습. 공식 문서와 실험을 통해 빠르게 습득"
+        title: "Quartz 플러그인 시스템 재해석",
+        description: "Quartz의 Preact 기반 정적 사이트 생성기를 Next.js의 unified 파이프라인으로 재설계. remark/rehype 플러그인으로 위키링크, 콜아웃 등을 직접 구현"
       },
       {
-        title: "LangGraph 백엔드 배포",
-        description: "Google Cloud에 FastAPI + LangGraph 백엔드 배포. Docker 컨테이너화 및 환경 변수 관리로 해결"
+        title: "CJK 검색 최적화",
+        description: "FlexSearch의 기본 토크나이저가 한국어를 제대로 분리하지 못하는 문제. CJK 전용 토크나이저 설정으로 해결"
       },
       {
-        title: "Supabase 통합",
-        description: "Supabase Auth, Database, Storage 통합. 공식 SDK와 문서를 통해 체계적으로 구현"
+        title: "CSS 변수 호환성",
+        description: "Tailwind v4의 oklch 색상 체계와 D3.js SVG 렌더링 간 호환 문제. hsl() 래퍼 제거하고 CSS 변수 직접 참조로 해결"
       }
     ],
     learnings: [
-      "최신 프론트엔드 생태계: React 19, Next.js 15의 새로운 기능들",
-      "풀스택 개발 경험: 프론트엔드부터 AI 백엔드까지 전체 스택 구현",
-      "클라우드 배포: Vercel과 Google Cloud 활용한 프로덕션 배포",
-      "Supabase BaaS: 백엔드 인프라를 빠르게 구축하는 방법",
-      "LangGraph 아키텍처: 멀티 에이전트 시스템 구축 및 상태 관리",
-      "설계 원칙: 재사용 가능한 공통 인프라 구축의 중요성",
-      "개발 생산성: 최신 도구와 프레임워크를 활용한 빠른 개발"
+      "unified 생태계 깊이 이해: remark/rehype 플러그인 직접 작성",
+      "npm 패키지 배포 및 버전 관리 실무 경험",
+      "모노레포 구조 설계: packages/nuartz (라이브러리) + apps/web (참고 앱)",
+      "headless 라이브러리 설계 철학: UI와 데이터 레이어의 분리",
+      "오픈소스 프로젝트 운영: README, CHANGELOG, 문서화의 중요성"
     ]
   },
   "men-in-black": {
