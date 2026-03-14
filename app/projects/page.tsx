@@ -5,7 +5,7 @@ import { projectsTimeline } from "@/data/projects";
 
 export const metadata = {
   title: "Projects | Syshin's Portfolio",
-  description: "Explore Syshin's major AI and Machine Learning projects including SK PharmaAIX MR Assistant and KATECH AI Agent.",
+  description: "Explore Syshin's major AI and Machine Learning projects.",
 };
 
 export default function ProjectsPage() {

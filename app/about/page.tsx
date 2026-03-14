@@ -106,7 +106,7 @@ export default function AboutPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                 <div>
                   <p className="font-medium">AI Engineer</p>
-                  <p className="text-sm text-muted-foreground">랩큐</p>
+                  <p className="text-sm text-muted-foreground">LabQ</p>
                 </div>
                 <span className="text-sm text-muted-foreground">2024.03 ~ 2026.02</span>
               </div>

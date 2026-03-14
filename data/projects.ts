@@ -8,7 +8,10 @@ export interface ProjectTimeline {
   isCompleted: boolean;
   description: string;
   tags: string[];
-  category: "company" | "personal"; // 회사 프로젝트 vs 개인 프로젝트
+  category: "company" | "personal";
+  company?: string;
+  github?: string;
+  demo?: string; // 배포된 사이트 URL
 }
 
 export interface ProjectDetail {
@@ -20,6 +23,8 @@ export interface ProjectDetail {
   role: string;
   team: string;
   description: string;
+  github?: string;
+  demo?: string;
   techStack: {
     [key: string]: string[];
   };
@@ -61,7 +66,7 @@ export const projectsTimeline: ProjectTimeline[] = [
   // 진행 중인 프로젝트 (최신순)
   {
     id: "clidex",
-    title: "clidex - AI 에이전트를 위한 CLI 도구 검색",
+    title: "Clidex - AI 에이전트를 위한 CLI 도구 검색",
     period: "2026.03 ~ 진행 중",
     year: 2026,
     periodType: "Q",
@@ -69,11 +74,12 @@ export const projectsTimeline: ProjectTimeline[] = [
     isCompleted: false,
     description: "AI 에이전트가 CLI 도구를 검색·비교·설치할 수 있는 인덱스. BM25 + 시노님 확장으로 21개 쿼리 기준 100% recall 달성. Rust로 구현.",
     tags: ["오픈소스", "Rust", "CLI", "AI Agent", "BM25"],
-    category: "personal"
+    category: "personal",
+    github: "https://github.com/syshin0116/clidex"
   },
   {
     id: "syshin0116-dev",
-    title: "syshin0116.dev - 블로그 + 포트폴리오 통합",
+    title: "Syshin0116.dev - 블로그 + 포트폴리오 통합",
     period: "2026.03 ~ 진행 중",
     year: 2026,
     periodType: "Q",
@@ -81,7 +87,9 @@ export const projectsTimeline: ProjectTimeline[] = [
     isCompleted: false,
     description: "Nuartz 기반 블로그와 포트폴리오를 하나의 사이트로 통합. 4개 레포를 3개로 재편하고 blog-rag(Modular RAG) 백엔드와 연동 계획.",
     tags: ["Full Stack", "Next.js 15", "Nuartz", "포트폴리오"],
-    category: "personal"
+    category: "personal",
+    github: "https://github.com/syshin0116/syshin0116.dev",
+    demo: "https://syshin0116.vercel.app"
   },
   {
     id: "nuartz",
@@ -93,31 +101,35 @@ export const projectsTimeline: ProjectTimeline[] = [
     isCompleted: false,
     description: "Obsidian 볼트를 Next.js 웹사이트로 퍼블리싱하는 headless 라이브러리. 위키링크, 백링크, 그래프뷰, 검색 등 Obsidian 기능을 Next.js에서 구현. npm 패키지로 배포.",
     tags: ["오픈소스", "Next.js 15", "TypeScript", "Obsidian", "npm"],
-    category: "personal"
+    category: "personal",
+    github: "https://github.com/syshin0116/nuartz",
+    demo: "https://nuartz.vercel.app"
   },
   {
     id: "sk-pharmaaix",
-    title: "SK PharmaAIX MR Assistant",
-    period: "2025.07 ~ 진행 중",
+    title: "MR Assistant - 제약 영업 지원 AI 챗봇",
+    period: "2025.07 ~ 2026.02",
     year: 2025,
     periodType: "H",
     periodNumber: 2,
-    isCompleted: false,
-    description: "제약 영업 지원 AI 챗봇 - RAG 기반 질의응답 시스템",
+    isCompleted: true,
+    description: "대형 제약 그룹 MR 약 350명을 위한 RAG 기반 질의응답 시스템",
     tags: ["AI/ML", "LangGraph", "FastAPI", "Azure"],
-    category: "company"
+    category: "company",
+    company: "LabQ"
   },
   {
     id: "katech-ai-agent",
-    title: "한국자동차연구원 AI 에이전트",
-    period: "2024.03 ~ 진행 중",
+    title: "자동차 지식 에이전트 - 보고서 자동 생성 AI",
+    period: "2024.03 ~ 2026.02",
     year: 2024,
     periodType: "H",
     periodNumber: 1,
-    isCompleted: false,
-    description: "자동차 분야 특화 RAG 기반 보고서 자동 생성 시스템",
+    isCompleted: true,
+    description: "국내 자동차 연구기관의 RAG 기반 보고서 자동 생성 시스템 및 챗봇",
     tags: ["Full Stack", "RAG", "Next.js", "FastAPI"],
-    category: "company"
+    category: "company",
+    company: "LabQ"
   },
 
   // 완료된 프로젝트 (최신순)
@@ -131,11 +143,12 @@ export const projectsTimeline: ProjectTimeline[] = [
     isCompleted: true,
     description: "기업 평가 챗봇 개발 해커톤 기획 및 운영",
     tags: ["해커톤", "멘토링", "챗봇"],
-    category: "company"
+    category: "company",
+    company: "LabQ"
   },
   {
     id: "langchain-tutorial",
-    title: "LangChain Open Tutorial 기여",
+    title: "LangChain Open Tutorial",
     period: "2025.01 ~ 2025.02",
     year: 2025,
     periodType: "Q",
@@ -143,7 +156,8 @@ export const projectsTimeline: ProjectTimeline[] = [
     isCompleted: true,
     description: "2,000+ 커밋 오픈소스 프로젝트에 RAG 튜토리얼 작성",
     tags: ["오픈소스", "LangChain", "RAG", "LangGraph"],
-    category: "personal"
+    category: "personal",
+    github: "https://github.com/LangChain-OpenTutorial/LangChain-OpenTutorial"
   },
   {
     id: "greentech",
@@ -155,7 +169,8 @@ export const projectsTimeline: ProjectTimeline[] = [
     isCompleted: true,
     description: "하수처리 공정 수질 예측 및 이상탐지 AI 시스템",
     tags: ["AI/ML", "LightGBM", "PyTorch", "Time Series"],
-    category: "company"
+    category: "company",
+    company: "LabQ"
   },
   {
     id: "podlybot",
@@ -203,7 +218,8 @@ export const projectsTimeline: ProjectTimeline[] = [
     isCompleted: true,
     description: "제안서 및 문서 생성 자동화 시스템",
     tags: ["AI/ML", "OpenAI API", "Flask"],
-    category: "company"
+    category: "company",
+    company: "LabQ"
   },
   {
     id: "men-in-black",
@@ -223,13 +239,13 @@ export const projectsTimeline: ProjectTimeline[] = [
 export const projectsDetail: { [key: string]: ProjectDetail } = {
   "sk-pharmaaix": {
     id: "sk-pharmaaix",
-    title: "SK PharmaAIX MR Assistant",
-    subtitle: "제약 영업 지원 AI 챗봇",
-    period: "2025.07 ~ 현재 (진행 중)",
-    duration: "약 6개월",
-    role: "AI 파트 리드 / 랩큐 팀 PL",
-    team: "랩큐 팀원 3명 + BCG RA 5~6명 리딩",
-    description: "SK Chemical 제약 제품을 영업하는 MR 약 350명을 위한 AI 챗봇. 영업활동 기록, 제품 정보 검색, 고성과자 노하우 공유를 통한 성과 향상 지원. 제약 도메인 특화 RAG 기반 질의응답 시스템.",
+    title: "MR Assistant - 제약 영업 지원 AI 챗봇",
+    subtitle: "대형 제약 그룹 MR 영업 지원",
+    period: "2025.07 ~ 2026.02",
+    duration: "약 7개월",
+    role: "AI 파트 리드 / 팀 PL",
+    team: "팀원 3명 + 글로벌 컨설팅사 RA 5~6명 리딩",
+    description: "대형 제약 그룹의 MR 약 350명을 위한 AI 챗봇. 영업활동 기록, 제품 정보 검색, 고성과자 노하우 공유를 통한 성과 향상 지원. 제약 도메인 특화 RAG 기반 질의응답 시스템.",
     techStack: {
       backend: ["FastAPI", "Python"],
       database: ["MariaDB", "Qdrant (Vector DB)", "AWS Redshift", "Redis"],
@@ -240,7 +256,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     businessGoals: [
       {
         title: "생산성 향상 목표",
-        description: "MR 인당 생산성 11% 향상 (BCG 예상치)"
+        description: "MR 인당 생산성 11% 향상 (컨설팅사 예상치)"
       },
       {
         title: "4R 전략",
@@ -314,9 +330,9 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       {
         title: "AI 파트 리딩 및 멀티 팀 협업",
         details: [
-          "BCG PM 다음으로 AI 파트 전체 리더 역할",
-          "BCG RA 5~6명 (3개월 로테이션, 총 15명) 업무 분담 및 관리",
-          "랩큐 팀원 3명 PL 역할 (요구사항 분석, 일정 관리, 코드 리뷰)",
+          "컨설팅사 PM 다음으로 AI 파트 전체 리더 역할",
+          "컨설팅사 RA 5~6명 (3개월 로테이션, 총 15명) 업무 분담 및 관리",
+          "팀원 3명 PL 역할 (요구사항 분석, 일정 관리, 코드 리뷰)",
           "추진팀, 인프라팀, 보안팀, QA팀, 백엔드, 프론트 등 다수 팀과 협업 및 조율"
         ]
       },
@@ -373,13 +389,13 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
   },
   "katech-ai-agent": {
     id: "katech-ai-agent",
-    title: "한국자동차연구원 AI 에이전트",
-    subtitle: "자동차 분야 특화 통합 데이터 관리 및 AI Agent",
-    period: "2024.03 ~ 2024.11",
-    duration: "약 1년 8개월",
+    title: "자동차 지식 에이전트 - 보고서 자동 생성 AI",
+    subtitle: "국내 자동차 연구기관 RAG 기반 보고서 생성",
+    period: "2024.03 ~ 2026.02",
+    duration: "약 1년 11개월",
     role: "1~2차: 1인 풀스택 개발 (7개월) / 3~4차: 메인 PL / 팀 3명",
     team: "개발자 3명 (본인 포함)",
-    description: "한국자동차연구원의 자동차 분야 특화 RAG 기반 보고서 자동 생성 시스템 및 챗봇. 사전 공개/공개/비공개 데이터 3단계 분류 관리, 마이디스크 연동, Keycloak SSO 인증.",
+    description: "국내 자동차 연구기관의 자동차 분야 특화 RAG 기반 보고서 자동 생성 시스템 및 챗봇. 사전 공개/공개/비공개 데이터 3단계 분류 관리, 마이디스크 연동, Keycloak SSO 인증.",
     techStack: {
       backend: ["FastAPI", "Python", "Celery", "Redis"],
       frontend: ["Next.js", "React", "TypeScript", "BlockNote Editor"],
@@ -461,7 +477,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       },
       {
         title: "프로젝트 동시 진행",
-        description: "SK Chemical과 동시 진행으로 매일 새벽 2시까지 근무. 시간대별 우선순위 분리로 효율적 관리"
+        description: "대형 제약 프로젝트와 동시 진행으로 매일 새벽 2시까지 근무. 시간대별 우선순위 분리로 효율적 관리"
       }
     ],
     learnings: [
@@ -566,7 +582,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     period: "2024.03 ~ 2024.04",
     duration: "약 2개월",
     role: "유지보수 및 추가 개발",
-    team: "랩큐 자체 프로젝트",
+    team: "사내 자체 프로젝트",
     description: "AI 기반 사업 제안서, 기술 제안서 자동 생성 시스템. 템플릿 기반 문서 구조 생성 및 사용자 정의 프롬프트 지원. Celery 기반 비동기 작업 처리로 사용자 경험 개선.",
     techStack: {
       backend: ["Flask", "Celery", "Redis", "MySQL"],
@@ -613,7 +629,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
   },
   "langchain-tutorial": {
     id: "langchain-tutorial",
-    title: "LangChain Open Tutorial 오픈소스 기여",
+    title: "LangChain Open Tutorial",
     subtitle: "RAG 및 LangGraph 튜토리얼 작성",
     period: "2025.01 ~ 2025.02",
     duration: "약 7주",
@@ -761,6 +777,153 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       "모노레포 구조 설계: packages/nuartz (라이브러리) + apps/web (참고 앱)",
       "headless 라이브러리 설계 철학: UI와 데이터 레이어의 분리",
       "오픈소스 프로젝트 운영: README, CHANGELOG, 문서화의 중요성"
+    ]
+  },
+  "clidex": {
+    id: "clidex",
+    title: "Clidex - AI 에이전트를 위한 CLI 도구 검색",
+    subtitle: "CLI 도구 검색 엔진 for AI Agents",
+    period: "2026.03 ~ 진행 중",
+    duration: "약 1주",
+    role: "1인 개발 / 오픈소스",
+    team: "개인 프로젝트",
+    description: "AI 에이전트가 CLI 도구를 자연어로 검색·비교·설치할 수 있는 Rust 기반 인덱스. BM25 + 시노님 확장 + 퍼지 매칭 하이브리드 검색으로 높은 recall 달성. YAML/JSON 출력으로 LLM 친화적.",
+    techStack: {
+      language: ["Rust (2021 edition)"],
+      search: ["BM25 (bm25 crate)", "fuzzy-matcher (Skim algorithm)"],
+      cli: ["clap 4 (derive)", "colored 2"],
+      serialization: ["serde", "serde_yaml", "serde_json"],
+      network: ["reqwest 0.12 (rustls)", "tokio 1"],
+      build: ["LTO", "strip symbols", "opt-level = 'z'"]
+    },
+    keyFeatures: [
+      {
+        title: "하이브리드 검색 알고리즘",
+        details: [
+          "BM25 필드별 가중치 (이름 3x, 태그/카테고리 2x, 설명 1x)",
+          "70+ 시노님 매핑 (search→find/grep/locate, http→web/api/curl 등)",
+          "퍼지 매칭 폴백 (Skim algorithm) — 오타/부분 매칭 대응",
+          "GitHub stars 기반 인기도 보정 (비선형 정규화)"
+        ]
+      },
+      {
+        title: "CLI 명령어 체계",
+        details: [
+          "clidex \"query\" — 자연어 도구 검색 (상위 10개)",
+          "clidex info <name> — 도구 상세 정보",
+          "clidex compare <names...> — 도구 비교 테이블",
+          "clidex trending — 인기 도구 목록",
+          "clidex update — GitHub Releases에서 인덱스 갱신"
+        ]
+      },
+      {
+        title: "AI 에이전트 친화적 설계",
+        details: [
+          "YAML/JSON 출력 포맷 — LLM이 파싱하기 쉬운 구조",
+          "설치 명령어 통합 (brew, apt, cargo, npm 등)",
+          "도구별 docs/llms.txt 링크 제공",
+          "Pretty/YAML/JSON 3가지 출력 모드"
+        ]
+      }
+    ],
+    achievements: [
+      "30개 쿼리 테스트 스위트에서 높은 recall 달성",
+      "70+ CLI 도메인 시노님 매핑 구축",
+      "최소 바이너리 사이즈 최적화 (LTO + strip)",
+      "20+ 실제 CLI 도구 인덱싱 (jq, ripgrep, fd, bat, fzf 등)"
+    ],
+    challenges: [
+      {
+        title: "검색 정확도와 recall 균형",
+        description: "BM25 단독으로는 'find files' → 'fd' 같은 시노님 매칭 불가. 도메인 특화 시노님 확장 + 퍼지 매칭 하이브리드로 해결"
+      },
+      {
+        title: "인기도 편향 방지",
+        description: "GitHub stars가 높은 도구가 관련성 낮은 쿼리에서도 상위 노출. 비선형 정규화 (10k stars 이상 diminishing returns)로 해결"
+      }
+    ],
+    learnings: [
+      "Rust 실전 프로젝트: clap, serde, tokio 활용",
+      "정보 검색 알고리즘: BM25 + 시노님 확장의 효과",
+      "AI 에이전트 도구 설계: 구조화된 출력의 중요성",
+      "CLI 도구 생태계 이해: 패키지 매니저별 설치 방식"
+    ]
+  },
+  "syshin0116-dev": {
+    id: "syshin0116-dev",
+    title: "Syshin0116.dev - 블로그 + 포트폴리오 통합",
+    subtitle: "Nuartz 기반 블로그·포트폴리오·AI 챗봇 통합 사이트",
+    period: "2026.03 ~ 진행 중",
+    duration: "약 2주",
+    role: "1인 풀스택 개발",
+    team: "개인 프로젝트",
+    description: "개인 기술 블로그, 프로젝트 포트폴리오, RAG 기반 AI 챗봇을 하나의 도메인으로 통합. Nuartz를 데이터 레이어로 사용하고 Next.js 15 + shadcn/ui로 모던 UI 구현. LangGraph SDK로 blog-rag 백엔드와 연동하여 블로그 콘텐츠 기반 질의응답 제공.",
+    techStack: {
+      frontend: ["Next.js 15 (App Router)", "React 19", "Tailwind CSS v4", "shadcn/ui", "Framer Motion"],
+      content: ["Nuartz (headless markdown)", "FlexSearch (CJK 검색)", "D3.js (그래프뷰)", "Mermaid"],
+      ai: ["LangGraph SDK", "LangChain Core", "blog-rag 백엔드 (FastAPI)"],
+      auth: ["Supabase (Google OAuth)"],
+      rendering: ["KaTeX (수식)", "Shiki (코드 하이라이팅)", "remark/rehype"],
+      deployment: ["Vercel", "Bun"]
+    },
+    keyFeatures: [
+      {
+        title: "RAG 기반 AI 챗봇",
+        details: [
+          "LangGraph SDK로 blog-rag 백엔드 연동",
+          "자동/수동 검색 모드 (메타데이터, 벡터, 그래프 검색)",
+          "실시간 스트리밍 응답 + 도구 호출 시각화",
+          "출처 표시 기능"
+        ]
+      },
+      {
+        title: "Obsidian 호환 블로그",
+        details: [
+          "위키링크, 백링크, 콜아웃 블록 지원",
+          "D3.js 인터랙티브 지식 그래프",
+          "Cmd+K 전문 검색 (FlexSearch, CJK 지원)",
+          "링크 호버 프리뷰, 리더 모드, 읽기 시간"
+        ]
+      },
+      {
+        title: "프로젝트 포트폴리오",
+        details: [
+          "타임라인 뷰 (12+ 프로젝트)",
+          "상세 프로젝트 페이지 (기술스택, 성과, 아키텍처)",
+          "회사/개인 프로젝트 분류"
+        ]
+      },
+      {
+        title: "SEO 및 인프라",
+        details: [
+          "JSON-LD 구조화 데이터, Open Graph 이미지",
+          "sitemap, robots.txt 자동 생성",
+          "Giscus 댓글, Vercel Analytics",
+          "다크/라이트 테마"
+        ]
+      }
+    ],
+    achievements: [
+      "4개 레포를 3개로 재편하여 통합 사이트 구축",
+      "Nuartz를 실제 프로덕션에서 사용하며 라이브러리 검증",
+      "RAG 챗봇으로 블로그 콘텐츠 기반 대화형 검색 제공",
+      "Obsidian 볼트 → 웹사이트 무중단 퍼블리싱 파이프라인"
+    ],
+    challenges: [
+      {
+        title: "레포 통합",
+        description: "기존 블로그, 포트폴리오, Obsidian 볼트가 별도 레포. Nuartz를 공통 데이터 레이어로 사용하여 하나의 Next.js 앱으로 통합"
+      },
+      {
+        title: "RAG 백엔드 연동",
+        description: "LangGraph SDK의 스트리밍 응답과 도구 호출을 프론트엔드에서 실시간 시각화. SSE + 상태 관리로 해결"
+      }
+    ],
+    learnings: [
+      "프로덕션 사용이 최고의 라이브러리 테스트",
+      "Next.js 15 App Router + React 19의 서버 컴포넌트 활용",
+      "Supabase Auth 통합 경험",
+      "통합 사이트의 UX 설계: 블로그, 포트폴리오, 챗봇의 조화"
     ]
   },
   "men-in-black": {
@@ -973,7 +1136,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     duration: "약 1개월",
     role: "1인 개발 (기획, 개발, 운영)",
     team: "개인 프로젝트 + 회사 내부 프로젝트",
-    description: "안드로이드 폰에 구현한 카카오톡 기반 LLM 챗봇. 개인용(PodlyBot)과 회사용(LabQ Bot) 두 가지 버전으로 배포. 단체 채팅방에서 즉시 호출 가능한 LLM 서비스. URL 요약 및 Notion 자동 정리 기능으로 정보 수집 워크플로우 자동화. 회사용은 자체 LLM 서비스 연동 및 고객사 테스트 환경 제공.",
+    description: "안드로이드 폰에 구현한 카카오톡 기반 LLM 챗봇. 개인용(PodlyBot)과 회사용 두 가지 버전으로 배포. 단체 채팅방에서 즉시 호출 가능한 LLM 서비스. URL 요약 및 Notion 자동 정리 기능으로 정보 수집 워크플로우 자동화. 회사용은 자체 LLM 서비스 연동 및 고객사 테스트 환경 제공.",
     techStack: {
       platform: ["메신저봇R (Android)"],
       language: ["JavaScript (Rhino JavaScript Engine)"],
@@ -1010,9 +1173,9 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         ]
       },
       {
-        title: "회사용 (LabQ Bot): LLM 서비스 연동 및 테스트",
+        title: "회사용: LLM 서비스 연동 및 테스트",
         details: [
-          "(주)랩큐에서 개발한 AI 서비스들과 연동",
+          "회사에서 개발한 AI 서비스들과 연동",
           "고객사가 카톡으로 간편하게 테스트 가능",
           "데모 및 프로토타입 공유 용도",
           "팀원들이 공유하는 기술 자료, 뉴스 회사 Notion에 정리"
