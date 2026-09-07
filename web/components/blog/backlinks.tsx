@@ -13,7 +13,14 @@ export function Backlinks({ backlinks }: BacklinksProps) {
       <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
         Linked from ({backlinks.length})
       </h2>
-      <ul className="space-y-3">
+      <BacklinkList backlinks={backlinks.slice(0, 4)} />
+      {backlinks.length > 4 && <details className="mt-4"><summary className="mb-3 cursor-pointer text-sm text-muted-foreground">Show {backlinks.length - 4} more references</summary><BacklinkList backlinks={backlinks.slice(4)} /></details>}
+    </section>
+  )
+}
+
+function BacklinkList({ backlinks }: BacklinksProps) {
+  return <ul className="space-y-3">
         {backlinks.map((bl) => (
           <li key={bl.slug}>
             <Link
@@ -28,6 +35,4 @@ export function Backlinks({ backlinks }: BacklinksProps) {
           </li>
         ))}
       </ul>
-    </section>
-  )
 }

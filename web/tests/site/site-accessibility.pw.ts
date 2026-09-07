@@ -75,7 +75,10 @@ test.beforeEach(async ({ page }) => {
     requestFailures: [],
   }
   diagnosticsByPage.set(page, diagnostics)
+  page.on("pageerror", (error) => diagnostics.consoleProblems.push(error.message))
   page.on("console", (message) => {
+    // Next.js preloads route CSS when links enter the viewport, before navigation.
+    if (message.type() === "warning" && message.text().startsWith(`The resource ${SITE_ORIGIN}/_next/static/chunks/`) && message.text().includes(".css was preloaded using link preload but not used")) return
     if (message.type() === "error" || message.type() === "warning") {
       diagnostics.consoleProblems.push(`${message.type()}: ${message.text()}`)
     }
@@ -97,6 +100,11 @@ test.beforeEach(async ({ page }) => {
     }
   })
   await stubSignedOutSession(page)
+  if (new URL(SITE_ORIGIN).hostname === "127.0.0.1") {
+    for (const path of ["/_vercel/insights/script.js", "/_vercel/speed-insights/script.js"]) {
+      await page.route(`${SITE_ORIGIN}${path}`, route => route.fulfill({ status: 200, contentType: "application/javascript", body: "" }))
+    }
+  }
 })
 
 test.afterEach(async ({ page }) => {
@@ -272,4 +280,54 @@ test("mobile menu traps focus, closes with Escape, and restores focus", async ({
   await expectNoHorizontalOverflow(page)
   await expectA11yClean(page)
   await attachScreenshot(page, testInfo, "mobile-menu-closed")
+})
+
+
+test("note filters survive reload and search opens a matching blog note", async ({ page }, testInfo) => {
+  await page.goto("/blog")
+  await page.getByRole("combobox", { name: "태그", exact: true }).selectOption("ai")
+  await page.getByRole("combobox", { name: "정렬", exact: true }).selectOption("title")
+  await expect(page).toHaveURL(/tag=ai&sort=title/)
+  await page.reload()
+  await expect(page.getByRole("combobox", { name: "태그", exact: true })).toHaveValue("ai")
+  await expect(page.getByRole("combobox", { name: "정렬", exact: true })).toHaveValue("title")
+  await expectA11yClean(page)
+  await attachScreenshot(page, testInfo, "filtered-notes")
+  await page.keyboard.press("Control+k")
+  const search = page.getByRole("dialog", { name: "Search notes" })
+  await search.getByRole("combobox").fill("Azure CPU")
+  const match = search.getByRole("option").filter({ hasText: REPRESENTATIVE_TITLE })
+  await expect(match).toBeVisible()
+  await expectA11yClean(page)
+  await match.click()
+  await expect(page.getByRole("heading", { level: 1, name: REPRESENTATIVE_TITLE })).toBeVisible()
+  await expect(search).toBeHidden()
+  await expectNoHorizontalOverflow(page)
+})
+
+test("graph exploration preserves selection and keyboard navigation", async ({ page }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: "reduce" })
+  await page.goto(REPRESENTATIVE_HREF)
+  if (testInfo.project.name === "site-mobile") await page.locator(".reading-toc > summary").click()
+  const explore = page.getByRole("button", { name: "Explore", exact: true })
+  await explore.click()
+  const dialog = page.getByRole("dialog", { name: "연결된 글 탐색" })
+  const canvas = dialog.locator(".graph-canvas")
+  await expect(dialog.getByRole("button", { name: "Fit graph" })).toBeEnabled()
+  await expect(canvas.locator('[data-node]')).not.toHaveCount(0)
+  const current = canvas.locator('[data-current="true"]')
+  await current.focus()
+  await current.press("ArrowRight")
+  await page.keyboard.press("Enter")
+  await expect(canvas.locator('[data-selected="true"]')).toHaveCount(1)
+  await dialog.getByRole("button", { name: "All notes", exact: true }).click()
+  await expect(dialog.getByRole("button", { name: "Fit graph" })).toBeEnabled()
+  await dialog.getByRole("textbox", { name: "Find a graph node" }).fill("Azure")
+  await expect(dialog.getByRole("button").filter({ hasText: REPRESENTATIVE_TITLE })).toBeVisible()
+  await dialog.getByRole("button").filter({ hasText: REPRESENTATIVE_TITLE }).click()
+  await expect(dialog.getByRole("link", { name: "Open note" })).toHaveAttribute("href", /\/blog\/Dev\//)
+  await expectA11yClean(page)
+  await attachScreenshot(page, testInfo, "graph-exploration")
+  await page.keyboard.press("Escape")
+  await expect(explore).toBeFocused()
 })

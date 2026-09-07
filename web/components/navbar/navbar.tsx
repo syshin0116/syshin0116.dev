@@ -57,9 +57,7 @@ export default function Navbar() {
 
   const openSearch = () => {
     setMenuOpen(false);
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true })
-    );
+    window.dispatchEvent(new Event("nuartz:search"));
   };
 
   return (
@@ -105,7 +103,7 @@ export default function Navbar() {
             {isBlog && (
               <button
                 onClick={openSearch}
-                className="flex items-center gap-1 rounded-md border bg-muted px-3 py-1.5 text-sm text-foreground/60 cursor-pointer hover:bg-muted/80 transition-colors select-none"
+                className="flex items-center gap-1 rounded-md border bg-muted px-3 py-1.5 text-sm text-foreground cursor-pointer hover:bg-muted/80 transition-colors select-none"
               >
                 <Search className="h-3.5 w-3.5 mr-1" aria-hidden="true" />
                 Search
@@ -244,7 +242,7 @@ export default function Navbar() {
               {isBlog && blogTree.length > 0 && (
                 <>
                   <Separator className="mx-4 mt-3" />
-                  <div className="flex-1 overflow-y-auto px-4 py-3">
+                  <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
                     <NavSidebar tree={blogTree} />
                   </div>
                 </>
