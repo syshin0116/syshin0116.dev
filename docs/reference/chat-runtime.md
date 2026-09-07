@@ -32,7 +32,9 @@ schemas and generated bindings live in
 
 The authenticated SDK client retains identity validation, one bounded token refresh,
 and the existing origin restriction. Guest requests retain ownership checks, input
-limits, read-only tools, and the shared spend reservation.
+limits, read-only tools, and the shared spend reservation. Native human messages and
+the matching thread id are accepted without private correlation metadata. Legacy nonce
+pairs remain accepted so the server can be upgraded before existing clients.
 
 Guest stream subscriptions use Aegra's `EventStreamRequest` schema, including native
 `values`, `checkpoints`, replay cursors, and namespace filters. The outgoing public
