@@ -63,7 +63,7 @@ class AgentDeliveryIdentityTests(unittest.TestCase):
         )
 
         setup = builder.index(
-            "docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c"
+            "docker/setup-buildx-action@"
         )
         auth = builder.index("google-github-actions/auth@")
         build = builder.index("docker buildx build")
