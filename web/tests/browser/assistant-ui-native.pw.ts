@@ -192,6 +192,127 @@ async function selectFixtureThread(
 }
 
 test.describe.serial("native assistant-ui production journey", () => {
+  test("preserves a draft through connection setup, offline mode, and recovery", async ({ page }, testInfo) => {
+    await resetFixture(page)
+    let finishConnection!: () => void
+    const connection = new Promise<void>((resolve) => { finishConnection = resolve })
+    await page.route(`${fixtureOrigin}/ready`, async (route) => {
+      await connection
+      await route.fulfill({ status: 200, body: "ready" })
+    })
+    await page.goto("/")
+    const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    const send = page.getByRole("button", { name: "메시지 보내기" })
+    await expect(page.getByRole("status")).toContainText("AI에 연결하고 있습니다")
+    await attachEvidence(page, testInfo, "connection-pending")
+    await composer.fill("연속 검색 연결 복구")
+    await composer.press("Enter")
+    await expect(composer).toHaveValue("연속 검색 연결 복구")
+    await expect(send).toBeDisabled()
+    expect((await fixtureState(page)).commands).toHaveLength(0)
+    await attachEvidence(page, testInfo, "connection-draft")
+    finishConnection()
+    await expect(send).toBeEnabled()
+    await expect(page.getByText("AI에 연결하고 있습니다", { exact: false })).toBeHidden()
+    await attachEvidence(page, testInfo, "connection-ready")
+    await page.context().setOffline(true)
+    await expect(page.getByRole("status")).toContainText("인터넷 연결이 끊겼습니다")
+    await expect(send).toBeDisabled()
+    await composer.press("Enter")
+    await expect(composer).toHaveValue("연속 검색 연결 복구")
+    await attachEvidence(page, testInfo, "connection-offline")
+    await page.context().setOffline(false)
+    await expect(send).toBeEnabled()
+    await attachEvidence(page, testInfo, "connection-recovered")
+    await send.click()
+    await expect(page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true })).toHaveCount(1)
+    expect((await fixtureState(page)).commands).toHaveLength(1)
+    await attachEvidence(page, testInfo, "connection-sent")
+  })
+
+  test("keeps one focused composer from a new thread through consecutive turns", async ({ page }, testInfo) => {
+    const diagnostics = collectDiagnostics(page)
+    await resetFixture(page)
+    await page.goto("/")
+    const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    await expect(composer).toBeEnabled()
+    const originalInput = await composer.elementHandle()
+    await attachEvidence(page, testInfo, "new-thread-empty")
+    for (const turn of [1, 2, 3, 4, 5, 6]) {
+      await composer.fill(`연속 검색 ${turn}`)
+      await attachEvidence(page, testInfo, `new-thread-input-${turn}`)
+      await composer.press("Enter")
+      await expect(page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true })).toHaveCount(turn)
+      await expect(page.getByRole("button", { name: "응답 중지" })).toBeHidden()
+      expect(await originalInput!.evaluate((element) => element.isConnected)).toBe(true)
+      await expect(composer).toBeFocused()
+      await expect(composer).toHaveValue("")
+      await expect(composer).toHaveCount(1)
+      await expect(composer).toBeInViewport()
+      await expect(page.getByText(`연속 검색 ${turn}`, { exact: true })).toBeInViewport()
+      const answer = page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true }).last()
+      await expect(answer).toBeInViewport()
+      await expect.poll(async () => {
+        const answerBox = await answer.boundingBox()
+        const composerBox = await composer.boundingBox()
+        return answerBox !== null && composerBox !== null &&
+          answerBox.y + answerBox.height <= composerBox.y
+      }).toBe(true)
+      await attachEvidence(page, testInfo, `new-thread-complete-${turn}`)
+    }
+    expect((await fixtureState(page)).commands).toHaveLength(6)
+    await expectNoBrowserErrors(page, diagnostics)
+  })
+
+  test("keeps the next draft while a response runs and sends it after stopping", async ({ page }, testInfo) => {
+    await resetFixture(page)
+    await page.goto("/")
+    const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    await composer.fill("취소 후 후속 질문")
+    await attachEvidence(page, testInfo, "busy-input")
+    await page.getByRole("button", { name: "메시지 보내기" }).click()
+    const stop = page.getByRole("button", { name: "응답 중지" })
+    await expect(stop).toBeVisible()
+    await attachEvidence(page, testInfo, "busy-running")
+    await composer.fill("연속 검색 후속 질문")
+    await composer.press("Enter")
+    await composer.press("Enter")
+    expect((await fixtureState(page)).commands).toHaveLength(1)
+    expect((await composer.inputValue()).trim()).toBe("연속 검색 후속 질문")
+    await attachEvidence(page, testInfo, "busy-draft")
+    await stop.click()
+    await expect(stop).toBeHidden()
+    expect((await composer.inputValue()).trim()).toBe("연속 검색 후속 질문")
+    await attachEvidence(page, testInfo, "busy-stopped")
+    await composer.press("Enter")
+    await expect(page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true })).toHaveCount(1)
+    expect((await fixtureState(page)).commands).toHaveLength(2)
+    await expect(page.getByText("연속 검색 후속 질문", { exact: true })).toHaveCount(1)
+    await attachEvidence(page, testInfo, "busy-followup-complete")
+  })
+
+  test("retries a failed connection without replacing the draft", async ({ page }, testInfo) => {
+    await resetFixture(page)
+    let available = false
+    await page.route(`${fixtureOrigin}/ready`, (route) => route.fulfill({
+      status: available ? 200 : 404,
+      body: available ? "ready" : "unavailable",
+    }))
+    await page.goto("/")
+    const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    await composer.fill("연속 검색 재연결")
+    const connectionError = page.getByRole("alert").filter({ hasText: "다시 연결" })
+    await expect(connectionError).toBeVisible()
+    await expect(page.getByRole("button", { name: "메시지 보내기" })).toBeDisabled()
+    await attachEvidence(page, testInfo, "connection-failed-draft")
+    available = true
+    await page.getByRole("button", { name: "다시 연결", exact: true }).click()
+    await expect(page.getByRole("button", { name: "메시지 보내기" })).toBeEnabled()
+    await expect(composer).toHaveValue("연속 검색 재연결")
+    await expect(connectionError).toBeHidden()
+    await attachEvidence(page, testInfo, "connection-retried")
+  })
+
   test("keeps remote thread-list and composer notifications live under StrictMode", async ({
     page,
   }, testInfo) => {

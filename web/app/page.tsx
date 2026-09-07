@@ -13,7 +13,7 @@ export default function Home() {
         <Suspense
           fallback={
             <div
-              className="w-full h-[calc(100vh-73px)] flex items-center justify-center"
+              className="w-full h-[calc(100svh-3.5rem-1px)] flex items-center justify-center"
               role="status"
             >
               Loading...

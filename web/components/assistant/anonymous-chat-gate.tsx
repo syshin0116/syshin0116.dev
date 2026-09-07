@@ -57,8 +57,8 @@ function GateCard({
   title: string
 }) {
   return (
-    <section className="flex min-h-[70svh] items-center justify-center border-t bg-muted/20 px-6 py-16">
-      <div className="w-full max-w-lg rounded-3xl border bg-card p-6 text-center shadow-sm sm:p-8">
+    <section className="flex min-h-[calc(100svh-3.5rem-1px)] items-center justify-center bg-background px-6 py-16">
+      <div className="w-full max-w-lg text-center">
         <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
           {icon}
         </div>
@@ -150,23 +150,22 @@ export function AnonymousChatGate() {
   if (state.phase === "ready") {
     const { credential } = state
     return (
-      <div className="border-t">
-        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-b bg-muted/30 px-4 py-2 text-xs text-muted-foreground">
-          <span>공개 체험 · Luna · 대화 최대 14일 보관</span>
-          <Link className="font-medium underline underline-offset-4" href="/login">
-            소유자 로그인
-          </Link>
-        </div>
-        <AgentRuntimeProvider
-          key={credential.identity}
-          identity={credential.identity}
-          initialToken={credential.token}
-          tokenIntent={ANONYMOUS_AGENT_TOKEN_INTENT}
-          onAuthenticationExpired={handleCredentialExpired}
-        >
-          <ChatShell />
-        </AgentRuntimeProvider>
-      </div>
+      <AgentRuntimeProvider
+        key={credential.identity}
+        identity={credential.identity}
+        initialToken={credential.token}
+        tokenIntent={ANONYMOUS_AGENT_TOKEN_INTENT}
+        onAuthenticationExpired={handleCredentialExpired}
+      >
+        <ChatShell>
+          <div className="flex shrink-0 flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-xs text-muted-foreground">
+            <span>공개 체험 · Luna · 대화 최대 14일 보관</span>
+            <Link className="font-medium underline underline-offset-4" href="/login">
+              소유자 로그인
+            </Link>
+          </div>
+        </ChatShell>
+      </AgentRuntimeProvider>
     )
   }
   if (state.phase === "resuming") {

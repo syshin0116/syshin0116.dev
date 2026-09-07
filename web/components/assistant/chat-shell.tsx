@@ -132,10 +132,6 @@ const ToolPart = memo(function ToolPart({
   const running =
     status.type === "running" ||
     status.type === "requires-action"
-  // Opens while the call is in flight, then follows the reader. Binding `open`
-  // to `running` would reopen on every streaming re-render and slam the panel
-  // shut the moment the call finishes.
-  const [open, setOpen] = useState(running)
   const argumentSummary = toolArgumentSummary(argsText)
   const resultText = toolResultText(result)
   const subagentType =
@@ -149,8 +145,6 @@ const ToolPart = memo(function ToolPart({
   return (
     <details
       className="my-3 rounded-xl bg-muted/50"
-      open={open}
-      onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-sm">
         <ToolCase
@@ -322,13 +316,17 @@ function ChatMessage() {
     >
       <div
         className={cn(
-          "min-w-0 text-[15px] leading-7",
+          "min-w-0 text-[15px] leading-7 [overflow-wrap:anywhere]",
           role === "assistant" && "w-full",
           role === "user" &&
             "max-w-[82%] rounded-[22px] rounded-br-lg bg-muted px-4 py-2.5 text-foreground sm:max-w-[75%]"
         )}
       >
-        <MessagePrimitive.Parts components={MESSAGE_COMPONENTS} />
+        {role === "user" ? (
+          <div className="whitespace-pre-wrap"><MessagePrimitive.Parts /></div>
+        ) : (
+          <MessagePrimitive.Parts components={MESSAGE_COMPONENTS} />
+        )}
         {role === "assistant" && sources.length > 0 ? (
           <AnswerSources sources={sources} />
         ) : null}
@@ -348,7 +346,7 @@ function ChatMessage() {
 function EmptyConversation() {
   return (
     <AuiIf condition={(state) => state.thread.isEmpty}>
-      <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col justify-center px-4 py-10 md:px-6 md:py-16">
+      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-4 py-10 md:px-6 md:py-16">
         <h1 className="text-balance text-center text-3xl font-medium tracking-[-0.035em] sm:text-4xl">
           무엇이 궁금하세요?
         </h1>
@@ -367,7 +365,6 @@ function EmptyConversation() {
             </ThreadPrimitive.Suggestion>
           ))}
         </div>
-        <Composer centered />
       </div>
     </AuiIf>
   )
@@ -531,22 +528,19 @@ function ConversationFooter() {
       />
     )
   }
-  return (
-    <AuiIf condition={(state) => !state.thread.isEmpty}>
-      <Composer />
-    </AuiIf>
-  )
+  return <Composer />
 }
 
-function Composer({ centered = false }: { centered?: boolean }) {
+function Composer() {
   const runtimeUi = useAgentRuntimeUi()
+  const online = useOnline()
   const router = useRouter()
   const compositionRef = useRef(false)
   const composerInputRef = useRef<HTMLTextAreaElement>(null)
   const [composerError, setComposerError] = useState<string>()
   const guardImeEnter = createImeEnterGuard(() => compositionRef.current)
   const composerAui = useAui()
-  const ready = runtimeUi.connectionStatus === "ready"
+  const ready = runtimeUi.connectionStatus === "ready" && online
   const connectionError = runtimeUi.connectionError
   const turnError = ready ? runtimeUi.turnError : undefined
   const runConnectionAction = () => {
@@ -560,10 +554,8 @@ function Composer({ centered = false }: { centered?: boolean }) {
     runtimeUi.dismissTurnError()
     restoreComposerFocus()
   }
-  useEffect(() => {
-    if (!centered) composerInputRef.current?.focus()
-  }, [centered])
   const prepareSubmission = () => {
+    if (!ready) return true
     composerAui.composer().setRunConfig(runtimeUi.modelSelection
       ? { custom: { model: runtimeUi.selectedModel } }
       : {})
@@ -581,14 +573,18 @@ function Composer({ centered = false }: { centered?: boolean }) {
   }
 
   return (
-    <div
-      className={cn(
-        "w-full px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6",
-        centered
-          ? "mt-4 px-0 pb-0 md:px-0"
-          : "bg-gradient-to-t from-background via-background to-transparent pt-6"
-      )}
-    >
+    <div className="w-full px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6">
+      {!online ? (
+        <p role="status" className="mx-auto mb-3 flex max-w-3xl items-center gap-2 text-sm text-muted-foreground">
+          <WifiOff className="size-4 shrink-0" />
+          인터넷 연결이 끊겼습니다. 작성한 메시지는 연결 후 보낼 수 있어요.
+        </p>
+      ) : runtimeUi.connectionStatus === "connecting" ? (
+        <p role="status" className="mx-auto mb-3 flex max-w-3xl items-center gap-2 text-sm text-muted-foreground">
+          <LoaderCircle className="size-4 shrink-0 animate-spin motion-reduce:animate-none" />
+          AI에 연결하고 있습니다. 첫 연결은 잠시 걸릴 수 있어요. 질문을 미리 작성해 두세요.
+        </p>
+      ) : null}
       {runtimeUi.connectionStatus === "error" && connectionError ? (
         <div
           role="alert"
@@ -635,14 +631,8 @@ function Composer({ centered = false }: { centered?: boolean }) {
             composerError ? "composer-size-error" : undefined
           }
           aria-invalid={composerError !== undefined}
-          placeholder={
-            ready
-              ? "블로그와 프로젝트에 관해 물어보세요…"
-              : runtimeUi.connectionStatus === "error"
-                ? "연결을 확인해 주세요"
-                : "AI를 깨우는 중…"
-          }
-          disabled={!ready}
+          placeholder="블로그와 프로젝트에 관해 물어보세요…"
+          autoFocus
           rows={1}
           maxRows={8}
           maxLength={MAX_COMPOSER_CODE_UNITS}
@@ -677,6 +667,7 @@ function Composer({ centered = false }: { centered?: boolean }) {
         <AuiIf condition={(state) => !state.thread.isRunning}>
           <ComposerPrimitive.Send
             aria-label="메시지 보내기"
+            disabled={!ready}
             onClick={(event) => {
               if (prepareSubmission()) {
                 // ComposerPrimitive.Send invokes the runtime directly instead
@@ -710,38 +701,33 @@ function Composer({ centered = false }: { centered?: boolean }) {
 function Conversation() {
   return (
     <ThreadPrimitive.Root className="flex min-h-0 flex-1 flex-col bg-background">
-      <ThreadPrimitive.Viewport className="relative min-h-0 flex-1 overflow-y-auto">
+      <ThreadPrimitive.Viewport className="relative flex min-h-0 flex-1 flex-col overflow-y-auto">
         <EmptyConversation />
-        {/* Every familiar chat app grows the transcript upward from the
-            composer. Top-anchored messages left a single question stranded
-            above hundreds of pixels of nothing. */}
-        <AuiIf condition={(state) => !state.thread.isEmpty}>
-        <div className="flex min-h-full flex-col justify-end">
-          <ThreadPrimitive.Messages>
-            {() => <ChatMessage />}
-          </ThreadPrimitive.Messages>
-          <AuiIf condition={(state) => state.thread.isRunning}>
-            <div
-              role="status"
-              aria-live="polite"
-              className="mx-auto flex w-full max-w-3xl items-center gap-2.5 px-4 py-3 text-sm text-muted-foreground md:px-6"
-            >
-              <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />
-              검색하고 답변을 구성하고 있습니다.
-            </div>
-          </AuiIf>
-        </div>
-        </AuiIf>
-        <AuiIf condition={(state) => !state.thread.isEmpty}>
-          <ThreadPrimitive.ScrollToBottom
-            aria-label="최신 메시지로 이동"
-            className="sticky bottom-3 left-1/2 z-10 flex size-9 -translate-x-1/2 items-center justify-center rounded-full border bg-background shadow-md disabled:invisible"
+        <ThreadPrimitive.Messages>
+          {() => <ChatMessage />}
+        </ThreadPrimitive.Messages>
+        <AuiIf condition={(state) => state.thread.isRunning}>
+          <div
+            role="status"
+            aria-live="polite"
+            className="mx-auto flex w-full max-w-3xl items-center gap-2.5 px-4 py-3 text-sm text-muted-foreground md:px-6"
           >
-            <ArrowDown className="size-4" />
-          </ThreadPrimitive.ScrollToBottom>
+            <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />
+            검색하고 답변을 구성하고 있습니다.
+          </div>
         </AuiIf>
+        <ThreadPrimitive.ViewportFooter className="sticky bottom-0 z-10 mt-auto bg-gradient-to-t from-background via-background to-transparent pt-4">
+          <AuiIf condition={(state) => !state.thread.isEmpty}>
+            <ThreadPrimitive.ScrollToBottom
+              aria-label="최신 메시지로 이동"
+              className="absolute -top-10 left-1/2 flex size-9 -translate-x-1/2 items-center justify-center rounded-full border bg-background shadow-md disabled:invisible"
+            >
+              <ArrowDown className="size-4" />
+            </ThreadPrimitive.ScrollToBottom>
+          </AuiIf>
+          <ConversationFooter />
+        </ThreadPrimitive.ViewportFooter>
       </ThreadPrimitive.Viewport>
-      <ConversationFooter />
     </ThreadPrimitive.Root>
   )
 }
@@ -1218,18 +1204,8 @@ function ModelSelector() {
 }
 
 function WorkspaceHeader() {
-  const { connectionStatus } = useAgentRuntimeUi()
-  // The agent scales to zero, so this state lasts as long as a container boot -
-  // measured near a minute. Naming it tells the visitor why nothing is ready yet.
-  const status =
-    connectionStatus === "ready"
-      ? "연결됨"
-      : connectionStatus === "error"
-        ? "연결 확인 필요"
-        : "AI 깨우는 중"
-
   return (
-    <header className="flex min-h-14 items-center justify-between gap-3 border-b border-border/70 px-3 sm:px-4">
+    <header className="mx-auto flex min-h-14 w-full max-w-5xl shrink-0 items-center justify-between gap-3 px-3 sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
         <Image
           src="/logo.png"
@@ -1241,20 +1217,6 @@ function WorkspaceHeader() {
         />
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold tracking-tight">Syshin AI</p>
-          <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-            <span
-              aria-hidden="true"
-              className={cn(
-                "size-1.5 rounded-full",
-                connectionStatus === "ready"
-                  ? "bg-emerald-500"
-                  : connectionStatus === "error"
-                    ? "bg-destructive"
-                    : "animate-pulse bg-amber-500 motion-reduce:animate-none"
-              )}
-            />
-            {status}
-          </p>
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-0.5">
@@ -1267,7 +1229,7 @@ function WorkspaceHeader() {
   )
 }
 
-function OnlineStatus() {
+function useOnline() {
   const [online, setOnline] = useState(true)
   useEffect(() => {
     const update = () => setOnline(navigator.onLine)
@@ -1279,29 +1241,18 @@ function OnlineStatus() {
       window.removeEventListener("offline", update)
     }
   }, [])
-  if (online) return null
-  return (
-    <div
-      role="status"
-      className="flex items-center gap-2 bg-amber-500/10 px-4 py-2 text-xs text-amber-900 dark:text-amber-200"
-    >
-      <WifiOff className="size-3.5" />
-      오프라인입니다. 연결이 복구되면 다시 전송해 주세요.
-    </div>
-  )
+  return online
 }
 
-export function ChatShell() {
+export function ChatShell({ children }: { children?: ReactNode }) {
   return (
     <section
       aria-label="RAG 평가 챗봇"
-      className="relative flex h-[calc(100svh-4.5rem)] min-h-0 bg-muted/20 p-0 sm:p-3 md:p-4 supports-[height:100dvh]:h-[calc(100dvh-4.5rem)]"
+      className="relative flex h-[calc(100svh-3.5rem-1px)] min-h-0 flex-col bg-background supports-[height:100dvh]:h-[calc(100dvh-3.5rem-1px)]"
     >
-      <div className="mx-auto flex h-full min-h-0 w-full max-w-5xl flex-col overflow-hidden bg-background sm:rounded-2xl sm:border sm:border-border/60 sm:shadow-[0_1px_3px_rgb(0_0_0/0.04),0_8px_24px_-12px_rgb(0_0_0/0.10)]">
-        <OnlineStatus />
-        <WorkspaceHeader />
-        <Conversation />
-      </div>
+      <WorkspaceHeader />
+      {children}
+      <Conversation />
     </section>
   )
 }
@@ -1332,7 +1283,7 @@ export function ChatLoading() {
   return (
     <section
       aria-label="AI 검색 실험실 불러오는 중"
-      className="flex min-h-[70svh] items-center justify-center border-t"
+      className="flex min-h-[calc(100svh-3.5rem-1px)] items-center justify-center"
     >
       <div
         role="status"
