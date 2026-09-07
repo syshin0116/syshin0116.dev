@@ -97,7 +97,7 @@ async function attachEvidence(
   name: string
 ): Promise<void> {
   await testInfo.attach(`${name}-${revision}.png`, {
-    body: await page.screenshot({ animations: "disabled" }),
+    body: await page.screenshot({ animations: "disabled", caret: "initial" }),
     contentType: "image/png",
   })
   await testInfo.attach(`${name}-${revision}.json`, {
