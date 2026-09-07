@@ -41,6 +41,7 @@ interface FixtureState {
   cancellations: Array<{ runId: string; threadId: string }>
   commands: JsonRecord[]
   errors: string[]
+  events: Array<{ threadId: string; event: JsonRecord; audience: "all" | "content" | "watcher" }>
   messageIdMappings: MessageIdMapping[]
   nextRun: number
   nextSequence: number
@@ -109,6 +110,7 @@ function resetState(
     cancellations: [],
     commands: [],
     errors: [],
+    events: [],
     messageIdMappings: [],
     nextRun: 1,
     nextSequence: 1,
@@ -163,13 +165,18 @@ function namespaceFor(event: JsonRecord): string[] {
 
 function subscriberMatches(
   subscriber: Subscriber,
-  event: JsonRecord
+  event: JsonRecord,
+  audience: "all" | "content" | "watcher" = "all"
 ): boolean {
   const channels = subscriber.body.channels
   const channel = channelFor(event)
   if (!Array.isArray(channels) || !channel || !channels.includes(channel)) {
     return false
   }
+  const isWatcher = channels.length === 2 && channels[0] === "lifecycle" &&
+    channels[1] === "input" && subscriber.body.namespaces === undefined &&
+    subscriber.body.depth === undefined
+  if ((audience === "watcher" && !isWatcher) || (audience === "content" && isWatcher)) return false
   const namespaces = subscriber.body.namespaces
   if (namespaces === undefined) return true
   if (
@@ -216,24 +223,12 @@ function emit(
   event: JsonRecord,
   audience: "all" | "content" | "watcher" = "all"
 ): number {
+  state.events.push({ threadId, event, audience })
   let deliveries = 0
   for (const subscriber of state.subscribers.values()) {
     if (
       subscriber.threadId !== threadId ||
-      !subscriberMatches(subscriber, event)
-    ) {
-      continue
-    }
-    const isWatcher =
-      Array.isArray(subscriber.body.channels) &&
-      subscriber.body.channels.length === 2 &&
-      subscriber.body.channels[0] === "lifecycle" &&
-      subscriber.body.channels[1] === "input" &&
-      subscriber.body.namespaces === undefined &&
-      subscriber.body.depth === undefined
-    if (
-      (audience === "watcher" && !isWatcher) ||
-      (audience === "content" && isWatcher)
+      !subscriberMatches(subscriber, event, audience)
     ) {
       continue
     }
@@ -822,6 +817,14 @@ const server = Bun.serve({
           }
           state.subscribers.set(id, subscriber)
           controller.enqueue(encoder.encode(": ready\n\n"))
+          // Aegra replays matching events when the SDK replaces a subscription.
+          const since = typeof body.since === "number" ? body.since : 0
+          for (const recorded of state.events) {
+            if (recorded.threadId === threadId && Number(recorded.event.seq) > since &&
+                subscriberMatches(subscriber, recorded.event, recorded.audience)) {
+              writeEvent(subscriber, recorded.event)
+            }
+          }
           request.signal.addEventListener(
             "abort",
             () => {

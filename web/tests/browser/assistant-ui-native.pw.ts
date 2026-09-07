@@ -1,4 +1,5 @@
 import AxeBuilder from "@axe-core/playwright"
+import { ProtocolSseTransportAdapter } from "@langchain/langgraph-sdk"
 import {
   expect,
   test,
@@ -226,7 +227,29 @@ test.describe.serial("native assistant-ui production journey", () => {
     await attachEvidence(page, testInfo, "connection-recovered")
     await send.click()
     await expect(page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true })).toHaveCount(1)
-    expect((await fixtureState(page)).commands).toHaveLength(1)
+    const completed = await fixtureState(page)
+    expect(completed.commands).toHaveLength(1)
+    const replayAdapter = new ProtocolSseTransportAdapter({
+      apiUrl: fixtureOrigin,
+      threadId: completed.streamSubscriptions[0]!.threadId,
+    })
+    try {
+      let since = 0
+      for (let reconnect = 0; reconnect < 2; reconnect += 1) {
+        const replay = replayAdapter.openEventStream({ channels: ["messages"], namespaces: [[]], depth: 0, since })
+        try {
+          const { value: event } = await replay.events[Symbol.asyncIterator]().next()
+          expect(event?.type).toBe("event")
+          expect(event?.method).toBe("messages")
+          expect(event?.seq).toBeGreaterThan(since)
+          since = event!.seq
+        } finally {
+          replay.close()
+        }
+      }
+    } finally {
+      await replayAdapter.close()
+    }
     await attachEvidence(page, testInfo, "connection-sent")
   })
 
