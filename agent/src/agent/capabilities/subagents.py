@@ -14,11 +14,17 @@ from deepagents.middleware.subagents import (
 )
 from langchain.agents import create_agent
 from langchain_core.language_models import BaseChatModel
-from langchain_core.runnables import RunnableLambda
+from langchain_core.runnables import RunnableConfig, RunnableLambda
 from langchain_core.tools import BaseTool
 from langgraph_sdk.runtime import ServerRuntime
 
-from agent.capabilities.budget import RunBudget, RunBudgetMiddleware
+from agent.capabilities.budget import (
+    MAX_TASK_DESCRIPTION_BYTES,
+    InvalidDelegationError,
+    RunBudget,
+    RunBudgetMiddleware,
+    subagent_budget,
+)
 from agent.capabilities.quickjs import QUICKJS_TOOL_NAME
 from agent.capabilities.token_counting import InputTokenCounter, InputTokenCountPreparer
 from agent.tools import (
@@ -39,8 +45,13 @@ _BLOG_RETRIEVAL_SKILL_FILE = _BLOG_RETRIEVAL_SKILL_DIR / "SKILL.md"
 _BLOG_RETRIEVAL_SKILL_TEXT = _BLOG_RETRIEVAL_SKILL_FILE.read_text(encoding="utf-8")
 
 SUBAGENT_ROOT_PROMPT = """\
-Dynamic delegation is a bounded RAG capability. Use it only when isolating a
-multi-step investigation materially improves the result. Structure every `task`
+Choose independent searches from the user's question. For comparisons or broad
+research, use `eval` to dispatch `task({description, subagentType, label})` calls
+with Promise.all, then compare their evidence. Run at most two tasks at once.
+Use the same retrieval-researcher with different search methods or subquestions;
+create only as many tasks as the question needs. These compiled specialists return
+text, so omit responseSchema. For a simple lookup, call a search tool directly.
+Structure every `task`
 description as a complete, stateless envelope with these headings in this order:
 
 Question:
@@ -352,15 +363,26 @@ def _compiled_subagent(
         ],
         name=name,
     )
-    isolated = (
-        RunnableLambda(_sanitize_child_input)
-        | child
-        | RunnableLambda(_sanitize_child_output)
-    )
+
+    async def run_child(state: Mapping[str, Any], config: RunnableConfig):
+        isolated = _sanitize_child_input(state)
+        messages = isolated["messages"]
+        description = messages[0].content if len(messages) == 1 else None
+        if (
+            not isinstance(description, str)
+            or not description.strip()
+            or len(description.encode("utf-8")) > MAX_TASK_DESCRIPTION_BYTES
+        ):
+            raise InvalidDelegationError(
+                "subagent requires one bounded task description"
+            )
+        async with subagent_budget(budget):
+            return _sanitize_child_output(await child.ainvoke(isolated, config))
+
     return {
         "name": name,
         "description": description,
-        "runnable": isolated,
+        "runnable": RunnableLambda(run_child),
     }
 
 
