@@ -4,7 +4,6 @@ import {
   GENERIC_INTERRUPT_PROJECTION,
   INTERRUPT_UI_SCHEMA,
   projectInterruptForUi,
-  readRuntimeInterruptProjection,
 } from "./interrupt-projection"
 
 describe("projectInterruptForUi", () => {
@@ -129,26 +128,4 @@ describe("projectInterruptForUi", () => {
     expect(rejected).toEqual(GENERIC_INTERRUPT_PROJECTION)
   })
 
-  test("reads only the bounded local runtime projection", () => {
-    const projected = projectInterruptForUi({
-      schema: INTERRUPT_UI_SCHEMA,
-      kind: "approval",
-      prompt: "검색을 계속할까요?",
-    })
-    expect(readRuntimeInterruptProjection(projected)).toEqual(projected)
-    expect(
-      readRuntimeInterruptProjection({
-        ...projected,
-        secret: "MUST_NOT_ENTER_RUNTIME",
-      })
-    ).toEqual(GENERIC_INTERRUPT_PROJECTION)
-    expect(
-      JSON.stringify(
-        readRuntimeInterruptProjection({
-          prompt: "raw backend prompt",
-          secret: "MUST_NOT_ENTER_RUNTIME",
-        })
-      )
-    ).not.toContain("MUST_NOT_ENTER_RUNTIME")
-  })
 })

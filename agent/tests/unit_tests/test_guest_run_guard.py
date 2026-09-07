@@ -4039,3 +4039,30 @@ async def test_guest_query_contract_is_exact(method, path, expected):
 
     assert response.status_code == expected
     assert len(records) == (1 if expected == 200 else 0)
+
+
+def test_guest_nested_interrupt_retains_the_authoritative_root_resume_id():
+    event = {
+        "type": "event",
+        "event_id": "run_event_1:0",
+        "seq": 1,
+        "method": "input.requested",
+        "params": {
+            "namespace": ["tools:child"],
+            "timestamp": 1,
+            "data": {
+                "interrupt_id": _INTERRUPT_ID,
+                "payload": {
+                    "schema": "syshin.rag.interrupt.v1",
+                    "kind": "approval",
+                    "prompt": "계속할까요?",
+                },
+            },
+        },
+    }
+    projected = GuestEventProjector().project(event)
+    assert projected is not None
+    assert projected["params"]["namespace"] == []
+    assert projected["params"]["data"]["interrupt_id"] == _INTERRUPT_ID
+    event["params"]["data"]["payload"]["secret"] = "not public"
+    assert GuestEventProjector().project(event) is None

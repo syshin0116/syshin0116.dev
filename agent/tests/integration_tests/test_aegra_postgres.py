@@ -3488,7 +3488,10 @@ async def test_killed_fence_backend_blocks_each_late_aegra_execute_run_finalizer
             )
 
         allow_late_finalize.set()
-        with pytest.raises(DBAPIError, match="recovered guest run is immutable"):
+        if late_outcome == "cancel":
+            with pytest.raises(asyncio.CancelledError):
+                await owner_task
+        else:
             await owner_task
         with pytest.raises(DBAPIError):
             await monitor
@@ -3516,6 +3519,7 @@ async def test_killed_fence_backend_blocks_each_late_aegra_execute_run_finalizer
         await finalize_run(
             replacement_run_id,
             thread_id,
+            user_id=identity,
             status="success",
             thread_status="idle",
             output={"replacement": True},
@@ -3601,6 +3605,7 @@ async def test_cancelled_monitor_quarantines_until_live_owner_is_drained():
         await finalize_run(
             run_id,
             thread_id,
+            user_id=identity,
             status="interrupted",
             thread_status="idle",
             output={},
@@ -3673,8 +3678,7 @@ async def test_cancelled_monitor_quarantines_until_live_owner_is_drained():
             assert await cursor.fetchone() == (True, None)
 
         allow_owner_finalize.set()
-        with pytest.raises(DBAPIError, match="recovered guest run is immutable"):
-            await owner_task
+        await owner_task
         with pytest.raises(asyncio.CancelledError):
             await monitor
         monitor = None
@@ -3783,6 +3787,7 @@ async def test_dedicated_fences_leave_size_two_orm_pool_for_finalizers():
         await finalize_run(
             run_id,
             thread_id,
+            user_id=identity,
             status="success",
             thread_status="idle",
             output={"completed": True},

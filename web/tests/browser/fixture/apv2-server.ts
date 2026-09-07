@@ -357,6 +357,9 @@ async function emitDelayedReplayThenInitial(
       staleRunId
     )
   )
+  emit(threadId, protocolEvent("values", [], { messages: [{
+    type: "ai", id: "stale-browser-answer", content: "STALE_BROWSER_HISTORY_MUST_NOT_RENDER",
+  }] }, undefined, staleRunId))
   await Bun.sleep(50)
   await emitInitialRun(threadId, run)
 }
@@ -422,6 +425,7 @@ async function emitInitialRun(threadId: string, run: RunRow): Promise<void> {
     }, undefined, run.run_id),
     "watcher"
   )
+  emit(threadId, protocolEvent("values", [], threadState(threadId).values as JsonRecord, undefined, run.run_id))
   const nestedInput = protocolEvent(
     "input.requested",
     ["nested_subgraph:browser-task"],
@@ -584,9 +588,7 @@ async function emitCompletedRun(
   if (thread) {
     thread.status = "idle"
     thread.messages = [
-      ...(state.scenario === "public-root-interrupt"
-        ? thread.messages
-        : []),
+      ...thread.messages,
       {
         id: "browser-persisted-answer",
         role: "assistant",
@@ -620,7 +622,6 @@ function capturePublicGuestMessage(
   threadId: string,
   params: JsonRecord
 ): void {
-  if (state.scenario !== "public-root-interrupt") return
   const input = params.input
   if (!input || typeof input !== "object" || Array.isArray(input)) return
   const messages = (input as JsonRecord).messages
@@ -631,6 +632,10 @@ function capturePublicGuestMessage(
   }
   const record = message as JsonRecord
   if (typeof record.id !== "string") return
+  if (state.scenario !== "public-root-interrupt") {
+    state.threads.get(threadId)?.messages.push({ ...record, role: "user" })
+    return
+  }
   const storedId = `guest-user:${record.id}:${state.nextStoredMessage
     .toString(16)
     .padStart(32, "0")}`
