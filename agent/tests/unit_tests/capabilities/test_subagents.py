@@ -1,16 +1,21 @@
 """Contract tests for server-declared dynamic specialists."""
 
+import json
+from dataclasses import replace
 from types import SimpleNamespace
 
 import pytest
 from aegra_api.services.graph_factory import build_server_runtime
+from deepagents.backends import StateBackend
+from deepagents.middleware.subagents import SubAgentMiddleware
+from langchain.agents import create_agent
 from langchain_core.language_models.fake_chat_models import FakeMessagesListChatModel
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langgraph.store.memory import InMemoryStore
 from pydantic import Field
 
-from agent.capabilities.budget import RunBudget
-from agent.capabilities.quickjs import QUICKJS_SYSTEM_PROMPT
+from agent.capabilities.budget import DEFAULT_RUN_BUDGET_POLICY, RunBudget
+from agent.capabilities.quickjs import QUICKJS_SYSTEM_PROMPT, BoundedQuickJSMiddleware
 from agent.capabilities.subagents import (
     BOUNDED_TASK_TOOL_DESCRIPTION,
     SUBAGENT_NAMES,
@@ -95,7 +100,7 @@ def _runtime(permissions, *, context=None, is_authenticated=True):
 
 
 async def test_compiled_subagents_enforce_real_state_and_backend_isolation():
-    budget = RunBudget()
+    budget = RunBudget(replace(DEFAULT_RUN_BUDGET_POLICY, max_task_calls=4))
     observed_requests = []
 
     async def exact_input_tokens(request):
@@ -313,3 +318,67 @@ def test_normal_aegra_config_is_accepted_without_mutation():
 def test_client_capability_or_model_overrides_fail_closed(config):
     with pytest.raises(ValueError, match="server-owned|mapping|strings"):
         validate_capability_config(config)
+
+
+async def test_native_dynamic_fanout_shares_the_task_budget():
+    budget = RunBudget()
+    child_model = _model()
+
+    async def count_tokens(_request):
+        return 10
+
+    specialists = build_subagents(
+        model=child_model,
+        budget=budget,
+        input_token_counter=count_tokens,
+    )
+    code = """
+await Promise.all(["keyword", "metadata"].map(method => task({
+  description: `Find evidence using ${method}`,
+  subagentType: "retrieval-researcher",
+  label: method
+})))
+"""
+    root_model = ToolCapableFakeModel(
+        responses=[
+            AIMessage(
+                content="",
+                tool_calls=[
+                    {
+                        "name": "eval",
+                        "args": {"code": code},
+                        "id": "fanout",
+                    }
+                ],
+            ),
+            AIMessage(content="done"),
+        ]
+    )
+    interpreter = BoundedQuickJSMiddleware(enabled=True, subagents=True)
+    root = create_agent(
+        root_model,
+        middleware=[
+            SubAgentMiddleware(backend=StateBackend, subagents=specialists),
+            interpreter,
+        ],
+    )
+    try:
+        result = await root.ainvoke(
+            {"messages": [HumanMessage(content="Compare searches")]}
+        )
+        output = next(
+            message
+            for message in result["messages"]
+            if isinstance(message, ToolMessage)
+        )
+        assert json.loads(output.content)["status"] == "ok"
+        assert len(child_model.bound_tool_names) == 2
+        assert budget.snapshot().task_calls == 2
+        assert budget.snapshot().tasks_in_flight == 0
+
+        await root.ainvoke({"messages": [HumanMessage(content="Try another batch")]})
+        assert len(child_model.bound_tool_names) == 2
+        assert budget.snapshot().task_calls == 2
+        assert budget.snapshot().tasks_in_flight == 0
+    finally:
+        await interpreter.aclose()

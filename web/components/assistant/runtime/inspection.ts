@@ -350,6 +350,7 @@ function inspectionSources(
     sources.push({
       key: docId,
       docId,
+      url: `https://syshin0116.vercel.app/blog/${docId.slice(0, -3).split("/").map(encodeURIComponent).join("/")}`,
       title,
       rank,
       ...(score !== undefined ? { score } : {}),
@@ -705,7 +706,7 @@ export class InspectionProjector {
     const { data, namespace, timestamp } = event.params
     if (namespace.length === 0) {
       return {
-        id: `lifecycle:root:${timestamp}:${data.event}`,
+        id: "lifecycle:root",
         kind: "lifecycle",
         namespace: [],
         status: data.event,

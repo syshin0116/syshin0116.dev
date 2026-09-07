@@ -380,6 +380,17 @@ export interface RunStart {
   params: RunStartParams;
 }
 
+export interface LangSmithTracer {
+  /**
+   * Additional LangSmith project receiving the trace
+   */
+  project_name?: string;
+  /**
+   * LangSmith dataset example associated with the trace
+   */
+  example_id?: string;
+}
+
 export interface RunStartParams {
   /**
    * Deployed graph/agent to run
@@ -397,6 +408,10 @@ export interface RunStartParams {
    * Per-run metadata
    */
   metadata?: Record<string, any>;
+  /**
+   * Optional additional LangSmith trace destination
+   */
+  langsmith_tracer?: LangSmithTracer;
 }
 
 // ==========================================================================

@@ -1,4 +1,3 @@
-export * from "./native-client"
 export * from "./error-state"
 export * from "./inspection"
 export * from "./thread-adapter"

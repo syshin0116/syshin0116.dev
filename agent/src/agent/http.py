@@ -19,7 +19,7 @@ from uuid import UUID, uuid4
 from aegra_api.core.orm import Thread as ThreadORM
 from aegra_api.core.orm import get_session_maker
 from aegra_api.models import User as AegraUser
-from aegra_api.models.event_streaming import ThreadCommand
+from aegra_api.models.event_streaming import EventStreamRequest, ThreadCommand
 from aegra_api.services.event_streaming.protocol import build_error
 from aegra_api.services.langgraph_service import (
     create_thread_config,
@@ -343,11 +343,20 @@ def _safe_nonce(value: object) -> str:
     return value
 
 
-def _run_nonce(
-    params: dict[str, Any],
-) -> tuple[str, dict[str, str], dict[str, dict[str, str]]]:
-    metadata = params.get("metadata")
-    config = params.get("config")
+def _guest_run_config(
+    params: dict[str, Any], *, thread_id: str | None
+) -> tuple[dict[str, str], dict[str, Any]]:
+    metadata = params.get("metadata", {})
+    config = params.get("config", {})
+    if metadata == {} and isinstance(config, dict) and config.get("metadata", {}) == {}:
+        configurable = config.get("configurable", {})
+        if set(config) - {"configurable", "metadata"} or configurable not in (
+            {},
+            {"thread_id": thread_id} if thread_id is not None else {},
+        ):
+            raise GuestRequestError("run config is not allowed")
+        return {}, {}
+    # Existing clients and persisted runs may still carry the former correlation key.
     if not isinstance(metadata, dict) or not isinstance(config, dict):
         raise GuestRequestError("run correlation metadata is required")
     config_metadata = config.get("metadata")
@@ -361,7 +370,7 @@ def _run_nonce(
     if config_metadata[_GUEST_SUBMIT_NONCE_KEY] != nonce:
         raise GuestRequestError("run correlation metadata does not match")
     normalized_metadata = {_GUEST_SUBMIT_NONCE_KEY: nonce}
-    return nonce, normalized_metadata, {"metadata": normalized_metadata.copy()}
+    return normalized_metadata, {"metadata": normalized_metadata.copy()}
 
 
 def _guest_user_content(value: object) -> str | list[dict[str, str]]:
@@ -412,6 +421,25 @@ def _guest_messages(
     if not isinstance(messages, list) or len(messages) != 1:
         raise GuestRequestError("run input must contain exactly one user message")
     message = messages[0]
+    if isinstance(message, dict) and message.get("type") == "human":
+        if set(message) - {
+            "id",
+            "type",
+            "content",
+            "additional_kwargs",
+            "response_metadata",
+        }:
+            raise GuestRequestError("user message fields are invalid")
+        if (
+            message.get("additional_kwargs", {}) != {}
+            or message.get("response_metadata", {}) != {}
+        ):
+            raise GuestRequestError("user message metadata is not allowed")
+        message = {
+            "id": message.get("id"),
+            "content": message.get("content"),
+            "role": "user",
+        }
     if (
         not isinstance(message, dict)
         or set(message) != {"content", "id", "role"}
@@ -448,6 +476,7 @@ def _guest_messages(
 def _guest_command(
     body: bytes,
     *,
+    thread_id: str | None = None,
     rewrite_message_id: bool = True,
 ) -> tuple[bytes, bool]:
     command = _json_object(body)
@@ -477,14 +506,12 @@ def _guest_command(
             "multitaskStrategy",
             "multitask_strategy",
         }
-        if not set(params) <= allowed or not {"input", "config", "metadata"} <= set(
-            params
-        ):
+        if not set(params) <= allowed or "input" not in params:
             raise GuestRequestError("run.start fields are invalid")
         assistant_id = params.get("assistant_id", "agent")
         if assistant_id != "agent":
             raise GuestRequestError("assistant id is invalid")
-        _nonce, metadata, config = _run_nonce(params)
+        metadata, config = _guest_run_config(params, thread_id=thread_id)
         normalized = {
             "id": command_id,
             "method": method,
@@ -508,9 +535,13 @@ def _guest_command(
         "namespace",
         "response",
     }
-    if set(params) != allowed:
+    if not set(params) <= allowed or not {
+        "interrupt_id",
+        "namespace",
+        "response",
+    } <= set(params):
         raise GuestRequestError("input.respond fields are invalid")
-    _nonce, metadata, config = _run_nonce(params)
+    metadata, config = _guest_run_config(params, thread_id=thread_id)
     namespace = params["namespace"]
     if namespace != []:
         raise GuestRequestError("interrupt namespace is invalid")
@@ -537,31 +568,19 @@ def _guest_command(
 
 def _guest_stream_subscription(body: bytes) -> bytes:
     value = _json_object(body)
-    if not set(value) <= {"channels", "depth", "namespaces"}:
-        raise GuestRequestError("stream fields are invalid")
-    channels = value.get("channels")
-    if (
-        not isinstance(channels, list)
-        or not channels
-        or len(channels) > 5
-        or any(not isinstance(channel, str) for channel in channels)
-        or len(set(channels)) != len(channels)
-        or any(
-            channel not in {"messages", "lifecycle", "input", "tools", "custom"}
-            for channel in channels
+    try:
+        subscription = EventStreamRequest.model_validate(
+            value, strict=True, extra="forbid"
         )
-    ):
+    except ValidationError as error:
+        raise GuestRequestError("stream subscription is invalid") from error
+    channels = subscription.channels
+    if not channels or len(channels) > 16 or len(set(channels)) != len(channels):
         raise GuestRequestError("stream channels are invalid")
-    normalized: dict[str, Any] = {
-        "channels": channels,
-        "depth": 0,
-        "namespaces": [[]],
-    }
-    if "depth" in value and (type(value["depth"]) is not int or value["depth"] != 0):
-        raise GuestRequestError("stream depth is invalid")
-    if "namespaces" in value and value["namespaces"] != [[]]:
-        raise GuestRequestError("stream namespaces are invalid")
-    return _canonical_json(normalized)
+    if any(len(channel) > 200 for channel in channels):
+        raise GuestRequestError("stream channel is too long")
+    # The response projection protects private state for every requested namespace.
+    return _canonical_json(subscription.model_dump(exclude_none=True))
 
 
 def _guest_thread_metadata(
@@ -618,9 +637,10 @@ def _guest_route_body(
     body: bytes,
     *,
     expires_at: str,
+    thread_id: str | None = None,
 ) -> tuple[bytes, bool]:
     if kind == "command":
-        return _guest_command(body)
+        return _guest_command(body, thread_id=thread_id)
     if kind == "stream":
         return _guest_stream_subscription(body), False
     value = _json_object(body)
@@ -1282,6 +1302,9 @@ class GuestRunGuard:
                     kind,
                     body,
                     expires_at=expires_at.isoformat().replace("+00:00", "Z"),
+                    thread_id=scope["path"].split("/")[2]
+                    if kind == "command"
+                    else None,
                 )
             except (GuestRequestError, ValueError, OverflowError, OSError):
                 await _json_response(
@@ -1618,6 +1641,7 @@ class NativeThreadGuard:
                 normalized_body, _spends = _guest_command(
                     body,
                     rewrite_message_id=False,
+                    thread_id=thread_id,
                 )
             except GuestRequestError:
                 # Invalid paid guest wires never take either the PostgreSQL or local

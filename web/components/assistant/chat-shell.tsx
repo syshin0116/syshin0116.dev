@@ -15,9 +15,10 @@ import {
   useAuiState,
 } from "@assistant-ui/react"
 import {
-  useLangGraphInterruptState,
-  useLangGraphSendCommand,
-} from "@assistant-ui/react-langgraph"
+  useLangChainInterrupts,
+  useLangChainRespond,
+} from "@assistant-ui/react-langchain"
+import { useRouter } from "next/navigation"
 import {
   Archive,
   ArrowDown,
@@ -85,7 +86,7 @@ import {
   type InspectionSource,
 } from "./runtime/inspection"
 import {
-  readRuntimeInterruptProjection,
+  projectInterruptForUi,
   type InterruptUiProjection,
 } from "./runtime/interrupt-projection"
 import { createImeEnterGuard } from "./runtime/ime"
@@ -355,14 +356,11 @@ function EmptyConversation() {
           블로그와 프로젝트를 검색하고, 사용된 방법과 출처를 함께 확인할 수
           있어요.
         </p>
-        {/* Above the composer, the way every familiar chat app places them:
-            a starting point to pick from, then the box you type in. */}
         <div className="mt-8 flex w-full flex-wrap justify-center gap-2">
           {SUGGESTIONS.map(({ prompt }) => (
             <ThreadPrimitive.Suggestion
               key={prompt}
               prompt={prompt}
-              send
               className="min-h-9 rounded-full border border-border/70 bg-background px-3.5 py-2 text-left text-[13px] text-muted-foreground transition-colors motion-reduce:transition-none hover:border-border hover:bg-muted hover:text-foreground"
             >
               {prompt}
@@ -376,7 +374,7 @@ function EmptyConversation() {
 }
 
 type InterruptState = NonNullable<
-  ReturnType<typeof useLangGraphInterruptState>
+  ReturnType<typeof useLangChainInterrupts>[number]
 >
 const MAX_INTERRUPT_RESPONSE_CODE_UNITS = 1_000
 const MAX_INTERRUPT_RESPONSE_UTF8_BYTES = 3_000
@@ -390,11 +388,13 @@ const interruptViewKeys = new WeakMap<object, number>()
 let nextInterruptViewKey = 1
 
 function InterruptResponseCard({
+  interruptId,
   projection,
 }: {
+  interruptId?: string
   projection: InterruptUiProjection
 }) {
-  const sendCommand = useLangGraphSendCommand()
+  const sendCommand = useLangChainRespond()
   const [response, setResponse] = useState("")
   const [sending, setSending] = useState(false)
   const [resumeError, setResumeError] = useState<string>()
@@ -417,7 +417,7 @@ function InterruptResponseCard({
     try {
       // Resume carries only the user's bounded decision/input. The opaque
       // interrupt value remains protocol state and is never echoed back.
-      await sendCommand({ resume: normalized })
+      await sendCommand(normalized, { interruptId })
       resumed = true
     } catch {
       setResumeError(
@@ -520,13 +520,14 @@ function interruptViewKey(interrupt: InterruptState): number {
 }
 
 function ConversationFooter() {
-  const interrupt = useLangGraphInterruptState()
+  const interrupt = useLangChainInterrupts()[0]
   if (interrupt) {
-    const projection = readRuntimeInterruptProjection(interrupt.value)
+    const projection = projectInterruptForUi(interrupt.value)
     return (
       <InterruptResponseCard
         key={interruptViewKey(interrupt)}
-        projection={projection}
+        interruptId={interrupt.id}
+      projection={projection}
       />
     )
   }
@@ -539,16 +540,18 @@ function ConversationFooter() {
 
 function Composer({ centered = false }: { centered?: boolean }) {
   const runtimeUi = useAgentRuntimeUi()
+  const router = useRouter()
   const compositionRef = useRef(false)
   const composerInputRef = useRef<HTMLTextAreaElement>(null)
   const [composerError, setComposerError] = useState<string>()
   const guardImeEnter = createImeEnterGuard(() => compositionRef.current)
+  const composerAui = useAui()
   const ready = runtimeUi.connectionStatus === "ready"
   const connectionError = runtimeUi.connectionError
   const turnError = ready ? runtimeUi.turnError : undefined
   const runConnectionAction = () => {
     if (connectionError?.action === "sign-in") {
-      window.location.assign("/login")
+      router.push("/login")
       return
     }
     runtimeUi.retryConnection()
@@ -560,7 +563,10 @@ function Composer({ centered = false }: { centered?: boolean }) {
   useEffect(() => {
     if (!centered) composerInputRef.current?.focus()
   }, [centered])
-  const rejectOversizedComposer = () => {
+  const prepareSubmission = () => {
+    composerAui.composer().setRunConfig(runtimeUi.modelSelection
+      ? { custom: { model: runtimeUi.selectedModel } }
+      : {})
     const value = composerInputRef.current?.value ?? ""
     if (
       value.length <= MAX_COMPOSER_CODE_UNITS &&
@@ -616,7 +622,7 @@ function Composer({ centered = false }: { centered?: boolean }) {
       <ComposerPrimitive.Root
         className="mx-auto flex max-w-3xl items-end gap-2 rounded-[28px] border border-border/80 bg-background p-2 shadow-[0_8px_30px_rgb(0_0_0/0.06)] transition-shadow motion-reduce:transition-none focus-within:border-foreground/30 focus-within:shadow-[0_12px_40px_rgb(0_0_0/0.1)] dark:bg-muted/60"
         onSubmitCapture={(event) => {
-          if (rejectOversizedComposer()) {
+          if (prepareSubmission()) {
             event.preventDefault()
             event.stopPropagation()
           }
@@ -672,7 +678,7 @@ function Composer({ centered = false }: { centered?: boolean }) {
           <ComposerPrimitive.Send
             aria-label="메시지 보내기"
             onClick={(event) => {
-              if (rejectOversizedComposer()) {
+              if (prepareSubmission()) {
                 // ComposerPrimitive.Send invokes the runtime directly instead
                 // of submitting its parent form. Cancelling this first handler
                 // prevents assistant-ui's composed send callback from running.
@@ -765,6 +771,10 @@ function ThreadListItem() {
     }
   }, [editing, itemTitle])
 
+  useEffect(() => {
+    if (renameError && !renaming) renameInputRef.current?.focus()
+  }, [renameError, renaming])
+
   const submitRename = async (event: FormEvent) => {
     event.preventDefault()
     const normalized = title.trim()
@@ -785,7 +795,6 @@ function ThreadListItem() {
       setRenameError(
         "대화 제목을 바꾸지 못했습니다. 잠시 후 다시 시도해 주세요."
       )
-      requestAnimationFrame(() => renameInputRef.current?.focus())
       return
     }
     setRenaming(false)
@@ -984,48 +993,9 @@ function ActivityDetails({ activity }: { activity: AgentActivity }) {
       <>
         <dl className="mt-3 grid grid-cols-2 gap-3 border-t pt-3">
           <ActivityField label="질의" value={activity.query} />
-          <ActivityField
-            label="질의 잘림"
-            value={activity.queryTruncated ? "예" : "아니요"}
-          />
           <ActivityField label="검색 방법" value={activity.methodId} />
-          <ActivityField
-            label="구현"
-            value={activity.methodIdentity.implementationId}
-          />
-          <ActivityField
-            label="검색 결과 수"
-            value={activity.hitCount.toLocaleString("ko-KR")}
-          />
-          <ActivityField
-            label="근거 수"
-            value={activity.sources.length.toLocaleString("ko-KR")}
-          />
-          <ActivityField
-            label="코퍼스 문서 수"
-            value={activity.corpusDocumentCount.toLocaleString("ko-KR")}
-          />
-          <ActivityField
-            label="코퍼스 리비전"
-            value={activity.corpusRevision}
-          />
-          <ActivityField
-            label="검색기 fingerprint"
-            value={activity.methodIdentity.fingerprint}
-          />
-          <ActivityField
-            label="실행 시간"
-            value={`${stage.elapsedMs.toLocaleString("ko-KR")}ms`}
-          />
-          <ActivityField
-            label="적용 결과"
-            value={`${stage.application.inputCount.toLocaleString("ko-KR")} → ${stage.application.outputCount.toLocaleString("ko-KR")}`}
-          />
-          <ActivityField
-            label="출처 잘림"
-            value={activity.sourcesTruncated ? "예" : "아니요"}
-          />
-          <ActivityField label="전달 방식" value="실시간 실행 전용" />
+          <ActivityField label="검색 결과 수" value={activity.hitCount.toLocaleString("ko-KR")} />
+          <ActivityField label="실행 시간" value={`${stage.elapsedMs.toLocaleString("ko-KR")}ms`} />
         </dl>
         <ActivitySources sources={activity.sources} known />
       </>

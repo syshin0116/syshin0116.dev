@@ -1,12 +1,12 @@
 {
   "lockVersion": 1,
-  "lockedAt": "2026-08-03",
+  "lockedAt": "2026-09-07",
   "protocol": {
     "repository": "https://github.com/langchain-ai/agent-protocol",
-    "tag": "langchain-protocol==0.0.18",
-    "commit": "0ff7cd3962e8b4b3e347b76203be7dfeba003928",
-    "commitDate": "2026-06-18T10:07:23-07:00",
-    "releaseVersion": "0.0.18",
+    "tag": "langchain-protocol==0.0.19",
+    "commit": "59c02be488eb7adb98ae3450983fff293294e67a",
+    "commitDate": "2026-08-26T21:11:11Z",
+    "releaseVersion": "0.0.19",
     "schemaStatus": "DRAFT",
     "cddlHeaderVersion": "0.0.13",
     "sourceOfTruth": "streaming/protocol.cddl",
@@ -17,7 +17,7 @@
       },
       "cddl": {
         "upstreamPath": "streaming/protocol.cddl",
-        "sha256": "e04cfd6db218df4573b3bbfdca615aa503b0380bb588081ebe36514f7977e2e2"
+        "sha256": "affad6c604c8b98b0eb13c833ef2a77f25be429a38037519d1a93b8594385ff1"
       },
       "packageManifest": {
         "upstreamPath": "streaming/package.json",
@@ -38,14 +38,14 @@
       "pythonBinding": {
         "upstreamPath": "streaming/py/langchain_protocol/protocol.py",
         "vendoredPath": "protocol/generated/python/protocol.py",
-        "package": "langchain-protocol==0.0.18",
-        "sha256": "a225234763858df01fb5f20e2a696bbae1e134252a44aef74c82339858bcc089"
+        "package": "langchain-protocol==0.0.19",
+        "sha256": "878b6b35dda3c3993741bee6946d92af3e433459b6edf37f6423daa2ec015c49"
       },
       "typescriptBinding": {
         "upstreamPath": "streaming/js/protocol.ts",
         "vendoredPath": "protocol/generated/typescript/protocol.ts",
-        "package": "@langchain/protocol@0.0.18",
-        "sha256": "c48feb85acb7af2ff24573c36d80d942d74f40a218fd7f52913d5fd08d22487d"
+        "package": "@langchain/protocol@0.0.19",
+        "sha256": "2a82de4ede732a71aceb372700ddf92b07e92ead9730452bd0a66cdc29973fa9"
       }
     },
     "codegen": {
@@ -73,14 +73,14 @@
   },
   "aegra": {
     "repository": "https://github.com/ibbybuilds/aegra",
-    "tag": "v0.9.25",
-    "commit": "1f0076a69bc7cdf5f61b5487bc17d112ee64eb0c",
-    "commitDate": "2026-08-01T12:56:58Z",
-    "streamingImplementationCommit": "9e1707c766cb96dffebe5da5bc1200d45704f87c",
+    "tag": "v0.10.4",
+    "commit": "392a5457b25754cdc828f14b0053abdefe8b6766",
+    "commitDate": "2026-08-22T09:34:27Z",
+    "streamingImplementationCommit": "392a5457b25754cdc828f14b0053abdefe8b6766",
     "artifacts": {
       "openapi": {
         "upstreamPath": "docs/openapi.json",
-        "sha256": "599fc2645280743e0c87987e977394ce41724b78f95dfdbf81451017a064044c"
+        "sha256": "b70cde3640e5a2510ae473900d276c16641836ccfe2f7a9b76ef34a266a403fe"
       },
       "route": {
         "upstreamPath": "libs/aegra-api/src/aegra_api/api/event_streaming.py",
@@ -116,7 +116,7 @@
         "status": "path-divergence",
         "required": "POST /threads/{thread_id}/stream",
         "actual": "POST /threads/{thread_id}/stream/events",
-        "consequence": "Use the explicit aegra-0.9.25 smoke profile; the locked upstream transport path must remain visible as a compatibility gap."
+        "consequence": "Use the explicit aegra smoke profile; the locked upstream transport path must remain visible as a compatibility gap."
       },
       {
         "capability": "WebSocket thread stream",
@@ -137,14 +137,14 @@
       {
         "capability": "input.respond update and goto",
         "status": "ignored",
-        "required": "Agent Protocol 0.0.18 InputRespondOne/InputRespondMany update and goto fields",
-        "actual": "Aegra 0.9.25 builds only Command(resume=...) and does not forward update or goto.",
+        "required": "Agent Protocol 0.0.19 InputRespondOne/InputRespondMany update and goto fields",
+        "actual": "Aegra 0.10.4 builds only Command(resume=...) and does not forward update or goto.",
         "consequence": "Do not advertise atomic resume+update or directed resume until an Aegra version passes a live fixture for both fields."
       },
       {
         "capability": "input.inject, state.*, agent.getTree, subscription.*",
         "status": "unsupported",
-        "consequence": "Aegra 0.9.25 command dispatch implements only run.start and input.respond."
+        "consequence": "Aegra 0.10.4 command dispatch implements only run.start and input.respond."
       },
       {
         "capability": "Replay after sequence",

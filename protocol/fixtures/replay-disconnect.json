@@ -2,7 +2,7 @@
   "fixture_version": 1,
   "name": "disconnect and replay after sequence",
   "description": "A text block begins before disconnect and finishes after replay without duplication.",
-  "protocol_commit": "0ff7cd3962e8b4b3e347b76203be7dfeba003928",
+  "protocol_commit": "59c02be488eb7adb98ae3450983fff293294e67a",
   "wire_profile": "official-generated-snake-case",
   "records": [
     {

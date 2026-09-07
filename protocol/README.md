@@ -84,7 +84,7 @@ No server is contacted unless `--base-url` is present:
 python scripts/smoke.py \
   --base-url http://127.0.0.1:8000 \
   --assistant-id agent \
-  --profile aegra-0.9.25
+  --profile aegra
 ```
 
 Pass `--token-env AGENT_PROTOCOL_TOKEN` when authentication is enabled. The live

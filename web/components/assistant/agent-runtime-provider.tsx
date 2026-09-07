@@ -4,7 +4,9 @@ import {
   AssistantRuntimeProvider,
   type RemoteThreadListAdapter,
 } from "@assistant-ui/react"
-import { useLangGraphRuntime } from "@assistant-ui/react-langgraph"
+import { useLangChainError, useLangChainStream, useStreamRuntime } from "@assistant-ui/react-langchain"
+import { Client } from "@langchain/langgraph-sdk"
+import { useChannelEffect } from "@langchain/react"
 import {
   createContext,
   useCallback,
@@ -22,9 +24,10 @@ import {
 } from "@/lib/agent-model"
 
 import {
-  NativeAgentClient,
+  InspectionProjector,
   type AgentActivity,
-} from "./runtime/native-client"
+} from "./runtime/inspection"
+import { AgentAuthenticationError, AgentTokenBroker } from "./runtime/token-broker"
 import { normalizeAgentApiUrl } from "./runtime/agent-config"
 import { warmAgent } from "./runtime/agent-warmup"
 import {
@@ -32,12 +35,7 @@ import {
   type AgentErrorRoutingState,
 } from "./runtime/error-state"
 import { AegraThreadAdapter } from "./runtime/thread-adapter"
-import {
-  advanceActiveThreadSource,
-  runtimeSourceIsActive,
-  type ActiveThreadSource,
-  type RuntimeThreadSource,
-} from "./runtime/thread-source"
+
 
 const MAX_VISIBLE_ACTIVITIES = 24
 type InspectionAvailability = "waiting" | "live" | "past-unavailable"
@@ -96,99 +94,49 @@ function ConfiguredAgentRuntimeProvider({
 }: AgentRuntimeProviderProps & { apiUrl: string; assistantId: string }) {
   const [activities, setActivities] = useState<AgentActivity[]>([])
   const [activeThreadId, setActiveThreadId] = useState<string>()
-  const activeThreadSourceRef = useRef<ActiveThreadSource>({
-    generation: 0,
-  })
   const [inspectionAvailability, setInspectionAvailability] =
     useState<InspectionAvailability>("waiting")
   const [connectionAttempt, setConnectionAttempt] = useState(0)
   const [selectedModel, setSelectedModelState] =
     useState<AgentModel>(DEFAULT_AGENT_MODEL)
-  const selectedModelRef = useRef<AgentModel>(DEFAULT_AGENT_MODEL)
   const setSelectedModel = useCallback((model: AgentModel) => {
     const normalized = normalizeAgentModel(model)
-    selectedModelRef.current = normalized
     setSelectedModelState(normalized)
   }, [])
   const [errorRouting, setErrorRouting] = useState<AgentErrorRoutingState>({
     connectionStatus: "connecting",
   })
-  const nativeLifecyclesRef = useRef(
-    new WeakMap<NativeAgentClient, { generation: number }>()
+  const handleAuthenticationExpired = useCallback(() => {
+    setErrorRouting((current) => reduceAgentError(current, new AgentAuthenticationError("Agent session expired", 401), "turn"))
+    onAuthenticationExpired?.()
+  }, [onAuthenticationExpired])
+  const tokenBroker = useMemo(() => new AgentTokenBroker(identity, {
+    agentOrigin: apiUrl,
+    initialToken,
+    onAuthenticationExpired: handleAuthenticationExpired,
+    tokenIntent,
+  }), [apiUrl, identity, initialToken, handleAuthenticationExpired, tokenIntent])
+  const client = useMemo(() => new Client({
+    apiUrl,
+    apiKey: null,
+    streamProtocol: "v2",
+    onRequest: (url, init) => tokenBroker.onRequest(url, init),
+    callerOptions: { fetch: tokenBroker.fetchWithAuthRetry as typeof fetch, maxRetries: 0 },
+  }), [apiUrl, tokenBroker])
+  const threadAdapter = useMemo<RemoteThreadListAdapter>(
+    () => new AegraThreadAdapter(client, { assistantId }),
+    [assistantId, client]
   )
-  const handleActivity = useCallback((
-    activity: AgentActivity,
-    source: RuntimeThreadSource
-  ) => {
-    if (!runtimeSourceIsActive(activeThreadSourceRef.current, source)) return
+  const handleActivity = useCallback((activity: AgentActivity) => {
     setInspectionAvailability("live")
-    setActivities((current) => {
-      const withoutCurrent = current.filter(
-        (candidate) => candidate.id !== activity.id
-      )
-      return [
-        ...withoutCurrent.slice(-(MAX_VISIBLE_ACTIVITIES - 1)),
-        activity,
-      ]
-    })
-    if (
-      activity.namespace.length === 0 &&
-      activity.kind === "lifecycle" &&
-      (activity.status === "started" || activity.status === "running")
-    ) {
-      setErrorRouting((current) => ({
-        ...current,
-        turnError: undefined,
-      }))
-    }
+    setActivities((current) => [
+      ...current.filter((item) => item.id !== activity.id).slice(-(MAX_VISIBLE_ACTIVITIES - 1)),
+      activity,
+    ])
   }, [])
-  const handleRuntimeError = useCallback((
-    error: unknown,
-    source: RuntimeThreadSource
-  ) => {
-    if (!runtimeSourceIsActive(activeThreadSourceRef.current, source)) return
-    setErrorRouting((current) =>
-      reduceAgentError(current, error, "turn")
-    )
+  const handleRuntimeError = useCallback((error: unknown) => {
+    setErrorRouting((current) => reduceAgentError(current, error, "turn"))
   }, [])
-  const native = useMemo(
-    () =>
-      new NativeAgentClient({
-        apiUrl,
-        assistantId,
-        identity,
-        initialToken,
-        onAuthenticationExpired,
-        tokenIntent,
-        getSelectedModel: modelSelection
-          ? () => selectedModelRef.current
-          : undefined,
-        getSourceGeneration: () =>
-          activeThreadSourceRef.current.generation,
-        onActivity: handleActivity,
-        onError: handleRuntimeError,
-      }),
-    [
-      apiUrl,
-      assistantId,
-      handleActivity,
-      handleRuntimeError,
-      identity,
-      initialToken,
-      modelSelection,
-      onAuthenticationExpired,
-      tokenIntent,
-    ]
-  )
-  const threadAdapter = useMemo<RemoteThreadListAdapter & AegraThreadAdapter>(
-    () =>
-      new AegraThreadAdapter(native.client, {
-        assistantId,
-        onPendingInterrupt: (threadId, pending) =>
-          native.setPendingInterrupt(threadId, pending),
-      }),
-    [assistantId, native]
-  )
   const dismissTurnError = useCallback(() => {
     setErrorRouting((current) => ({
       ...current,
@@ -196,54 +144,25 @@ function ConfiguredAgentRuntimeProvider({
     }))
   }, [])
   const retryConnection = useCallback(() => {
-    native.tokenBroker.clear()
+    tokenBroker.clear()
     setErrorRouting({
       connectionStatus: "connecting",
     })
     setConnectionAttempt((attempt) => attempt + 1)
-  }, [native])
-  const runtime = useLangGraphRuntime({
-    stream: native.stream,
-    load: async (threadId, config) => {
-      const source: RuntimeThreadSource = {
-        generation: activeThreadSourceRef.current.generation,
-        threadId,
-      }
-      try {
-        const loaded = await threadAdapter.load(
-          threadId,
-          config?.signal ?? new AbortController().signal
-        )
-        if (runtimeSourceIsActive(activeThreadSourceRef.current, source)) {
-          setInspectionAvailability(
-            loaded.messages.length > 0 ? "past-unavailable" : "waiting"
-          )
-        }
-        return loaded
-      } catch (error) {
-        if (config?.signal.aborted) {
-          return { messages: [], interrupts: [], uiMessages: [] }
-        }
-        handleRuntimeError(error, source)
-        if (runtimeSourceIsActive(activeThreadSourceRef.current, source)) {
-          setInspectionAvailability("waiting")
-        }
-        // react-langgraph logs rejected load promises. Resolve with a closed,
-        // empty projection after routing the safe inline error instead.
-        return { messages: [], interrupts: [], uiMessages: [] }
-      }
-    },
+  }, [tokenBroker])
+  const runtime = useStreamRuntime({
+    client,
+    assistantId,
     unstable_threadListAdapter: threadAdapter,
-    unstable_allowCancellation: true,
-    unstable_enableMessageQueue: false,
-    onThreadIdChange: (threadId) => {
-      activeThreadSourceRef.current = advanceActiveThreadSource(
-        activeThreadSourceRef.current,
-        threadId
-      )
-      setActiveThreadId(threadId)
+    onCreated: () => {
       setActivities([])
       setInspectionAvailability("waiting")
+      dismissTurnError()
+    },
+    onThreadIdChange: (threadId) => {
+      setActiveThreadId(threadId)
+      setActivities([])
+      setInspectionAvailability(threadId ? "past-unavailable" : "waiting")
       dismissTurnError()
     },
   })
@@ -256,7 +175,7 @@ function ConfiguredAgentRuntimeProvider({
     // A minted credential only proves Vercel answered. The badge claims the
     // agent is reachable, so wait for the agent itself before saying so.
     void Promise.all([
-      native.tokenBroker.get(controller.signal),
+      tokenBroker.get(controller.signal),
       warmAgent({ apiUrl, signal: controller.signal }).then((ready) => {
         if (!ready) throw new Error("Agent readiness probe did not succeed")
       }),
@@ -281,25 +200,7 @@ function ConfiguredAgentRuntimeProvider({
     return () => {
       controller.abort()
     }
-  }, [apiUrl, connectionAttempt, native])
-
-  useEffect(() => {
-    const lifecycles = nativeLifecyclesRef.current
-    const lifecycle = lifecycles.get(native) ?? { generation: 0 }
-    lifecycle.generation += 1
-    lifecycles.set(native, lifecycle)
-    const generation = lifecycle.generation
-    return () => {
-      queueMicrotask(() => {
-        // React Strict Mode immediately re-runs effects with the same memoized
-        // client. A real unmount or client replacement has no matching
-        // generation and is disposed after that replay opportunity.
-        if (lifecycle.generation === generation) {
-          void native.dispose()
-        }
-      })
-    }
-  }, [native])
+  }, [apiUrl, connectionAttempt, tokenBroker])
 
   const context = useMemo<AgentRuntimeUiState>(
     () => ({
@@ -329,10 +230,48 @@ function ConfiguredAgentRuntimeProvider({
   return (
     <AgentRuntimeUiContext.Provider value={context}>
       <AssistantRuntimeProvider runtime={runtime}>
+        <RuntimeEvents key={activeThreadId} onActivity={handleActivity} onError={handleRuntimeError} />
         {children}
       </AssistantRuntimeProvider>
     </AgentRuntimeUiContext.Provider>
   )
+}
+
+function RuntimeEvents({ onActivity, onError }: {
+  onActivity: (activity: AgentActivity) => void
+  onError: (error: unknown) => void
+}) {
+  const stream = useLangChainStream()
+  const error = useLangChainError()
+  useEffect(() => { if (error) onError(error) }, [error, onError])
+  return stream ? <>
+    <StreamEvents stream={stream} onActivity={onActivity} />
+  </> : null
+}
+
+function StreamEvents({ stream, onActivity }: {
+  stream: NonNullable<ReturnType<typeof useLangChainStream>>
+  onActivity: (activity: AgentActivity) => void
+}) {
+  const projector = useRef(new InspectionProjector())
+  const handleEvent = useCallback((event: import("@langchain/protocol").Event) => {
+    const activity = event.method === "lifecycle"
+      ? projector.current.consumeLifecycle(event)
+      : event.method === "tools"
+        ? projector.current.consumeTool(event)
+        : event.method === "custom"
+          ? projector.current.consumeCustom(event)
+          : undefined
+    if (activity) onActivity(activity)
+  }, [onActivity])
+  useChannelEffect(stream, ["lifecycle", "tools", "custom"], {
+    replay: true,
+    onEvent: handleEvent,
+  })
+  useEffect(() => stream.getThread()?.onEvent((event) => {
+    if (event.params.namespace.length > 0) handleEvent(event)
+  }), [stream, handleEvent])
+  return null
 }
 
 export function AgentRuntimeProvider({
