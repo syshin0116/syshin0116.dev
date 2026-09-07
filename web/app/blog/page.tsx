@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+import { NotesBrowser } from "@/components/blog/notes-browser"
 import type { Metadata } from "next"
 import { getPublishedNotes, BlogList, NOTES_PER_PAGE } from "@/lib/blog"
 
@@ -15,11 +17,8 @@ export default function BlogPage() {
   const paginatedNotes = published.slice(0, NOTES_PER_PAGE)
 
   return (
-    <BlogList
-      notes={paginatedNotes}
-      currentPage={1}
-      totalPages={totalPages}
-      totalCount={published.length}
-    />
+    <Suspense fallback={<BlogList notes={paginatedNotes} currentPage={1} totalPages={totalPages} totalCount={published.length} />}>
+      <NotesBrowser notes={published} />
+    </Suspense>
   )
 }

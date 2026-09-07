@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback, useId } from "react"
+import { useState, useRef, useEffect, useId } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ChevronRight } from "lucide-react"
@@ -28,7 +28,7 @@ export function NavSidebar({ tree }: NavSidebarProps) {
             : "text-muted-foreground hover:text-foreground"
         )}
       >
-        <span className="min-w-0 flex-1 truncate">Home</span>
+        <span className="min-w-0 flex-1 truncate">전체 글</span>
         {pathname === "/blog" && <CurrentPageBadge />}
       </Link>
       <div className="mt-2 space-y-0.5">
@@ -40,61 +40,8 @@ export function NavSidebar({ tree }: NavSidebarProps) {
   )
 }
 
-/** Animated collapse wrapper — measures child height and transitions */
-function Collapse({
-  id,
-  open,
-  children,
-}: {
-  id: string
-  open: boolean
-  children: React.ReactNode
-}) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [height, setHeight] = useState<number | undefined>(open ? undefined : 0)
-  const isInitial = useRef(true)
-
-  const recalc = useCallback(() => {
-    if (ref.current) setHeight(ref.current.scrollHeight)
-  }, [])
-
-  useEffect(() => {
-    // Skip animation on first render
-    if (isInitial.current) {
-      isInitial.current = false
-      setHeight(open ? undefined : 0)
-      return
-    }
-    if (open) {
-      recalc()
-      // After transition ends, switch to auto so children can grow
-      const timer = setTimeout(() => setHeight(undefined), 300)
-      return () => clearTimeout(timer)
-    } else {
-      // Set explicit height first so transition can animate from it
-      if (ref.current) setHeight(ref.current.scrollHeight)
-      requestAnimationFrame(() => setHeight(0))
-    }
-  }, [open, recalc])
-
-  return (
-    <div
-      id={id}
-      ref={ref}
-      aria-hidden={!open}
-      inert={!open}
-      className="overflow-hidden"
-      style={{
-        height: height === undefined ? "auto" : height,
-        opacity: open ? 1 : 0,
-        transition: open
-          ? "height 300ms ease-out, opacity 250ms ease-out"
-          : "height 200ms ease-in, opacity 150ms ease-in",
-      }}
-    >
-      {children}
-    </div>
-  )
+function Collapse({ id, open, children }: { id: string; open: boolean; children: React.ReactNode }) {
+  return <div id={id} hidden={!open} inert={!open}>{children}</div>
 }
 
 function NavNode({
@@ -107,11 +54,14 @@ function NavNode({
   depth: number
 }) {
   const isActive = node.type === "file" && currentSlug === node.path
-  const isAncestor = node.type === "folder" && currentSlug.startsWith(node.path + "/")
+  const isAncestor = node.type === "folder" && (currentSlug === node.path || currentSlug.startsWith(node.path + "/"))
   const [open, setOpen] = useState(isAncestor)
   const reactId = useId().replaceAll(":", "")
   const childrenId = `blog-tree-children-${reactId}`
   const indent = depth * 12
+  const activeRef = useRef<HTMLAnchorElement>(null)
+  useEffect(() => { if (isAncestor) setOpen(true) }, [isAncestor])
+  useEffect(() => { if (isActive) activeRef.current?.scrollIntoView({ block: "nearest" }) }, [isActive])
 
   if (node.type === "folder") {
     return (
@@ -168,6 +118,7 @@ function NavNode({
 
   return (
     <Link
+      ref={activeRef}
       href={`/blog/${node.path}`}
       aria-current={isActive ? "page" : undefined}
       className={cn(

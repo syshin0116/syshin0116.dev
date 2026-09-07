@@ -30,6 +30,11 @@ export function getPublishedNotes(): NoteEntry[] {
   return notesList as NoteEntry[]
 }
 
+export function filterNotes(notes: NoteEntry[], tag: string, sort: string) {
+  return notes.filter(note => !tag || note.tags.includes(tag)).sort((a, b) =>
+    (sort === "title" ? a.title.localeCompare(b.title, "ko") : (b.dateRaw ?? "").localeCompare(a.dateRaw ?? "")) || a.slug.localeCompare(b.slug, "en"))
+}
+
 function blogPageHref(page: number): string {
   return page <= 1 ? "/blog" : `/blog/page/${page}`
 }
@@ -39,21 +44,26 @@ export function BlogList({
   currentPage,
   totalPages,
   totalCount,
+  controls,
+  pageHref = blogPageHref,
 }: {
   notes: NoteEntry[]
   currentPage: number
   totalPages: number
   totalCount: number
+  controls?: React.ReactNode
+  pageHref?: (page: number) => string
 }): React.ReactElement {
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Recent Notes</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">전체 글</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {totalCount} notes
         </p>
       </div>
 
+      {controls}
       <Separator className="mb-8" />
 
       <div className="space-y-2">
@@ -107,7 +117,7 @@ export function BlogList({
 
       {totalPages > 1 && (
         <div className="mt-10">
-          <BlogPagination currentPage={currentPage} totalPages={totalPages} />
+          <BlogPagination currentPage={currentPage} totalPages={totalPages} pageHref={pageHref} />
         </div>
       )}
     </div>
@@ -117,9 +127,11 @@ export function BlogList({
 function BlogPagination({
   currentPage,
   totalPages,
+  pageHref,
 }: {
   currentPage: number
   totalPages: number
+  pageHref: (page: number) => string
 }): React.ReactElement {
   const pageNumbers = getPageNumbers(currentPage, totalPages)
 
@@ -128,7 +140,7 @@ function BlogPagination({
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
-            href={currentPage > 1 ? blogPageHref(currentPage - 1) : "#"}
+            href={currentPage > 1 ? pageHref(currentPage - 1) : "#"}
             aria-disabled={currentPage <= 1}
             className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
           />
@@ -142,7 +154,7 @@ function BlogPagination({
           ) : (
             <PaginationItem key={page}>
               <PaginationLink
-                href={blogPageHref(page)}
+                href={pageHref(page)}
                 isActive={page === currentPage}
               >
                 {page}
@@ -153,7 +165,7 @@ function BlogPagination({
 
         <PaginationItem>
           <PaginationNext
-            href={currentPage < totalPages ? blogPageHref(currentPage + 1) : "#"}
+            href={currentPage < totalPages ? pageHref(currentPage + 1) : "#"}
             aria-disabled={currentPage >= totalPages}
             className={currentPage >= totalPages ? "pointer-events-none opacity-50" : ""}
           />

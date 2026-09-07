@@ -224,7 +224,7 @@ export default async function BlogPostPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       {/* Main content */}
-      <div className="min-w-0 flex-1">
+      <div className="reading-column min-w-0 flex-1">
         {slug.length > 1 && (
           <div className="mb-6">
             <Breadcrumb slug={slug} />
@@ -287,6 +287,10 @@ export default async function BlogPostPage({
 
         <HeadingAnchors />
         <PopoverPreview />
+        <TableOfContents toc={toc} mobile>
+          <GraphViewDynamic currentSlug={slugStr} />
+        </TableOfContents>
+
         <article
           data-pagefind-body
           className="prose max-w-none"
