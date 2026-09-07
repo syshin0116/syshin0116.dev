@@ -70,10 +70,10 @@ OPENAI_INPUT_TOKEN_COUNT_BILLING_STATUS = "provider-pricing-undocumented"
 OPENAI_CAPABILITY_EXECUTOR_ID = "blogeval.openai_responses_capability_executor@2"
 OPENAI_CAPABILITY_MODEL_ID = "openai:gpt-5.6-luna"
 OPENAI_CAPABILITY_PROVIDER_CONTRACT = (
-    "openai-responses:gpt-5.6-luna@2026-08-02:"
+    "openai-responses:gpt-5.6-luna@2026-09-07:"
     "reasoning-none-current-turn:store-false:"
     "official-api-openai-v1:no-ambient-routing:"
-    "langchain-openai-1.3.5:openai-2.53.0"
+    "langchain-openai-1.6.0:openai-3.8.0"
 )
 OPENAI_CAPABILITY_CACHE_MODE = "openai-implicit-recorded"
 OPENAI_CAPABILITY_MAX_ATTEMPTS = 1

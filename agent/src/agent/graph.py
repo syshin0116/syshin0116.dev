@@ -196,13 +196,13 @@ OWNER_RUN_BUDGET_POLICY = RunBudgetPolicy(
 )
 
 GUEST_RUN_BUDGET_POLICY = RunBudgetPolicy(
-    policy_id="anonymous-public-v7",
+    policy_id="anonymous-public-v8",
     max_model_calls=8,
     max_tool_calls=24,
     max_quickjs_calls=1,
     max_quickjs_in_flight=1,
-    max_quickjs_output_bytes=1_024,
-    max_quickjs_total_output_bytes=1_024,
+    max_quickjs_output_bytes=4_096,
+    max_quickjs_total_output_bytes=4_096,
     max_task_calls=8,
     max_tasks_in_flight=2,
     max_depth=1,
@@ -739,9 +739,12 @@ def create_graph(
     allow_subagents = server_subagents_enabled and (
         is_guest or dynamic_subagents_allowed(runtime, server_enabled=True)
     )
-    allow_quickjs = not is_guest and quickjs_allowed(
-        runtime,
-        server_enabled=quickjs_enabled,
+    allow_quickjs = (allow_subagents and (is_guest or quickjs_enabled is None)) or (
+        not is_guest
+        and quickjs_allowed(
+            runtime,
+            server_enabled=quickjs_enabled,
+        )
     )
     if root_tool_allowlist is not None:
         expected_root_tools = frozenset(
@@ -762,7 +765,8 @@ def create_graph(
                 "experiment root tool allowlist must exactly match server capabilities"
             )
     effective_root_tool_allowlist = (
-        GUEST_ROOT_TOOL_NAMES | ({TASK_TOOL_NAME} if allow_subagents else set())
+        GUEST_ROOT_TOOL_NAMES
+        | ({TASK_TOOL_NAME, QUICKJS_TOOL_NAME} if allow_subagents else set())
         if is_guest
         else root_tool_allowlist
     )
@@ -780,7 +784,9 @@ def create_graph(
         )
     selected_subagents = experiment_subagent_allowlist or SUBAGENT_NAMES
     if quickjs_middleware is None:
-        quickjs_middleware = BoundedQuickJSMiddleware(enabled=allow_quickjs)
+        quickjs_middleware = BoundedQuickJSMiddleware(
+            enabled=allow_quickjs, subagents=allow_subagents
+        )
     elif (
         not isinstance(quickjs_middleware, BoundedQuickJSMiddleware)
         or quickjs_middleware.enabled is not allow_quickjs
@@ -873,7 +879,10 @@ async def graph(
         else RunBudget(OWNER_RUN_BUDGET_POLICY)
     )
     quickjs_middleware = BoundedQuickJSMiddleware(
-        enabled=not is_guest and quickjs_allowed(runtime)
+        enabled=is_guest
+        or dynamic_subagents_allowed(runtime, server_enabled=True)
+        or quickjs_allowed(runtime),
+        subagents=is_guest or dynamic_subagents_allowed(runtime, server_enabled=True),
     )
     if is_guest and runtime.access_context == "threads.create_run":
         configurable = config.get("configurable")

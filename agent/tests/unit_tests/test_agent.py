@@ -275,7 +275,7 @@ def _guest_runtime():
 
 def _quickjs_runtime(thread_id: str) -> ToolRuntime:
     return ToolRuntime(
-        state={},
+        state={"_quickjs_slot_id": thread_id},
         context=None,
         config={"configurable": {"thread_id": thread_id}},
         stream_writer=lambda _event: None,
@@ -600,7 +600,8 @@ async def test_graph_factory_selects_the_guest_policy_before_compilation(monkeyp
     assert lifecycle == ["acquire", "monitor", "compile"]
     assert len(captured) == 1
     assert captured[0]["budget"].policy == GUEST_RUN_BUDGET_POLICY
-    assert captured[0]["quickjs_middleware"].enabled is False
+    assert captured[0]["quickjs_middleware"].enabled is True
+    assert captured[0]["quickjs_middleware"].subagents is True
 
 
 async def test_guest_monitor_start_failure_closes_fence_before_compilation(
@@ -1212,7 +1213,10 @@ def test_guest_and_owner_graphs_route_distinct_server_owned_counters(monkeypatch
     assert (
         guest_middleware._expected_response_models == OPENAI_GUEST_RESPONSE_MODEL_NAMES
     )
-    assert guest_middleware._root_tool_allowlist == GUEST_ROOT_TOOL_NAMES | {"task"}
+    assert guest_middleware._root_tool_allowlist == GUEST_ROOT_TOOL_NAMES | {
+        "task",
+        "eval",
+    }
     assert owner_middleware._input_token_counter is _exact_anthropic_test_input_tokens
     assert owner_middleware._model_provider == "anthropic"
     assert owner_middleware._expected_response_models == frozenset()
@@ -1455,7 +1459,7 @@ async def test_canonical_guest_runtime_forces_low_budget_and_no_paid_capabilitie
     )
 
     assert result["messages"][-1].content == "guest answer"
-    assert model.bound_tool_names == [GUEST_ROOT_TOOL_NAMES | {"task"}]
+    assert model.bound_tool_names == [GUEST_ROOT_TOOL_NAMES | {"task", "eval"}]
     assert len(model.invoked_messages) == 1
     guest_system_text = "\n".join(
         block["text"]
@@ -1465,7 +1469,7 @@ async def test_canonical_guest_runtime_forces_low_budget_and_no_paid_capabilitie
     assert WRITE_TODOS_SYSTEM_PROMPT not in guest_system_text
     assert "within 600 output tokens" in guest_system_text
     snapshot = budget.snapshot()
-    assert snapshot.policy_id == "anonymous-public-v7"
+    assert snapshot.policy_id == GUEST_RUN_BUDGET_POLICY.policy_id
     assert snapshot.model_calls == 1
     assert snapshot.charged_tokens == 10
 
@@ -1749,7 +1753,7 @@ async def test_canonical_guest_runtime_rejects_a_forged_filesystem_tool_call(
             {"configurable": {"thread_id": "guest-forged-filesystem"}},
         )
 
-    assert model.bound_tool_names == [GUEST_ROOT_TOOL_NAMES | {"task"}]
+    assert model.bound_tool_names == [GUEST_ROOT_TOOL_NAMES | {"task", "eval"}]
     assert budget.snapshot().tool_calls == 0
 
 

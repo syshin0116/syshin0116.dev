@@ -6,6 +6,7 @@ import asyncio
 import sys
 import time
 from collections.abc import Awaitable, Callable, Mapping
+from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass, field
 from threading import Lock
@@ -1225,6 +1226,22 @@ _ACTIVE_TASK_RESERVATION: ContextVar[TaskReservation | None] = ContextVar(
     "active_run_budget_task_reservation",
     default=None,
 )
+
+
+@asynccontextmanager
+async def subagent_budget(budget: RunBudget):
+    """Cover native interpreter dispatches, which bypass the parent ToolNode."""
+    if _ACTIVE_TASK_RESERVATION.get() is not None:
+        yield
+        return
+    reservation = budget.reserve_task(depth=1)
+    token = _ACTIVE_TASK_RESERVATION.set(reservation)
+    try:
+        async with asyncio.timeout(budget.remaining_seconds()):
+            yield
+    finally:
+        _ACTIVE_TASK_RESERVATION.reset(token)
+        budget.finish_task(reservation)
 
 
 class RunBudgetMiddleware(AgentMiddleware[Any, Any, Any]):

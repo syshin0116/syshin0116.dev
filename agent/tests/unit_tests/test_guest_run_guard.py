@@ -1478,18 +1478,26 @@ async def test_native_stream_filters_allow_only_reviewed_public_channels():
     headers = _guest_headers()
     accepted = [
         {
-            "channels": ["messages", "lifecycle", "input", "tools", "custom"],
-            "depth": 0,
+            "channels": [
+                "values",
+                "checkpoints",
+                "messages",
+                "lifecycle",
+                "input",
+                "tools",
+                "custom",
+            ],
+            "depth": 1,
             "namespaces": [[]],
         },
         {"channels": ["lifecycle", "input"]},
+        {"channels": ["custom"], "namespaces": [["tools:child"]], "since": 1},
     ]
     rejected = [
-        {"channels": ["values"]},
-        {"channels": ["updates"]},
-        {"channels": ["messages"], "depth": 1},
-        {"channels": ["messages"], "namespaces": []},
+        {"channels": []},
         {"channels": ["messages", "messages"]},
+        {"channels": ["messages"], "depth": -1},
+        {"channels": ["messages"], "extra": True},
     ]
 
     async with httpx.AsyncClient(
@@ -1513,20 +1521,11 @@ async def test_native_stream_filters_allow_only_reviewed_public_channels():
             for body in rejected
         ]
 
-    assert [response.status_code for response in accepted_responses] == [200, 200]
+    assert [response.status_code for response in accepted_responses] == [200] * len(
+        accepted
+    )
     assert all(response.status_code == 400 for response in rejected_responses)
-    assert [json.loads(record["body"]) for record in records] == [
-        {
-            "channels": ["messages", "lifecycle", "input", "tools", "custom"],
-            "depth": 0,
-            "namespaces": [[]],
-        },
-        {
-            "channels": ["lifecycle", "input"],
-            "depth": 0,
-            "namespaces": [[]],
-        },
-    ]
+    assert [json.loads(record["body"]) for record in records] == accepted
 
 
 async def test_guest_stream_lease_allows_two_per_identity_and_releases_after_close():
@@ -1691,7 +1690,13 @@ async def test_guest_state_projects_only_public_messages_and_interrupt_identity(
                     "scratch": {"chain_of_thought": secret},
                 },
                 "next": ["private-node"],
-                "tasks": [{"result": secret}],
+                "tasks": [
+                    {
+                        "id": "task-1",
+                        "result": secret,
+                        "interrupts": [{"id": _INTERRUPT_ID, "value": secret}],
+                    }
+                ],
                 "interrupts": [
                     {
                         "id": _INTERRUPT_ID,
@@ -1746,7 +1751,19 @@ async def test_guest_state_projects_only_public_messages_and_interrupt_identity(
         "next": [],
         "parent_checkpoint": None,
         "parent_checkpoint_id": None,
-        "tasks": [],
+        "tasks": [
+            {
+                "id": "task-1",
+                "name": "agent",
+                "interrupts": [
+                    {"id": _INTERRUPT_ID, "ns": [], "resumable": True, "when": "during"}
+                ],
+                "checkpoint": None,
+                "state": None,
+                "result": None,
+                "error": None,
+            }
+        ],
         "values": {
             "messages": [
                 {
@@ -2264,8 +2281,6 @@ async def test_guest_sse_redacts_reasoning_tool_and_unsafe_input_payloads():
     assert response.status_code == 200
     assert json.loads(request_bodies[0]) == {
         "channels": ["messages", "lifecycle", "input", "tools"],
-        "depth": 0,
-        "namespaces": [[]],
     }
     assert secret.encode() not in response.content
     assert "공개 답변".encode() in response.content
@@ -2287,7 +2302,7 @@ async def test_guest_sse_redacts_reasoning_tool_and_unsafe_input_payloads():
     assert input_data["value"] == interrupt_payload
 
 
-async def test_guest_sse_rejects_nested_frame_before_unsafe_body_bytes_are_sent():
+async def test_guest_sse_drops_nested_input_before_unsafe_body_bytes_are_sent():
     secret = "NESTED-STREAM-SECRET"
     frame = _event_frame(
         "input.requested",
@@ -2347,8 +2362,7 @@ async def test_guest_sse_rejects_nested_frame_before_unsafe_body_bytes_are_sent(
     async def send(message):
         sent.append(message)
 
-    with pytest.raises(GuestWireProjectionError):
-        await GuestRunGuard(downstream)(scope, receive, send)
+    await GuestRunGuard(downstream)(scope, receive, send)
 
     raw_bodies = b"".join(
         message.get("body", b"")
@@ -2396,8 +2410,6 @@ async def test_guest_stream_replay_waits_for_the_original_disconnect():
     async def downstream(_scope, guarded_receive, _send):
         assert json.loads(await _request_body(guarded_receive)) == {
             "channels": ["messages"],
-            "depth": 0,
-            "namespaces": [[]],
         }
         followup = asyncio.create_task(guarded_receive())
         await asyncio.wait_for(tail_started.wait(), timeout=1)
@@ -4027,3 +4039,107 @@ async def test_guest_query_contract_is_exact(method, path, expected):
 
     assert response.status_code == expected
     assert len(records) == (1 if expected == 200 else 0)
+
+
+def test_guest_nested_interrupt_retains_the_authoritative_root_resume_id():
+    event = {
+        "type": "event",
+        "event_id": "run_event_1:0",
+        "seq": 1,
+        "method": "input.requested",
+        "params": {
+            "namespace": ["tools:child"],
+            "timestamp": 1,
+            "data": {
+                "interrupt_id": _INTERRUPT_ID,
+                "payload": {
+                    "schema": "syshin.rag.interrupt.v1",
+                    "kind": "approval",
+                    "prompt": "계속할까요?",
+                },
+            },
+        },
+    }
+    projected = GuestEventProjector().project(event)
+    assert projected is not None
+    assert projected["params"]["namespace"] == []
+    assert projected["params"]["data"]["interrupt_id"] == _INTERRUPT_ID
+    event["params"]["data"]["payload"]["secret"] = "not public"
+    assert GuestEventProjector().project(event) is None
+
+
+@pytest.mark.parametrize("resume", [False, True])
+@pytest.mark.parametrize("empty_metadata", [False, True])
+async def test_native_sdk_guest_commands_do_not_require_private_correlation(
+    resume, empty_metadata
+):
+    records = []
+    params = (
+        {"namespace": [], "interrupt_id": _INTERRUPT_ID, "response": "approve"}
+        if resume
+        else {
+            "assistant_id": "agent",
+            "config": {"configurable": {"thread_id": "guest-thread"}},
+            "input": {
+                "messages": [
+                    {
+                        "id": "native-message",
+                        "type": "human",
+                        "content": "검색해 주세요",
+                        "additional_kwargs": {},
+                        "response_metadata": {},
+                    }
+                ]
+            },
+        }
+    )
+    if empty_metadata:
+        params["metadata"] = {}
+        params.setdefault("config", {})["metadata"] = {}
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=GuestRunGuard(_capturing_app(records))),
+        base_url="http://test",
+    ) as client:
+        response = await client.post(
+            "/threads/guest-thread/commands",
+            headers=_guest_headers(),
+            json={
+                "id": 1,
+                "method": "input.respond" if resume else "run.start",
+                "params": params,
+            },
+        )
+    assert response.status_code == 200
+    forwarded = json.loads(records[0]["body"])["params"]
+    assert forwarded["metadata"] == forwarded["config"] == {}
+    if not resume:
+        message = forwarded["input"]["messages"][0]
+        assert set(message) == {"id", "role", "content"}
+        assert message["role"] == "user"
+        _assert_server_owned_message_id(message["id"], "native-message")
+
+
+@pytest.mark.parametrize(
+    "configurable",
+    [
+        {"thread_id": "someone-elses-thread"},
+        {"thread_id": "guest-thread", "model": "expensive"},
+        {"thread_id": "guest-thread", "permissions": ["admin"]},
+    ],
+)
+async def test_native_sdk_guest_config_cannot_change_thread_or_capability(configurable):
+    command = _run_command()
+    command["params"].pop("metadata")
+    command["params"]["config"] = {"configurable": configurable}
+    records = []
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=GuestRunGuard(_capturing_app(records))),
+        base_url="http://test",
+    ) as client:
+        response = await client.post(
+            "/threads/guest-thread/commands",
+            headers=_guest_headers(),
+            json=command,
+        )
+    assert response.status_code == 400
+    assert records == []
