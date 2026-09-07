@@ -78,7 +78,7 @@ test.beforeEach(async ({ page }) => {
   page.on("pageerror", (error) => diagnostics.consoleProblems.push(error.message))
   page.on("console", (message) => {
     // Next.js preloads route CSS when links enter the viewport, before navigation.
-    if (message.type() === "warning" && message.text().startsWith(`The resource ${SITE_ORIGIN}/_next/static/chunks/`) && message.text().includes(".css was preloaded using link preload but not used")) return
+    if (message.type() === "warning" && message.text().startsWith(`The resource ${SITE_ORIGIN}/_next/static/`) && message.text().includes(".css was preloaded using link preload but not used")) return
     if (message.type() === "error" || message.type() === "warning") {
       diagnostics.consoleProblems.push(`${message.type()}: ${message.text()}`)
     }
@@ -309,6 +309,9 @@ test("graph exploration preserves selection and keyboard navigation", async ({ p
   await page.emulateMedia({ reducedMotion: "reduce" })
   await page.goto(REPRESENTATIVE_HREF)
   if (testInfo.project.name === "site-mobile") await page.locator(".reading-toc > summary").click()
+  const inlineGraph = page.getByRole("group", { name: "관련 콘텐츠 그래프" }).locator(".graph-surface")
+  await inlineGraph.scrollIntoViewIfNeeded()
+  await expect(inlineGraph).toHaveAttribute("data-status", "ready")
   const explore = page.getByRole("button", { name: "Explore", exact: true })
   await explore.click()
   const dialog = page.getByRole("dialog", { name: "연결된 글 탐색" })
