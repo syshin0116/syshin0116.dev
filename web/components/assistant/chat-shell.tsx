@@ -356,14 +356,11 @@ function EmptyConversation() {
           블로그와 프로젝트를 검색하고, 사용된 방법과 출처를 함께 확인할 수
           있어요.
         </p>
-        {/* Above the composer, the way every familiar chat app places them:
-            a starting point to pick from, then the box you type in. */}
         <div className="mt-8 flex w-full flex-wrap justify-center gap-2">
           {SUGGESTIONS.map(({ prompt }) => (
             <ThreadPrimitive.Suggestion
               key={prompt}
               prompt={prompt}
-              send
               className="min-h-9 rounded-full border border-border/70 bg-background px-3.5 py-2 text-left text-[13px] text-muted-foreground transition-colors motion-reduce:transition-none hover:border-border hover:bg-muted hover:text-foreground"
             >
               {prompt}
@@ -566,7 +563,10 @@ function Composer({ centered = false }: { centered?: boolean }) {
   useEffect(() => {
     if (!centered) composerInputRef.current?.focus()
   }, [centered])
-  const rejectOversizedComposer = () => {
+  const prepareSubmission = () => {
+    composerAui.composer().setRunConfig(runtimeUi.modelSelection
+      ? { custom: { model: runtimeUi.selectedModel } }
+      : {})
     const value = composerInputRef.current?.value ?? ""
     if (
       value.length <= MAX_COMPOSER_CODE_UNITS &&
@@ -622,10 +622,7 @@ function Composer({ centered = false }: { centered?: boolean }) {
       <ComposerPrimitive.Root
         className="mx-auto flex max-w-3xl items-end gap-2 rounded-[28px] border border-border/80 bg-background p-2 shadow-[0_8px_30px_rgb(0_0_0/0.06)] transition-shadow motion-reduce:transition-none focus-within:border-foreground/30 focus-within:shadow-[0_12px_40px_rgb(0_0_0/0.1)] dark:bg-muted/60"
         onSubmitCapture={(event) => {
-          composerAui.composer().setRunConfig(runtimeUi.modelSelection
-            ? { custom: { model: runtimeUi.selectedModel } }
-            : {})
-          if (rejectOversizedComposer()) {
+          if (prepareSubmission()) {
             event.preventDefault()
             event.stopPropagation()
           }
@@ -681,7 +678,7 @@ function Composer({ centered = false }: { centered?: boolean }) {
           <ComposerPrimitive.Send
             aria-label="메시지 보내기"
             onClick={(event) => {
-              if (rejectOversizedComposer()) {
+              if (prepareSubmission()) {
                 // ComposerPrimitive.Send invokes the runtime directly instead
                 // of submitting its parent form. Cancelling this first handler
                 // prevents assistant-ui's composed send callback from running.
@@ -774,6 +771,10 @@ function ThreadListItem() {
     }
   }, [editing, itemTitle])
 
+  useEffect(() => {
+    if (renameError && !renaming) renameInputRef.current?.focus()
+  }, [renameError, renaming])
+
   const submitRename = async (event: FormEvent) => {
     event.preventDefault()
     const normalized = title.trim()
@@ -794,7 +795,6 @@ function ThreadListItem() {
       setRenameError(
         "대화 제목을 바꾸지 못했습니다. 잠시 후 다시 시도해 주세요."
       )
-      requestAnimationFrame(() => renameInputRef.current?.focus())
       return
     }
     setRenaming(false)

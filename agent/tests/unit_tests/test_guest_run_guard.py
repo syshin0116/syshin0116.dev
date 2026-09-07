@@ -4066,3 +4066,80 @@ def test_guest_nested_interrupt_retains_the_authoritative_root_resume_id():
     assert projected["params"]["data"]["interrupt_id"] == _INTERRUPT_ID
     event["params"]["data"]["payload"]["secret"] = "not public"
     assert GuestEventProjector().project(event) is None
+
+
+@pytest.mark.parametrize("resume", [False, True])
+@pytest.mark.parametrize("empty_metadata", [False, True])
+async def test_native_sdk_guest_commands_do_not_require_private_correlation(
+    resume, empty_metadata
+):
+    records = []
+    params = (
+        {"namespace": [], "interrupt_id": _INTERRUPT_ID, "response": "approve"}
+        if resume
+        else {
+            "assistant_id": "agent",
+            "config": {"configurable": {"thread_id": "guest-thread"}},
+            "input": {
+                "messages": [
+                    {
+                        "id": "native-message",
+                        "type": "human",
+                        "content": "검색해 주세요",
+                        "additional_kwargs": {},
+                        "response_metadata": {},
+                    }
+                ]
+            },
+        }
+    )
+    if empty_metadata:
+        params["metadata"] = {}
+        params.setdefault("config", {})["metadata"] = {}
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=GuestRunGuard(_capturing_app(records))),
+        base_url="http://test",
+    ) as client:
+        response = await client.post(
+            "/threads/guest-thread/commands",
+            headers=_guest_headers(),
+            json={
+                "id": 1,
+                "method": "input.respond" if resume else "run.start",
+                "params": params,
+            },
+        )
+    assert response.status_code == 200
+    forwarded = json.loads(records[0]["body"])["params"]
+    assert forwarded["metadata"] == forwarded["config"] == {}
+    if not resume:
+        message = forwarded["input"]["messages"][0]
+        assert set(message) == {"id", "role", "content"}
+        assert message["role"] == "user"
+        _assert_server_owned_message_id(message["id"], "native-message")
+
+
+@pytest.mark.parametrize(
+    "configurable",
+    [
+        {"thread_id": "someone-elses-thread"},
+        {"thread_id": "guest-thread", "model": "expensive"},
+        {"thread_id": "guest-thread", "permissions": ["admin"]},
+    ],
+)
+async def test_native_sdk_guest_config_cannot_change_thread_or_capability(configurable):
+    command = _run_command()
+    command["params"].pop("metadata")
+    command["params"]["config"] = {"configurable": configurable}
+    records = []
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=GuestRunGuard(_capturing_app(records))),
+        base_url="http://test",
+    ) as client:
+        response = await client.post(
+            "/threads/guest-thread/commands",
+            headers=_guest_headers(),
+            json=command,
+        )
+    assert response.status_code == 400
+    assert records == []

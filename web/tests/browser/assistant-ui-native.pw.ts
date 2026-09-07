@@ -505,7 +505,7 @@ test.describe.serial("native assistant-ui production journey", () => {
     await attachEvidence(page, testInfo, "native-reconnect")
   })
 
-  test("never projects delayed history from a different nonce-resolved run", async ({
+  test("reconciles delayed history from authoritative native snapshots", async ({
     page,
   }) => {
     const diagnostics = collectDiagnostics(page)
@@ -565,6 +565,34 @@ test.describe.serial("native assistant-ui production journey", () => {
       "PRIVATE_STALE_SOURCE_ERROR"
     )
     await expectNoBrowserErrors(page, diagnostics)
+  })
+
+  test("keeps two consecutive search turns after reload", async ({ page }, testInfo) => {
+    const diagnostics = collectDiagnostics(page)
+    await resetFixture(page)
+    await page.goto("/")
+    await selectFixtureThread(page)
+    await page.getByRole("button", { name: "모델 선택" }).click()
+    await page.getByRole("menuitemradio", { name: /Terra/ }).click()
+    const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    for (const turn of [1, 2]) {
+      await composer.fill(`연속 검색 ${turn}`)
+      if (turn === 1) await composer.press("Enter")
+      else await page.getByRole("button", { name: "메시지 보내기" }).click()
+      await expect(page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true })).toHaveCount(turn)
+      await expect(page.getByRole("button", { name: "응답 중지" })).toBeHidden()
+    }
+    const commands = (await fixtureState(page)).commands
+    expect(commands).toHaveLength(2)
+    for (const command of commands) {
+      expect(command.params.config).toMatchObject({ configurable: { model: "terra" } })
+    }
+    await page.reload()
+    await selectFixtureThread(page)
+    for (const turn of [1, 2]) await expect(page.getByText(`연속 검색 ${turn}`, { exact: true })).toHaveCount(1)
+    await expect(page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true })).toHaveCount(2)
+    await expectNoBrowserErrors(page, diagnostics)
+    await attachEvidence(page, testInfo, "consecutive-searches")
   })
 
   test("blocks an over-byte composer submission before it reaches APv2", async ({

@@ -567,7 +567,8 @@ async function emitCompletedRun(
     }, undefined, run.run_id),
     "watcher"
   )
-  for (const event of messageEvents(run.run_id)) emit(threadId, event)
+  const answerId = `browser-answer-${run.run_id}`
+  for (const event of messageEvents(run.run_id, undefined, answerId)) emit(threadId, event)
   emit(
     threadId,
     protocolEvent("lifecycle", ["nested_subgraph:browser-task"], {
@@ -576,13 +577,6 @@ async function emitCompletedRun(
     }, undefined, run.run_id),
     "watcher"
   )
-  emit(
-    threadId,
-    protocolEvent("lifecycle", [], {
-      event: "completed",
-      graph_name: "agent",
-    }, undefined, run.run_id)
-  )
   run.status = "success"
   const thread = state.threads.get(threadId)
   if (thread) {
@@ -590,7 +584,7 @@ async function emitCompletedRun(
     thread.messages = [
       ...thread.messages,
       {
-        id: "browser-persisted-answer",
+        id: answerId,
         role: "assistant",
         content: [
           {
@@ -601,6 +595,14 @@ async function emitCompletedRun(
       },
     ]
   }
+  emit(threadId, protocolEvent("values", [], threadState(threadId).values as JsonRecord, undefined, run.run_id))
+  emit(
+    threadId,
+    protocolEvent("lifecycle", [], {
+      event: "completed",
+      graph_name: "agent",
+    }, undefined, run.run_id)
+  )
 }
 
 function newRun(threadId: string, metadata: JsonRecord): RunRow {
@@ -902,6 +904,10 @@ const server = Bun.serve({
               )
             }
           )
+        } else if (serialized.includes("연속 검색")) {
+          void emitCompletedRun(threadId, run).catch((error: unknown) => {
+            state.errors.push(error instanceof Error ? error.message : "search failed")
+          })
         } else if (serialized.includes("취소")) {
           void waitForStreams(threadId)
             .then(() => {
