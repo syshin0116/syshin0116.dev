@@ -588,7 +588,7 @@ test.describe.serial("native assistant-ui production journey", () => {
     const commands = (await fixtureState(page)).commands
     expect(commands).toHaveLength(2)
     for (const command of commands) {
-      expect(command.params.config).toMatchObject({ configurable: { model: "gpt-5.6-terra" } })
+      expect(command).toMatchObject({ params: { config: { configurable: { model: "gpt-5.6-terra" } } } })
     }
     await page.reload()
     await selectFixtureThread(page)
