@@ -206,6 +206,9 @@ test.describe.serial("native assistant-ui production journey", () => {
     ).toBeEnabled()
 
     await attachEvidence(page, testInfo, "chat-empty")
+    await page.getByRole("button", { name: "LangGraph 관련 글을 찾아줘", exact: true }).click()
+    await expect(page.getByRole("textbox", { name: "AI에게 보낼 메시지" })).toHaveValue("LangGraph 관련 글을 찾아줘")
+    expect((await fixtureState(page)).commands).toHaveLength(0)
     await page.getByRole("button", { name: "대화 목록 열기" }).click()
     await expect(
       page.getByRole("dialog", { name: "대화 목록" })
@@ -585,7 +588,7 @@ test.describe.serial("native assistant-ui production journey", () => {
     const commands = (await fixtureState(page)).commands
     expect(commands).toHaveLength(2)
     for (const command of commands) {
-      expect(command.params.config).toMatchObject({ configurable: { model: "terra" } })
+      expect(command.params.config).toMatchObject({ configurable: { model: "gpt-5.6-terra" } })
     }
     await page.reload()
     await selectFixtureThread(page)
