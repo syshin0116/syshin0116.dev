@@ -1,4 +1,4 @@
-"""Owner/eval-only, async, bounded wrapper around native LangChain QuickJS."""
+"""Bounded native interpreter for data transforms and dynamic subagents."""
 
 from __future__ import annotations
 
@@ -260,19 +260,21 @@ def _append_system_prompt(
 class BoundedQuickJSMiddleware(CodeInterpreterMiddleware):
     """Native CodeInterpreterMiddleware with an async-only, fail-closed surface."""
 
-    def __init__(self, *, enabled: bool) -> None:
+    def __init__(self, *, enabled: bool, subagents: bool = False) -> None:
         if not isinstance(enabled, bool):
             raise TypeError("enabled must be a boolean")
         self._enabled = enabled
+        self.subagents = subagents
+        self._outer_timeout = 90.0 if subagents else QUICKJS_OUTER_TIMEOUT_SECONDS
         self._close_task: asyncio.Task[None] | None = None
         super().__init__(
             memory_limit=QUICKJS_MEMORY_LIMIT_BYTES,
-            timeout=QUICKJS_TIMEOUT_SECONDS,
+            timeout=90.0 if subagents else QUICKJS_TIMEOUT_SECONDS,
             max_ptc_calls=1,
             tool_name=QUICKJS_TOOL_NAME,
             max_result_chars=QUICKJS_NATIVE_MAX_RESULT_CHARS,
             capture_console=False,
-            subagents=False,
+            subagents=subagents,
             ptc=None,
             mode="call",
             max_snapshot_bytes=QUICKJS_MAX_SNAPSHOT_BYTES,
@@ -292,9 +294,7 @@ class BoundedQuickJSMiddleware(CodeInterpreterMiddleware):
             code: str,
         ) -> ToolMessage:
             if not self._enabled:
-                raise CapabilityDeniedError(
-                    "QuickJS requires server opt-in and owner or eval permission"
-                )
+                raise CapabilityDeniedError("Interpreter is not enabled for this run")
             source_bytes = _utf8_size(code)
             if source_bytes is None or source_bytes > QUICKJS_MAX_SOURCE_BYTES:
                 return ToolMessage(
@@ -303,7 +303,7 @@ class BoundedQuickJSMiddleware(CodeInterpreterMiddleware):
                     name=QUICKJS_TOOL_NAME,
                 )
             try:
-                async with asyncio.timeout(QUICKJS_OUTER_TIMEOUT_SECONDS):
+                async with asyncio.timeout(self._outer_timeout):
                     native_message = await native_coroutine(
                         runtime,
                         f"{_QUICKJS_HARDENING_PRELUDE}\n{code}",
@@ -334,10 +334,7 @@ class BoundedQuickJSMiddleware(CodeInterpreterMiddleware):
         self.tools = [
             StructuredTool.from_function(
                 name=native_tool.name,
-                description=(
-                    f"{native_tool.description} Use only for bounded pure-data "
-                    "transforms, never ordinary prose."
-                ),
+                description=native_tool.description,
                 coroutine=async_eval,
                 infer_schema=False,
                 args_schema=native_tool.args_schema,
@@ -377,6 +374,8 @@ class BoundedQuickJSMiddleware(CodeInterpreterMiddleware):
         """Advertise the async tool only for a server-authorized graph factory."""
         if not self._enabled:
             return await handler(_without_quickjs(request))
+        if self.subagents:
+            return await super().awrap_model_call(request, handler)
         return await handler(
             request.override(
                 system_message=_append_system_prompt(

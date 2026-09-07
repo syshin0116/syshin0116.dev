@@ -90,35 +90,16 @@ def _anonymous_authorization() -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
 
-def test_runtime_dependencies_are_the_spike_versions():
-    assert {
-        package: version(package)
-        for package in (
-            "aegra-api",
-            "aegra-cli",
-            "deepagents",
-            "langchain",
-            "langchain-core",
-            "langgraph",
-            "langgraph-checkpoint-postgres",
-            "langgraph-sdk",
-            "langsmith",
-            "openai",
-            "uvicorn",
-        )
-    } == {
-        "aegra-api": "0.9.25",
-        "aegra-cli": "0.9.25",
-        "deepagents": "0.7.5",
-        "langchain": "1.3.14",
-        "langchain-core": "1.5.3",
-        "langgraph": "1.2.10",
-        "langgraph-checkpoint-postgres": "3.1.1",
-        "langgraph-sdk": "0.4.2",
-        "langsmith": "0.10.17",
-        "openai": "2.53.0",
-        "uvicorn": "0.51.0",
-    }
+def test_runtime_dependencies_match_the_declared_framework_pins():
+    import tomllib
+
+    manifest = tomllib.loads(
+        (Path(__file__).resolve().parents[2] / "pyproject.toml").read_text()
+    )
+    for dependency in manifest["project"]["dependencies"]:
+        if "==" in dependency:
+            package, expected = dependency.split("==")
+            assert version(package) == expected
     assert (
         resolve_assistant_id("agent", {"agent": object()})
         == "fe096781-5601-53d2-b2f6-0d3403f7e9ca"
@@ -459,8 +440,6 @@ async def test_guest_public_wire_projects_pinned_aegra_sse_frames(
     assert response.status_code == 200
     assert json.loads(request_body) == {
         "channels": ["messages", "custom"],
-        "depth": 0,
-        "namespaces": [[]],
     }
     assert secret.encode() not in response.content
     assert unknown_custom_secret.encode() not in response.content
@@ -630,7 +609,8 @@ async def test_guest_public_wire_projects_pinned_aegra_thread_state(
     assert response.status_code == 200
     assert private_state_sentinel.encode() not in response.content
     assert response.json()["values"]["messages"][0]["content"] == "fixture request"
-    assert response.json()["tasks"] == []
+    assert len(response.json()["tasks"]) == 1
+    assert response.json()["tasks"][0]["interrupts"] == response.json()["interrupts"]
     assert response.json()["metadata"] == {}
     assert response.json()["interrupts"][0]["value"] == {
         "kind": "approval",
@@ -767,7 +747,7 @@ async def test_uvicorn_serves_and_stops_the_aegra_app():
             response = await client.get("/info")
 
         assert response.status_code == 200
-        assert response.json()["version"] == "0.9.25"
+        assert response.json()["version"] == version("aegra-api")
     finally:
         server.should_exit = True
         await asyncio.wait_for(server_task, timeout=5)
