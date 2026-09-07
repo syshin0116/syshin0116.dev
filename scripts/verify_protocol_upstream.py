@@ -46,12 +46,12 @@ LOCK_V1_ARTIFACTS: dict[
         "pythonBinding": (
             "streaming/py/langchain_protocol/protocol.py",
             "protocol/generated/python/protocol.py",
-            {"package": "langchain-protocol==0.0.18"},
+            {"package": "langchain-protocol==0.0.19"},
         ),
         "typescriptBinding": (
             "streaming/js/protocol.ts",
             "protocol/generated/typescript/protocol.ts",
-            {"package": "@langchain/protocol@0.0.18"},
+            {"package": "@langchain/protocol@0.0.19"},
         ),
     },
     "aegra": {

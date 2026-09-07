@@ -54,7 +54,7 @@ interface FixtureState {
     | "default"
     | "delayed-replay"
     | "load-error"
-    | "public-root-state-fallback"
+    | "public-root-interrupt"
     | "reconnect"
     | "stale-source"
   stateRequests: Array<{
@@ -275,9 +275,10 @@ function protocolEvent(
 async function waitForStreams(threadId: string): Promise<void> {
   for (let attempt = 0; attempt < 2_000; attempt += 1) {
     const streams = [...state.subscribers.values()].filter(
-      (subscriber) => subscriber.threadId === threadId
+      (subscriber) => subscriber.threadId === threadId && !subscriber.closed
     )
-    if (streams.length >= 2) return
+    if (streams.some((stream) => Array.isArray(stream.body.channels) && stream.body.channels.includes("messages")) &&
+        streams.some((stream) => stream.body.namespaces === undefined)) return
     await Bun.sleep(5)
   }
   throw new Error("browser fixture streams were not opened")
@@ -517,10 +518,14 @@ async function emitPublicRootStateFallback(
       emit(threadId, event)
     }
   }
-  // Reproduce the pinned Aegra nested-first/root-dedupe failure: the
-  // terminal lifecycle reaches the native client, but no input.requested
-  // event survives in ThreadStream. The public state endpoint below is
-  // the only authoritative root interrupt source.
+  emit(threadId, protocolEvent("input.requested", [], {
+    interrupt_id: publicRootInterruptId,
+    payload: {
+      schema: "syshin.rag.interrupt.v1", kind: "approval",
+      title: "공개 검색 승인", prompt: "공개 fixture 검색을 계속할까요?",
+      input_hint: "응답을 입력해 재개",
+    },
+  }, undefined, run.run_id))
   emit(
     threadId,
     protocolEvent(
@@ -579,7 +584,7 @@ async function emitCompletedRun(
   if (thread) {
     thread.status = "idle"
     thread.messages = [
-      ...(state.scenario === "public-root-state-fallback"
+      ...(state.scenario === "public-root-interrupt"
         ? thread.messages
         : []),
       {
@@ -615,7 +620,7 @@ function capturePublicGuestMessage(
   threadId: string,
   params: JsonRecord
 ): void {
-  if (state.scenario !== "public-root-state-fallback") return
+  if (state.scenario !== "public-root-interrupt") return
   const input = params.input
   if (!input || typeof input !== "object" || Array.isArray(input)) return
   const messages = (input as JsonRecord).messages
@@ -650,7 +655,7 @@ function capturePublicGuestMessage(
 function threadState(threadId: string): JsonRecord {
   const thread = state.threads.get(threadId)
   const publicInterrupts =
-    state.scenario === "public-root-state-fallback" &&
+    state.scenario === "public-root-interrupt" &&
     thread?.status === "interrupted"
       ? [
           {
@@ -669,7 +674,7 @@ function threadState(threadId: string): JsonRecord {
         ]
       : []
   const messages = (thread?.messages ?? []).map((message) => {
-    if (state.scenario !== "public-root-state-fallback") return message
+    if (state.scenario !== "public-root-interrupt") return message
     const mapping = state.messageIdMappings.find(
       (candidate) => candidate.storedId === message.id
     )
@@ -687,7 +692,10 @@ function threadState(threadId: string): JsonRecord {
     metadata: {},
     created_at: new Date().toISOString(),
     parent_checkpoint: null,
-    tasks: [],
+    tasks: publicInterrupts.length ? [{
+      id: "public-task", name: "agent", interrupts: publicInterrupts,
+      checkpoint: null, state: null, result: null, error: null,
+    }] : [],
     interrupts: publicInterrupts,
   }
 }
@@ -737,7 +745,7 @@ const server = Bun.serve({
         body.scenario === "cancel-auth-failure" ||
           body.scenario === "delayed-replay" ||
           body.scenario === "load-error" ||
-          body.scenario === "public-root-state-fallback" ||
+          body.scenario === "public-root-interrupt" ||
           body.scenario === "reconnect" ||
           body.scenario === "stale-source"
           ? body.scenario
@@ -879,7 +887,7 @@ const server = Bun.serve({
               )
             }
           )
-        } else if (state.scenario === "public-root-state-fallback") {
+        } else if (state.scenario === "public-root-interrupt") {
           void emitPublicRootStateFallback(threadId, run).catch(
             (error: unknown) => {
               state.errors.push(
@@ -922,7 +930,7 @@ const server = Bun.serve({
       if (command.method === "input.respond") {
         state.responses.push(params)
         if (
-          state.scenario === "public-root-state-fallback" &&
+          state.scenario === "public-root-interrupt" &&
           (!Array.isArray(params.namespace) ||
             params.namespace.length !== 0 ||
             params.interrupt_id !== publicRootInterruptId)
@@ -930,7 +938,7 @@ const server = Bun.serve({
           state.errors.push("public fallback widened the resume target")
         }
         if (
-          state.scenario !== "public-root-state-fallback" &&
+          state.scenario !== "public-root-interrupt" &&
           state.responses.length === 1
         ) {
           return responseJson(

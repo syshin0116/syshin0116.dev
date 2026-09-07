@@ -85,14 +85,14 @@ def _profiles(lock: dict[str, Any]) -> dict[str, TransportProfile]:
     official = lock["protocol"]["transport"]
     aegra = lock["aegra"]["runtimeTransport"]
     return {
-        "aegra-0.9.25": TransportProfile(
-            name="aegra-0.9.25",
+        "aegra": TransportProfile(
+            name="aegra",
             stream_path=aegra["sse"].removeprefix("POST "),
             command_path=aegra["commands"].removeprefix("POST "),
             sse_id="sequence",
         ),
-        "upstream-0.0.18": TransportProfile(
-            name="upstream-0.0.18",
+        "upstream": TransportProfile(
+            name="upstream",
             stream_path=official["sse"].removeprefix("POST "),
             command_path=official["commands"].removeprefix("POST "),
             sse_id="event_id",
@@ -222,7 +222,7 @@ class LiveSmoke:
         frame: SSEFrame,
         index: int,
     ) -> dict[str, Any]:
-        if self._profile.name == "aegra-0.9.25":
+        if self._profile.name == "aegra":
             normalized = normalize_aegra_event(frame.data)
         else:
             normalized = frame.data
@@ -593,8 +593,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--profile",
-        choices=("aegra-0.9.25", "upstream-0.0.18"),
-        default="aegra-0.9.25",
+        choices=("aegra", "upstream"),
+        default="aegra",
         help="Transport path and SSE id profile for the live server.",
     )
     parser.add_argument(

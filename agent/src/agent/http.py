@@ -19,7 +19,7 @@ from uuid import UUID, uuid4
 from aegra_api.core.orm import Thread as ThreadORM
 from aegra_api.core.orm import get_session_maker
 from aegra_api.models import User as AegraUser
-from aegra_api.models.event_streaming import ThreadCommand
+from aegra_api.models.event_streaming import EventStreamRequest, ThreadCommand
 from aegra_api.services.event_streaming.protocol import build_error
 from aegra_api.services.langgraph_service import (
     create_thread_config,
@@ -537,31 +537,19 @@ def _guest_command(
 
 def _guest_stream_subscription(body: bytes) -> bytes:
     value = _json_object(body)
-    if not set(value) <= {"channels", "depth", "namespaces"}:
-        raise GuestRequestError("stream fields are invalid")
-    channels = value.get("channels")
-    if (
-        not isinstance(channels, list)
-        or not channels
-        or len(channels) > 5
-        or any(not isinstance(channel, str) for channel in channels)
-        or len(set(channels)) != len(channels)
-        or any(
-            channel not in {"messages", "lifecycle", "input", "tools", "custom"}
-            for channel in channels
+    try:
+        subscription = EventStreamRequest.model_validate(
+            value, strict=True, extra="forbid"
         )
-    ):
+    except ValidationError as error:
+        raise GuestRequestError("stream subscription is invalid") from error
+    channels = subscription.channels
+    if not channels or len(channels) > 16 or len(set(channels)) != len(channels):
         raise GuestRequestError("stream channels are invalid")
-    normalized: dict[str, Any] = {
-        "channels": channels,
-        "depth": 0,
-        "namespaces": [[]],
-    }
-    if "depth" in value and (type(value["depth"]) is not int or value["depth"] != 0):
-        raise GuestRequestError("stream depth is invalid")
-    if "namespaces" in value and value["namespaces"] != [[]]:
-        raise GuestRequestError("stream namespaces are invalid")
-    return _canonical_json(normalized)
+    if any(len(channel) > 200 for channel in channels):
+        raise GuestRequestError("stream channel is too long")
+    # The response projection protects private state for every requested namespace.
+    return _canonical_json(subscription.model_dump(exclude_none=True))
 
 
 def _guest_thread_metadata(

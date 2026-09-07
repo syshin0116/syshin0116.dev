@@ -601,6 +601,33 @@ def _project_state(value: object, *, include_interrupts: bool) -> dict[str, Any]
     if checkpoint is None:
         checkpoint = {"checkpoint_id": None, "checkpoint_ns": ""}
     parent_checkpoint = _project_checkpoint(state.get("parent_checkpoint"))
+    interrupts = (
+        _project_state_interrupts(state.get("interrupts", []))
+        if include_interrupts
+        else []
+    )
+    public_interrupts = {entry["id"]: entry for entry in interrupts}
+    tasks = []
+    for task in state.get("tasks", []):
+        if not isinstance(task, dict):
+            continue
+        pending = [
+            public_interrupts[entry["id"]]
+            for entry in task.get("interrupts", [])
+            if isinstance(entry, dict) and entry.get("id") in public_interrupts
+        ]
+        if pending:
+            tasks.append(
+                {
+                    "id": _safe_id(task.get("id"), field_name="task id"),
+                    "name": "agent",
+                    "interrupts": pending,
+                    "checkpoint": None,
+                    "state": None,
+                    "result": None,
+                    "error": None,
+                }
+            )
     return {
         "checkpoint": checkpoint,
         "checkpoint_id": checkpoint["checkpoint_id"],
@@ -609,11 +636,7 @@ def _project_state(value: object, *, include_interrupts: bool) -> dict[str, Any]
             field_name="state created_at",
             allow_none=True,
         ),
-        "interrupts": (
-            _project_state_interrupts(state.get("interrupts", []))
-            if include_interrupts
-            else []
-        ),
+        "interrupts": interrupts,
         "metadata": {},
         "next": [],
         "parent_checkpoint": parent_checkpoint,
@@ -622,7 +645,7 @@ def _project_state(value: object, *, include_interrupts: bool) -> dict[str, Any]
             if parent_checkpoint is not None
             else None
         ),
-        "tasks": [],
+        "tasks": tasks,
         "values": {
             "messages": _project_state_messages(values.get("messages", [])),
         },
@@ -905,6 +928,10 @@ class GuestEventProjector:
                 "lifecycle",
                 "messages",
                 "tools",
+                "values",
+                "updates",
+                "checkpoints",
+                "tasks",
             },
         )
         seq = envelope.get("seq")
@@ -917,12 +944,32 @@ class GuestEventProjector:
         params = _record(envelope.get("params"), field_name="event params")
         if set(params) - {"data", "namespace", "node", "timestamp"}:
             raise GuestWireProjectionError("event params fields are invalid")
-        if params.get("namespace") != []:
-            raise GuestWireProjectionError("only root events are public")
+        namespace = params.get("namespace")
+        if not isinstance(namespace, list) or len(namespace) > 32:
+            raise GuestWireProjectionError("event namespace is invalid")
+        namespace = [
+            _safe_id(part, field_name="namespace segment") for part in namespace
+        ]
+        if namespace and method not in {
+            "lifecycle",
+            "tools",
+            "custom",
+            "input.requested",
+        }:
+            return None
         timestamp = params.get("timestamp")
         if type(timestamp) is not int or not 0 <= timestamp <= _MAX_TIMESTAMP:
             raise GuestWireProjectionError("event timestamp is invalid")
         data = _record(params.get("data"), field_name="event data")
+        if namespace and method == "input.requested":
+            # Aegra may deduplicate the root copy after emitting a nested copy.
+            # Resume still requires the same id on the authoritative root checkpoint.
+            if (
+                _project_interrupt_payload(data.get("payload", data.get("value")))
+                is None
+            ):
+                return None
+            namespace = []
 
         projected_data = self._project_data(method, data)
         if projected_data is None:
@@ -932,7 +979,7 @@ class GuestEventProjector:
             "method": method,
             "params": {
                 "data": projected_data,
-                "namespace": [],
+                "namespace": namespace,
                 "timestamp": timestamp,
             },
             "seq": seq,
@@ -944,6 +991,10 @@ class GuestEventProjector:
         method: str,
         data: dict[str, Any],
     ) -> dict[str, Any] | None:
+        if method == "values":
+            return {"messages": _project_state_messages(data.get("messages", []))}
+        if method in {"updates", "checkpoints", "tasks"}:
+            return None
         if method == "lifecycle":
             return self._project_lifecycle(data)
         if method == "messages":
@@ -962,8 +1013,22 @@ class GuestEventProjector:
             allowed=_LIFECYCLE_EVENTS,
         )
         projected = {"event": event}
-        if data.get("graph_name") == "agent":
-            projected["graph_name"] = "agent"
+        if data.get("graph_name") in {
+            "agent",
+            "retrieval-researcher",
+            "evidence-checker",
+            "comparison-synthesizer",
+            "general-purpose",
+        }:
+            projected["graph_name"] = data["graph_name"]
+        cause = data.get("cause")
+        if isinstance(cause, dict) and cause.get("type") == "toolCall":
+            projected["cause"] = {
+                "type": "toolCall",
+                "tool_call_id": _safe_id(
+                    cause.get("tool_call_id"), field_name="cause tool call id"
+                ),
+            }
         return projected
 
     def _project_message(self, data: dict[str, Any]) -> dict[str, Any] | None:
