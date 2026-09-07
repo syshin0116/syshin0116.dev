@@ -1,18 +1,10 @@
 import type {
   Client,
   Thread,
-  ThreadState,
 } from "@langchain/langgraph-sdk"
 import type {
   RemoteThreadListAdapter,
 } from "@assistant-ui/react"
-
-import {
-  extractPendingInterrupt,
-  normalizeStateMessages,
-  projectPendingInterruptForRuntime,
-  type PendingInterrupt,
-} from "./native-client"
 
 const PAGE_SIZE = 20
 const DEFAULT_TITLE = "새 대화"
@@ -29,10 +21,7 @@ type TitleStreamChunk =
 
 interface AegraThreadAdapterOptions {
   assistantId?: string
-  onPendingInterrupt?: (
-    threadId: string,
-    pending: PendingInterrupt | undefined
-  ) => void
+
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -145,12 +134,10 @@ function titleStream(title: string): TitleStream {
 export class AegraThreadAdapter implements RemoteThreadListAdapter {
   readonly #client: Client
   readonly #assistantId: string
-  readonly #onPendingInterrupt?: AegraThreadAdapterOptions["onPendingInterrupt"]
 
   constructor(client: Client, options: AegraThreadAdapterOptions = {}) {
     this.#client = client
     this.#assistantId = options.assistantId ?? "agent"
-    this.#onPendingInterrupt = options.onPendingInterrupt
   }
 
   async list(params?: { after?: string }) {
@@ -247,48 +234,6 @@ export class AegraThreadAdapter implements RemoteThreadListAdapter {
     return titleStream(title)
   }
 
-  async load(threadId: string, signal: AbortSignal) {
-    const state = (await this.#client.threads.getState<Record<string, unknown>>(
-      threadId,
-      undefined,
-      { signal }
-    )) as ThreadState<Record<string, unknown>> & { interrupts?: unknown }
-    const pending = extractPendingInterrupt(state)
-    this.#onPendingInterrupt?.(threadId, pending)
-    const values = isRecord(state.values) ? state.values : {}
-    return {
-      messages: normalizeStateMessages(values.messages),
-      interrupts: pending
-        ? [projectPendingInterruptForRuntime(pending)]
-        : [],
-      // Aegra state has no reviewed assistant-ui UI-message contract.
-      // Never forward an open `values.ui` bag into the browser runtime.
-      uiMessages: [],
-    }
-  }
-
-  async getHistory(threadId: string, signal: AbortSignal) {
-    const history = await this.#client.threads.getHistory<
-      Record<string, unknown>
-    >(
-      threadId,
-      { limit: 50, signal }
-    )
-    return history.map((state) => {
-      const values = isRecord(state.values) ? state.values : {}
-      return {
-        values: {
-          messages: normalizeStateMessages(values.messages),
-        },
-        next: [],
-        checkpoint: state.checkpoint,
-        metadata: {},
-        created_at: state.created_at,
-        parent_checkpoint: state.parent_checkpoint,
-        tasks: [],
-      }
-    })
-  }
 }
 
 export const threadAdapterTesting = {

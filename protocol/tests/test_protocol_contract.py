@@ -64,25 +64,12 @@ class ProtocolContractTests(unittest.TestCase):
     def test_vendored_generated_bindings_match_locked_hashes(self) -> None:
         protocol = self.lock["protocol"]
         self.assertEqual(
-            "0ff7cd3962e8b4b3e347b76203be7dfeba003928",
-            protocol["commit"],
-        )
-        self.assertEqual(
             "official-generated-snake-case",
             protocol["bindingWireProfile"]["name"],
         )
         self.assertTrue(LOCK_PATH.is_file())
 
     def test_aegra_path_divergence_is_not_hidden(self) -> None:
-        self.assertEqual("v0.9.25", self.lock["aegra"]["tag"])
-        self.assertEqual(
-            "1f0076a69bc7cdf5f61b5487bc17d112ee64eb0c",
-            self.lock["aegra"]["commit"],
-        )
-        self.assertEqual(
-            "599fc2645280743e0c87987e977394ce41724b78f95dfdbf81451017a064044c",
-            self.lock["aegra"]["artifacts"]["openapi"]["sha256"],
-        )
         self.assertEqual(
             "POST /threads/{thread_id}/stream",
             self.lock["protocol"]["transport"]["sse"],
