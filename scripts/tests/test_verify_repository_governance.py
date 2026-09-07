@@ -714,7 +714,7 @@ class LocalGovernanceTests(unittest.TestCase):
         )
         setup = (
             "      - uses: docker/setup-buildx-action@"
-            "bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0\n"
+            "37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0\n"
             "        with:\n"
             "          driver: docker-container\n"
         )
@@ -1247,8 +1247,8 @@ class LocalGovernanceTests(unittest.TestCase):
         )
         setup_uv = (
             "      - uses: "
-            "astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 "
-            "# v9.0.0\n"
+            "astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d "
+            "# v10.0.1\n"
             "        if: needs.changes.outputs.agent == 'true'\n"
             "        with:\n"
             '          version: "0.12.3"\n'
@@ -2438,7 +2438,7 @@ runs:
             ),
             (
                 "setup-uv",
-                "astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9",
+                "astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d",
                 "astral-sh/setup-uv@" + "b" * 40,
             ),
         )
@@ -2480,7 +2480,7 @@ runs:
             ),
             (
                 "setup-uv",
-                "astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9",
+                "astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d",
                 "astral-sh/setup-uv@" + "b" * 40,
             ),
         )
