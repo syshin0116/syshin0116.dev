@@ -70,6 +70,7 @@ export default function Navbar() {
               src="/logo.png"
               width={32}
               height={32}
+              loading="eager"
               className="h-8 w-8 object-contain"
               alt="Syshin0116 홈"
             />
