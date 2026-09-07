@@ -98,7 +98,7 @@ class UpstreamArtifactTests(unittest.TestCase):
                             "streaming/py/langchain_protocol/protocol.py",
                         ),
                         "vendoredPath": "protocol/generated/python/protocol.py",
-                        "package": "langchain-protocol==0.0.18",
+                        "package": "langchain-protocol==0.0.19",
                     },
                     "typescriptBinding": {
                         **self._artifact(
@@ -106,7 +106,7 @@ class UpstreamArtifactTests(unittest.TestCase):
                             "streaming/js/protocol.ts",
                         ),
                         "vendoredPath": "protocol/generated/typescript/protocol.ts",
-                        "package": "@langchain/protocol@0.0.18",
+                        "package": "@langchain/protocol@0.0.19",
                     },
                 },
                 "codegen": {

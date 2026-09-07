@@ -15,9 +15,10 @@ import {
   useAuiState,
 } from "@assistant-ui/react"
 import {
-  useLangGraphInterruptState,
-  useLangGraphSendCommand,
-} from "@assistant-ui/react-langgraph"
+  useLangChainInterrupts,
+  useLangChainRespond,
+} from "@assistant-ui/react-langchain"
+import { useRouter } from "next/navigation"
 import {
   Archive,
   ArrowDown,
@@ -85,7 +86,7 @@ import {
   type InspectionSource,
 } from "./runtime/inspection"
 import {
-  readRuntimeInterruptProjection,
+  projectInterruptForUi,
   type InterruptUiProjection,
 } from "./runtime/interrupt-projection"
 import { createImeEnterGuard } from "./runtime/ime"
@@ -376,7 +377,7 @@ function EmptyConversation() {
 }
 
 type InterruptState = NonNullable<
-  ReturnType<typeof useLangGraphInterruptState>
+  ReturnType<typeof useLangChainInterrupts>[number]
 >
 const MAX_INTERRUPT_RESPONSE_CODE_UNITS = 1_000
 const MAX_INTERRUPT_RESPONSE_UTF8_BYTES = 3_000
@@ -390,11 +391,13 @@ const interruptViewKeys = new WeakMap<object, number>()
 let nextInterruptViewKey = 1
 
 function InterruptResponseCard({
+  interruptId,
   projection,
 }: {
+  interruptId?: string
   projection: InterruptUiProjection
 }) {
-  const sendCommand = useLangGraphSendCommand()
+  const sendCommand = useLangChainRespond()
   const [response, setResponse] = useState("")
   const [sending, setSending] = useState(false)
   const [resumeError, setResumeError] = useState<string>()
@@ -417,7 +420,7 @@ function InterruptResponseCard({
     try {
       // Resume carries only the user's bounded decision/input. The opaque
       // interrupt value remains protocol state and is never echoed back.
-      await sendCommand({ resume: normalized })
+      await sendCommand(normalized, { interruptId })
       resumed = true
     } catch {
       setResumeError(
@@ -520,13 +523,14 @@ function interruptViewKey(interrupt: InterruptState): number {
 }
 
 function ConversationFooter() {
-  const interrupt = useLangGraphInterruptState()
+  const interrupt = useLangChainInterrupts()[0]
   if (interrupt) {
-    const projection = readRuntimeInterruptProjection(interrupt.value)
+    const projection = projectInterruptForUi(interrupt.value)
     return (
       <InterruptResponseCard
         key={interruptViewKey(interrupt)}
-        projection={projection}
+        interruptId={interrupt.id}
+      projection={projection}
       />
     )
   }
@@ -539,16 +543,18 @@ function ConversationFooter() {
 
 function Composer({ centered = false }: { centered?: boolean }) {
   const runtimeUi = useAgentRuntimeUi()
+  const router = useRouter()
   const compositionRef = useRef(false)
   const composerInputRef = useRef<HTMLTextAreaElement>(null)
   const [composerError, setComposerError] = useState<string>()
   const guardImeEnter = createImeEnterGuard(() => compositionRef.current)
+  const composerAui = useAui()
   const ready = runtimeUi.connectionStatus === "ready"
   const connectionError = runtimeUi.connectionError
   const turnError = ready ? runtimeUi.turnError : undefined
   const runConnectionAction = () => {
     if (connectionError?.action === "sign-in") {
-      window.location.assign("/login")
+      router.push("/login")
       return
     }
     runtimeUi.retryConnection()
@@ -616,6 +622,9 @@ function Composer({ centered = false }: { centered?: boolean }) {
       <ComposerPrimitive.Root
         className="mx-auto flex max-w-3xl items-end gap-2 rounded-[28px] border border-border/80 bg-background p-2 shadow-[0_8px_30px_rgb(0_0_0/0.06)] transition-shadow motion-reduce:transition-none focus-within:border-foreground/30 focus-within:shadow-[0_12px_40px_rgb(0_0_0/0.1)] dark:bg-muted/60"
         onSubmitCapture={(event) => {
+          composerAui.composer().setRunConfig(runtimeUi.modelSelection
+            ? { custom: { model: runtimeUi.selectedModel } }
+            : {})
           if (rejectOversizedComposer()) {
             event.preventDefault()
             event.stopPropagation()
@@ -984,48 +993,9 @@ function ActivityDetails({ activity }: { activity: AgentActivity }) {
       <>
         <dl className="mt-3 grid grid-cols-2 gap-3 border-t pt-3">
           <ActivityField label="질의" value={activity.query} />
-          <ActivityField
-            label="질의 잘림"
-            value={activity.queryTruncated ? "예" : "아니요"}
-          />
           <ActivityField label="검색 방법" value={activity.methodId} />
-          <ActivityField
-            label="구현"
-            value={activity.methodIdentity.implementationId}
-          />
-          <ActivityField
-            label="검색 결과 수"
-            value={activity.hitCount.toLocaleString("ko-KR")}
-          />
-          <ActivityField
-            label="근거 수"
-            value={activity.sources.length.toLocaleString("ko-KR")}
-          />
-          <ActivityField
-            label="코퍼스 문서 수"
-            value={activity.corpusDocumentCount.toLocaleString("ko-KR")}
-          />
-          <ActivityField
-            label="코퍼스 리비전"
-            value={activity.corpusRevision}
-          />
-          <ActivityField
-            label="검색기 fingerprint"
-            value={activity.methodIdentity.fingerprint}
-          />
-          <ActivityField
-            label="실행 시간"
-            value={`${stage.elapsedMs.toLocaleString("ko-KR")}ms`}
-          />
-          <ActivityField
-            label="적용 결과"
-            value={`${stage.application.inputCount.toLocaleString("ko-KR")} → ${stage.application.outputCount.toLocaleString("ko-KR")}`}
-          />
-          <ActivityField
-            label="출처 잘림"
-            value={activity.sourcesTruncated ? "예" : "아니요"}
-          />
-          <ActivityField label="전달 방식" value="실시간 실행 전용" />
+          <ActivityField label="검색 결과 수" value={activity.hitCount.toLocaleString("ko-KR")} />
+          <ActivityField label="실행 시간" value={`${stage.elapsedMs.toLocaleString("ko-KR")}ms`} />
         </dl>
         <ActivitySources sources={activity.sources} known />
       </>

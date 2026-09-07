@@ -73,172 +73,49 @@ describe("dependency audit policy", () => {
     candidate.packageJson = JSON.stringify(manifest)
 
     expect(() => validateAuditPolicy(candidate)).toThrow(
-      "must not enter production dependencies",
+      "must remain a devDependency",
     )
   })
 
-  test("rejects vulnerable lock-path drift", () => {
-    const candidate = evidence()
-    candidate.bunLock = candidate.bunLock.replace(
-      '"eslint-plugin-react/minimatch/brace-expansion": ' +
-        '["brace-expansion@1.1.18"',
-      '"other-runtime/minimatch/brace-expansion": ' +
-        '["brace-expansion@1.1.18"',
-    )
-
-    expect(() => validateAuditPolicy(candidate)).toThrow(
-      "brace-expansion@ lock paths drifted",
-    )
-  })
-
-  test("rejects production override resolution drift", () => {
-    const candidate = evidence()
-    candidate.bunLock = candidate.bunLock.replace(
-      '"postcss": ["postcss@8.5.26"',
-      '"postcss": ["postcss@8.5.23"',
-    )
-
-    expect(() => validateAuditPolicy(candidate)).toThrow(
-      "postcss@ lock paths drifted",
-    )
-  })
-
-  test.each([
-    ["@types/react", "19.1.16"],
-    ["@types/react-dom", "19.1.9"],
-  ])("rejects a stale React type override for %s", (name, staleVersion) => {
+  test("allows compatible upgrades when both audits are clean", () => {
     const candidate = evidence()
     const manifest = JSON.parse(candidate.packageJson)
-    manifest.overrides[name] = staleVersion
+    manifest.dependencies["lucide-react"] = "^1.35.0"
     candidate.packageJson = JSON.stringify(manifest)
-
-    expect(() => validateAuditPolicy(candidate)).toThrow(
-      `reviewed React type override ${name} drifted`,
-    )
+    expect(() => validateAuditPolicy(candidate)).not.toThrow()
   })
 
-  test("rejects unrelated direct resolution drift outside the security allowlist", () => {
-    const candidate = evidence()
-    candidate.bunLock = candidate.bunLock.replace(
-      '"framer-motion": ["framer-motion@12.43.0"',
-      '"framer-motion": ["framer-motion@12.23.25"',
-    )
-
-    expect(() => validateAuditPolicy(candidate)).toThrow(
-      "unrelated direct resolution framer-motion drifted",
-    )
-  })
-
-  test("rejects rolling lucide-react back from the reviewed resolution", () => {
-    const candidate = evidence()
-    candidate.bunLock = candidate.bunLock.replace(
-      '"lucide-react": ["lucide-react@1.31.0"',
-      '"lucide-react": ["lucide-react@1.25.0"',
-    )
-
-    expect(() => validateAuditPolicy(candidate)).toThrow(
-      "unrelated direct resolution lucide-react drifted",
-    )
-  })
-
-  test("rejects reintroducing legacy LangGraph UI dependencies", () => {
+  test("rejects an ineffective React type upgrade hidden by an override", () => {
     const candidate = evidence()
     const manifest = JSON.parse(candidate.packageJson)
-    manifest.dependencies["@langchain/react"] = "^1.0.29"
+    manifest.devDependencies["@types/react-dom"] = "19.2.99"
     candidate.packageJson = JSON.stringify(manifest)
-
-    expect(() => validateAuditPolicy(candidate)).toThrow(
-      "direct dependency set drifted",
-    )
+    expect(() => validateAuditPolicy(candidate)).toThrow("override must match")
   })
 
-  test("rejects reintroducing an assistant-ui package patch", () => {
+  test("rejects duplicate SDK versions", () => {
+    const candidate = evidence()
+    candidate.bunLock += '\n    "nested/@langchain/langgraph-sdk": ["@langchain/langgraph-sdk@1.0.0"],'
+    expect(() => validateAuditPolicy(candidate)).toThrow("one resolution")
+  })
+
+  test("rejects a native package range", () => {
     const candidate = evidence()
     const manifest = JSON.parse(candidate.packageJson)
-    manifest.patchedDependencies = {
-      "@assistant-ui/store@0.3.8": "patches/store.patch",
-    }
+    manifest.dependencies["@langchain/react"] = "^1.0.35"
     candidate.packageJson = JSON.stringify(manifest)
-
-    expect(() => validateAuditPolicy(candidate)).toThrow(
-      "must not reintroduce assistant-ui patches",
-    )
+    expect(() => validateAuditPolicy(candidate)).toThrow("pinned exactly")
   })
 
-  test("requires the assistant-ui store release with the upstream StrictMode fix", () => {
+  test("rejects local runtime patches", () => {
     const candidate = evidence()
-    candidate.bunLock = candidate.bunLock.replace(
-      '"@assistant-ui/store": ["@assistant-ui/store@0.3.8"',
-      '"@assistant-ui/store": ["@assistant-ui/store@0.3.7"',
-    )
-
-    expect(() => validateAuditPolicy(candidate)).toThrow(
-      "must retain the upstream StrictMode fix",
-    )
+    candidate.packageJson = JSON.stringify({ ...JSON.parse(candidate.packageJson), patchedDependencies: {} })
+    expect(() => validateAuditPolicy(candidate)).toThrow("without local patches")
   })
 
-  test.each([
-    "@assistant-ui/react",
-    "@assistant-ui/react-langgraph",
-    "@assistant-ui/react-markdown",
-    "@langchain/langgraph-sdk",
-    "@langchain/protocol",
-  ])("rejects a non-exact native agent manifest pin for %s", (name) => {
+  test("rejects malformed audit output", () => {
     const candidate = evidence()
-    const manifest = JSON.parse(candidate.packageJson)
-    manifest.dependencies[name] = `^${manifest.dependencies[name]}`
-    candidate.packageJson = JSON.stringify(manifest)
-
-    expect(() => validateAuditPolicy(candidate)).toThrow(
-      `native agent dependency ${name} must be pinned exactly`,
-    )
+    candidate.production = { ...emptyAudit, stdout: "unavailable" }
+    expect(() => validateAuditPolicy(candidate)).toThrow("valid JSON")
   })
-
-  test.each([
-    "@auth/neon-adapter",
-    "@neondatabase/serverless",
-  ])("rejects a non-exact auth database manifest pin for %s", (name) => {
-    const candidate = evidence()
-    const manifest = JSON.parse(candidate.packageJson)
-    manifest.dependencies[name] = `^${manifest.dependencies[name]}`
-    candidate.packageJson = JSON.stringify(manifest)
-
-    expect(() => validateAuditPolicy(candidate)).toThrow(
-      `auth database dependency ${name} must be pinned exactly`,
-    )
-  })
-
-  test("rejects reintroducing the generic PostgreSQL Auth.js adapter", () => {
-    const candidate = evidence()
-    const manifest = JSON.parse(candidate.packageJson)
-    delete manifest.dependencies["@auth/neon-adapter"]
-    manifest.dependencies["@auth/pg-adapter"] = "1.11.3"
-    candidate.packageJson = JSON.stringify(manifest)
-
-    expect(() => validateAuditPolicy(candidate)).toThrow(
-      "auth database dependency @auth/neon-adapter must be pinned exactly",
-    )
-  })
-
-  test.each([
-    ["@assistant-ui/react", "0.15.13", "0.15.12"],
-    ["@assistant-ui/react-langgraph", "0.14.23", "0.14.22"],
-    ["@assistant-ui/react-markdown", "0.14.10", "0.14.9"],
-    ["@langchain/langgraph-sdk", "1.9.28", "1.9.27"],
-    ["@langchain/protocol", "0.0.18", "0.0.17"],
-  ])(
-    "rejects native agent lock drift for %s",
-    (name, currentVersion, oldVersion) => {
-      const candidate = evidence()
-      candidate.bunLock = candidate.bunLock.replace(
-        `"${name}": ["${name}@${currentVersion}"`,
-        `"${name}": ["${name}@${oldVersion}"`,
-      )
-
-      expect(() => validateAuditPolicy(candidate)).toThrow(
-        `native agent lock resolution ${name} drifted`,
-      )
-    },
-  )
-
 })

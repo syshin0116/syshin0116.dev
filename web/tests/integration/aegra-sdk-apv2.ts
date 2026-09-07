@@ -9,16 +9,11 @@ import type {
 } from "@langchain/protocol"
 
 import inspectionFixture from "../../../protocol/fixtures/inspection-events-v1.json"
-import {
-  NativeMessageProjection,
-  nativeClientTesting,
-  projectInputEventForRuntime,
-} from "../../components/assistant/runtime/native-client"
 import { projectInterruptForUi } from "../../components/assistant/runtime/interrupt-projection"
 
 const INSPECTION_EVENT_NAME = "syshin.rag.inspection.v1"
 const PRIVATE_STATE_SENTINEL = "PRIVATE_DEEP_AGENT_STATE_MUST_NOT_REACH_UI"
-const SUBMIT_NONCE_METADATA_KEY = "syshin_ui_submit_nonce"
+const SUBMIT_NONCE_METADATA_KEY = "integration_submit_nonce"
 
 function requiredEnvironment(name: string): string {
   const value = process.env[name]?.trim()
@@ -152,7 +147,6 @@ async function openPhase() {
 }
 
 const assembler = new MessageAssembler()
-const nativeMessages = new NativeMessageProjection()
 const observedEvents: Event[] = []
 const observedEventKeys = new Set<string>()
 const runtimeOutput: unknown[] = []
@@ -184,7 +178,7 @@ function interruptKey(target: {
 
 function acceptProjectedInterrupt(
   target: { interruptId: string; namespace: string[] },
-  projected: ReturnType<typeof projectInputEventForRuntime>
+  projected: { value: ReturnType<typeof projectInterruptForUi> }
 ): void {
   try {
     invariant(target.namespace.length > 0, "nested interrupt namespace was empty")
@@ -222,7 +216,7 @@ function acceptNestedInputEvent(event: InputEvent): void {
         interruptId: event.params.data.interrupt_id,
         namespace: [...event.params.namespace],
       },
-      projectInputEventForRuntime(event)
+      { value: projectInterruptForUi(event.params.data.payload) }
     )
   } catch (error) {
     watcherFailure =
@@ -266,9 +260,6 @@ async function waitForNestedInterrupt(
         },
         {
           value: projectInterruptForUi(candidate.payload),
-          resumable: true,
-          when: "during",
-          ns: candidate.namespace,
         }
       )
       // Hold a short stable window so a second pre-terminal input cannot
@@ -306,8 +297,7 @@ function recordEvent(event: Event): "interrupted" | "completed" | undefined {
   )
   if (event.method === "messages") {
     assistantText = assembledText(event, assembler) ?? assistantText
-    const projected = nativeMessages.consume(event)
-    if (projected) runtimeOutput.push(projected)
+    if (assistantText) runtimeOutput.push({ text: assistantText })
     return undefined
   }
   if (event.method === "custom") {
@@ -437,7 +427,7 @@ try {
       appliedThrough >= 0,
     "SDK command response omitted applied_through_seq"
   )
-  // Aegra 0.9.24's stateless command POST returns zero. Correlation therefore
+  // Aegra's stateless command POST returns zero. Correlation therefore
   // comes from the persisted nonce plus exact run-scoped event identities,
   // never timing or a replay watermark.
   invariant(
@@ -467,10 +457,8 @@ try {
         "fresh-client APv2 event omitted event_id"
       )
       if (
-        !nativeClientTesting.eventIdBelongsToRun(
-          event.event_id,
-          resumedRun.run_id
-        )
+        !event.event_id.startsWith(`${resumedRun.run_id}:`) &&
+        !event.event_id.startsWith(`${resumedRun.run_id}_event_`)
       ) {
         droppedReplayEvents += 1
         continue
