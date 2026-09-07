@@ -949,6 +949,30 @@ test("retries the public anonymous bootstrap without a challenge", async ({
   await attachEvidence(page, testInfo, "public-anonymous-retry")
 })
 
+test("keeps the welcome input and suggestions readable on mobile and in dark mode", async ({ page }, testInfo) => {
+  await resetFixture(page)
+  await page.goto("/")
+  const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+  for (const [width, height, dark] of [[1280, 800, false], [390, 844, false], [1280, 800, true], [390, 600, true]] as const) {
+    await page.setViewportSize({ width, height })
+    await page.evaluate(async (enabled) => {
+      document.documentElement.classList.toggle("dark", enabled)
+      await Promise.all(document.getAnimations()
+        .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)
+        .map((animation) => animation.finished.catch(() => {})))
+    }, dark)
+    await composer.scrollIntoViewIfNeeded()
+    await expect(composer).toBeInViewport({ ratio: 1 })
+    const inputBox = await composer.boundingBox()
+    const modelBox = await page.getByRole("button", { name: "모델 선택" }).boundingBox()
+    expect(modelBox!.y).toBeGreaterThan(inputBox!.y)
+    await expect(page.getByRole("button", { name: "LangGraph 관련 글을 찾아줘", exact: true })).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await expectA11yClean(page)
+    await attachEvidence(page, testInfo, `welcome-${width}-${height}-${dark ? "dark" : "light"}`)
+  }
+})
+
 test("has no horizontal overflow at supported widths and honors reduced motion", async ({
   browser,
 }, testInfo) => {
