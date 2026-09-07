@@ -336,7 +336,9 @@ export class AgentTokenBroker {
     await firstResponse.body?.cancel()
     this.#assertOpen()
     const refreshedToken = await this.get(signal, true)
-    return await this.#fetch(input, withAuthorization(requestInit, refreshedToken))
+    const retried = await this.#fetch(input, withAuthorization(requestInit, refreshedToken))
+    if (retried.status === 401) this.#notifyAuthenticationExpired()
+    return retried
   }
 
   #getOrCreateFlight(): RefreshFlight {

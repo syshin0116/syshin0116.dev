@@ -43,6 +43,11 @@ template: plan
 > anything here.** The purpose is comparing retrieval methods; the chat is an inspection
 > surface. Simplification arguments that reason from corpus size are backwards.
 
+> Runtime update, 2026-09-07: the current chat uses official dynamic subagents and
+> `@assistant-ui/react-langchain` `useStreamRuntime`. The stream/load callbacks,
+> custom client, and subscription restrictions described in the original P3 plan
+> below are superseded by [Chat runtime](../reference/chat-runtime.md).
+
 ## What changed since the first draft
 
 This plan has been rewritten twice, both times because a premise turned out to be wrong.
@@ -100,22 +105,10 @@ patched files that P1 now deletes. Doing both would be the same work twice.
 
 ## Versions
 
-Exact `==` pins. No `^` on Aegra or assistant-ui.
-
-| Package | Pin | Note |
-|---|---|---|
-| `aegra-api`, `aegra-cli` | `==0.9.25` | Includes the pinned Agent Protocol v2 dialect. **Never `pip install aegra`** |
-| `langgraph` | `==1.2.10` | Repository-tested exact pin |
-| `langgraph-sdk` | `==0.4.2` | `Auth`, `AuthContext`, `ServerRuntime` |
-| `langgraph-checkpoint-postgres` | `==3.1.1` | Resolved in the root lock |
-| `deepagents` | `==0.7.5` | Native `task` specialists and permission-bounded backends |
-| `langchain` | `==1.3.14` | |
-| `langchain-quickjs` | `==0.3.5` | async execution only; owner/eval tier |
-| `pyjwt` | `==2.13.0` | replaces 130 LOC of hand-rolled base64url + HMAC |
-| `@assistant-ui/react` | `0.15.13` | |
-| `@assistant-ui/react-langgraph` | `0.14.23` | native `useLangGraphRuntime`; **not** `react-langchain` |
-| `@langchain/langgraph-sdk` | `1.9.28` | |
-| `@langchain/protocol` | `0.0.18` | Exact upstream schema/binding release recorded with its commit and hashes in the protocol lock |
+Framework versions are declared in [agent/pyproject.toml](../../agent/pyproject.toml)
+and [web/package.json](../../web/package.json), with resolved versions in the root uv
+lock and web Bun lock. The [protocol lock](../../protocol/agent-protocol.lock.json)
+records the matching upstream tags, commits, artifact hashes, and compatibility gaps.
 
 The anonymous model is a separate fail-closed runtime contract, not an install-time
 dependency. Production accepts only `openai:gpt-5.6-luna`, with

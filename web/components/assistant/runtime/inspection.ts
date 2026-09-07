@@ -706,7 +706,7 @@ export class InspectionProjector {
     const { data, namespace, timestamp } = event.params
     if (namespace.length === 0) {
       return {
-        id: `lifecycle:root:${timestamp}:${data.event}`,
+        id: "lifecycle:root",
         kind: "lifecycle",
         namespace: [],
         status: data.event,

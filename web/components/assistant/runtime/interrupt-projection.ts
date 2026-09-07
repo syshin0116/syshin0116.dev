@@ -20,13 +20,6 @@ const APPROVAL_KEYS = new Set([
   "input_hint",
 ])
 const INPUT_KEYS = APPROVAL_KEYS
-const RUNTIME_PROJECTION_KEYS = new Set([
-  "recognized",
-  "kind",
-  "title",
-  "prompt",
-  "inputHint",
-])
 const textEncoder = new TextEncoder()
 
 export interface InterruptUiProjection {
@@ -228,46 +221,3 @@ export function projectInterruptForUi(value: unknown): InterruptUiProjection {
   }
 }
 
-/**
- * Reads only the tiny object produced locally by projectInterruptForUi.
- * Protocol payloads never call this directly; native-client projects them
- * first, so opaque interrupt state cannot enter assistant-ui unchanged.
- */
-export function readRuntimeInterruptProjection(
-  value: unknown
-): InterruptUiProjection {
-  try {
-    if (
-      !isBoundedEnvelope(value) ||
-      !isPlainRecord(value) ||
-      !hasExactKeys(value, RUNTIME_PROJECTION_KEYS) ||
-      typeof value.recognized !== "boolean" ||
-      (value.kind !== "approval" &&
-        value.kind !== "input" &&
-        value.kind !== "unknown")
-    ) {
-      return GENERIC_INTERRUPT_PROJECTION
-    }
-    const title = boundedText(value.title, MAX_TITLE_BYTES)
-    const prompt = boundedText(value.prompt, MAX_PROMPT_BYTES)
-    const inputHint = boundedText(value.inputHint, MAX_INPUT_HINT_BYTES)
-    if (
-      !title ||
-      !prompt ||
-      !inputHint ||
-      (value.recognized && value.kind === "unknown") ||
-      (!value.recognized && value.kind !== "unknown")
-    ) {
-      return GENERIC_INTERRUPT_PROJECTION
-    }
-    return Object.freeze({
-      recognized: value.recognized,
-      kind: value.kind,
-      title,
-      prompt,
-      inputHint,
-    })
-  } catch {
-    return GENERIC_INTERRUPT_PROJECTION
-  }
-}
