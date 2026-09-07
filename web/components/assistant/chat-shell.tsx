@@ -23,12 +23,16 @@ import {
   Archive,
   ArrowDown,
   ArrowUp,
+  ArrowUpRight,
+  BookOpen,
   BrainCircuit,
   Check,
+  ChevronDown,
   ChevronRight,
   CircleStop,
   Clock3,
   Copy,
+  Code2,
   History,
   ListTree,
   LoaderCircle,
@@ -96,9 +100,9 @@ import {
 } from "./runtime/focus-restoration"
 
 const SUGGESTIONS = [
-  { prompt: "LangGraph 관련 글을 찾아줘" },
-  { prompt: "최근 AI 프로젝트를 요약해줘" },
-  { prompt: "RAG 평가 계획을 설명해줘" },
+  { label: "기술 글 찾기", prompt: "LangGraph 관련 글을 찾아줘", icon: BookOpen },
+  { label: "프로젝트 살펴보기", prompt: "최근 AI 프로젝트를 요약해줘", icon: Code2 },
+  { label: "검색 방법 알아보기", prompt: "RAG 평가 계획을 설명해줘", icon: ListTree },
 ] as const
 
 const ReasoningPart = memo(function ReasoningPart({
@@ -310,16 +314,22 @@ function ChatMessage() {
   return (
     <MessagePrimitive.Root
       className={cn(
-        "group/message mx-auto flex w-full max-w-3xl flex-col px-4 py-5 md:px-6",
-        role === "user" ? "items-end" : "items-start"
+        "group/message mx-auto flex w-full max-w-3xl flex-col px-5 md:px-8",
+        role === "user" ? "items-end pb-3 pt-7" : "items-start pb-7 pt-3"
       )}
     >
+      {role === "assistant" ? (
+        <div className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+          <Image src="/logo.png" alt="" width={24} height={24} className="size-5 object-contain" />
+          Syshin AI
+        </div>
+      ) : null}
       <div
         className={cn(
           "min-w-0 text-[15px] leading-7 [overflow-wrap:anywhere]",
           role === "assistant" && "w-full",
           role === "user" &&
-            "max-w-[82%] rounded-[22px] rounded-br-lg bg-muted px-4 py-2.5 text-foreground sm:max-w-[75%]"
+            "max-w-[88%] rounded-2xl rounded-br-md bg-muted/70 px-4 py-3 text-foreground sm:max-w-[80%]"
         )}
       >
         {role === "user" ? (
@@ -346,25 +356,17 @@ function ChatMessage() {
 function EmptyConversation() {
   return (
     <AuiIf condition={(state) => state.thread.isEmpty}>
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-4 py-10 md:px-6 md:py-16">
-        <h1 className="text-balance text-center text-3xl font-medium tracking-[-0.035em] sm:text-4xl">
+      <div className="mx-auto w-full max-w-3xl px-5 pb-7 pt-8 md:px-8 md:pb-8">
+        <div className="mb-5 flex items-center gap-2.5 text-sm text-muted-foreground">
+          <Image src="/logo.png" alt="" width={40} height={40} priority className="size-9 object-contain" />
+          <span>블로그와 프로젝트</span>
+        </div>
+        <h1 className="text-balance text-[32px] font-medium leading-tight tracking-[-0.045em] sm:text-5xl">
           무엇이 궁금하세요?
         </h1>
-        <p className="mx-auto mt-3 max-w-md text-pretty text-center text-sm leading-6 text-muted-foreground">
-          블로그와 프로젝트를 검색하고, 사용된 방법과 출처를 함께 확인할 수
-          있어요.
+        <p className="mt-4 max-w-lg break-keep text-pretty text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
+          기술 글과 프로젝트에서 답을 찾고, 출처까지 확인해 보세요.
         </p>
-        <div className="mt-8 flex w-full flex-wrap justify-center gap-2">
-          {SUGGESTIONS.map(({ prompt }) => (
-            <ThreadPrimitive.Suggestion
-              key={prompt}
-              prompt={prompt}
-              className="min-h-9 rounded-full border border-border/70 bg-background px-3.5 py-2 text-left text-[13px] text-muted-foreground transition-colors motion-reduce:transition-none hover:border-border hover:bg-muted hover:text-foreground"
-            >
-              {prompt}
-            </ThreadPrimitive.Suggestion>
-          ))}
-        </div>
       </div>
     </AuiIf>
   )
@@ -573,16 +575,16 @@ function Composer() {
   }
 
   return (
-    <div className="w-full px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6">
+    <div className="mx-auto w-full max-w-3xl px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6">
       {!online ? (
-        <p role="status" className="mx-auto mb-3 flex max-w-3xl items-center gap-2 text-sm text-muted-foreground">
-          <WifiOff className="size-4 shrink-0" />
-          인터넷 연결이 끊겼습니다. 작성한 메시지는 연결 후 보낼 수 있어요.
+        <p role="status" className="mb-3 flex items-start gap-3 rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
+          <WifiOff className="mt-0.5 size-4 shrink-0" />
+          <span>인터넷 연결이 끊겼습니다.<span className="mt-1 block text-xs opacity-80">작성한 메시지는 연결 후 보낼 수 있어요.</span></span>
         </p>
       ) : runtimeUi.connectionStatus === "connecting" ? (
-        <p role="status" className="mx-auto mb-3 flex max-w-3xl items-center gap-2 text-sm text-muted-foreground">
-          <LoaderCircle className="size-4 shrink-0 animate-spin motion-reduce:animate-none" />
-          AI에 연결하고 있습니다. 첫 연결은 잠시 걸릴 수 있어요. 질문을 미리 작성해 두세요.
+        <p role="status" className="mb-3 flex items-start gap-3 rounded-xl bg-muted/60 px-4 py-3 text-sm">
+          <LoaderCircle className="mt-0.5 size-4 shrink-0 animate-spin text-muted-foreground motion-reduce:animate-none" />
+          <span>AI에 연결하고 있습니다.<span className="mt-1 block text-xs leading-5 text-muted-foreground">첫 연결은 잠시 걸릴 수 있어요. 질문을 미리 작성해 두세요.</span></span>
         </p>
       ) : null}
       {runtimeUi.connectionStatus === "error" && connectionError ? (
@@ -616,7 +618,7 @@ function Composer() {
         </div>
       ) : null}
       <ComposerPrimitive.Root
-        className="mx-auto flex max-w-3xl items-end gap-2 rounded-[28px] border border-border/80 bg-background p-2 shadow-[0_8px_30px_rgb(0_0_0/0.06)] transition-shadow motion-reduce:transition-none focus-within:border-foreground/30 focus-within:shadow-[0_12px_40px_rgb(0_0_0/0.1)] dark:bg-muted/60"
+        className="flex flex-col rounded-2xl border border-border bg-background shadow-[0_2px_8px_rgb(0_0_0/0.03)] transition-[border-color,box-shadow] motion-reduce:transition-none focus-within:border-foreground/30 focus-within:shadow-[0_4px_16px_rgb(0_0_0/0.05)] dark:bg-muted/30"
         onSubmitCapture={(event) => {
           if (prepareSubmission()) {
             event.preventDefault()
@@ -631,7 +633,7 @@ function Composer() {
             composerError ? "composer-size-error" : undefined
           }
           aria-invalid={composerError !== undefined}
-          placeholder="블로그와 프로젝트에 관해 물어보세요…"
+          placeholder="궁금한 내용을 물어보세요…"
           autoFocus
           rows={1}
           maxRows={8}
@@ -654,33 +656,49 @@ function Composer() {
             compositionRef.current = false
           }}
           onKeyDownCapture={guardImeEnter}
-          className="max-h-48 min-h-11 min-w-0 flex-1 resize-none bg-transparent px-3 py-2.5 text-[15px] outline-none placeholder:text-muted-foreground"
+          className="max-h-48 min-h-20 w-full min-w-0 resize-none bg-transparent px-4 pb-2 pt-4 text-base leading-6 outline-none placeholder:text-muted-foreground sm:px-5"
         />
-        <AuiIf condition={(state) => state.thread.isRunning}>
-          <ComposerPrimitive.Cancel
-            aria-label="응답 중지"
-            className="flex size-10 shrink-0 items-center justify-center rounded-full border bg-background transition-colors motion-reduce:transition-none hover:bg-muted"
-          >
-            <CircleStop className="size-4" />
-          </ComposerPrimitive.Cancel>
-        </AuiIf>
-        <AuiIf condition={(state) => !state.thread.isRunning}>
-          <ComposerPrimitive.Send
-            aria-label="메시지 보내기"
-            disabled={!ready}
-            onClick={(event) => {
-              if (prepareSubmission()) {
-                // ComposerPrimitive.Send invokes the runtime directly instead
-                // of submitting its parent form. Cancelling this first handler
-                // prevents assistant-ui's composed send callback from running.
-                event.preventDefault()
-              }
-            }}
-            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform motion-reduce:transition-none hover:scale-105 motion-reduce:hover:scale-100 disabled:opacity-40"
-          >
-            <ArrowUp className="size-4" />
-          </ComposerPrimitive.Send>
-        </AuiIf>
+        <div className="flex items-center justify-between gap-3 px-3 pb-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <ModelSelector />
+            <AuiIf condition={(state) => !state.thread.isRunning}>
+              {ready ? (
+                <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <span aria-hidden="true" className="size-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
+                  연결됨
+                </span>
+              ) : null}
+            </AuiIf>
+            <AuiIf condition={(state) => state.thread.isRunning}>
+              <span className="text-[11px] text-muted-foreground">다음 질문을 미리 적어두세요</span>
+            </AuiIf>
+          </div>
+          <AuiIf condition={(state) => state.thread.isRunning}>
+            <ComposerPrimitive.Cancel
+              aria-label="응답 중지"
+              className="flex size-9 shrink-0 items-center justify-center rounded-xl border bg-background transition-colors motion-reduce:transition-none hover:bg-muted"
+            >
+              <CircleStop className="size-4" />
+            </ComposerPrimitive.Cancel>
+          </AuiIf>
+          <AuiIf condition={(state) => !state.thread.isRunning}>
+            <ComposerPrimitive.Send
+              aria-label="메시지 보내기"
+              disabled={!ready}
+              onClick={(event) => {
+                if (prepareSubmission()) {
+                  // ComposerPrimitive.Send invokes the runtime directly instead
+                  // of submitting its parent form. Cancelling this first handler
+                  // prevents assistant-ui's composed send callback from running.
+                  event.preventDefault()
+                }
+              }}
+              className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-colors motion-reduce:transition-none hover:bg-primary/85 disabled:opacity-30"
+            >
+              <ArrowUp className="size-4" />
+            </ComposerPrimitive.Send>
+          </AuiIf>
+        </div>
       </ComposerPrimitive.Root>
       {composerError ? (
         <p
@@ -691,17 +709,37 @@ function Composer() {
           {composerError}
         </p>
       ) : null}
-      <p className="mx-auto mt-2 max-w-3xl text-center text-[11px] text-muted-foreground max-sm:hidden">
-        AI 답변은 부정확할 수 있습니다. Enter로 전송 · Shift+Enter로 줄바꿈
+      <AuiIf condition={(state) => state.thread.isEmpty}>
+        <div className="mt-5 grid gap-2 sm:grid-cols-3">
+          {SUGGESTIONS.map(({ label, prompt, icon: Icon }) => (
+            <ThreadPrimitive.Suggestion
+              key={prompt}
+              prompt={prompt}
+              aria-label={prompt}
+              className="group flex items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors motion-reduce:transition-none hover:bg-muted/60 sm:flex-col sm:items-start sm:gap-2.5"
+            >
+              <Icon className="size-4 shrink-0 text-muted-foreground" />
+              <div className="min-w-0 flex-1">
+                <span className="block text-xs font-medium">{label}</span>
+                <span className="mt-1 block text-xs leading-5 text-muted-foreground">{prompt}</span>
+              </div>
+              <ArrowUpRight className="size-3.5 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:group-hover:transform-none sm:hidden" />
+            </ThreadPrimitive.Suggestion>
+          ))}
+        </div>
+      </AuiIf>
+      <p className="mt-3 text-center text-[10px] leading-5 text-muted-foreground sm:text-[11px]">
+        답변의 출처를 확인해 주세요.<span className="ml-2 hidden sm:inline">Enter 전송 · Shift+Enter 줄바꿈</span>
       </p>
     </div>
   )
 }
 
 function Conversation() {
+  const isEmpty = useAuiState((state) => state.thread.isEmpty)
   return (
     <ThreadPrimitive.Root className="flex min-h-0 flex-1 flex-col bg-background">
-      <ThreadPrimitive.Viewport className="relative flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <ThreadPrimitive.Viewport className={cn("relative flex min-h-0 flex-1 flex-col overflow-y-auto", isEmpty && "justify-center-safe")}>
         <EmptyConversation />
         <ThreadPrimitive.Messages>
           {() => <ChatMessage />}
@@ -716,7 +754,7 @@ function Conversation() {
             검색하고 답변을 구성하고 있습니다.
           </div>
         </AuiIf>
-        <ThreadPrimitive.ViewportFooter className="sticky bottom-0 z-10 mt-auto bg-gradient-to-t from-background via-background to-transparent pt-4">
+        <ThreadPrimitive.ViewportFooter className={cn("z-10 bg-gradient-to-t from-background via-background to-transparent", isEmpty ? "pb-6 sm:pb-14" : "sticky bottom-0 mt-auto pt-4")}>
           <AuiIf condition={(state) => !state.thread.isEmpty}>
             <ThreadPrimitive.ScrollToBottom
               aria-label="최신 메시지로 이동"
@@ -873,7 +911,7 @@ function ThreadRail() {
   return (
     <ThreadListPrimitive.Root className="flex h-full min-h-0 flex-col bg-background">
       <div className="border-b p-4">
-        <ThreadListPrimitive.New className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-none hover:opacity-90 data-[active=true]:opacity-70">
+        <ThreadListPrimitive.New className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-none hover:opacity-90">
           <Plus className="size-4" />
           새 대화
         </ThreadListPrimitive.New>
@@ -1150,7 +1188,7 @@ function NewThreadButton() {
     <ThreadListPrimitive.Root>
       <ThreadListPrimitive.New
         aria-label="새 대화"
-        className="flex min-h-9 items-center gap-2 rounded-xl border border-border/70 px-2.5 text-sm font-medium transition-colors motion-reduce:transition-none hover:bg-muted data-[active=true]:opacity-60 sm:px-3"
+        className="flex min-h-9 items-center gap-2 rounded-xl border border-border/70 px-2.5 text-sm font-medium transition-colors motion-reduce:transition-none hover:bg-muted sm:px-3"
       >
         <Plus className="size-4" />
         <span className="hidden sm:inline">새 대화</span>
@@ -1174,13 +1212,14 @@ function ModelSelector() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           aria-label="모델 선택"
           disabled={running}
-          className="max-w-28 gap-1.5 rounded-xl px-2.5 sm:max-w-none sm:px-3"
+          className="h-8 max-w-28 gap-1.5 rounded-lg px-2 text-xs text-muted-foreground hover:text-foreground"
         >
           <span className="truncate">{MODEL_LABELS[selectedModel]}</span>
+          <ChevronDown className="size-3" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -1205,7 +1244,7 @@ function ModelSelector() {
 
 function WorkspaceHeader() {
   return (
-    <header className="mx-auto flex min-h-14 w-full max-w-5xl shrink-0 items-center justify-between gap-3 px-3 sm:px-6">
+    <header className="mx-auto flex min-h-16 w-full max-w-5xl shrink-0 items-center justify-between gap-3 px-4 sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
         <Image
           src="/logo.png"
@@ -1220,7 +1259,6 @@ function WorkspaceHeader() {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-0.5">
-        <ModelSelector />
         <NewThreadButton />
         <ThreadSheet />
         <DetailSheet />
