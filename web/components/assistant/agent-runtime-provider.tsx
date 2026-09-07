@@ -27,7 +27,7 @@ import {
   InspectionProjector,
   type AgentActivity,
 } from "./runtime/inspection"
-import { AgentTokenBroker } from "./runtime/token-broker"
+import { AgentAuthenticationError, AgentTokenBroker } from "./runtime/token-broker"
 import { normalizeAgentApiUrl } from "./runtime/agent-config"
 import { warmAgent } from "./runtime/agent-warmup"
 import {
@@ -106,12 +106,16 @@ function ConfiguredAgentRuntimeProvider({
   const [errorRouting, setErrorRouting] = useState<AgentErrorRoutingState>({
     connectionStatus: "connecting",
   })
+  const handleAuthenticationExpired = useCallback(() => {
+    setErrorRouting((current) => reduceAgentError(current, new AgentAuthenticationError("Agent session expired", 401), "turn"))
+    onAuthenticationExpired?.()
+  }, [onAuthenticationExpired])
   const tokenBroker = useMemo(() => new AgentTokenBroker(identity, {
     agentOrigin: apiUrl,
     initialToken,
-    onAuthenticationExpired,
+    onAuthenticationExpired: handleAuthenticationExpired,
     tokenIntent,
-  }), [apiUrl, identity, initialToken, onAuthenticationExpired, tokenIntent])
+  }), [apiUrl, identity, initialToken, handleAuthenticationExpired, tokenIntent])
   const client = useMemo(() => new Client({
     apiUrl,
     apiKey: null,

@@ -70,59 +70,17 @@ Three findings de-risked this substantially:
 
 ## Decision
 
-Adopt `@assistant-ui/react` 0.15.0 and
-`@assistant-ui/react-langgraph` 0.14.15 through native `useLangGraphRuntime`. The current
-tested pins are 0.15.13 and 0.14.23.
-The runtime callback uses the official `@langchain/langgraph-sdk` 1.9.28
-`Client.threads.stream` / `ThreadStream` / `MessageAssembler` surface with
-`streamProtocol: "v2"`. `submitRun` and `respondInput` still send Aegra's supported
-`run.start` and `input.respond` wire commands, but avoid the older SDK methods' implicit
-wildcard `values` projection. There is no hand-written SSE parser, generated TypeScript
-transport facade, or production `runs.stream` call.
+As of 2026-09-07, use `@assistant-ui/react-langchain`'s official
+`useStreamRuntime` over `@langchain/react` and the SDK's Agent Protocol v2 client.
+This supersedes the earlier `useLangGraphRuntime` stream/load callbacks, local message
+assembler, run-correlation polling, and cancellation snapshots.
 
-The browser opens these two physically separate SSE connections:
-
-| Connection | Channels | Namespace/depth | Consumer |
-|---|---|---|---|
-| root content pump | `messages`, `lifecycle`, `input`, `tools`, `custom` | `namespaces: [[]]`, `depth: 0` | local assistant-ui projection |
-| SDK lifecycle watcher | `lifecycle`, `input` only | wildcard, managed by `ThreadStream` outside the content union | SDK lifecycle/interrupt bookkeeping |
-
-The application calls `subscribe()` exactly once. The second connection is
-`ThreadStream`'s dedicated `openEventStream` watcher, not a second subscription whose
-filters could union nested messages into the content pump. The root content pump never
-subscribes to `values` or `updates`; nested answer text and open Deep Agents
-todo/file/scratch state therefore do not cross that stream boundary. Retrieval inspection
-is a bounded root `custom` event and is explicitly live-run-only; reload shows that past
-inspection detail is unavailable rather than reconstructing it from tool output.
-
-The local message reducer never displays system/tool content or internal
-chain-of-thought. For owner traffic that remains a presentation guarantee. Canonical
-guest traffic now also has a server-side network guarantee: `GuestRunGuard` forces both
-SDK connections to `namespaces: [[]]` and `depth: 0` and buffers and rebuilds every
-allowlisted JSON response before sending it. State/history contain public human/assistant
-text plus bounded root interrupt identity; thread create/search/read/update contain only
-curated public metadata; run list/get/cancel contain identifiers, status, timestamps, and
-the validated submit nonce needed for native run correlation; command success/error
-envelopes have exact bounded shapes and fixed error copy. Each complete SSE frame is also
-parsed and rebuilt before sending it. Reasoning/thinking blocks and system messages are
-dropped; tool arguments, tool output, tool deltas, raw errors, and unreviewed interrupt
-payloads are removed; the one retrieval-inspection custom event is revalidated against its
-public schema. A single frame may use the full bounded 512 KiB connection budget so the
-inspection contract's legal 64 KiB payload still fits after AP/SSE framing. Unknown or
-malformed responses fail closed without forwarding the offending body bytes. Owner
-responses remain unprojected.
-
-One pinned compatibility edge is explicit. The edge was first observed on Aegra 0.9.24
-and remains a regression boundary for the current 0.9.25 pin: Aegra can observe a nested
-copy of an interrupt before its root copy, mark the identifier as sent, then remove the nested event
-for a root/depth-zero subscription and suppress the root event as a duplicate. The public
-wire does not widen either browser subscription to compensate. On a root `interrupted`
-lifecycle without a matching input event, the client must instead read the official,
-already-projected thread state, accept exactly one schema-valid root interrupt, and resume
-that exact identifier with `namespace: []`; absence, ambiguity, or malformed state fails
-closed. Projected `input.requested` events carry the same sanitized schema under both the
-pinned SDK's `payload` field and Aegra's direct-event `value` field. That fallback is now
-merged and browser-verified; WEB-B is enabled in Production and remains closed in Preview.
+The native runtime owns subscriptions, replay, loading, stop, and interrupt resume.
+The public server projection accepts Aegra's standard subscription schema and protects
+private state in the response. Search inspection uses native event hooks. See
+[Chat runtime](../reference/chat-runtime.md) for current boundaries and compatibility
+handling. Version manifests and locks are authoritative; earlier version comparisons
+below describe the original adoption.
 
 Run cancellation, thread metadata, history, and state use the official SDK clients. Edit,
 Regenerate, branch mutation, and delete remain visibly unavailable where Aegra cannot
