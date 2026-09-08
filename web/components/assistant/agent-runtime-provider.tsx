@@ -2,6 +2,8 @@
 
 import {
   AssistantRuntimeProvider,
+  useAui,
+  useAuiState,
   type RemoteThreadListAdapter,
 } from "@assistant-ui/react"
 import { useLangChainError, useLangChainStream, useStreamRuntime } from "@assistant-ui/react-langchain"
@@ -44,6 +46,7 @@ type AgentRuntimeUiState = AgentErrorRoutingState & {
   activities: readonly AgentActivity[]
   activeThreadId?: string
   inspectionAvailability: InspectionAvailability
+  beginTurn: () => void
   dismissTurnError: () => void
   retryConnection: () => void
   modelSelection: boolean
@@ -103,7 +106,7 @@ function ConfiguredAgentRuntimeProvider({
     const normalized = normalizeAgentModel(model)
     setSelectedModelState(normalized)
   }, [])
-  const [errorRouting, setErrorRouting] = useState<AgentErrorRoutingState>({
+  const [errorRouting, setErrorRouting] = useState<AgentErrorRoutingState & { turnErrorThreadId?: string }>({
     connectionStatus: "connecting",
   })
   const handleAuthenticationExpired = useCallback(() => {
@@ -134,8 +137,8 @@ function ConfiguredAgentRuntimeProvider({
       activity,
     ])
   }, [])
-  const handleRuntimeError = useCallback((error: unknown) => {
-    setErrorRouting((current) => reduceAgentError(current, error, "turn"))
+  const handleRuntimeError = useCallback((error: unknown, threadId?: string) => {
+    setErrorRouting((current) => ({ ...reduceAgentError(current, error, "turn"), turnErrorThreadId: threadId }))
   }, [])
   const dismissTurnError = useCallback(() => {
     setErrorRouting((current) => ({
@@ -143,6 +146,11 @@ function ConfiguredAgentRuntimeProvider({
       turnError: undefined,
     }))
   }, [])
+  const beginTurn = useCallback(() => {
+    setActivities([])
+    setInspectionAvailability("waiting")
+    dismissTurnError()
+  }, [dismissTurnError])
   const retryConnection = useCallback(() => {
     tokenBroker.clear()
     setErrorRouting({
@@ -205,9 +213,11 @@ function ConfiguredAgentRuntimeProvider({
   const context = useMemo<AgentRuntimeUiState>(
     () => ({
       ...errorRouting,
+      turnError: errorRouting.turnErrorThreadId === activeThreadId ? errorRouting.turnError : undefined,
       activities,
       activeThreadId,
       inspectionAvailability,
+      beginTurn,
       dismissTurnError,
       retryConnection,
       modelSelection,
@@ -217,6 +227,7 @@ function ConfiguredAgentRuntimeProvider({
     [
       activeThreadId,
       activities,
+      beginTurn,
       dismissTurnError,
       errorRouting,
       inspectionAvailability,
@@ -239,11 +250,14 @@ function ConfiguredAgentRuntimeProvider({
 
 function RuntimeEvents({ onActivity, onError }: {
   onActivity: (activity: AgentActivity) => void
-  onError: (error: unknown) => void
+  onError: (error: unknown, threadId?: string) => void
 }) {
   const stream = useLangChainStream()
   const error = useLangChainError()
-  useEffect(() => { if (error) onError(error) }, [error, onError])
+  const externalId = useAuiState((state) => state.threadListItem.externalId)
+  useEffect(() => {
+    if (error && stream?.threadId === externalId) onError(error, externalId)
+  }, [error, externalId, onError, stream?.threadId])
   return stream ? <>
     <StreamEvents stream={stream} onActivity={onActivity} />
   </> : null
@@ -253,8 +267,11 @@ function StreamEvents({ stream, onActivity }: {
   stream: NonNullable<ReturnType<typeof useLangChainStream>>
   onActivity: (activity: AgentActivity) => void
 }) {
+  const aui = useAui()
+  const eventThreadId = stream.threadId
   const projector = useRef(new InspectionProjector())
   const handleEvent = useCallback((event: import("@langchain/protocol").Event) => {
+    if (aui.threadListItem().getState().externalId !== eventThreadId) return
     const activity = event.method === "lifecycle"
       ? projector.current.consumeLifecycle(event)
       : event.method === "tools"
@@ -263,7 +280,7 @@ function StreamEvents({ stream, onActivity }: {
           ? projector.current.consumeCustom(event)
           : undefined
     if (activity) onActivity(activity)
-  }, [onActivity])
+  }, [aui, eventThreadId, onActivity])
   useChannelEffect(stream, ["lifecycle", "tools", "custom"], {
     replay: true,
     onEvent: handleEvent,

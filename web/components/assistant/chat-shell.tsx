@@ -13,6 +13,7 @@ import {
   type ToolCallMessagePartProps,
   useAui,
   useAuiState,
+  useAuiEvent,
 } from "@assistant-ui/react"
 import {
   useLangChainInterrupts,
@@ -43,8 +44,8 @@ import {
   ToolCase,
   UserRound,
   WifiOff,
+  X,
 } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 import {
   memo,
@@ -83,6 +84,8 @@ import {
 
 import { useAgentRuntimeUi } from "./agent-runtime-provider"
 import { MarkdownText } from "./markdown-text"
+import { MAX_COMPOSER_CODE_UNITS, MAX_COMPOSER_UTF8_BYTES, useMessageQueue } from "./use-message-queue"
+import { AnswerActivity } from "./answer-activity"
 import {
   inspectionSourcesFromUnknown,
   safeSourceUrl,
@@ -302,6 +305,7 @@ function MessageActions() {
 
 function ChatMessage() {
   const role = useAuiState((state) => state.message.role)
+  const isLast = useAuiState((state) => state.message.isLast)
   const rawSources = useAuiState(
     (state) => state.message.metadata.custom.sources
   )
@@ -318,20 +322,15 @@ function ChatMessage() {
         role === "user" ? "items-end pb-3 pt-7" : "items-start pb-7 pt-3"
       )}
     >
-      {role === "assistant" ? (
-        <div className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
-          <Image src="/logo.png" alt="" width={24} height={24} className="size-5 object-contain" />
-          Syshin AI
-        </div>
-      ) : null}
       <div
         className={cn(
-          "min-w-0 text-[15px] leading-7 [overflow-wrap:anywhere]",
+          "min-w-0 text-[15px] leading-7 [overflow-wrap:break-word]",
           role === "assistant" && "w-full",
           role === "user" &&
-            "max-w-[88%] rounded-2xl rounded-br-md bg-muted/70 px-4 py-3 text-foreground sm:max-w-[80%]"
+            "w-fit max-w-[88%] rounded-2xl rounded-br-md bg-muted/70 px-4 py-3 text-foreground sm:max-w-[80%]"
         )}
       >
+        {role === "assistant" && isLast ? <AnswerActivity /> : null}
         {role === "user" ? (
           <div className="whitespace-pre-wrap"><MessagePrimitive.Parts /></div>
         ) : (
@@ -358,7 +357,6 @@ function EmptyConversation() {
     <AuiIf condition={(state) => state.thread.isEmpty}>
       <div className="mx-auto w-full max-w-3xl px-5 pb-7 pt-8 md:px-8 md:pb-8">
         <div className="mb-5 flex items-center gap-2.5 text-sm text-muted-foreground">
-          <Image src="/logo.png" alt="" width={40} height={40} priority className="size-9 object-contain" />
           <span>블로그와 프로젝트</span>
         </div>
         <h1 className="text-balance text-[32px] font-medium leading-tight tracking-[-0.045em] sm:text-5xl">
@@ -377,8 +375,6 @@ type InterruptState = NonNullable<
 >
 const MAX_INTERRUPT_RESPONSE_CODE_UNITS = 1_000
 const MAX_INTERRUPT_RESPONSE_UTF8_BYTES = 3_000
-const MAX_COMPOSER_CODE_UNITS = 8_000
-const MAX_COMPOSER_UTF8_BYTES = 16_000
 const COMPOSER_LIMIT_ERROR =
   "메시지가 너무 깁니다. 16KB 이하로 줄여 주세요."
 const interruptResponseEncoder = new TextEncoder()
@@ -520,29 +516,30 @@ function interruptViewKey(interrupt: InterruptState): number {
 
 function ConversationFooter() {
   const interrupt = useLangChainInterrupts()[0]
-  if (interrupt) {
-    const projection = projectInterruptForUi(interrupt.value)
-    return (
-      <InterruptResponseCard
-        key={interruptViewKey(interrupt)}
-        interruptId={interrupt.id}
-      projection={projection}
-      />
-    )
-  }
-  return <Composer />
+  return <>
+    {interrupt ? <InterruptResponseCard
+      key={interruptViewKey(interrupt)}
+      interruptId={interrupt.id}
+      projection={projectInterruptForUi(interrupt.value)}
+    /> : null}
+    <Composer interrupted={Boolean(interrupt)} />
+  </>
 }
 
-function Composer() {
+function Composer({ interrupted }: { interrupted: boolean }) {
   const runtimeUi = useAgentRuntimeUi()
   const online = useOnline()
   const router = useRouter()
   const compositionRef = useRef(false)
   const composerInputRef = useRef<HTMLTextAreaElement>(null)
   const [composerError, setComposerError] = useState<string>()
+  useEffect(() => { if (!interrupted) restoreComposerFocus() }, [interrupted])
   const guardImeEnter = createImeEnterGuard(() => compositionRef.current)
   const composerAui = useAui()
   const ready = runtimeUi.connectionStatus === "ready" && online
+  const queue = useMessageQueue({ ready, model: runtimeUi.modelSelection ? runtimeUi.selectedModel : undefined, onSend: runtimeUi.beginTurn })
+  const running = useAuiState((state) => state.thread.isRunning)
+  const hasText = useAuiState((state) => state.composer.text.trim().length > 0)
   const connectionError = runtimeUi.connectionError
   const turnError = ready ? runtimeUi.turnError : undefined
   const runConnectionAction = () => {
@@ -556,22 +553,16 @@ function Composer() {
     runtimeUi.dismissTurnError()
     restoreComposerFocus()
   }
-  const prepareSubmission = () => {
-    if (!ready) return true
-    composerAui.composer().setRunConfig(runtimeUi.modelSelection
-      ? { custom: { model: runtimeUi.selectedModel } }
-      : {})
-    const value = composerInputRef.current?.value ?? ""
-    if (
-      value.length <= MAX_COMPOSER_CODE_UNITS &&
-      composerEncoder.encode(value).byteLength <= MAX_COMPOSER_UTF8_BYTES
-    ) {
-      setComposerError(undefined)
-      return false
+  const submit = () => {
+    if (!ready || interrupted) return
+    const value = composerAui.composer().getState().text
+    if (!queue.enqueue(value)) {
+      setComposerError(queue.items.length ? "대기 중인 메시지를 포함해 16KB 이하로 줄여 주세요." : COMPOSER_LIMIT_ERROR)
+      return
     }
-    setComposerError(COMPOSER_LIMIT_ERROR)
-    setTimeout(() => composerInputRef.current?.focus(), 0)
-    return true
+    setComposerError(undefined)
+    composerAui.composer().setText("")
+    composerInputRef.current?.focus()
   }
 
   return (
@@ -613,17 +604,32 @@ function Composer() {
             className="shrink-0 font-medium underline underline-offset-4"
             onClick={dismissTurnError}
           >
-            {turnError.actionLabel}
+            확인
           </button>
         </div>
       ) : null}
+      {queue.items.length > 0 ? (
+        <section aria-label="전송 대기열" className="mb-3 rounded-xl border border-border/60 bg-muted/30 p-3">
+          <div className="mb-2 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+            <p role="status">{queue.items.length}개 대기 · {queue.paused ? "전송 일시정지" : running ? "응답 후 함께 전송" : "함께 전송 준비 중"}</p>
+            {queue.paused ? <button type="button" disabled={!ready || interrupted} onClick={queue.resume} className="underline underline-offset-4">대기 메시지 보내기</button> : null}
+          </div>
+          <ul className="max-h-32 overflow-y-auto">
+            {queue.items.map((item) => <li key={item.id} className="flex items-center gap-2 text-sm">
+              <span className="min-w-0 flex-1 truncate">{item.text}</span>
+              <button type="button" onClick={() => queue.remove(item.id)} aria-label={`대기 메시지 삭제: ${item.text}`} className="flex size-8 shrink-0 items-center justify-center rounded-md hover:bg-muted"><X className="size-3.5" /></button>
+            </li>)}
+          </ul>
+        </section>
+      ) : null}
+      {queue.dispatchError ? <p role="alert" className="mb-2 text-sm text-destructive">{queue.dispatchError}</p> : null}
       <ComposerPrimitive.Root
+        hidden={interrupted}
         className="flex flex-col rounded-2xl border border-border bg-background shadow-[0_2px_8px_rgb(0_0_0/0.03)] transition-[border-color,box-shadow] motion-reduce:transition-none focus-within:border-foreground/30 focus-within:shadow-[0_4px_16px_rgb(0_0_0/0.05)] dark:bg-muted/30"
         onSubmitCapture={(event) => {
-          if (prepareSubmission()) {
-            event.preventDefault()
-            event.stopPropagation()
-          }
+          event.preventDefault()
+          event.stopPropagation()
+          submit()
         }}
       >
         <ComposerPrimitive.Input
@@ -655,7 +661,14 @@ function Composer() {
           onCompositionEnd={() => {
             compositionRef.current = false
           }}
-          onKeyDownCapture={guardImeEnter}
+          onKeyDownCapture={(event) => {
+            guardImeEnter(event)
+            if (!event.defaultPrevented && event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault()
+              event.stopPropagation()
+              submit()
+            }
+          }}
           className="max-h-48 min-h-20 w-full min-w-0 resize-none bg-transparent px-4 pb-2 pt-4 text-base leading-6 outline-none placeholder:text-muted-foreground sm:px-5"
         />
         <div className="flex items-center justify-between gap-3 px-3 pb-3">
@@ -669,35 +682,28 @@ function Composer() {
                 </span>
               ) : null}
             </AuiIf>
-            <AuiIf condition={(state) => state.thread.isRunning}>
-              <span className="text-[11px] text-muted-foreground">다음 질문을 미리 적어두세요</span>
-            </AuiIf>
+
           </div>
+          <div className="flex items-center gap-2">
           <AuiIf condition={(state) => state.thread.isRunning}>
             <ComposerPrimitive.Cancel
               aria-label="응답 중지"
+              onClick={queue.pause}
               className="flex size-9 shrink-0 items-center justify-center rounded-xl border bg-background transition-colors motion-reduce:transition-none hover:bg-muted"
             >
               <CircleStop className="size-4" />
             </ComposerPrimitive.Cancel>
           </AuiIf>
-          <AuiIf condition={(state) => !state.thread.isRunning}>
-            <ComposerPrimitive.Send
-              aria-label="메시지 보내기"
-              disabled={!ready}
-              onClick={(event) => {
-                if (prepareSubmission()) {
-                  // ComposerPrimitive.Send invokes the runtime directly instead
-                  // of submitting its parent form. Cancelling this first handler
-                  // prevents assistant-ui's composed send callback from running.
-                  event.preventDefault()
-                }
-              }}
-              className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-colors motion-reduce:transition-none hover:bg-primary/85 disabled:opacity-30"
-            >
-              <ArrowUp className="size-4" />
-            </ComposerPrimitive.Send>
-          </AuiIf>
+          <button
+            type="button"
+            aria-label="메시지 보내기"
+            disabled={!ready || !hasText}
+            onClick={submit}
+            className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-colors motion-reduce:transition-none hover:bg-primary/85 disabled:opacity-30"
+          >
+            <ArrowUp className="size-4" />
+          </button>
+          </div>
         </div>
       </ComposerPrimitive.Root>
       {composerError ? (
@@ -744,16 +750,6 @@ function Conversation() {
         <ThreadPrimitive.Messages>
           {() => <ChatMessage />}
         </ThreadPrimitive.Messages>
-        <AuiIf condition={(state) => state.thread.isRunning}>
-          <div
-            role="status"
-            aria-live="polite"
-            className="mx-auto flex w-full max-w-3xl items-center gap-2.5 px-4 py-3 text-sm text-muted-foreground md:px-6"
-          >
-            <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" />
-            검색하고 답변을 구성하고 있습니다.
-          </div>
-        </AuiIf>
         <ThreadPrimitive.ViewportFooter className={cn("z-10 bg-gradient-to-t from-background via-background to-transparent", isEmpty ? "pb-6 sm:pb-14" : "sticky bottom-0 mt-auto pt-4")}>
           <AuiIf condition={(state) => !state.thread.isEmpty}>
             <ThreadPrimitive.ScrollToBottom
@@ -879,7 +875,7 @@ function ThreadListItem() {
         <button
           type="button"
           aria-label="대화 제목 변경"
-          className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity motion-reduce:transition-none hover:bg-background hover:text-foreground group-hover:opacity-100 group-focus-within:opacity-100"
+          className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-100 transition-opacity sm:opacity-0 [@media(pointer:coarse)]:opacity-100 motion-reduce:transition-none hover:bg-background hover:text-foreground group-hover:opacity-100 group-focus-within:opacity-100"
           onClick={() => {
             setRenameError(undefined)
             setEditing(true)
@@ -898,7 +894,7 @@ function ThreadListItem() {
       ) : (
         <ThreadListItemPrimitive.Archive
           aria-label="대화 보관"
-          className="mr-1 flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity motion-reduce:transition-none hover:bg-background hover:text-foreground group-hover:opacity-100 group-focus-within:opacity-100"
+          className="mr-1 flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-100 transition-opacity sm:opacity-0 [@media(pointer:coarse)]:opacity-100 motion-reduce:transition-none hover:bg-background hover:text-foreground group-hover:opacity-100 group-focus-within:opacity-100"
         >
           <Archive className="size-3.5" />
         </ThreadListItemPrimitive.Archive>
@@ -1129,8 +1125,10 @@ function ActivityPanel() {
 }
 
 function ThreadSheet() {
+  const [open, setOpen] = useState(false)
+  useAuiEvent("threads.selectionChanged", () => setOpen(false))
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button
           variant="ghost"
@@ -1246,14 +1244,6 @@ function WorkspaceHeader() {
   return (
     <header className="mx-auto flex min-h-16 w-full max-w-5xl shrink-0 items-center justify-between gap-3 px-4 sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
-        <Image
-          src="/logo.png"
-          alt=""
-          width={64}
-          height={64}
-          priority
-          className="size-8 shrink-0 rounded-xl object-cover"
-        />
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold tracking-tight">Syshin AI</p>
         </div>
