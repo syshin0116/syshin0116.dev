@@ -34,7 +34,7 @@ import {
   History,
   ListTree,
   LoaderCircle,
-  Menu,
+  MessagesSquare,
   Pencil,
   Plus,
   RotateCcw,
@@ -98,6 +98,8 @@ import {
   COMPOSER_ACCESSIBLE_NAME,
   restoreComposerFocus,
 } from "./runtime/focus-restoration"
+
+const CHAT_CONTENT_CLASS = "mx-auto w-full max-w-3xl px-4 sm:px-6"
 
 const SUGGESTIONS = [
   { label: "LangGraph 글 찾기", prompt: "LangGraph 관련 글을 찾아줘" },
@@ -302,7 +304,6 @@ function MessageActions() {
 
 function ChatMessage() {
   const role = useAuiState((state) => state.message.role)
-  const isLast = useAuiState((state) => state.message.isLast)
   const rawSources = useAuiState(
     (state) => state.message.metadata.custom.sources
   )
@@ -315,7 +316,8 @@ function ChatMessage() {
   return (
     <MessagePrimitive.Root
       className={cn(
-        "group/message mx-auto flex w-full max-w-3xl flex-col px-5 md:px-8",
+        CHAT_CONTENT_CLASS,
+        "group/message flex min-w-0 flex-col",
         role === "user" ? "items-end pb-3 pt-7" : "items-start pb-7 pt-3"
       )}
     >
@@ -327,7 +329,6 @@ function ChatMessage() {
             "w-fit max-w-[88%] rounded-2xl rounded-br-md bg-muted/70 px-4 py-3 text-foreground sm:max-w-[80%]"
         )}
       >
-        {role === "assistant" && isLast ? <AnswerActivity /> : null}
         {role === "user" ? (
           <div className="whitespace-pre-wrap"><MessagePrimitive.Parts /></div>
         ) : (
@@ -352,13 +353,25 @@ function ChatMessage() {
 function EmptyConversation() {
   return (
     <AuiIf condition={(state) => state.thread.isEmpty}>
-      <div className="mx-auto w-full max-w-3xl px-5 pb-7 pt-8 text-center md:px-8 md:pb-8">
+      <div className={cn(CHAT_CONTENT_CLASS, "my-auto py-8 text-center")}>
         <h1 className="text-balance text-[28px] font-medium leading-tight tracking-[-0.035em] sm:text-4xl">
           무엇이 궁금하세요?
         </h1>
         <p className="mx-auto mt-3 max-w-lg break-keep text-pretty text-sm leading-6 text-muted-foreground">
           기술 글과 프로젝트에 대해 물어보세요.
         </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          {SUGGESTIONS.map(({ label, prompt }) => (
+            <ThreadPrimitive.Suggestion
+              key={prompt}
+              prompt={prompt}
+              aria-label={prompt}
+              className="rounded-full border border-border/60 px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring motion-reduce:transition-none"
+            >
+              {label}
+            </ThreadPrimitive.Suggestion>
+          ))}
+        </div>
       </div>
     </AuiIf>
   )
@@ -420,7 +433,7 @@ function InterruptResponseCard({
   }
 
   return (
-    <div className="mx-auto mb-3 w-[calc(100%-2rem)] max-w-3xl rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4 shadow-sm">
+    <div className="mb-3 rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4">
       <div className="flex items-start gap-3">
         <Clock3 className="mt-0.5 size-5 text-amber-700 dark:text-amber-300" />
         <div className="min-w-0 flex-1">
@@ -510,14 +523,15 @@ function interruptViewKey(interrupt: InterruptState): number {
 
 function ConversationFooter() {
   const interrupt = useLangChainInterrupts()[0]
-  return <>
+  return <div className={cn(CHAT_CONTENT_CLASS, "pb-[max(0.75rem,env(safe-area-inset-bottom))]")}>
+    <AnswerActivity />
     {interrupt ? <InterruptResponseCard
       key={interruptViewKey(interrupt)}
       interruptId={interrupt.id}
       projection={projectInterruptForUi(interrupt.value)}
     /> : null}
     <Composer interrupted={Boolean(interrupt)} />
-  </>
+  </div>
 }
 
 function Composer({ interrupted }: { interrupted: boolean }) {
@@ -560,63 +574,74 @@ function Composer({ interrupted }: { interrupted: boolean }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6">
-      {!online ? (
-        <p role="status" className="mb-3 flex items-start gap-3 rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
-          <WifiOff className="mt-0.5 size-4 shrink-0" />
-          <span>인터넷 연결이 끊겼습니다.<span className="mt-1 block text-xs opacity-80">작성한 메시지는 연결 후 보낼 수 있어요.</span></span>
-        </p>
-      ) : runtimeUi.connectionStatus === "connecting" ? (
-        <p role="status" className="mb-3 flex items-start gap-3 rounded-xl bg-muted/60 px-4 py-3 text-sm">
-          <LoaderCircle className="mt-0.5 size-4 shrink-0 animate-spin text-muted-foreground motion-reduce:animate-none" />
-          <span>AI에 연결하고 있습니다.<span className="mt-1 block text-xs leading-5 text-muted-foreground">첫 연결은 잠시 걸릴 수 있어요. 질문을 미리 작성해 두세요.</span></span>
-        </p>
-      ) : null}
-      {runtimeUi.connectionStatus === "error" && connectionError ? (
-        <div
-          role="alert"
-          className="mx-auto mb-2 flex max-w-3xl items-center justify-between gap-3 rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive"
-        >
-          <span>{connectionError.message}</span>
-          <button
-            type="button"
-            className="shrink-0 font-medium underline underline-offset-4"
-            onClick={runConnectionAction}
+    <div>
+      <div className="max-h-[min(12rem,25dvh)] overflow-y-auto overscroll-contain">
+        {!online ? (
+          <p role="status" className="mb-3 flex items-start gap-3 rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
+            <WifiOff className="mt-0.5 size-4 shrink-0" />
+            <span>인터넷 연결이 끊겼습니다.<span className="mt-1 block text-xs opacity-80">작성한 메시지는 연결 후 보낼 수 있어요.</span></span>
+          </p>
+        ) : runtimeUi.connectionStatus === "connecting" ? (
+          <p role="status" className="mb-3 flex items-start gap-3 rounded-xl bg-muted/60 px-4 py-3 text-sm">
+            <LoaderCircle className="mt-0.5 size-4 shrink-0 animate-spin text-muted-foreground motion-reduce:animate-none" />
+            <span>AI에 연결하고 있습니다.<span className="mt-1 block text-xs leading-5 text-muted-foreground">첫 연결은 잠시 걸릴 수 있어요. 질문을 미리 작성해 두세요.</span></span>
+          </p>
+        ) : null}
+        {runtimeUi.connectionStatus === "error" && connectionError ? (
+          <div
+            role="alert"
+            className="mx-auto mb-2 flex max-w-3xl items-center justify-between gap-3 rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive"
           >
-            {connectionError.actionLabel}
-          </button>
-        </div>
-      ) : null}
-      {turnError ? (
-        <div
-          role="alert"
-          className="mx-auto mb-2 flex max-w-3xl items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-900 dark:text-amber-200"
-        >
-          <span>{turnError.message}</span>
-          <button
-            type="button"
-            className="shrink-0 font-medium underline underline-offset-4"
-            onClick={dismissTurnError}
-          >
-            확인
-          </button>
-        </div>
-      ) : null}
-      {queue.items.length > 0 ? (
-        <section aria-label="전송 대기열" className="mb-3 rounded-xl border border-border/60 bg-muted/30 p-3">
-          <div className="mb-2 flex items-center justify-between gap-2 text-xs text-muted-foreground">
-            <p role="status">{queue.items.length}개 대기 · {queue.paused ? "전송 일시정지" : running ? "응답 후 함께 전송" : "함께 전송 준비 중"}</p>
-            {queue.paused ? <button type="button" disabled={!ready || interrupted} onClick={queue.resume} className="underline underline-offset-4">대기 메시지 보내기</button> : null}
+            <span>{connectionError.message}</span>
+            <button
+              type="button"
+              className="shrink-0 font-medium underline underline-offset-4"
+              onClick={runConnectionAction}
+            >
+              {connectionError.actionLabel}
+            </button>
           </div>
-          <ul className="max-h-32 overflow-y-auto">
-            {queue.items.map((item) => <li key={item.id} className="flex items-center gap-2 text-sm">
-              <span className="min-w-0 flex-1 truncate">{item.text}</span>
-              <button type="button" onClick={() => queue.remove(item.id)} aria-label={`대기 메시지 삭제: ${item.text}`} className="flex size-8 shrink-0 items-center justify-center rounded-md hover:bg-muted"><X className="size-3.5" /></button>
-            </li>)}
-          </ul>
-        </section>
-      ) : null}
-      {queue.dispatchError ? <p role="alert" className="mb-2 text-sm text-destructive">{queue.dispatchError}</p> : null}
+        ) : null}
+        {turnError ? (
+          <div
+            role="alert"
+            className="mx-auto mb-2 flex max-w-3xl items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-900 dark:text-amber-200"
+          >
+            <span>{turnError.message}</span>
+            <button
+              type="button"
+              className="shrink-0 font-medium underline underline-offset-4"
+              onClick={dismissTurnError}
+            >
+              확인
+            </button>
+          </div>
+        ) : null}
+        {queue.items.length > 0 ? (
+          <section aria-label="전송 대기열" className="mb-3 rounded-xl border border-border/60 bg-muted/30 p-3">
+            <div className="mb-2 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+              <p role="status">{queue.items.length}개 대기 · {queue.paused ? "전송 일시정지" : running ? "응답 후 함께 전송" : "함께 전송 준비 중"}</p>
+              {queue.paused ? <button type="button" disabled={!ready || interrupted} onClick={queue.resume} className="underline underline-offset-4">대기 메시지 보내기</button> : null}
+            </div>
+            <ul className="max-h-32 overflow-y-auto">
+              {queue.items.map((item) => <li key={item.id} className="flex items-center gap-2 text-sm">
+                <span className="min-w-0 flex-1 truncate">{item.text}</span>
+                <button type="button" onClick={() => queue.remove(item.id)} aria-label={`대기 메시지 삭제: ${item.text}`} className="flex size-8 shrink-0 items-center justify-center rounded-md hover:bg-muted"><X className="size-3.5" /></button>
+              </li>)}
+            </ul>
+          </section>
+        ) : null}
+        {queue.dispatchError ? <p role="alert" className="mb-2 text-sm text-destructive">{queue.dispatchError}</p> : null}
+        {composerError ? (
+          <p
+            id="composer-size-error"
+            role="alert"
+            className="mb-2 text-xs text-destructive"
+          >
+            {composerError}
+          </p>
+        ) : null}
+      </div>
       <ComposerPrimitive.Root
         hidden={interrupted}
         className="flex flex-col rounded-2xl border border-border bg-background shadow-[0_2px_8px_rgb(0_0_0/0.03)] transition-[border-color,box-shadow] motion-reduce:transition-none focus-within:border-foreground/30 focus-within:shadow-[0_4px_16px_rgb(0_0_0/0.05)] dark:bg-muted/30"
@@ -663,7 +688,7 @@ function Composer({ interrupted }: { interrupted: boolean }) {
               submit()
             }
           }}
-          className="max-h-48 min-h-20 w-full min-w-0 resize-none bg-transparent px-4 pb-2 pt-4 text-base leading-6 outline-none placeholder:text-muted-foreground sm:px-5"
+          className="max-h-[min(12rem,25dvh)] min-h-20 w-full min-w-0 resize-none bg-transparent px-4 pb-2 pt-4 text-base leading-6 outline-none placeholder:text-muted-foreground sm:px-5"
         />
         <div className="flex items-center justify-between gap-3 px-3 pb-3">
           <div className="flex min-w-0 items-center gap-2">
@@ -700,29 +725,6 @@ function Composer({ interrupted }: { interrupted: boolean }) {
           </div>
         </div>
       </ComposerPrimitive.Root>
-      {composerError ? (
-        <p
-          id="composer-size-error"
-          role="alert"
-          className="mx-auto mt-2 max-w-3xl text-xs text-destructive"
-        >
-          {composerError}
-        </p>
-      ) : null}
-      <AuiIf condition={(state) => state.thread.isEmpty}>
-        <div className="mt-4 flex flex-wrap justify-center gap-2">
-          {SUGGESTIONS.map(({ label, prompt }) => (
-            <ThreadPrimitive.Suggestion
-              key={prompt}
-              prompt={prompt}
-              aria-label={prompt}
-              className="rounded-full border border-border/60 px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring motion-reduce:transition-none"
-            >
-              {label}
-            </ThreadPrimitive.Suggestion>
-          ))}
-        </div>
-      </AuiIf>
       <p className="mt-3 text-center text-[10px] leading-5 text-muted-foreground sm:text-[11px]">
         답변의 출처를 확인해 주세요.<span className="ml-2 hidden sm:inline">Enter 전송 · Shift+Enter 줄바꿈</span>
       </p>
@@ -733,24 +735,34 @@ function Composer({ interrupted }: { interrupted: boolean }) {
 function Conversation() {
   const isEmpty = useAuiState((state) => state.thread.isEmpty)
   return (
-    <ThreadPrimitive.Root className="flex min-h-0 flex-1 flex-col bg-background">
-      <ThreadPrimitive.Viewport className={cn("relative flex min-h-0 flex-1 flex-col overflow-y-auto", isEmpty && "justify-center-safe")}>
-        <EmptyConversation />
-        <ThreadPrimitive.Messages>
-          {() => <ChatMessage />}
-        </ThreadPrimitive.Messages>
-        <ThreadPrimitive.ViewportFooter className={cn("z-10 bg-gradient-to-t from-background via-background to-transparent", isEmpty ? "pb-6 sm:pb-14" : "sticky bottom-0 mt-auto pt-4")}>
+    <ThreadPrimitive.Root className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <ThreadPrimitive.ViewportProvider>
+        <ThreadPrimitive.Viewport
+          aria-label="대화 메시지"
+          className={cn(
+            "flex min-h-0 flex-1 flex-col overflow-y-auto [scrollbar-gutter:stable_both-edges]",
+            !isEmpty && "overscroll-y-contain"
+          )}
+        >
+          <EmptyConversation />
+          <ThreadPrimitive.Messages>
+            {() => <ChatMessage />}
+          </ThreadPrimitive.Messages>
+        </ThreadPrimitive.Viewport>
+        <div className="relative z-10 shrink-0 bg-background">
           <AuiIf condition={(state) => !state.thread.isEmpty}>
             <ThreadPrimitive.ScrollToBottom
               aria-label="최신 메시지로 이동"
-              className="absolute -top-10 left-1/2 flex size-9 -translate-x-1/2 items-center justify-center rounded-full border bg-background shadow-md disabled:invisible"
+              className="absolute -top-12 left-1/2 flex size-9 -translate-x-1/2 items-center justify-center rounded-full border bg-background shadow-sm disabled:invisible"
             >
               <ArrowDown className="size-4" />
             </ThreadPrimitive.ScrollToBottom>
           </AuiIf>
-          <ConversationFooter />
-        </ThreadPrimitive.ViewportFooter>
-      </ThreadPrimitive.Viewport>
+          <div className="max-h-[60dvh] overflow-y-auto overscroll-contain pt-3 [scrollbar-gutter:stable_both-edges]">
+            <ConversationFooter />
+          </div>
+        </div>
+      </ThreadPrimitive.ViewportProvider>
     </ThreadPrimitive.Root>
   )
 }
@@ -1125,7 +1137,7 @@ function ThreadSheet() {
           aria-label="대화 목록 열기"
           className="gap-2 rounded-xl px-2.5 sm:px-3"
         >
-          <Menu className="size-4" />
+          <MessagesSquare className="size-4" />
           <span className="hidden sm:inline">대화</span>
         </Button>
       </SheetTrigger>
@@ -1231,8 +1243,8 @@ function ModelSelector() {
 
 function WorkspaceHeader() {
   return (
-    <header className="mx-auto flex min-h-14 w-full max-w-3xl shrink-0 items-center justify-end px-4 sm:px-6">
-      <div className="flex shrink-0 items-center gap-0.5">
+    <header className="shrink-0 overflow-y-auto [scrollbar-gutter:stable_both-edges]">
+      <div className={cn(CHAT_CONTENT_CLASS, "flex min-h-14 items-center justify-end gap-0.5")}>
         <NewThreadButton />
         <ThreadSheet />
         <DetailSheet />
@@ -1260,7 +1272,7 @@ export function ChatShell({ children }: { children?: ReactNode }) {
   return (
     <section
       aria-label="RAG 평가 챗봇"
-      className="relative flex h-[calc(100svh-3.5rem-1px)] min-h-0 flex-col bg-background supports-[height:100dvh]:h-[calc(100dvh-3.5rem-1px)]"
+      className="relative flex h-[calc(100svh-3.5rem-1px)] min-h-0 min-w-0 flex-col overflow-hidden bg-background supports-[height:100dvh]:h-[calc(100dvh-3.5rem-1px)]"
     >
       <WorkspaceHeader />
       <Conversation />

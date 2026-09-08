@@ -173,13 +173,15 @@ const markdownComponents = memoizeMarkdownComponents({
   // border-separate + border-spacing-0 lets the rounded corners survive on
   // th/td, which collapsed borders would clip.
   table: ({ className, ...props }) => (
-    <table
-      className={cn(
-        "my-3 w-full border-separate border-spacing-0 text-sm",
-        className
-      )}
-      {...props}
-    />
+    <div role="region" aria-label="답변 표" tabIndex={0} className="my-3 max-w-full overflow-x-auto rounded-lg focus-visible:outline-2 focus-visible:outline-ring">
+      <table
+        className={cn(
+          "w-full border-separate border-spacing-0 text-sm",
+          className
+        )}
+        {...props}
+      />
+    </div>
   ),
   th: ({ className, ...props }) => (
     <th

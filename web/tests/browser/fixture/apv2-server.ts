@@ -925,7 +925,10 @@ const server = Bun.serve({
         } else if (serialized.includes("연속 검색")) {
           void emitCompletedRun(threadId, run, serialized.includes("대기열 검증") ? 2500 : 0, serialized.includes("서브에이전트 검증"), serialized.includes("이미지 검증")
             ? "이미지 경로를 확인합니다.\n\n![상태 경계](https://syshin0116.vercel.app/assets/agent-state-sync-boundaries.svg)\n\n![없는 이미지](/assets/not-found.svg)"
-            : undefined).catch((error: unknown) => {
+            : serialized.includes("레이아웃 검증")
+              ? Array.from({ length: 24 }, (_, index) => `레이아웃 문단 ${index + 1}`).join("\n\n") +
+                "\n\n| 검색 방법 | 측정값 |\n| --- | --- |\n| " + "retrieval_".repeat(40) + " | 0.82 |\n\n레이아웃 답변 끝"
+              : undefined).catch((error: unknown) => {
             state.errors.push(error instanceof Error ? error.message : "search failed")
           })
         } else if (serialized.includes("취소")) {

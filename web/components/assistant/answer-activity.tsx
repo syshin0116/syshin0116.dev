@@ -8,7 +8,7 @@ import {
   type SubagentDiscoverySnapshot,
 } from "@assistant-ui/react-langchain"
 import { useToolCalls, type AssembledToolCall } from "@langchain/react"
-import { Check, CircleAlert, GitBranch, LoaderCircle, ToolCase } from "lucide-react"
+import { Check, ChevronRight, CircleAlert, GitBranch, LoaderCircle, ToolCase } from "lucide-react"
 import { useAgentRuntimeUi } from "./agent-runtime-provider"
 import { toolArgumentSummary, toolResultText } from "./runtime/tool-arguments"
 
@@ -46,7 +46,8 @@ function SubagentTools({ stream, subagent }: {
 
 export function AnswerActivity() {
   const running = useAuiState((s) => s.thread.isRunning)
-  const content = useAuiState((s) => s.message.content)
+  const lastMessage = useAuiState((s) => s.thread.messages.at(-1))
+  const content = lastMessage?.role === "assistant" ? lastMessage.content : []
   const hasText = content.some((part) => part.type === "text" && part.text.trim().length > 0)
   const tools = useLangChainToolCalls()
   const subagents = useLangChainSubagents()
@@ -60,25 +61,34 @@ export function AnswerActivity() {
   const nested = activities.filter((activity) => activity.kind === "nested" &&
     !currentSubagents.some((subagent) => subagent.namespace.join("/") === activity.namespace.join("/")))
   if ((!running || hasText) && !extraTools.length && !currentSubagents.length && !nested.length) return null
-  return <div aria-label="답변 실행 상태" className="mb-4 space-y-2 text-muted-foreground">
-    {extraTools.map((tool) => <LiveTool key={tool.id} tool={tool} />)}
-    {currentSubagents.map((subagent) => <details key={subagent.id} open={subagent.status === "running"} className="rounded-xl border border-border/60 text-xs">
-      <summary className="flex cursor-pointer items-center gap-2 px-3 py-2.5">
-        <GitBranch className="size-3.5" />
-        <span className="min-w-0 flex-1 truncate">서브에이전트 · {subagent.name}</span>
-        <Status status={subagent.status} />
+  const hasActivity = extraTools.length > 0 || currentSubagents.length > 0 || nested.length > 0
+  return <div aria-label="답변 실행 상태" className="mb-3 text-muted-foreground">
+    {hasActivity ? <details className="group/activity text-xs">
+      <summary className="flex w-fit cursor-pointer list-none items-center gap-2 py-2">
+        <ChevronRight className="size-3.5 group-open/activity:rotate-90" />
+        실행 과정
       </summary>
-      {subagent.taskInput ? <p className="px-3 pb-2 leading-5">{subagent.taskInput}</p> : null}
-      {stream ? <SubagentTools stream={stream} subagent={subagent} /> : null}
-    </details>)}
-    {nested.map((activity) => <div key={activity.id} className="flex items-center gap-2 rounded-lg bg-muted/40 px-3 py-2 text-xs">
-      <GitBranch className="size-3.5" />
-      <span className="min-w-0 flex-1 truncate">{activity.kind === "nested" ? activity.name : activity.label}</span>
-      <Status status={activity.status === "completed" ? "complete" : activity.status === "failed" ? "error" : activity.status} />
-    </div>)}
-    {running && !hasText ? <div role="status" aria-label="답변 작성 중" className="flex w-52 max-w-full flex-col gap-2.5 py-3">
-      <span className="answer-shimmer h-2 w-full rounded-full" />
-      <span className="answer-shimmer h-2 w-2/3 rounded-full [animation-delay:160ms]" />
+      <div className="max-h-64 space-y-2 overflow-y-auto overscroll-contain py-2">
+        {extraTools.map((tool) => <LiveTool key={tool.id} tool={tool} />)}
+        {currentSubagents.map((subagent) => <details key={subagent.id} className="rounded-xl border border-border/60 text-xs">
+          <summary className="flex cursor-pointer items-center gap-2 px-3 py-2.5">
+            <GitBranch className="size-3.5" />
+            <span className="min-w-0 flex-1 truncate">서브에이전트 · {subagent.name}</span>
+            <Status status={subagent.status} />
+          </summary>
+          {subagent.taskInput ? <p className="px-3 pb-2 leading-5">{subagent.taskInput}</p> : null}
+          {stream ? <SubagentTools stream={stream} subagent={subagent} /> : null}
+        </details>)}
+        {nested.map((activity) => <div key={activity.id} className="flex items-center gap-2 rounded-lg bg-muted/40 px-3 py-2 text-xs">
+          <GitBranch className="size-3.5" />
+          <span className="min-w-0 flex-1 truncate">{activity.kind === "nested" ? activity.name : activity.label}</span>
+          <Status status={activity.status === "completed" ? "complete" : activity.status === "failed" ? "error" : activity.status} />
+        </div>)}
+      </div>
+    </details> : null}
+    {running && !hasText ? <div role="status" aria-label="답변 작성 중" className="flex h-7 items-center gap-2 text-xs">
+      <LoaderCircle className="size-3.5 animate-spin motion-reduce:animate-none" />
+      답변 작성 중
     </div> : null}
 
   </div>
