@@ -77,6 +77,8 @@ test.beforeEach(async ({ page }) => {
   diagnosticsByPage.set(page, diagnostics)
   page.on("pageerror", (error) => diagnostics.consoleProblems.push(error.message))
   page.on("console", (message) => {
+    // Chromium readback warnings are emitted by screenshots of WebGL canvases.
+    if (message.type() === "warning" && /^\[.WebGL-[^\]]+\]GL Driver Message .*GPU stall due to ReadPixels/.test(message.text())) return
     // Next.js preloads route CSS when links enter the viewport, before navigation.
     if (message.type() === "warning" && message.text().startsWith(`The resource ${SITE_ORIGIN}/_next/static/`) && message.text().includes(".css was preloaded using link preload but not used")) return
     if (message.type() === "error" || message.type() === "warning") {
@@ -339,4 +341,80 @@ test("graph exploration preserves selection and keyboard navigation", async ({ p
   await attachScreenshot(page, testInfo, "graph-exploration")
   await page.keyboard.press("Escape")
   await expect(explore).toBeFocused()
+})
+
+
+test("spatial graph loads on demand and keeps selection across view modes", async ({ page }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: "reduce" })
+  const viewerRequests: string[] = []
+  page.on("request", request => { if (request.url().includes("/graph-viewer/")) viewerRequests.push(request.url()) })
+  await page.goto(REPRESENTATIVE_HREF)
+  if (testInfo.project.name === "site-mobile") await page.locator(".reading-toc > summary").click()
+  const inlineGraph = page.getByRole("group", { name: "관련 콘텐츠 그래프" }).locator(".graph-surface")
+  await inlineGraph.scrollIntoViewIfNeeded()
+  await expect(inlineGraph).toHaveAttribute("data-status", "ready")
+  await page.getByRole("button", { name: "Explore", exact: true }).click()
+  const dialog = page.getByRole("dialog", { name: "연결된 글 탐색" })
+  await expect(dialog.getByRole("button", { name: "Fit graph" })).toBeEnabled()
+  expect(viewerRequests).toEqual([])
+  await dialog.getByRole("button", { name: "All notes", exact: true }).click()
+  await dialog.getByRole("button", { name: "3D", exact: true }).click()
+  const frame = page.frameLocator('iframe[title="3D 그래프"]')
+  await expect(frame.locator("canvas")).toBeVisible({ timeout: 20000 })
+  await expect(frame.locator("#graph")).toHaveAttribute("data-fitted", "true")
+  await expect(dialog.getByRole("button", { name: "화면에 맞추기" })).toBeVisible()
+  await dialog.getByRole("textbox", { name: "Find a graph node" }).fill("Azure")
+  await dialog.getByRole("button").filter({ hasText: REPRESENTATIVE_TITLE }).click()
+  await expect(frame.locator("#label")).toHaveText(REPRESENTATIVE_TITLE)
+  await expect(dialog.getByRole("link", { name: "Open note" })).toHaveAttribute("href", /\/blog\/Dev\//)
+  await expectNoHorizontalOverflow(page)
+  await attachScreenshot(page, testInfo, "graph-3d")
+  for (const mode of ["VR", "AR"]) {
+    await dialog.getByRole("button", { name: mode, exact: true }).click()
+    await expect(dialog.locator("iframe")).toHaveCount(0)
+    await expect(dialog.getByRole("button", { name: mode === "VR" ? "VR 미리보기 시작" : "AR 카메라 시작", exact: true })).toBeVisible()
+    await attachScreenshot(page, testInfo, `graph-${mode.toLowerCase()}-entry`)
+  }
+  await dialog.getByRole("button", { name: "2D", exact: true }).click()
+  await expect(dialog.getByRole("button", { name: "Fit graph" })).toBeEnabled()
+  await expect(dialog.locator('[data-selected="true"]')).toHaveCount(1)
+  await page.keyboard.press("Escape")
+  await expect(page.locator('iframe[src*="graph-viewer"]')).toHaveCount(0)
+})
+
+
+test("VR preview starts explicitly and denied AR can return to 2D", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "site-desktop", "device-entry contract")
+  await page.addInitScript(() => {
+    if (navigator.mediaDevices) navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException("Test camera denial", "NotAllowedError"))
+  })
+  await page.goto(REPRESENTATIVE_HREF)
+  const inlineGraph = page.getByRole("group", { name: "관련 콘텐츠 그래프" }).locator(".graph-surface")
+  await inlineGraph.scrollIntoViewIfNeeded()
+  await expect(inlineGraph).toHaveAttribute("data-status", "ready")
+  await page.getByRole("button", { name: "Explore", exact: true }).click()
+  const dialog = page.getByRole("dialog", { name: "연결된 글 탐색" })
+  await dialog.getByRole("button", { name: "VR", exact: true }).click()
+  await dialog.getByRole("button", { name: "VR 미리보기 시작", exact: true }).click()
+  await expect(page.frameLocator('iframe[title="VR 그래프"]').locator("canvas")).toBeVisible({ timeout: 20000 })
+  await expect(dialog.getByRole("button", { name: "VR 종료", exact: true })).toBeVisible()
+  await attachScreenshot(page, testInfo, "graph-vr-preview")
+  await dialog.getByRole("button", { name: "VR 종료", exact: true }).click()
+  await expect(dialog.locator("iframe")).toHaveCount(0)
+  await dialog.getByRole("button", { name: "AR", exact: true }).click()
+  await dialog.getByRole("button", { name: "AR 카메라 시작", exact: true }).click()
+  await expect(dialog.getByRole("alert")).toContainText("카메라", { timeout: 20000 })
+  await expect(dialog.locator("iframe")).toHaveCount(0)
+  await attachScreenshot(page, testInfo, "graph-ar-denied")
+  await dialog.getByRole("button", { name: "2D로 돌아가기", exact: true }).click()
+  await expect(dialog.getByRole("button", { name: "Fit graph" })).toBeEnabled()
+  const diagnostics = diagnosticsByPage.get(page)!
+  const vendorWarnings = new Set([
+    "warning: THREE.WARNING: Multiple instances of Three.js being imported.",
+    "warning: WARNING: Multiple instances of Three.js being imported.",
+    "warning: ArMarkerControls: 'markersAreaEnabled' is not a property of this material.",
+  ])
+  const observed = diagnostics.consoleProblems.filter(message => vendorWarnings.has(message))
+  if (observed.length) testInfo.annotations.push({ type: "upstream-warning", description: [...new Set(observed)].join("; ") })
+  diagnostics.consoleProblems = diagnostics.consoleProblems.filter(message => !vendorWarnings.has(message))
 })

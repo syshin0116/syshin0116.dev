@@ -25,6 +25,7 @@ export default defineConfig([
     "out/**",
     "build/**",
     "public/pagefind/**",
+    "public/graph-viewer/**",
     "next-env.d.ts",
   ]),
 ])
