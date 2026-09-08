@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
+import { GraphSpatial, type GraphMode } from "./graph-spatial"
 import { ArrowUpRight, ChevronDown, ChevronRight, Expand, FileText, Focus, Hash, LoaderCircle, Minus, Network, Plus, RefreshCw, Search } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -61,7 +62,7 @@ function GraphCanvas({ data, currentSlug, selected, onSelect, expanded = false }
         worker.onerror = () => { reject(new Error("Graph layout failed")); worker?.terminate() }
         worker.postMessage({ data, currentSlug, expanded })
       })
-      const [d3, nodes] = await Promise.all([import("d3"), positions])
+      const [d3, nodes, { createGraphSimulation }] = await Promise.all([import("d3"), positions, import("@/lib/graph-layout")])
       if (cancelled || !element) return
       const svg = d3.select(element)
       dispose = () => { svg.selectAll("*").remove(); controls.current = null }
@@ -127,14 +128,28 @@ function GraphCanvas({ data, currentSlug, selected, onSelect, expanded = false }
         node.attr("transform", item => `translate(${item.x},${item.y})`)
       }
       update()
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
+      // ponytail: live SVG physics is limited to 250 nodes; larger graphs keep direct dragging.
+      const simulation = nodes.length <= 250 ? createGraphSimulation(nodes, data.links, currentSlug, expanded).alpha(0) : undefined
+      simulation?.on("tick", () => { update(); placeLabels() })
+      const stopMotion = () => { if (reducedMotion.matches) simulation?.alphaTarget(0).stop() }
+      reducedMotion.addEventListener("change", stopMotion)
       node.call(d3.drag<SVGGElement, PositionedNode>()
+        .on("start", (event, item) => {
+          item.fx = item.x; item.fy = item.y
+          if (!event.active && !reducedMotion.matches) simulation?.alpha(0.18).alphaTarget(0.12).restart()
+        })
         .on("drag", function (event, item) {
-          item.x = event.x; item.y = event.y
+          item.x = item.fx = event.x; item.y = item.fy = event.y
           placeLabels()
           d3.select(this).attr("transform", `translate(${item.x},${item.y})`)
           edge.filter(link => link.source === item || link.target === item)
             .attr("x1", link => link.source.x!).attr("y1", link => link.source.y!)
             .attr("x2", link => link.target.x!).attr("y2", link => link.target.y!)
+        })
+        .on("end", (event, item) => {
+          if (!event.active) simulation?.alphaTarget(0)
+          if (item.id !== currentSlug) { item.fx = null; item.fy = null }
         }))
 
       const elements = new Map(node.nodes().map(element => [element.dataset.node!, element]))
@@ -163,7 +178,7 @@ function GraphCanvas({ data, currentSlug, selected, onSelect, expanded = false }
           placeLabels()
         })
       svg.call(zoom).on("dblclick.zoom", null)
-      const motionDuration = () => nodes.length > 250 || window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 240
+      const motionDuration = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 240
       const fit = (animate = false) => {
         const w = element.clientWidth, h = element.clientHeight
         if (!w || !h) return
@@ -185,7 +200,7 @@ function GraphCanvas({ data, currentSlug, selected, onSelect, expanded = false }
       fit()
       paintSelection()
       setStatus("ready")
-      dispose = () => { observer.disconnect(); svg.interrupt(); svg.on(".zoom", null); svg.selectAll("*").remove(); controls.current = null }
+      dispose = () => { observer.disconnect(); simulation?.stop(); reducedMotion.removeEventListener("change", stopMotion); svg.interrupt(); svg.on(".zoom", null); svg.selectAll("*").remove(); controls.current = null }
     }
     const visibility = new IntersectionObserver(entries => {
       if (entries.some(entry => entry.isIntersecting)) { visibility.disconnect(); void draw().catch(() => { if (!cancelled) setStatus("error") }) }
@@ -222,6 +237,7 @@ export function GraphView({ currentSlug }: { currentSlug?: string }) {
   const [showTags, setShowTags] = useState(true)
   const [selected, setSelected] = useState(currentSlug)
   const [query, setQuery] = useState("")
+  const [mode, setMode] = useState<GraphMode>("2d")
   const exploreRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -230,7 +246,7 @@ export function GraphView({ currentSlug }: { currentSlug?: string }) {
     loadGraph().then(value => { if (!cancelled) setData(value) }).catch(() => { if (!cancelled) setError(true) })
     return () => { cancelled = true }
   }, [attempt])
-  useEffect(() => { setSelected(currentSlug); setShowAll(false) }, [currentSlug])
+  useEffect(() => { setSelected(currentSlug); setShowAll(false); setMode("2d") }, [currentSlug])
 
   const local = useMemo(() => data ? getGraphNeighborhood(data, currentSlug) : null, [data, currentSlug])
   const graph = useMemo(() => data ? getGraphNeighborhood(data, showAll ? undefined : currentSlug, showTags) : null, [data, currentSlug, showAll, showTags])
@@ -261,7 +277,7 @@ export function GraphView({ currentSlug }: { currentSlug?: string }) {
               </div>
               {selectedNode && <Link href={graphNodeHref(selectedNode)} className="mt-1 block truncate text-sm underline underline-offset-4" title={selectedNode.title}>{selectedNode.title} →</Link>}
             </>}
-          <Dialog open={expanded} onOpenChange={setExpanded}>
+          <Dialog open={expanded} onOpenChange={value => { setExpanded(value); if (!value) setMode("2d") }}>
             <DialogContent onCloseAutoFocus={event => { event.preventDefault(); exploreRef.current?.focus() }} className="graph-dialog max-h-[92dvh] gap-0 overflow-y-auto rounded-2xl p-0 sm:max-w-6xl">
               <DialogHeader className="border-b px-5 py-5 text-left sm:px-6">
                 <div className="mb-1 flex items-center gap-2 text-xs font-medium text-teal-700 dark:text-teal-300"><Network className="size-4" />문서 연결</div>
@@ -269,6 +285,9 @@ export function GraphView({ currentSlug }: { currentSlug?: string }) {
                 <DialogDescription>관련 글과 태그를 따라 탐색할 수 있습니다.</DialogDescription>
               </DialogHeader>
               <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3 sm:px-6">
+                <div role="group" aria-label="그래프 보기 방식" className="flex rounded-lg bg-muted p-1 text-xs font-medium">
+                  {(["2d", "3d", "vr", "ar"] as const).map(view => <button key={view} aria-pressed={mode === view} onClick={() => setMode(view)} className={`rounded-md px-3 py-1.5 text-foreground transition-colors ${mode === view ? "bg-background shadow-sm" : "hover:bg-background/60"}`}>{view.toUpperCase()}</button>)}
+                </div>
                 {currentSlug && <div role="group" aria-label="Graph scope" className="flex rounded-lg bg-muted p-1 text-xs font-medium">
                   <button aria-pressed={!showAll} onClick={() => setShowAll(false)} className={`rounded-md px-3 py-1.5 transition-colors ${!showAll ? "bg-background shadow-sm" : "text-foreground"}`}>Nearby <span className="ml-1">2 hops</span></button>
                   <button aria-pressed={showAll} onClick={() => setShowAll(true)} className={`rounded-md px-3 py-1.5 transition-colors ${showAll ? "bg-background shadow-sm" : "text-foreground"}`}>All notes</button>
@@ -277,7 +296,7 @@ export function GraphView({ currentSlug }: { currentSlug?: string }) {
                 <span className="ml-auto text-xs tabular-nums text-muted-foreground">{graph?.nodes.length ?? 0} nodes · {graph?.links.length ?? 0} links</span>
               </div>
               <div className="grid min-h-0 sm:grid-cols-[minmax(0,1fr)_17rem]">
-                {graph && <GraphCanvas data={graph} currentSlug={currentSlug} selected={selectedNode?.id} onSelect={setSelected} expanded />}
+                {graph && expanded && (mode === "2d" ? <GraphCanvas data={graph} currentSlug={currentSlug} selected={selectedNode?.id} onSelect={setSelected} expanded /> : <GraphSpatial key={mode} mode={mode} data={graph} selected={selectedNode?.id} onSelect={setSelected} onExit={() => setMode("2d")} />)}
                 <aside aria-label="Selected note" className="flex min-h-0 flex-col border-t bg-background sm:max-h-[58dvh] sm:min-h-96 sm:border-l sm:border-t-0">
                   <div className="border-b p-4">
                     <label className="flex items-center gap-2 rounded-lg border focus-within:ring-2 focus-within:ring-teal-600/40 bg-muted/30 px-3 py-2 text-muted-foreground"><Search className="size-3.5 shrink-0" /><input aria-label="Find a graph node" placeholder="Find a note…" value={query} onChange={event => setQuery(event.target.value)} className="min-w-0 w-full bg-transparent text-xs text-foreground outline-none" /></label>
@@ -289,7 +308,7 @@ export function GraphView({ currentSlug }: { currentSlug?: string }) {
                     <div key={selectedNode.id} className="graph-selection p-5">
                       <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">{selectedNode.type === "tag" ? <Hash className="size-4" /> : <FileText className="size-4" />}{selectedNode.id === currentSlug ? "Current note" : selectedNode.type === "tag" ? "Tag" : "Selected note"}</div>
                       <h3 className="break-words text-lg font-semibold leading-snug tracking-tight">{selectedNode.title}</h3>
-                      <Link href={graphNodeHref(selectedNode)} onClick={() => setExpanded(false)} className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-teal-700 px-3 py-2 text-xs font-medium text-white hover:bg-teal-800 dark:bg-teal-300 dark:text-teal-950 dark:hover:bg-teal-200">{selectedNode.type === "tag" ? "Browse tag" : "Open note"}<ArrowUpRight className="size-3.5" /></Link>
+                      <Link href={graphNodeHref(selectedNode)} onClick={() => { setExpanded(false); setMode("2d") }} className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-teal-700 px-3 py-2 text-xs font-medium text-white hover:bg-teal-800 dark:bg-teal-300 dark:text-teal-950 dark:hover:bg-teal-200">{selectedNode.type === "tag" ? "Browse tag" : "Open note"}<ArrowUpRight className="size-3.5" /></Link>
                     </div>
                     <div className="flex items-center justify-between border-t px-5 pb-2 pt-4 text-xs font-medium text-muted-foreground"><span>Connected notes</span><span className="tabular-nums">{connections.length}</span></div>
                     <div className="max-h-52 overflow-y-auto px-2 pb-3 sm:max-h-none">
@@ -299,7 +318,7 @@ export function GraphView({ currentSlug }: { currentSlug?: string }) {
                   </> : <p className="p-5 text-sm text-muted-foreground">Select a node or search for a note to explore its connections.</p>}
                 </aside>
               </div>
-              <div className="flex flex-wrap justify-between gap-2 border-t px-5 py-3 text-[11px] text-muted-foreground"><span>Drag to arrange · Scroll to zoom</span><span>Arrow keys to move · Enter to select</span></div>
+              <div className="flex flex-wrap justify-between gap-2 border-t px-5 py-3 text-[11px] text-muted-foreground"><span>{mode === "2d" ? "드래그로 배치 · 스크롤로 확대" : mode === "3d" ? "드래그로 회전 · 스크롤로 확대 · 클릭으로 선택" : mode === "vr" ? "헤드셋 연결은 지원 기기와 브라우저에서 가능합니다." : "카메라와 Hiro 마커로 그래프를 표시합니다."}</span><span>{mode === "2d" ? "방향키로 이동 · Enter로 선택" : "검색과 연결된 글 탐색을 함께 사용할 수 있습니다."}</span></div>
             </DialogContent>
           </Dialog>
         </>

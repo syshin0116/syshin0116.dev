@@ -722,11 +722,11 @@ a.tag {
 .graph-dense [data-selected="true"] .graph-mark > circle:not(.graph-hit) { r: 6px; }
 
 @media (prefers-reduced-motion: no-preference) {
-  .graph-surface[data-status="ready"] > .graph-canvas:not(.graph-dense) { animation: graph-reveal 320ms ease-out; }
+  .graph-surface[data-status="ready"] > .graph-canvas { animation: graph-reveal 320ms ease-out; }
   .graph-selection { animation: graph-selection-in 200ms ease-out; }
   .graph-canvas:not(.graph-dense) .graph-edge { transition: opacity 180ms, stroke 180ms; }
   .graph-canvas:not(.graph-dense) .graph-label { transition: opacity 140ms; }
-  .graph-canvas:not(.graph-dense) [data-selected="true"] .graph-mark > :is(circle, rect):not(.graph-hit) { animation: graph-select 360ms ease-out; }
+  .graph-canvas [data-selected="true"] .graph-mark > :is(circle, rect):not(.graph-hit) { animation: graph-select 360ms ease-out; }
   .graph-dialog button, .graph-dialog a, .graph-surface button { transition: background-color 150ms, color 150ms, transform 150ms; }
   .graph-dialog button:active, .graph-dialog a:active, .graph-surface button:active { transform: scale(0.97); }
   .graph-dialog button > svg:last-child, .graph-dialog a > svg { transition: transform 150ms, opacity 150ms; }

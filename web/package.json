@@ -22,6 +22,10 @@
     "test:site-browser": "env -u NO_COLOR playwright test --config=playwright.site.config.ts"
   },
   "dependencies": {
+    "3d-force-graph": "1.80.0",
+    "3d-force-graph-ar": "1.10.0",
+    "3d-force-graph-vr": "3.1.2",
+    "@ar-js-org/ar.js": "3.4.8",
     "@assistant-ui/react": "0.15.18",
     "@assistant-ui/react-langchain": "0.0.29",
     "@assistant-ui/react-markdown": "0.14.14",
@@ -47,6 +51,7 @@
     "@radix-ui/react-tooltip": "^1.2.16",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
+    "aframe": "1.8.0",
     "botid": "1.5.11",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -86,6 +91,7 @@
     "@types/pg": "8.23.1",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
+    "@types/three": "0.185.4",
     "eslint": "^10.10.0",
     "eslint-config-next": "^16.3.4",
     "pagefind": "^1.5.2",
@@ -99,6 +105,7 @@
     "postcss": "8.5.28",
     "sharp": "0.35.3",
     "browserslist": "4.28.9",
-    "@humanfs/node": "0.16.8"
+    "@humanfs/node": "0.16.8",
+    "axios": "1.20.0"
   }
 }
