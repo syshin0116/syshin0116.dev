@@ -735,3 +735,16 @@ a.tag {
 @keyframes graph-reveal { from { opacity: 0; } to { opacity: 1; } }
 @keyframes graph-selection-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes graph-select { from { stroke-width: 12; stroke-opacity: 0; } to { stroke-width: 5; stroke-opacity: 0.25; } }
+
+.answer-shimmer {
+  background: linear-gradient(100deg, var(--muted) 25%, var(--border) 45%, var(--muted) 65%);
+  background-size: 250% 100%;
+  animation: answer-shimmer 1.8s ease-in-out infinite;
+}
+@keyframes answer-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .answer-shimmer { animation: none; }
+}

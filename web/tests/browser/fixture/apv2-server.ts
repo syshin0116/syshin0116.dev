@@ -533,7 +533,8 @@ async function emitCompletedRun(
   threadId: string,
   run: RunRow,
   delayMs = 0,
-  showTools = false
+  showTools = false,
+  answerText = "브라우저 fixture 응답이 완료되었습니다."
 ): Promise<void> {
   await waitForStreams(threadId, false)
   // Let the command acknowledgement arrive before the simulated model response.
@@ -574,7 +575,10 @@ async function emitCompletedRun(
   }
   if (delayMs) await Bun.sleep(delayMs)
   const answerId = `browser-answer-${run.run_id}`
-  for (const event of messageEvents(run.run_id, undefined, answerId)) emit(threadId, event)
+  for (const [index, event] of messageEvents(run.run_id, answerText, answerId).entries()) {
+    emit(threadId, event)
+    if (index === 2 && answerText.includes("![")) await Bun.sleep(2500)
+  }
   emit(
     threadId,
     protocolEvent("lifecycle", ["nested_subgraph:browser-task"], {
@@ -595,7 +599,7 @@ async function emitCompletedRun(
         content: [
           {
             type: "text",
-            text: "브라우저 fixture 응답이 완료되었습니다.",
+            text: answerText,
           },
         ],
       },
@@ -919,7 +923,9 @@ const server = Bun.serve({
             }
           )
         } else if (serialized.includes("연속 검색")) {
-          void emitCompletedRun(threadId, run, serialized.includes("대기열 검증") ? 2500 : 0, serialized.includes("서브에이전트 검증")).catch((error: unknown) => {
+          void emitCompletedRun(threadId, run, serialized.includes("대기열 검증") ? 2500 : 0, serialized.includes("서브에이전트 검증"), serialized.includes("이미지 검증")
+            ? "이미지 경로를 확인합니다.\n\n![상태 경계](https://syshin0116.vercel.app/assets/agent-state-sync-boundaries.svg)\n\n![없는 이미지](/assets/not-found.svg)"
+            : undefined).catch((error: unknown) => {
             state.errors.push(error instanceof Error ? error.message : "search failed")
           })
         } else if (serialized.includes("취소")) {

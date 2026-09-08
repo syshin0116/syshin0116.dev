@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import notesList from "@/.generated/notes-list.json";
 import type { NoteEntry } from "@/lib/blog";
 
@@ -16,7 +15,7 @@ export function RecentPosts() {
   return (
     <section>
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-xl font-semibold">최근 블로그 포스트</h2>
+        <h2 className="text-base font-semibold">최근 글</h2>
         <Link
           href="/blog"
           aria-label="최근 블로그 포스트 전체 보기"
@@ -25,27 +24,17 @@ export function RecentPosts() {
           전체 보기 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Link>
       </div>
-      <ul className="space-y-3">
+      <ul className="divide-y divide-border/60">
         {posts.map((post) => (
           <li key={post.slug}>
-            <Link href={`/blog/${post.slug}`} className="block group">
-              <div className="rounded-lg border bg-card p-4 hover:border-primary/50 transition-colors">
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1.5">
-                  <Calendar className="h-3 w-3" aria-hidden="true" />
+            <Link href={`/blog/${post.slug}`} className="group block rounded-sm py-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground tabular-nums">
                   {formatDate(post.dateRaw ?? post.date)}
-                </div>
-                <h3 className="font-medium text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                </p>
+                <h3 className="font-medium text-sm leading-6 group-hover:underline underline-offset-4 line-clamp-2">
                   {post.title}
                 </h3>
-                {post.tags && post.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {post.tags.slice(0, 3).map((tag: string) => (
-                      <Badge key={tag} variant="secondary" className="text-xs px-1.5 py-0">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
               </div>
             </Link>
           </li>

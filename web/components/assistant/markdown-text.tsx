@@ -15,9 +15,20 @@ import remarkBreaks from "remark-breaks"
 import remarkGfm from "remark-gfm"
 
 import { cn } from "@/lib/utils"
+import { resolveChatImage } from "@/lib/chat-images"
+import imagePaths from "@/.generated/image-paths.json"
 
 const MARKDOWN_PLUGINS = [remarkGfm, remarkBreaks]
 const COPIED_DURATION_MS = 2_000
+
+function AnswerImage({ src, alt }: { src: string; alt: string }) {
+  const source = resolveChatImage(src, imagePaths)
+  const [failed, setFailed] = useState(false)
+  if (failed || source === null) return <span className="my-3 block rounded-lg bg-muted/40 px-4 py-3 text-sm text-muted-foreground">{alt || "이미지"} · 이미지를 불러올 수 없습니다.</span>
+  // Content images use the published asset path, including SVG diagrams.
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={source} alt={alt} loading="lazy" onError={() => setFailed(true)} className="my-3 h-auto max-h-[32rem] max-w-full rounded-lg object-contain" />
+}
 
 const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
   const [copied, setCopied] = useState(false)
@@ -56,6 +67,7 @@ const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
 }
 
 const markdownComponents = memoizeMarkdownComponents({
+  img: ({ src, alt }) => <AnswerImage key={typeof src === "string" ? src : ""} src={typeof src === "string" ? src : ""} alt={alt ?? ""} />,
   h1: ({ className, ...props }) => (
     <h1
       className={cn(

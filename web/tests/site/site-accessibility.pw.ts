@@ -135,7 +135,6 @@ test("served revision matches the requested production commit", async ({
 test("signed-out home has semantic landmarks and accessible controls", async ({
   page,
 }, testInfo) => {
-  test.skip(testInfo.project.name !== "site-desktop", "desktop journey")
   await page.goto("/")
 
   await expect(page.locator("main")).toHaveCount(1)
@@ -150,13 +149,20 @@ test("signed-out home has semantic landmarks and accessible controls", async ({
   await expect(
     page.getByRole("link", { name: "GitHub 프로필 열기" }).first()
   ).toBeVisible()
+  if (testInfo.project.name === "site-mobile") await page.getByRole("button", { name: "메뉴 열기" }).click()
   await expect(
     page.getByRole("button", { name: /모드로 전환|테마 전환/ })
   ).toBeVisible()
 
+  if (testInfo.project.name === "site-mobile") await page.keyboard.press("Escape")
   await expectNoHorizontalOverflow(page)
   await expectA11yClean(page)
   await attachScreenshot(page, testInfo, "signed-out-home")
+  await page.getByRole("heading", { level: 3 }).nth(2).scrollIntoViewIfNeeded()
+  await expectNoHorizontalOverflow(page)
+  await attachScreenshot(page, testInfo, "home-recent-content")
+  await page.getByRole("heading", { level: 3 }).last().scrollIntoViewIfNeeded()
+  await attachScreenshot(page, testInfo, "home-projects")
 })
 
 test("login is exposed as the primary page heading", async ({ page }, testInfo) => {

@@ -24,8 +24,6 @@ import {
   Archive,
   ArrowDown,
   ArrowUp,
-  ArrowUpRight,
-  BookOpen,
   BrainCircuit,
   Check,
   ChevronDown,
@@ -33,7 +31,6 @@ import {
   CircleStop,
   Clock3,
   Copy,
-  Code2,
   History,
   ListTree,
   LoaderCircle,
@@ -103,9 +100,9 @@ import {
 } from "./runtime/focus-restoration"
 
 const SUGGESTIONS = [
-  { label: "기술 글 찾기", prompt: "LangGraph 관련 글을 찾아줘", icon: BookOpen },
-  { label: "프로젝트 살펴보기", prompt: "최근 AI 프로젝트를 요약해줘", icon: Code2 },
-  { label: "검색 방법 알아보기", prompt: "RAG 평가 계획을 설명해줘", icon: ListTree },
+  { label: "LangGraph 글 찾기", prompt: "LangGraph 관련 글을 찾아줘" },
+  { label: "최근 프로젝트", prompt: "최근 AI 프로젝트를 요약해줘" },
+  { label: "RAG 평가 방법", prompt: "RAG 평가 계획을 설명해줘" },
 ] as const
 
 const ReasoningPart = memo(function ReasoningPart({
@@ -355,15 +352,12 @@ function ChatMessage() {
 function EmptyConversation() {
   return (
     <AuiIf condition={(state) => state.thread.isEmpty}>
-      <div className="mx-auto w-full max-w-3xl px-5 pb-7 pt-8 md:px-8 md:pb-8">
-        <div className="mb-5 flex items-center gap-2.5 text-sm text-muted-foreground">
-          <span>블로그와 프로젝트</span>
-        </div>
-        <h1 className="text-balance text-[32px] font-medium leading-tight tracking-[-0.045em] sm:text-5xl">
+      <div className="mx-auto w-full max-w-3xl px-5 pb-7 pt-8 text-center md:px-8 md:pb-8">
+        <h1 className="text-balance text-[28px] font-medium leading-tight tracking-[-0.035em] sm:text-4xl">
           무엇이 궁금하세요?
         </h1>
-        <p className="mt-4 max-w-lg break-keep text-pretty text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-          기술 글과 프로젝트에서 답을 찾고, 출처까지 확인해 보세요.
+        <p className="mx-auto mt-3 max-w-lg break-keep text-pretty text-sm leading-6 text-muted-foreground">
+          기술 글과 프로젝트에 대해 물어보세요.
         </p>
       </div>
     </AuiIf>
@@ -716,20 +710,15 @@ function Composer({ interrupted }: { interrupted: boolean }) {
         </p>
       ) : null}
       <AuiIf condition={(state) => state.thread.isEmpty}>
-        <div className="mt-5 grid gap-2 sm:grid-cols-3">
-          {SUGGESTIONS.map(({ label, prompt, icon: Icon }) => (
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
+          {SUGGESTIONS.map(({ label, prompt }) => (
             <ThreadPrimitive.Suggestion
               key={prompt}
               prompt={prompt}
               aria-label={prompt}
-              className="group flex items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors motion-reduce:transition-none hover:bg-muted/60 sm:flex-col sm:items-start sm:gap-2.5"
+              className="rounded-full border border-border/60 px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring motion-reduce:transition-none"
             >
-              <Icon className="size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0 flex-1">
-                <span className="block text-xs font-medium">{label}</span>
-                <span className="mt-1 block text-xs leading-5 text-muted-foreground">{prompt}</span>
-              </div>
-              <ArrowUpRight className="size-3.5 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:group-hover:transform-none sm:hidden" />
+              {label}
             </ThreadPrimitive.Suggestion>
           ))}
         </div>
@@ -1242,12 +1231,7 @@ function ModelSelector() {
 
 function WorkspaceHeader() {
   return (
-    <header className="mx-auto flex min-h-16 w-full max-w-5xl shrink-0 items-center justify-between gap-3 px-4 sm:px-6">
-      <div className="flex min-w-0 items-center gap-3">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold tracking-tight">Syshin AI</p>
-        </div>
-      </div>
+    <header className="mx-auto flex min-h-14 w-full max-w-3xl shrink-0 items-center justify-end px-4 sm:px-6">
       <div className="flex shrink-0 items-center gap-0.5">
         <NewThreadButton />
         <ThreadSheet />
@@ -1279,8 +1263,8 @@ export function ChatShell({ children }: { children?: ReactNode }) {
       className="relative flex h-[calc(100svh-3.5rem-1px)] min-h-0 flex-col bg-background supports-[height:100dvh]:h-[calc(100dvh-3.5rem-1px)]"
     >
       <WorkspaceHeader />
-      {children}
       <Conversation />
+      {children}
     </section>
   )
 }

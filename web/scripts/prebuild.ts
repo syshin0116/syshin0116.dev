@@ -95,6 +95,7 @@ async function writeJSON(filePath: string, data: unknown) {
 
 async function copyMediaFiles() {
   let count = 0
+  const imagePaths: string[] = []
   async function walk(dir: string) {
     let entries: Dirent<string>[]
     try {
@@ -114,11 +115,13 @@ async function copyMediaFiles() {
         await fs.mkdir(path.dirname(dest), { recursive: true })
         await fs.copyFile(fullPath, dest)
         count++
+        if (/\.(png|jpe?g|gif|webp|svg)$/i.test(relative)) imagePaths.push(relative)
       }
     }
   }
   await fs.rm(path.join(PUBLIC_DIR, "content"), { recursive: true, force: true })
   await walk(CONTENT_DIR)
+  await writeJSON(path.join(OUT_DIR, "image-paths.json"), imagePaths.sort())
   console.log(`prebuild: copied ${count} media files`)
 }
 
