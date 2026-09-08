@@ -179,26 +179,13 @@ function subscriberMatches(
   if ((audience === "watcher" && !isWatcher) || (audience === "content" && isWatcher)) return false
   const namespaces = subscriber.body.namespaces
   if (namespaces === undefined) return true
-  if (
-    !Array.isArray(namespaces) ||
-    namespaces.length !== 1 ||
-    !Array.isArray(namespaces[0])
-  ) {
-    return false
-  }
-  const prefix = namespaces[0] as string[]
+  if (!Array.isArray(namespaces)) return false
   const namespace = namespaceFor(event)
-  if (
-    prefix.length > namespace.length ||
-    prefix.some((part, index) => namespace[index] !== part)
-  ) {
-    return false
-  }
-  const depth =
-    typeof subscriber.body.depth === "number"
-      ? subscriber.body.depth
-      : undefined
-  return depth === undefined || namespace.length - prefix.length <= depth
+  const depth = typeof subscriber.body.depth === "number" ? subscriber.body.depth : undefined
+  return namespaces.some((prefix) => Array.isArray(prefix) &&
+    prefix.length <= namespace.length &&
+    prefix.every((part, index) => namespace[index] === part) &&
+    (depth === undefined || namespace.length - prefix.length <= depth))
 }
 
 function writeEvent(
@@ -267,13 +254,13 @@ function protocolEvent(
   }
 }
 
-async function waitForStreams(threadId: string): Promise<void> {
+async function waitForStreams(threadId: string, requireWatcher = true): Promise<void> {
   for (let attempt = 0; attempt < 2_000; attempt += 1) {
     const streams = [...state.subscribers.values()].filter(
       (subscriber) => subscriber.threadId === threadId && !subscriber.closed
     )
     if (streams.some((stream) => Array.isArray(stream.body.channels) && stream.body.channels.includes("messages")) &&
-        streams.some((stream) => stream.body.namespaces === undefined)) return
+        (!requireWatcher || streams.some((stream) => stream.body.namespaces === undefined))) return
     await Bun.sleep(5)
   }
   throw new Error("browser fixture streams were not opened")
@@ -544,9 +531,13 @@ async function emitPublicRootStateFallback(
 
 async function emitCompletedRun(
   threadId: string,
-  run: RunRow
+  run: RunRow,
+  delayMs = 0,
+  showTools = false
 ): Promise<void> {
-  await waitForStreams(threadId)
+  await waitForStreams(threadId, false)
+  // Let the command acknowledgement arrive before the simulated model response.
+  await Bun.sleep(50)
   emit(
     threadId,
     protocolEvent("lifecycle", [], {
@@ -562,6 +553,26 @@ async function emitCompletedRun(
     }, undefined, run.run_id),
     "watcher"
   )
+  if (showTools) {
+    const taskId = `task-${run.run_id}`
+    const toolId = `search-${run.run_id}`
+    emit(threadId, protocolEvent("tools", [], {
+      event: "tool-started", tool_call_id: taskId, tool_name: "task",
+      input: { subagent_type: "researcher", description: "관련 글을 찾아 요약합니다." },
+    }, undefined, run.run_id))
+    await Bun.sleep(200)
+    emit(threadId, protocolEvent("tools", [`tools:${taskId}`], {
+      event: "tool-started", tool_call_id: toolId, tool_name: "semantic_search", input: { query: "LangGraph" },
+    }, undefined, run.run_id))
+    await Bun.sleep(1500)
+    emit(threadId, protocolEvent("tools", [`tools:${taskId}`], {
+      event: "tool-finished", tool_call_id: toolId, output: "관련 글 2개를 찾았습니다.",
+    }, undefined, run.run_id))
+    emit(threadId, protocolEvent("tools", [], {
+      event: "tool-finished", tool_call_id: taskId, output: "검색 완료",
+    }, undefined, run.run_id))
+  }
+  if (delayMs) await Bun.sleep(delayMs)
   const answerId = `browser-answer-${run.run_id}`
   for (const event of messageEvents(run.run_id, undefined, answerId)) emit(threadId, event)
   emit(
@@ -908,7 +919,7 @@ const server = Bun.serve({
             }
           )
         } else if (serialized.includes("연속 검색")) {
-          void emitCompletedRun(threadId, run).catch((error: unknown) => {
+          void emitCompletedRun(threadId, run, serialized.includes("대기열 검증") ? 2500 : 0, serialized.includes("서브에이전트 검증")).catch((error: unknown) => {
             state.errors.push(error instanceof Error ? error.message : "search failed")
           })
         } else if (serialized.includes("취소")) {

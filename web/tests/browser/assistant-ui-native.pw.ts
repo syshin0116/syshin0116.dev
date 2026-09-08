@@ -188,7 +188,7 @@ async function selectFixtureThread(
     .getByRole("button", { name: /브라우저 테스트 대화/ })
     .click()
   if (closeThreadList) {
-    await page.getByRole("button", { name: "Close" }).click()
+    await expect(page.getByRole("dialog")).toBeHidden()
   }
 }
 
@@ -287,7 +287,111 @@ test.describe.serial("native assistant-ui production journey", () => {
     await expectNoBrowserErrors(page, diagnostics)
   })
 
-  test("keeps the next draft while a response runs and sends it after stopping", async ({ page }, testInfo) => {
+  test("shows dynamic subagents and their tools inside the answer without leaking into the next turn", async ({ page }, testInfo) => {
+    await resetFixture(page)
+    await page.goto("/")
+    const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    await expect(page.getByText("연결됨", { exact: true })).toBeVisible()
+    await composer.fill("연속 검색 서브에이전트 검증")
+    await composer.press("Enter")
+    const activity = page.getByLabel("답변 실행 상태")
+    await expect(activity.getByText("서브에이전트 · researcher", { exact: true })).toBeVisible()
+    await expect(activity.getByText("semantic_search", { exact: true })).toBeVisible()
+    await attachEvidence(page, testInfo, "subagent-running")
+    await expect(page.getByRole("button", { name: "응답 중지" })).toBeHidden()
+    await activity.getByText("서브에이전트 · researcher", { exact: true }).click()
+    await expect(activity.getByText("semantic_search", { exact: true })).toBeVisible()
+    await attachEvidence(page, testInfo, "subagent-completed")
+    await composer.fill("연속 검색 다음 질문")
+    await composer.press("Enter")
+    await expect(page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true })).toHaveCount(2)
+    await expect(page.getByText("서브에이전트 · researcher", { exact: true })).toHaveCount(0)
+    await attachEvidence(page, testInfo, "subagent-next-turn")
+  })
+
+  test("restores a rejected submission to the queue for explicit retry", async ({ page }, testInfo) => {
+    await resetFixture(page)
+    await page.goto("/")
+    const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    await expect(page.getByText("연결됨", { exact: true })).toBeVisible()
+    let reject = true
+    await page.route(`${fixtureOrigin}/threads/*/commands`, async (route) => {
+      if (reject && route.request().postDataJSON().method === "run.start") {
+        await route.fulfill({ status: 503, contentType: "application/json", body: '{"detail":"unavailable"}' })
+      } else await route.continue()
+    })
+    await composer.fill("연속 검색 실패 복구")
+    await composer.press("Enter")
+    await expect(page.getByLabel("전송 대기열")).toContainText("전송 일시정지")
+    await expect(page.getByLabel("전송 대기열")).toContainText("연속 검색 실패 복구")
+    await attachEvidence(page, testInfo, "queue-rejected")
+    reject = false
+    await page.getByRole("button", { name: "대기 메시지 보내기" }).click()
+    await expect(page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true })).toHaveCount(1)
+    await expect(page.getByLabel("전송 대기열")).toBeHidden()
+    await attachEvidence(page, testInfo, "queue-retried")
+  })
+
+  test("keeps pending messages in their original thread across a conversation switch", async ({ page }, testInfo) => {
+    await resetFixture(page)
+    await page.goto("/")
+    await selectFixtureThread(page)
+    const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    await composer.fill("연속 검색 대기열 검증")
+    await composer.press("Enter")
+    await expect(page.getByRole("button", { name: "응답 중지" })).toBeVisible()
+    await composer.fill("연속 검색 원래 대화의 후속 질문")
+    await composer.press("Enter")
+    await expect(page.getByLabel("전송 대기열")).toContainText("1개 대기")
+    await page.getByRole("button", { name: "새 대화", exact: true }).click()
+    await expect(page.getByLabel("전송 대기열")).toBeHidden()
+    await expect(composer).toHaveValue("")
+    await attachEvidence(page, testInfo, "queue-other-thread")
+    await selectFixtureThread(page)
+    await expect(page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true })).toHaveCount(2)
+    expect((await fixtureState(page)).commands).toHaveLength(2)
+    await expect(page.getByText("연속 검색 원래 대화의 후속 질문", { exact: true })).toHaveCount(1)
+    await attachEvidence(page, testInfo, "queue-original-thread")
+  })
+
+  test("batches queued messages into one run and keeps the unsent draft", async ({ page }, testInfo) => {
+    const diagnostics = collectDiagnostics(page)
+    await resetFixture(page)
+    await page.goto("/")
+    const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    await expect(page.getByText("연결됨", { exact: true })).toBeVisible()
+    await composer.fill("연속 검색 대기열 검증")
+    await composer.press("Enter")
+    await expect(page.getByRole("button", { name: "응답 중지" })).toBeVisible()
+    await expect(page.getByLabel("답변 실행 상태")).toBeVisible()
+    await attachEvidence(page, testInfo, "queue-running")
+    for (const text of ["연속 검색 두 번째", "세 번째 질문"]) {
+      await composer.fill(text)
+      await composer.press("Enter")
+      await expect(composer).toHaveValue("")
+    }
+    await expect(page.getByLabel("전송 대기열")).toContainText("2개 대기")
+    expect((await fixtureState(page)).commands).toHaveLength(1)
+    await composer.fill("아직 보내지 않은 초안")
+    await attachEvidence(page, testInfo, "queue-buffered")
+    await expect(page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true })).toHaveCount(2)
+    const commands = (await fixtureState(page)).commands
+    expect(commands).toHaveLength(2)
+    expect(commands[1]).toMatchObject({ method: "run.start", params: { input: { messages: [{ type: "human", content: "연속 검색 두 번째\n\n세 번째 질문" }] } } })
+    await expect(composer).toHaveValue("아직 보내지 않은 초안")
+    await expect(page.getByLabel("전송 대기열")).toBeHidden()
+    await expect(page.locator('img[src*="logo"]')).toHaveCount(0)
+    await expect(page.getByText("다음 질문을 미리 적어두세요")).toHaveCount(0)
+    await attachEvidence(page, testInfo, "queue-complete")
+    await page.setViewportSize({ width: 390, height: 844 })
+    await expect(page.getByText("연속 검색 대기열 검증", { exact: true })).toBeVisible()
+    const bubble = page.getByText("연속 검색 대기열 검증", { exact: true })
+    expect((await bubble.boundingBox())!.height).toBeLessThanOrEqual(30)
+    await attachEvidence(page, testInfo, "queue-mobile")
+    await expectNoBrowserErrors(page, diagnostics)
+  })
+
+  test("keeps queued messages after stopping until explicitly resumed", async ({ page }, testInfo) => {
     await resetFixture(page)
     await page.goto("/")
     const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
@@ -301,13 +405,13 @@ test.describe.serial("native assistant-ui production journey", () => {
     await composer.press("Enter")
     await composer.press("Enter")
     expect((await fixtureState(page)).commands).toHaveLength(1)
-    expect((await composer.inputValue()).trim()).toBe("연속 검색 후속 질문")
+    await expect(composer).toHaveValue("")
     await attachEvidence(page, testInfo, "busy-draft")
     await stop.click()
     await expect(stop).toBeHidden()
-    expect((await composer.inputValue()).trim()).toBe("연속 검색 후속 질문")
+    await expect(composer).toHaveValue("")
     await attachEvidence(page, testInfo, "busy-stopped")
-    await composer.press("Enter")
+    await page.getByRole("button", { name: "대기 메시지 보내기" }).click()
     await expect(page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true })).toHaveCount(1)
     expect((await fixtureState(page)).commands).toHaveLength(2)
     await expect(page.getByText("연속 검색 후속 질문", { exact: true })).toHaveCount(1)
@@ -361,7 +465,7 @@ test.describe.serial("native assistant-ui production journey", () => {
     await page
       .getByRole("button", { name: /브라우저 테스트 대화/ })
       .click()
-    await page.getByRole("button", { name: "Close" }).click()
+    await expect(page.getByRole("dialog")).toBeHidden()
 
     const composer = page.getByRole("textbox", {
       name: "AI에게 보낼 메시지",
@@ -512,7 +616,8 @@ test.describe.serial("native assistant-ui production journey", () => {
     const diagnostics = collectDiagnostics(page)
     await resetFixture(page)
     await page.goto("/")
-    await selectFixtureThread(page, false)
+    await selectFixtureThread(page)
+    await page.getByRole("button", { name: "대화 목록 열기" }).click()
 
     await page.getByRole("button", { name: "대화 제목 변경" }).click()
     const title = page.getByRole("textbox", { name: "대화 제목" })
@@ -875,7 +980,7 @@ test("bootstraps and resumes the public anonymous journey with the native runtim
   await page
     .getByRole("button", { name: new RegExp(publicQuestion) })
     .click()
-  await page.getByRole("button", { name: "Close" }).click()
+  await expect(page.getByRole("dialog")).toBeHidden()
   await expect(publicQuestionBubble).toHaveCount(1)
   await expect(
     page.getByText("브라우저 fixture 응답이 완료되었습니다.")
