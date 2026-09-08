@@ -47,6 +47,7 @@ function SubagentTools({ stream, subagent }: {
 export function AnswerActivity() {
   const running = useAuiState((s) => s.thread.isRunning)
   const content = useAuiState((s) => s.message.content)
+  const hasText = content.some((part) => part.type === "text" && part.text.trim().length > 0)
   const tools = useLangChainToolCalls()
   const subagents = useLangChainSubagents()
   const stream = useLangChainStream()
@@ -58,7 +59,7 @@ export function AnswerActivity() {
     !currentSubagents.some((subagent) => subagent.namespace.every((part, index) => tool.namespace[index] === part)))
   const nested = activities.filter((activity) => activity.kind === "nested" &&
     !currentSubagents.some((subagent) => subagent.namespace.join("/") === activity.namespace.join("/")))
-  if (!running && !extraTools.length && !currentSubagents.length && !nested.length) return null
+  if ((!running || hasText) && !extraTools.length && !currentSubagents.length && !nested.length) return null
   return <div aria-label="답변 실행 상태" className="mb-4 space-y-2 text-muted-foreground">
     {extraTools.map((tool) => <LiveTool key={tool.id} tool={tool} />)}
     {currentSubagents.map((subagent) => <details key={subagent.id} open={subagent.status === "running"} className="rounded-xl border border-border/60 text-xs">
@@ -75,11 +76,10 @@ export function AnswerActivity() {
       <span className="min-w-0 flex-1 truncate">{activity.kind === "nested" ? activity.name : activity.label}</span>
       <Status status={activity.status === "completed" ? "complete" : activity.status === "failed" ? "error" : activity.status} />
     </div>)}
-    {running ? <div role="status" className="flex w-fit items-center gap-3 rounded-2xl bg-muted/40 px-4 py-3 text-xs">
-      <span aria-hidden="true" className="flex gap-1">
-        {[0, 150, 300].map((delay) => <span key={delay} style={{ animationDelay: `${delay}ms` }} className="size-1.5 animate-bounce rounded-full bg-foreground/50 motion-reduce:animate-none" />)}
-      </span>
-      <span>{tools.some((tool) => currentToolIds.has(tool.id) && tool.status === "running") || currentSubagents.some((subagent) => subagent.status === "running") ? "작업 중" : "답변 작성 중"}</span>
+    {running && !hasText ? <div role="status" aria-label="답변 작성 중" className="flex w-52 max-w-full flex-col gap-2.5 py-3">
+      <span className="answer-shimmer h-2 w-full rounded-full" />
+      <span className="answer-shimmer h-2 w-2/3 rounded-full [animation-delay:160ms]" />
     </div> : null}
+
   </div>
 }

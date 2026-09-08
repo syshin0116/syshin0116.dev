@@ -309,6 +309,30 @@ test.describe.serial("native assistant-ui production journey", () => {
     await attachEvidence(page, testInfo, "subagent-next-turn")
   })
 
+  test("replaces the waiting effect with streamed text and resolves blog images", async ({ page }, testInfo) => {
+    await resetFixture(page)
+    await page.route("**/content/AI/assets/agent-state-sync-boundaries.svg", (route) => route.fulfill({
+      status: 200, contentType: "image/svg+xml",
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="640" height="200"><rect width="640" height="200" fill="#ddd"/><text x="24" y="100">Stream image</text></svg>',
+    }))
+    await page.goto("/")
+    await expect(page.getByText("연결됨", { exact: true })).toBeVisible()
+    const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    await composer.fill("연속 검색 대기열 검증 이미지 검증")
+    await composer.press("Enter")
+    await expect(page.getByRole("status", { name: "답변 작성 중" })).toBeVisible()
+    await attachEvidence(page, testInfo, "answer-waiting")
+    await expect(page.getByText("이미지 경로를 확인합니다.", { exact: true })).toBeVisible()
+    await expect(page.getByRole("button", { name: "응답 중지" })).toBeVisible()
+    await expect(page.getByRole("status", { name: "답변 작성 중" })).toHaveCount(0)
+    const image = page.getByRole("img", { name: "상태 경계", exact: true })
+    await expect(image).toHaveAttribute("src", "/content/AI/assets/agent-state-sync-boundaries.svg")
+    await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0)
+    await expect(page.getByText("없는 이미지 · 이미지를 불러올 수 없습니다.")).toBeVisible()
+    await attachEvidence(page, testInfo, "answer-streaming-image")
+    await expect(page.getByRole("button", { name: "응답 중지" })).toBeHidden()
+  })
+
   test("restores a rejected submission to the queue for explicit retry", async ({ page }, testInfo) => {
     await resetFixture(page)
     await page.goto("/")

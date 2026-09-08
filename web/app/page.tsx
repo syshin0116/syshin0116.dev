@@ -16,15 +16,15 @@ export default function Home() {
               className="w-full h-[calc(100svh-3.5rem-1px)] flex items-center justify-center"
               role="status"
             >
-              Loading...
+              불러오는 중…
             </div>
           }
         >
           <ChatSection />
         </Suspense>
 
-        <div className="border-t bg-muted/30">
-          <div className="container mx-auto px-4 md:px-6 py-14 grid md:grid-cols-2 gap-12">
+        <div className="border-t border-border/60">
+          <div className="mx-auto grid w-full max-w-5xl gap-12 px-6 py-16 md:grid-cols-2 md:gap-16 md:py-20">
             <RecentPosts />
             <RecentProjects />
           </div>
