@@ -1,6 +1,6 @@
 # syshin0116.dev - AI Working Guide
 
-Auto-loaded by Codex (and Anthropic Routines) when operating in this repo.
+`AGENTS.md` is the canonical instruction file. `CLAUDE.md` links to it for Claude Code and Anthropic Routines.
 
 ## What this repo is
 
@@ -56,7 +56,7 @@ Use the existing commands and workflows; do not copy another project's Make targ
 | `eval/` | `ci/eval` in `.github/workflows/ci.yml`; preserve retrieval-method breadth and reproducibility |
 | Infrastructure and delivery | `ci/infra`, the relevant delivery workflow, and its runbook; static checks do not authorize deployment |
 | `content/wiki/` | The wiki skill and `wiki/verify` |
-| Instructions and docs | Check links and commands against the repository, run `git diff --check`, and keep `AGENTS.md` and `CLAUDE.md` consistent |
+| Instructions and docs | Check links and commands against the repository, run `git diff --check`, and keep `CLAUDE.md` as a relative symlink to `AGENTS.md` |
 
 For UI changes, use `bc-ui-verification` and retain evidence for affected desktop/mobile states. A local quick check is not a production or merge verification. New behavior needs meaningful regression coverage; prose and styling-only changes do not need tests that merely repeat their implementation.
 
