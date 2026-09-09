@@ -241,7 +241,10 @@ test.describe.serial("native assistant-ui production journey", () => {
     await expect(page.getByRole("button", { name: "연결 상태 안내" })).toBeFocused()
     expect((await composer.boundingBox())!.y).toBeCloseTo(connectingY, 0)
     await attachEvidence(page, testInfo, "connection-ready")
+    await page.getByRole("button", { name: "연결 상태 안내" }).click()
+    await expect(page.getByRole("dialog", { name: "연결 상태 안내" })).toBeFocused()
     await page.context().setOffline(true)
+    await expect(composer).toBeFocused()
     await expect(page.getByRole("status")).toContainText("인터넷 연결이 끊겼습니다")
     await expect(send).toBeDisabled()
     await composer.press("Enter")
@@ -479,13 +482,22 @@ test.describe.serial("native assistant-ui production journey", () => {
   test("retries a failed connection without replacing the draft", async ({ page }, testInfo) => {
     await resetFixture(page)
     let available = false
-    await page.route(`${fixtureOrigin}/ready`, (route) => route.fulfill({
-      status: available ? 200 : 404,
-      body: available ? "ready" : "unavailable",
-    }))
+    let failConnection!: () => void
+    const connection = new Promise<void>((resolve) => { failConnection = resolve })
+    await page.route(`${fixtureOrigin}/ready`, async (route) => {
+      await connection
+      await route.fulfill({
+        status: available ? 200 : 404,
+        body: available ? "ready" : "unavailable",
+      })
+    })
     await page.goto("/")
     const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
     await composer.fill("연속 검색 재연결")
+    await page.getByRole("button", { name: "연결 상태 안내" }).click()
+    await expect(page.getByRole("dialog", { name: "연결 상태 안내" })).toBeFocused()
+    failConnection()
+    await expect(composer).toBeFocused()
     const connectionError = page.getByRole("alert").filter({ hasText: "다시 연결" })
     await expect(connectionError).toBeVisible()
     await expect(page.getByRole("button", { name: "메시지 보내기" })).toBeDisabled()
