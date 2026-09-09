@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import {
   Pagination,
@@ -59,59 +58,18 @@ export function BlogList({
       <div className="mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">전체 글</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {totalCount} notes
+          {totalCount}개 글
         </p>
       </div>
 
       {controls}
-      <Separator className="mb-8" />
+      <Separator />
 
-      <div className="space-y-2">
-        {notes.map((note) => {
-          const title = note.title
-          const date = note.date
-          const tags = note.tags
-          const category = note.category
-
-          return (
-            <Link key={note.slug} href={`/blog/${note.slug}`} className="group block">
-              <div className="rounded-lg border px-4 py-3 transition-colors hover:bg-muted/50">
-                <div className="flex items-start justify-between gap-4">
-                  <span className="font-medium group-hover:underline underline-offset-4">
-                    {title}
-                  </span>
-                  {date && (
-                    <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-                      {date}
-                    </span>
-                  )}
-                </div>
-                {note.description && (
-                  <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                    {note.description}
-                  </p>
-                )}
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {category && (
-                    <Badge variant="outline" className="text-xs font-normal border-primary/40 text-primary">
-                      {category}
-                    </Badge>
-                  )}
-                  {[...new Set(tags)].map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs font-normal">
-                      #{tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </Link>
-          )
-        })}
-      </div>
+      <NoteList notes={notes} />
 
       {totalCount === 0 && (
         <div className="text-center py-20 text-muted-foreground">
-          No notes found.
+          조건에 맞는 글이 없습니다.
         </div>
       )}
 
@@ -121,6 +79,37 @@ export function BlogList({
         </div>
       )}
     </div>
+  )
+}
+
+type NotePreview = Pick<NoteEntry, "slug" | "title" | "description" | "date"> & Partial<Pick<NoteEntry, "tags" | "category">>
+
+export function NoteList({ notes }: { notes: NotePreview[] }) {
+  return (
+    <ul aria-label="글 목록" className="divide-y divide-border/60">
+      {notes.map(note => {
+        const tags = [...new Set(note.tags ?? [])]
+          .filter(tag => tag.toLowerCase() !== note.category?.toLowerCase())
+          .slice(0, 3)
+        return (
+          <li key={note.slug}>
+            <Link href={`/blog/${note.slug}`} className="group block rounded-sm py-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+                <h2 className="text-base font-medium leading-7 group-hover:underline underline-offset-4">{note.title}</h2>
+                {note.date && <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{note.date}</span>}
+              </div>
+              {note.description && <p className="mt-2 text-sm leading-6 text-muted-foreground line-clamp-2">{note.description}</p>}
+              {(note.category || tags.length > 0) && (
+                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs leading-5 text-muted-foreground">
+                  {note.category && <span>{note.category}</span>}
+                  {tags.map(tag => <span key={tag}>#{tag}</span>)}
+                </div>
+              )}
+            </Link>
+          </li>
+        )
+      })}
+    </ul>
   )
 }
 
