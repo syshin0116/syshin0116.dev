@@ -689,22 +689,26 @@ function Composer({ interrupted }: { interrupted: boolean }) {
                   연결됨
                 </span>
               ) : online && runtimeUi.connectionStatus === "connecting" ? (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      aria-label="연결 중, 연결 상태 안내"
-                      className="flex h-7 items-center gap-1.5 rounded-md px-1 text-[11px] text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                    >
-                      <LoaderCircle aria-hidden="true" className="size-3 animate-spin motion-reduce:animate-none" />
-                      <span role="status">연결 중</span>
-                      <Info aria-hidden="true" className="size-3" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent side="top" className="w-64 p-3 text-xs leading-5" aria-label="연결 상태 안내">
-                    서버를 준비하고 있어요. 콜드스타트 시 첫 연결은 잠시 걸릴 수 있어요.
-                  </PopoverContent>
-                </Popover>
+                <div className="flex h-7 items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <span role="status" className="flex items-center gap-1.5">
+                    <LoaderCircle aria-hidden="true" className="size-3 animate-spin motion-reduce:animate-none" />
+                    연결 중
+                  </span>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label="연결 상태 안내"
+                        className="flex size-7 items-center justify-center rounded-md hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                      >
+                        <Info aria-hidden="true" className="size-3" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent side="top" className="w-64 p-3 text-xs leading-5" aria-label="연결 상태 안내">
+                      서버를 준비하고 있어요. 콜드스타트 시 첫 연결은 잠시 걸릴 수 있어요.
+                    </PopoverContent>
+                  </Popover>
+                </div>
               ) : null}
             </AuiIf>
 
