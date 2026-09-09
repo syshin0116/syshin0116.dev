@@ -25,6 +25,9 @@ import {
   ArrowDown,
   ArrowUp,
   BrainCircuit,
+  BookOpen,
+  FlaskConical,
+  FolderOpen,
   Check,
   ChevronDown,
   ChevronRight,
@@ -102,9 +105,9 @@ import {
 const CHAT_CONTENT_CLASS = "mx-auto w-full max-w-3xl px-4 sm:px-6"
 
 const SUGGESTIONS = [
-  { label: "LangGraph 글 찾기", prompt: "LangGraph 관련 글을 찾아줘" },
-  { label: "최근 프로젝트", prompt: "최근 AI 프로젝트를 요약해줘" },
-  { label: "RAG 평가 방법", prompt: "RAG 평가 계획을 설명해줘" },
+  { label: "LangGraph 글 찾기", prompt: "LangGraph 관련 글을 찾아줘", icon: BookOpen },
+  { label: "최근 프로젝트", prompt: "최근 AI 프로젝트를 요약해줘", icon: FolderOpen },
+  { label: "RAG 평가 방법", prompt: "RAG 평가 계획을 설명해줘", icon: FlaskConical },
 ] as const
 
 const ReasoningPart = memo(function ReasoningPart({
@@ -353,25 +356,13 @@ function ChatMessage() {
 function EmptyConversation() {
   return (
     <AuiIf condition={(state) => state.thread.isEmpty}>
-      <div className={cn(CHAT_CONTENT_CLASS, "my-auto py-8 text-center")}>
-        <h1 className="text-balance text-[28px] font-medium leading-tight tracking-[-0.035em] sm:text-4xl">
+      <div className={cn(CHAT_CONTENT_CLASS, "chat-welcome pb-6 pt-8 text-center sm:pb-8")}>
+        <h1 className="text-balance text-[28px] font-medium leading-tight tracking-[-0.045em] sm:text-[36px]">
           무엇이 궁금하세요?
         </h1>
         <p className="mx-auto mt-3 max-w-lg break-keep text-pretty text-sm leading-6 text-muted-foreground">
           기술 글과 프로젝트에 대해 물어보세요.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          {SUGGESTIONS.map(({ label, prompt }) => (
-            <ThreadPrimitive.Suggestion
-              key={prompt}
-              prompt={prompt}
-              aria-label={prompt}
-              className="rounded-full border border-border/60 px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring motion-reduce:transition-none"
-            >
-              {label}
-            </ThreadPrimitive.Suggestion>
-          ))}
-        </div>
       </div>
     </AuiIf>
   )
@@ -536,6 +527,7 @@ function ConversationFooter() {
 
 function Composer({ interrupted }: { interrupted: boolean }) {
   const runtimeUi = useAgentRuntimeUi()
+  const isEmpty = useAuiState((state) => state.thread.isEmpty)
   const online = useOnline()
   const router = useRouter()
   const compositionRef = useRef(false)
@@ -580,11 +572,6 @@ function Composer({ interrupted }: { interrupted: boolean }) {
           <p role="status" className="mb-3 flex items-start gap-3 rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
             <WifiOff className="mt-0.5 size-4 shrink-0" />
             <span>인터넷 연결이 끊겼습니다.<span className="mt-1 block text-xs opacity-80">작성한 메시지는 연결 후 보낼 수 있어요.</span></span>
-          </p>
-        ) : runtimeUi.connectionStatus === "connecting" ? (
-          <p role="status" className="mb-3 flex items-start gap-3 rounded-xl bg-muted/60 px-4 py-3 text-sm">
-            <LoaderCircle className="mt-0.5 size-4 shrink-0 animate-spin text-muted-foreground motion-reduce:animate-none" />
-            <span>AI에 연결하고 있습니다.<span className="mt-1 block text-xs leading-5 text-muted-foreground">첫 연결은 잠시 걸릴 수 있어요. 질문을 미리 작성해 두세요.</span></span>
           </p>
         ) : null}
         {runtimeUi.connectionStatus === "error" && connectionError ? (
@@ -644,7 +631,7 @@ function Composer({ interrupted }: { interrupted: boolean }) {
       </div>
       <ComposerPrimitive.Root
         hidden={interrupted}
-        className="flex flex-col rounded-2xl border border-border bg-background shadow-[0_2px_8px_rgb(0_0_0/0.03)] transition-[border-color,box-shadow] motion-reduce:transition-none focus-within:border-foreground/30 focus-within:shadow-[0_4px_16px_rgb(0_0_0/0.05)] dark:bg-muted/30"
+        className="chat-composer flex flex-col rounded-3xl border border-border/80 bg-background shadow-[0_2px_8px_rgb(0_0_0/0.025)] transition-[border-color,box-shadow] motion-reduce:transition-none focus-within:border-foreground/25 focus-within:shadow-[0_4px_20px_rgb(0_0_0/0.04)] dark:bg-muted/20"
         onSubmitCapture={(event) => {
           event.preventDefault()
           event.stopPropagation()
@@ -688,7 +675,7 @@ function Composer({ interrupted }: { interrupted: boolean }) {
               submit()
             }
           }}
-          className="max-h-[min(12rem,25dvh)] min-h-20 w-full min-w-0 resize-none bg-transparent px-4 pb-2 pt-4 text-base leading-6 outline-none placeholder:text-muted-foreground sm:px-5"
+          className="max-h-[min(12rem,25dvh)] min-h-16 w-full min-w-0 resize-none bg-transparent px-4 pb-2 pt-4 text-base leading-6 outline-none placeholder:text-muted-foreground sm:px-5"
         />
         <div className="flex items-center justify-between gap-3 px-3 pb-3">
           <div className="flex min-w-0 items-center gap-2">
@@ -725,9 +712,31 @@ function Composer({ interrupted }: { interrupted: boolean }) {
           </div>
         </div>
       </ComposerPrimitive.Root>
-      <p className="mt-3 text-center text-[10px] leading-5 text-muted-foreground sm:text-[11px]">
-        답변의 출처를 확인해 주세요.<span className="ml-2 hidden sm:inline">Enter 전송 · Shift+Enter 줄바꿈</span>
-      </p>
+      <div className="flex min-h-9 items-center justify-center px-1 text-center text-[11px] leading-4 text-muted-foreground">
+        {online && runtimeUi.connectionStatus === "connecting" ? (
+          <p role="status" className="flex items-center justify-center gap-2">
+            <LoaderCircle className="size-3 shrink-0 animate-spin motion-reduce:animate-none" />
+            <span>AI에 연결하고 있습니다. 콜드스타트 시 잠시 걸릴 수 있어요.</span>
+          </p>
+        ) : null}
+      </div>
+      <div className="chat-suggestions" data-visible={isEmpty} aria-hidden={!isEmpty} inert={!isEmpty}>
+        <div className="min-h-0 overflow-hidden">
+          <div className="flex flex-wrap justify-center gap-2 pb-2">
+            {SUGGESTIONS.map(({ label, prompt, icon: Icon }) => (
+              <ThreadPrimitive.Suggestion
+                key={prompt}
+                prompt={prompt}
+                aria-label={prompt}
+                className="flex items-center gap-2 rounded-full border border-border/70 bg-background px-3.5 py-2.5 text-xs text-muted-foreground transition-[background-color,color,transform] hover:-translate-y-0.5 hover:bg-muted/60 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring motion-reduce:transform-none motion-reduce:transition-none"
+              >
+                <Icon aria-hidden="true" className="size-3.5" />
+                {label}
+              </ThreadPrimitive.Suggestion>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -735,13 +744,13 @@ function Composer({ interrupted }: { interrupted: boolean }) {
 function Conversation() {
   const isEmpty = useAuiState((state) => state.thread.isEmpty)
   return (
-    <ThreadPrimitive.Root className="flex min-h-0 min-w-0 flex-1 flex-col">
+    <ThreadPrimitive.Root data-empty={isEmpty} className="chat-conversation min-h-0 min-w-0 flex-1">
       <ThreadPrimitive.ViewportProvider>
         <ThreadPrimitive.Viewport
           aria-label="대화 메시지"
           className={cn(
             "flex min-h-0 flex-1 flex-col overflow-y-auto [scrollbar-gutter:stable_both-edges]",
-            !isEmpty && "overscroll-y-contain"
+            isEmpty ? "justify-end" : "overscroll-y-contain"
           )}
         >
           <EmptyConversation />
