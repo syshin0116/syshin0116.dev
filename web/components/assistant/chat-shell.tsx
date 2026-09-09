@@ -761,7 +761,7 @@ function Conversation() {
           aria-label="대화 메시지"
           className={cn(
             "flex min-h-0 flex-1 flex-col overflow-y-auto [scrollbar-gutter:stable_both-edges]",
-            isEmpty ? "justify-end" : "overscroll-y-contain"
+            isEmpty ? "[justify-content:safe_flex-end]" : "overscroll-y-contain"
           )}
         >
           <EmptyConversation />
