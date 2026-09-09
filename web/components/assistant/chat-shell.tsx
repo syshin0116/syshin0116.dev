@@ -683,16 +683,15 @@ function Composer({ interrupted }: { interrupted: boolean }) {
           <div className="flex min-w-0 items-center gap-2">
             <ModelSelector />
             <AuiIf condition={(state) => !state.thread.isRunning}>
-              {ready ? (
-                <span role="status" className="flex h-7 items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <span aria-hidden="true" className="size-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
-                  연결됨
-                </span>
-              ) : online && runtimeUi.connectionStatus === "connecting" ? (
+              {online && (ready || runtimeUi.connectionStatus === "connecting") ? (
                 <div className="flex h-7 items-center gap-1.5 text-[11px] text-muted-foreground">
                   <span role="status" className="flex items-center gap-1.5">
-                    <LoaderCircle aria-hidden="true" className="size-3 animate-spin motion-reduce:animate-none" />
-                    연결 중
+                    {ready ? (
+                      <span aria-hidden="true" className="size-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
+                    ) : (
+                      <LoaderCircle aria-hidden="true" className="size-3 animate-spin motion-reduce:animate-none" />
+                    )}
+                    {ready ? "연결됨" : "연결 중"}
                   </span>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -705,7 +704,7 @@ function Composer({ interrupted }: { interrupted: boolean }) {
                       </button>
                     </PopoverTrigger>
                     <PopoverContent side="top" className="w-64 p-3 text-xs leading-5" aria-label="연결 상태 안내">
-                      서버를 준비하고 있어요. 콜드스타트 시 첫 연결은 잠시 걸릴 수 있어요.
+                      {ready ? "AI 연결이 완료됐어요." : "서버를 준비하고 있어요. 콜드스타트 시 첫 연결은 잠시 걸릴 수 있어요."}
                     </PopoverContent>
                   </Popover>
                 </div>
