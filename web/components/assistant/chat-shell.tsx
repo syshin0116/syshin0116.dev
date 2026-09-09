@@ -35,6 +35,7 @@ import {
   Clock3,
   Copy,
   History,
+  Info,
   ListTree,
   LoaderCircle,
   MessagesSquare,
@@ -58,6 +59,7 @@ import {
 } from "react"
 
 import { Button } from "@/components/ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -682,10 +684,27 @@ function Composer({ interrupted }: { interrupted: boolean }) {
             <ModelSelector />
             <AuiIf condition={(state) => !state.thread.isRunning}>
               {ready ? (
-                <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <span role="status" className="flex h-7 items-center gap-1.5 text-[11px] text-muted-foreground">
                   <span aria-hidden="true" className="size-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
                   연결됨
                 </span>
+              ) : online && runtimeUi.connectionStatus === "connecting" ? (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label="연결 중, 연결 상태 안내"
+                      className="flex h-7 items-center gap-1.5 rounded-md px-1 text-[11px] text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    >
+                      <LoaderCircle aria-hidden="true" className="size-3 animate-spin motion-reduce:animate-none" />
+                      <span role="status">연결 중</span>
+                      <Info aria-hidden="true" className="size-3" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent side="top" className="w-64 p-3 text-xs leading-5" aria-label="연결 상태 안내">
+                    서버를 준비하고 있어요. 콜드스타트 시 첫 연결은 잠시 걸릴 수 있어요.
+                  </PopoverContent>
+                </Popover>
               ) : null}
             </AuiIf>
 
@@ -712,17 +731,9 @@ function Composer({ interrupted }: { interrupted: boolean }) {
           </div>
         </div>
       </ComposerPrimitive.Root>
-      <div className="flex min-h-9 items-center justify-center px-1 text-center text-[11px] leading-4 text-muted-foreground">
-        {online && runtimeUi.connectionStatus === "connecting" ? (
-          <p role="status" className="flex items-center justify-center gap-2">
-            <LoaderCircle className="size-3 shrink-0 animate-spin motion-reduce:animate-none" />
-            <span>AI에 연결하고 있습니다. 콜드스타트 시 잠시 걸릴 수 있어요.</span>
-          </p>
-        ) : null}
-      </div>
       <div className="chat-suggestions" data-visible={isEmpty} aria-hidden={!isEmpty} inert={!isEmpty}>
         <div className="min-h-0 overflow-hidden">
-          <div className="flex flex-wrap justify-center gap-2 pb-2">
+          <div className="flex flex-wrap justify-center gap-2 pb-2 pt-4">
             {SUGGESTIONS.map(({ label, prompt, icon: Icon }) => (
               <ThreadPrimitive.Suggestion
                 key={prompt}
