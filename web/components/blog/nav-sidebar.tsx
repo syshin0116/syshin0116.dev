@@ -24,12 +24,11 @@ export function NavSidebar({ tree }: NavSidebarProps) {
         className={cn(
           "flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-muted",
           pathname === "/blog"
-            ? "bg-muted font-semibold text-foreground shadow-[inset_3px_0_0_var(--foreground)]"
+            ? "bg-muted font-semibold text-foreground"
             : "text-muted-foreground hover:text-foreground"
         )}
       >
         <span className="min-w-0 flex-1 truncate">전체 글</span>
-        {pathname === "/blog" && <CurrentPageBadge />}
       </Link>
       <div className="mt-2 space-y-0.5">
         {tree.map((node) => (
@@ -68,14 +67,14 @@ function NavNode({
       <div>
         <div
           className="flex w-full items-center gap-1 transition-colors"
-          style={{ paddingLeft: `${8 + indent}px` }}
+          style={{ paddingLeft: `${indent}px` }}
         >
           <button
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
             aria-controls={childrenId}
             aria-label={`${node.name} ${open ? "접기" : "펼치기"}`}
-            className="flex items-center py-1.5 shrink-0 text-muted-foreground hover:text-foreground cursor-pointer"
+            className="flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring cursor-pointer"
           >
             <ChevronRight
               aria-hidden="true"
@@ -100,7 +99,7 @@ function NavNode({
 
         <Collapse id={childrenId} open={open}>
           {node.children && (
-            <div style={{ paddingLeft: `${8 + indent + 12}px` }} className="space-y-0.5">
+            <div className="space-y-0.5">
               {node.children.map((child) => (
                 <NavNode
                   key={child.path}
@@ -124,24 +123,13 @@ function NavNode({
       className={cn(
         "flex items-center gap-2 rounded-md py-1.5 pr-2 transition-colors hover:bg-muted",
         isActive
-          ? "bg-muted font-semibold text-foreground shadow-[inset_3px_0_0_var(--foreground)]"
+          ? "bg-muted font-semibold text-foreground"
           : "text-muted-foreground hover:text-foreground"
       )}
-      style={{ paddingLeft: `${8 + indent}px` }}
+      style={{ paddingLeft: `${32 + indent}px` }}
+      title={node.name}
     >
       <span className="min-w-0 flex-1 truncate">{node.name}</span>
-      {isActive && <CurrentPageBadge />}
     </Link>
-  )
-}
-
-function CurrentPageBadge() {
-  return (
-    <span
-      aria-hidden="true"
-      className="shrink-0 rounded-full bg-foreground px-1.5 py-0.5 text-[10px] font-semibold leading-none text-background"
-    >
-      현재
-    </span>
   )
 }

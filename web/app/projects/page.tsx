@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/navbar";
 import Footer from "@/components/footer";
-import ProjectTimelineComponent from "@/components/project-timeline";
+import ProjectList from "@/components/project-list";
 import { projectsTimeline } from "@/data/projects";
 
 export const metadata = {
@@ -13,7 +13,7 @@ export default function ProjectsPage() {
     <>
       <Navbar />
       <main className="min-h-screen bg-background">
-        <ProjectTimelineComponent projects={projectsTimeline} />
+        <ProjectList projects={projectsTimeline} />
       </main>
       <Footer />
     </>
