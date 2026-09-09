@@ -534,6 +534,7 @@ function Composer({ interrupted }: { interrupted: boolean }) {
   const router = useRouter()
   const compositionRef = useRef(false)
   const composerInputRef = useRef<HTMLTextAreaElement>(null)
+  const connectionHelpRef = useRef<HTMLButtonElement>(null)
   const [composerError, setComposerError] = useState<string>()
   useEffect(() => { if (!interrupted) restoreComposerFocus() }, [interrupted])
   const guardImeEnter = createImeEnterGuard(() => compositionRef.current)
@@ -697,13 +698,24 @@ function Composer({ interrupted }: { interrupted: boolean }) {
                     <PopoverTrigger asChild>
                       <button
                         type="button"
+                        ref={connectionHelpRef}
                         aria-label="연결 상태 안내"
                         className="flex size-7 items-center justify-center rounded-md hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                       >
                         <Info aria-hidden="true" className="size-3" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent side="top" className="w-64 p-3 text-xs leading-5" aria-label="연결 상태 안내">
+                    <PopoverContent
+                      side="top"
+                      className="w-64 p-3 text-xs leading-5"
+                      aria-label="연결 상태 안내"
+                      onCloseAutoFocus={(event) => {
+                        if (!connectionHelpRef.current?.isConnected) {
+                          event.preventDefault()
+                          if (document.activeElement === document.body) restoreComposerFocus()
+                        }
+                      }}
+                    >
                       {ready ? "AI 연결이 완료됐어요." : "서버를 준비하고 있어요. 콜드스타트 시 첫 연결은 잠시 걸릴 수 있어요."}
                     </PopoverContent>
                   </Popover>
