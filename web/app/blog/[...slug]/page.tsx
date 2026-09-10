@@ -1,5 +1,7 @@
+import registry from "@/data/blog-permalinks.json"
+import { blogPath, permalinks } from "@/lib/blog-permalinks"
 import { NoteList } from "@/lib/blog"
-import { notFound } from "next/navigation"
+import { notFound, permanentRedirect } from "next/navigation"
 import fs from "node:fs/promises"
 import path from "node:path"
 import type { Metadata } from "next"
@@ -55,6 +57,8 @@ export function generateStaticParams() {
     aliases: string[][]
   }
   return [
+    ...Object.keys(registry).map(slug => ({ slug: [slug] })),
+    ...Object.values(registry).flatMap(entry => (entry as { aliases?: string[] }).aliases ?? []).map(slug => ({ slug: slug.split("/") })),
     ...data.pages.map((slug) => ({ slug })),
     ...data.folders.map((slug) => ({ slug })),
     ...data.aliases.map((slug) => ({ slug })),
@@ -68,7 +72,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const slugStr = slug.map(s => decodeURIComponent(s)).join("/")
-  const pageData = await loadPageData(slugStr)
+  const pageData = await loadPageData(permalinks.sourceSlug(slugStr))
 
   if (!pageData) {
     // Folder listing pages
@@ -88,13 +92,13 @@ export async function generateMetadata({
     title: `${title} | Syshin's Blog`,
     description,
     alternates: {
-      canonical: `/blog/${slugStr}`,
+      canonical: blogPath(slugStr),
     },
     openGraph: {
       title,
       description,
       type: "article",
-      url: `/blog/${slugStr}`,
+      url: blogPath(slugStr),
       images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
     twitter: {
@@ -112,8 +116,10 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string[] }>
 }) {
   const { slug: encodedSlug } = await params
-  const slug = encodedSlug.map((s) => decodeURIComponent(s))
-  const slugStr = slug.join("/")
+  const requestedSlug = encodedSlug.map(s => decodeURIComponent(s)).join("/")
+  const slugStr = permalinks.sourceSlug(requestedSlug)
+  const slug = slugStr.split("/")
+  if (permalinks.publicSlug(slugStr) !== requestedSlug) permanentRedirect(blogPath(slugStr))
 
   const pageData = await loadPageData(slugStr)
 
@@ -166,7 +172,7 @@ export default async function BlogPostPage({
       name: "Syshin",
       url: "https://syshin0116.vercel.app",
     },
-    url: `https://syshin0116.vercel.app/blog/${slugStr}`,
+    url: `https://syshin0116.vercel.app${blogPath(slugStr)}`,
   }
 
   return (
@@ -253,7 +259,7 @@ export default async function BlogPostPage({
 
         <PrevNextNav prevNext={prevNext} />
 
-        <GiscusComments />
+        <GiscusComments discussionPath={permalinks.discussionTerm(slugStr)} />
       </div>
 
       {/* Right sidebar */}
@@ -283,7 +289,7 @@ function PrevNextNav({
     >
       {prev ? (
         <Link
-          href={`/blog/${prev.slug}`}
+          href={blogPath(prev.slug)}
           className="group flex min-w-0 flex-1 items-center gap-2 rounded-lg border px-4 py-3 transition-colors hover:bg-muted/50"
         >
           <ChevronLeft className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -299,7 +305,7 @@ function PrevNextNav({
       )}
       {next ? (
         <Link
-          href={`/blog/${next.slug}`}
+          href={blogPath(next.slug)}
           className="group flex min-w-0 flex-1 items-center justify-end gap-2 rounded-lg border px-4 py-3 text-right transition-colors hover:bg-muted/50"
         >
           <div className="min-w-0">

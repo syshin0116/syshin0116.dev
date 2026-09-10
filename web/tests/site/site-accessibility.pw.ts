@@ -336,7 +336,7 @@ test("graph exploration preserves selection and keyboard navigation", async ({ p
   await dialog.getByRole("textbox", { name: "Find a graph node" }).fill("Azure")
   await expect(dialog.getByRole("button").filter({ hasText: REPRESENTATIVE_TITLE })).toBeVisible()
   await dialog.getByRole("button").filter({ hasText: REPRESENTATIVE_TITLE }).click()
-  await expect(dialog.getByRole("link", { name: "Open note" })).toHaveAttribute("href", /\/blog\/Dev\//)
+  await expect(dialog.getByRole("link", { name: "Open note" })).toHaveAttribute("href", /\/blog\/[a-z0-9-]+$/)
   await expectA11yClean(page)
   await attachScreenshot(page, testInfo, "graph-exploration")
   await page.keyboard.press("Escape")
@@ -366,7 +366,7 @@ test("spatial graph loads on demand and keeps selection across view modes", asyn
   await dialog.getByRole("textbox", { name: "Find a graph node" }).fill("Azure")
   await dialog.getByRole("button").filter({ hasText: REPRESENTATIVE_TITLE }).click()
   await expect(frame.locator("#label")).toHaveText(REPRESENTATIVE_TITLE)
-  await expect(dialog.getByRole("link", { name: "Open note" })).toHaveAttribute("href", /\/blog\/Dev\//)
+  await expect(dialog.getByRole("link", { name: "Open note" })).toHaveAttribute("href", /\/blog\/[a-z0-9-]+$/)
   await expectNoHorizontalOverflow(page)
   await attachScreenshot(page, testInfo, "graph-3d")
   for (const mode of ["VR", "AR"]) {
@@ -477,4 +477,21 @@ test("blog navigation preserves selection and folder keyboard controls on deskto
   await expect(page.getByRole("list", { name: "글 목록", exact: true })).toBeVisible()
   await expectNoHorizontalOverflow(page)
   await attachScreenshot(page, testInfo, "blog-category-list")
+})
+
+test("legacy article URLs resolve to the canonical permalink with navigation and previews intact", async ({ page, request }) => {
+  const legacy = REPRESENTATIVE_HREF
+  const canonical = "/blog/azure-cpu-credits-ci-failure"
+  const response = await request.get(encodeURI(legacy), { maxRedirects: 0 })
+  expect(response.status()).toBe(308)
+  expect(response.headers().location).toBe(canonical)
+  await page.goto(encodeURI(legacy) + "#main-content")
+  await expect(page).toHaveURL(new RegExp(`${canonical}#main-content$`))
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", new RegExp(`${canonical}$`))
+  await expect(page.locator("article")).toBeVisible()
+  await expect(page.locator("giscus-widget")).toHaveAttribute("mapping", "specific")
+  await expect(page.locator("giscus-widget")).toHaveAttribute("term", new URL(legacy, "http://localhost").pathname.slice(1))
+  const preview = await request.get(`/blog/api/preview?slug=azure-cpu-credits-ci-failure`)
+  expect(preview.ok()).toBe(true)
+  expect((await preview.json()).title).toContain("Azure")
 })

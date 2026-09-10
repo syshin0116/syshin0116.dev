@@ -1,3 +1,4 @@
+import { blogPath } from "@/lib/blog-permalinks"
 import { MetadataRoute } from "next";
 import { projectsTimeline } from "@/data/projects";
 import sitemapData from "@/.generated/sitemap-data.json"
@@ -41,7 +42,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const blogRoutes: MetadataRoute.Sitemap = (sitemapData as { slug: string; mtime: string | null; date: string | null }[]).map(
     (entry) => ({
-      url: `${baseUrl}/blog/${entry.slug.split("/").map(encodeURIComponent).join("/")}`,
+      url: `${baseUrl}${blogPath(entry.slug)}`,
       lastModified: entry.date
         ? new Date(entry.date)
         : entry.mtime

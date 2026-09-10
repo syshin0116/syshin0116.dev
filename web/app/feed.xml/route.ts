@@ -1,3 +1,4 @@
+import { blogPath, permalinks } from "@/lib/blog-permalinks"
 import notesList from "@/.generated/notes-list.json"
 import type { NoteEntry } from "@/lib/blog"
 
@@ -27,7 +28,8 @@ export async function GET() {
     .map((post) => {
       const title = escapeXml(String(post.title))
       const description = escapeXml(String(post.description ?? ""))
-      const url = `${BASE_URL}/blog/${post.slug.split("/").map(encodeURIComponent).join("/")}`
+      const url = `${BASE_URL}${blogPath(post.slug)}`
+      const guid = `${BASE_URL}${permalinks.originalPath(post.slug)}`
       const pubDate = post.dateRaw
         ? new Date(post.dateRaw).toUTCString()
         : ""
@@ -38,7 +40,7 @@ export async function GET() {
       return `    <item>
       <title>${title}</title>
       <link>${url}</link>
-      <guid isPermaLink="true">${url}</guid>
+      <guid isPermaLink="true">${guid}</guid>
       <description>${description}</description>
       ${pubDate ? `<pubDate>${pubDate}</pubDate>` : ""}
       ${categories}
