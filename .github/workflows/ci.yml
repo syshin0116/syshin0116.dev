@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
+      runtime: ${{ steps.components.outputs.runtime }}
       web: ${{ steps.components.outputs.web }}
       agent: ${{ steps.components.outputs.agent }}
       eval: ${{ steps.components.outputs.eval }}
@@ -32,20 +33,8 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.12"
-      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-        with:
-          version: "0.12.3"
-          checksum: 600cf9a742aca00d292673b16b5acffaa7b8c269a364ad0c2e79498dcb1fe101
-          enable-cache: false
-      - name: Sync the frozen repository test toolchain
-        run: uv sync --frozen --package syshin0116-dev-agent --all-extras --dev
-      - name: Test component change detection
-        run: >-
-          uv run --frozen --package syshin0116-dev-agent
-          python -m unittest discover -s scripts/tests -v
+      - name: Test component change detection without installing the application
+        run: python3 -m unittest discover -s scripts/tests -p test_ci_changed_components.py -v
       - name: Detect affected components
         id: components
         env:
@@ -60,13 +49,14 @@ jobs:
           --output "$GITHUB_OUTPUT"
       - name: Validate component outputs
         env:
+          RUNTIME_CHANGED: ${{ steps.components.outputs.runtime }}
           WEB_CHANGED: ${{ steps.components.outputs.web }}
           AGENT_CHANGED: ${{ steps.components.outputs.agent }}
           EVAL_CHANGED: ${{ steps.components.outputs.eval }}
           INFRA_CHANGED: ${{ steps.components.outputs.infra }}
         shell: bash
         run: |
-          for value in "$WEB_CHANGED" "$AGENT_CHANGED" "$EVAL_CHANGED" "$INFRA_CHANGED"; do
+          for value in "$RUNTIME_CHANGED" "$WEB_CHANGED" "$AGENT_CHANGED" "$EVAL_CHANGED" "$INFRA_CHANGED"; do
             if [[ "$value" != "true" && "$value" != "false" ]]; then
               echo "::error::component change detection emitted an invalid value: $value"
               exit 1
@@ -82,7 +72,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: postgres:17@sha256:7958605b474b3d264a969cb3a123d6aa00ad1e1fe9da8a69984dabb704d93317
+        image: ${{ needs.changes.outputs.runtime == 'true' && 'postgres:17@sha256:7958605b474b3d264a969cb3a123d6aa00ad1e1fe9da8a69984dabb704d93317' || '' }}
         env:
           POSTGRES_DB: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -131,13 +121,13 @@ jobs:
       - if: needs.changes.outputs.web == 'true'
         run: bun install --frozen-lockfile
       - name: Apply and verify the Auth.js schema contract
-        if: needs.changes.outputs.web == 'true'
+        if: needs.changes.outputs.web == 'true' && needs.changes.outputs.runtime == 'true'
         run: bun run auth:migrate --allow-insecure-loopback-test
       - name: Reject Auth.js schema drift independently
-        if: needs.changes.outputs.web == 'true'
+        if: needs.changes.outputs.web == 'true' && needs.changes.outputs.runtime == 'true'
         run: bun run auth:verify --allow-insecure-loopback-test
       - name: Exercise Auth.js against PostgreSQL 17
-        if: needs.changes.outputs.web == 'true'
+        if: needs.changes.outputs.web == 'true' && needs.changes.outputs.runtime == 'true'
         run: bun run test:auth-postgres
       - if: needs.changes.outputs.web == 'true'
         run: bun run prebuild
@@ -153,7 +143,7 @@ jobs:
         if: needs.changes.outputs.web == 'true'
         run: bunx playwright install --with-deps chromium
       - name: Exercise the production assistant runtime in a browser
-        if: needs.changes.outputs.web == 'true'
+        if: needs.changes.outputs.web == 'true' && needs.changes.outputs.runtime == 'true'
         run: bun run test:browser
       - name: Exercise the real site routes for accessibility and responsive layout
         if: needs.changes.outputs.web == 'true'
@@ -180,7 +170,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: postgres:17@sha256:7958605b474b3d264a969cb3a123d6aa00ad1e1fe9da8a69984dabb704d93317
+        image: ${{ needs.changes.outputs.agent == 'true' && 'postgres:17@sha256:7958605b474b3d264a969cb3a123d6aa00ad1e1fe9da8a69984dabb704d93317' || '' }}
         env:
           POSTGRES_DB: aegra_ci
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -244,6 +234,11 @@ jobs:
           scripts/verify_repository_governance.py
           scripts/verify_vercel_production.py
           scripts/tests
+      - name: Test repository scripts when their component changes
+        if: needs.changes.outputs.agent == 'true'
+        run: >-
+          uv run --frozen --package syshin0116-dev-agent
+          python -m unittest discover -s scripts/tests -v
       - name: Build and audit the published corpus and BM25 artifacts
         if: needs.changes.outputs.agent == 'true'
         run: >-
@@ -366,7 +361,7 @@ jobs:
     timeout-minutes: 20
     services:
       postgres:
-        image: postgres:17@sha256:7958605b474b3d264a969cb3a123d6aa00ad1e1fe9da8a69984dabb704d93317
+        image: ${{ needs.changes.outputs.runtime == 'true' && 'postgres:17@sha256:7958605b474b3d264a969cb3a123d6aa00ad1e1fe9da8a69984dabb704d93317' || '' }}
         env:
           POSTGRES_DB: aegra_ci
           POSTGRES_HOST_AUTH_METHOD: trust
@@ -393,39 +388,39 @@ jobs:
         if: needs.changes.result != 'success'
         run: exit 1
       - name: Report an unaffected runtime boundary
-        if: needs.changes.outputs.web != 'true' && needs.changes.outputs.agent != 'true'
-        run: echo "No web- or agent-affecting paths changed; ci/native-apv2 reports success without rebuilding."
+        if: needs.changes.outputs.runtime != 'true'
+        run: echo "No auth or chat runtime paths changed; ci/native-apv2 reports success without rebuilding."
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        if: needs.changes.outputs.web == 'true' || needs.changes.outputs.agent == 'true'
+        if: needs.changes.outputs.runtime == 'true'
         with:
           node-version: "24.19.0"
           package-manager-cache: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
-        if: needs.changes.outputs.web == 'true' || needs.changes.outputs.agent == 'true'
+        if: needs.changes.outputs.runtime == 'true'
         with:
           bun-version: 1.3.14
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        if: needs.changes.outputs.web == 'true' || needs.changes.outputs.agent == 'true'
+        if: needs.changes.outputs.runtime == 'true'
         with:
           python-version: "3.12"
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-        if: needs.changes.outputs.web == 'true' || needs.changes.outputs.agent == 'true'
+        if: needs.changes.outputs.runtime == 'true'
         with:
           version: "0.12.3"
           checksum: 600cf9a742aca00d292673b16b5acffaa7b8c269a364ad0c2e79498dcb1fe101
           enable-cache: false
       - name: Install the frozen web dependency graph
-        if: needs.changes.outputs.web == 'true' || needs.changes.outputs.agent == 'true'
+        if: needs.changes.outputs.runtime == 'true'
         working-directory: web
         run: bun install --frozen-lockfile
       - name: Install the frozen agent dependency graph
-        if: needs.changes.outputs.web == 'true' || needs.changes.outputs.agent == 'true'
+        if: needs.changes.outputs.runtime == 'true'
         run: uv sync --frozen --all-extras --dev
       - name: Require the official JavaScript SDK boundary
-        if: needs.changes.outputs.web == 'true' || needs.changes.outputs.agent == 'true'
+        if: needs.changes.outputs.runtime == 'true'
         run: test "$AEGRA_JS_SDK_E2E" = "1"
       - name: Exercise JavaScript SDK to Aegra to PostgreSQL 17
-        if: needs.changes.outputs.web == 'true' || needs.changes.outputs.agent == 'true'
+        if: needs.changes.outputs.runtime == 'true'
         run: >-
           uv run --frozen pytest -q
           tests/integration_tests/test_aegra_postgres.py

@@ -108,6 +108,31 @@ def classify_paths(paths: Iterable[str]) -> dict[str, bool]:
     return affected
 
 
+def runtime_affected(paths: Iterable[str]) -> bool:
+    """Only known presentation paths may bypass auth and chat integration."""
+    paths = list(paths)
+    if classify_paths(paths)["agent"]:
+        return True
+    presentation_prefixes = (
+        "web/app/blog/",
+        "web/components/blog/",
+        "web/app/projects/",
+    )
+    presentation_files = {
+        "web/lib/blog.tsx",
+        "web/lib/blog.test.tsx",
+        "web/components/project-list.tsx",
+        "web/components/project-timeline.tsx",
+        "web/tests/site/site-accessibility.pw.ts",
+    }
+    return any(
+        path.startswith("web/")
+        and not path.startswith(presentation_prefixes)
+        and path not in presentation_files
+        for path in paths
+    )
+
+
 def changed_paths(
     base: str,
     head: str,
@@ -159,8 +184,16 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     try:
         affected = detect(args.event, args.base, args.head)
+        runtime = (
+            True
+            if args.event == "workflow_dispatch"
+            or not args.base
+            or args.base == ALL_ZERO_SHA
+            else runtime_affected(changed_paths(args.base, args.head))
+        )
+        affected["runtime"] = runtime
         with args.output.open("a", encoding="utf-8") as output:
-            for component in COMPONENTS:
+            for component in (*COMPONENTS, "runtime"):
                 value = str(affected[component]).lower()
                 output.write(f"{component}={value}\n")
                 print(f"{component}={value}")
