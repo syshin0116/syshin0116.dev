@@ -13,6 +13,66 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 import ci_changed_components as changes  # noqa: E402
 
 
+class RuntimeClassificationTests(unittest.TestCase):
+    def test_presentation_changes_do_not_require_runtime(self) -> None:
+        self.assertFalse(
+            changes.runtime_affected(
+                [
+                    "web/app/blog/[...slug]/page.tsx",
+                    "web/components/blog/toc.tsx",
+                    "web/lib/blog.tsx",
+                    "web/app/projects/page.tsx",
+                    "web/components/project-list.tsx",
+                ]
+            )
+        )
+
+    def test_shared_and_unknown_paths_keep_integration_coverage(self) -> None:
+        for path in (
+            "web/components/ui/button.tsx",
+            "web/app/layout.tsx",
+            "web/app/globals.css",
+            "web/package.json",
+            "web/bun.lock",
+            "web/lib/auth.ts",
+            "web/components/chat/runtime.tsx",
+            "web/new-module.ts",
+            "agent/src/agent/graph.py",
+            "protocol/schema.json",
+            ".github/workflows/ci.yml",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(
+                    changes.runtime_affected(
+                        [
+                            "web/components/blog/toc.tsx",
+                            path,
+                        ]
+                    )
+                )
+
+    def test_cli_emits_runtime_for_dispatch(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "output"
+            self.assertEqual(
+                0,
+                changes.main(
+                    [
+                        "--event",
+                        "workflow_dispatch",
+                        "--head",
+                        "a" * 40,
+                        "--output",
+                        str(output),
+                    ]
+                ),
+            )
+            self.assertIn("runtime=true\n", output.read_text())
+
+    def test_docs_do_not_require_runtime(self) -> None:
+        self.assertFalse(changes.runtime_affected(["docs/reference/example.md"]))
+
+
 class PathClassificationTests(unittest.TestCase):
     def test_component_paths_are_selective(self) -> None:
         self.assertEqual(
