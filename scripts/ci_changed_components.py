@@ -38,6 +38,9 @@ PUBLICATION_DOCKER_CONTEXT_PATHS = frozenset(
 )
 OPS_FOUNDATION_PATHS = frozenset(
     {
+        "DECISIONS.md",
+        "docs/runbooks/cloud-run-delivery.md",
+        "docs/runbooks/gcp-neon-foundation.md",
         "scripts/gcp_project_readiness_contract.json",
         "scripts/ops_foundation_contract.py",
         "scripts/ops_foundation_live_toolchain.py",
