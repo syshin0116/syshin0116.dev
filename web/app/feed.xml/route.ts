@@ -1,3 +1,4 @@
+import { blogPath, permalinks } from "@/lib/blog-permalinks"
 import notesList from "@/.generated/notes-list.json"
 import type { NoteEntry } from "@/lib/blog"
 import { LEGACY_FEED_ORIGIN, SITE_URL } from "@/lib/site"
@@ -28,8 +29,11 @@ export async function GET() {
     .map((post) => {
       const title = escapeXml(String(post.title))
       const description = escapeXml(String(post.description ?? ""))
-      const path = `/blog/${post.slug.split("/").map(encodeURIComponent).join("/")}`
-      const url = `${BASE_URL}${path}`
+      const url = `${BASE_URL}${blogPath(post.slug)}`
+      // Subscribers stored the pre-permalink path on the old origin. Both the
+      // short address and the canonical domain are newer than that, so neither
+      // may reach the guid.
+      const guid = `${LEGACY_FEED_ORIGIN}${permalinks.originalPath(post.slug)}`
       const pubDate = post.dateRaw
         ? new Date(post.dateRaw).toUTCString()
         : ""
@@ -40,7 +44,7 @@ export async function GET() {
       return `    <item>
       <title>${title}</title>
       <link>${url}</link>
-      <guid isPermaLink="false">${LEGACY_FEED_ORIGIN}${path}</guid>
+      <guid isPermaLink="false">${guid}</guid>
       <description>${description}</description>
       ${pubDate ? `<pubDate>${pubDate}</pubDate>` : ""}
       ${categories}

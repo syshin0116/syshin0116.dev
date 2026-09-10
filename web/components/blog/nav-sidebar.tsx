@@ -1,5 +1,7 @@
 "use client"
 
+import { blogPath } from "@/lib/blog-permalinks"
+
 import { useState, useRef, useEffect, useId } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -85,7 +87,7 @@ function NavNode({
             />
           </button>
           <Link
-            href={`/blog/${node.path}`}
+            href={blogPath(node.path)}
             className={cn(
               "flex-1 min-w-0 py-1.5 text-xs font-semibold uppercase tracking-wider truncate",
               isAncestor
@@ -118,7 +120,7 @@ function NavNode({
   return (
     <Link
       ref={activeRef}
-      href={`/blog/${node.path}`}
+      href={blogPath(node.path)}
       aria-current={isActive ? "page" : undefined}
       className={cn(
         "flex items-center gap-2 rounded-md py-1.5 pr-2 transition-colors hover:bg-muted",

@@ -1,0 +1,1013 @@
+{
+  "agent-architecture-comparison": {
+    "source": "AI/2025-06-04-Agent Architecture Comparison"
+  },
+  "chatbot-caching": {
+    "source": "AI/2025-09-07-챗봇-캐싱-전략"
+  },
+  "academic-paper-parsers": {
+    "source": "AI/2025-09-14-학술 -논문-특화-파서-시스템"
+  },
+  "pgvector-postgresql-vector-database-extension": {
+    "source": "AI/2025-10-13-pgvector-PostgreSQL-Vector-Database-Extension"
+  },
+  "pgvector-qdrant-milvus-comparison": {
+    "source": "AI/2025-10-13-pgvector-vs-Qdrant-vs-Milvus-Performance-Comparison"
+  },
+  "context-engineering-for-ai-agents": {
+    "source": "AI/2025-10-26-context-engineering-for-ai-agents"
+  },
+  "ai-development-methods": {
+    "source": "AI/2026-02-26-AI-개발-방법론-비교-BMAD-MoAI-ADK-Spec-Kit"
+  },
+  "rag-anything-architecture": {
+    "source": "AI/2026-03-22-RAG-Anything-파헤치기"
+  },
+  "blog-search-experiment-design": {
+    "source": "AI/2026-04-04-블로그-검색-실험-1-실험설계"
+  },
+  "llm-text-to-sql": {
+    "source": "AI/2026-04-19-LLM-Text-to-SQL"
+  },
+  "agent-streaming-durability": {
+    "source": "AI/2026-04-29-LLM-에이전트-스트리밍과-durability-아키텍처"
+  },
+  "self-improving-agents": {
+    "source": "AI/2026-05-15-자가개선-AI-에이전트-5종-비교"
+  },
+  "llm-wiki-and-adr": {
+    "source": "AI/2026-05-17-LLM-Wiki와-ADR"
+  },
+  "hermes-organizational-knowledge": {
+    "source": "AI/2026-05-18-Hermes-Agent로-조직-지식-Second-Brain-만들기"
+  },
+  "tech-intelligence-radar": {
+    "source": "AI/2026-05-18-Tech-Intelligence-Radar"
+  },
+  "multica-agent-collaboration": {
+    "source": "AI/2026-05-22-Multica와-AI-Agent-협업-플랫폼-비교"
+  },
+  "loop-engineering": {
+    "source": "AI/2026-06-27-루프-엔지니어링-프롬프트에서-루프로"
+  },
+  "agent-state-synchronization": {
+    "source": "AI/2026-08-26-LLM-에이전트-상태-동기화"
+  },
+  "ax-requirements-discovery": {
+    "source": "AI/AX-Engineering/01-고객이-원하는-걸-모를-때의-요구사항-발굴"
+  },
+  "ax-workflow-analysis": {
+    "source": "AI/AX-Engineering/02-AI-자동화-전에-짚어야-할-현행-업무-as-is-분석"
+  },
+  "ax-project-intake": {
+    "source": "AI/AX-Engineering/03-AI-프로젝트-인테이크-양식-설계"
+  },
+  "ax-delegation-verification-cost": {
+    "source": "AI/AX-Engineering/04-AI-위임-범위-결정-능력보다-검증-비용"
+  },
+  "ax-data-readiness": {
+    "source": "AI/AX-Engineering/05-AI-ready-데이터의-오해와-준비-방법"
+  },
+  "ax-requirements-adr-feedback": {
+    "source": "AI/AX-Engineering/06-구현에서-드러나는-요구사항과-ADR-피드포워드"
+  },
+  "ax-federated-knowledge": {
+    "source": "AI/AX-Engineering/07-개인-팀-조직-지식-통합-중앙집중-대신-federation"
+  },
+  "ax-portable-knowledge": {
+    "source": "AI/AX-Engineering/08-도구-종속을-피하는-지식-substrate-전략"
+  },
+  "rag-tavily-agent": {
+    "source": "AI/Agent 사용 RAG+Tavily"
+  },
+  "anomaly-detection": {
+    "source": "AI/Anomaly Detection"
+  },
+  "chainlit": {
+    "source": "AI/Chainlit"
+  },
+  "imbalanced-data-prediction-anomaly-detection": {
+    "source": "AI/Imbalanced Data Prediction(Anomaly Detection)"
+  },
+  "knowledge-graphs-for-rag": {
+    "source": "AI/Knowledge Graphs for RAG"
+  },
+  "llm-chain-chatbot-rag": {
+    "source": "AI/LLM Chain Chatbot + RAG"
+  },
+  "llm-compiler-for-parallel-function-calling": {
+    "source": "AI/LLM Compiler for Parallel Function Calling"
+  },
+  "llm-proper-noun-errors": {
+    "source": "AI/LLM이 고유명사를 틀리는 이유와 해결 방법"
+  },
+  "langchain": {
+    "source": "AI/LangChain"
+  },
+  "langgraph": {
+    "source": "AI/LangGraph"
+  },
+  "layoutlm": {
+    "source": "AI/LayoutLM"
+  },
+  "model-context-protocol": {
+    "source": "AI/MCP(Model Context Protocal)"
+  },
+  "multi-agent-architecture-at-scale": {
+    "source": "AI/Multi-Agent Architecture and Large-Scale Implementation Strategies"
+  },
+  "rag-groq": {
+    "source": "AI/RAG+Groq"
+  },
+  "rag-pdf-loaders": {
+    "source": "AI/RAG용 PDF Loader 비교"
+  },
+  "t-sne": {
+    "source": "AI/T-SNE"
+  },
+  "tensorflow-computer-vision-notes-1": {
+    "source": "AI/Tensorflow Deep-Learning Computer-Vision Guide Notes 1"
+  },
+  "tensorflow-computer-vision-notes-2": {
+    "source": "AI/Tensorflow Deep-Learning Computer-Vision Guide Notes 2"
+  },
+  "track-anything-segment-anything-meets-videos": {
+    "source": "AI/Track Anything: Segment Anything Meets Videos"
+  },
+  "mineru-2-pipeline": {
+    "source": "AI/pdf-parser/2026-03-23-MinerU-2x-파이프라인-분석"
+  },
+  "pymupdf4llm-parser": {
+    "source": "AI/pdf-parser/2026-03-25-PyMuPDF4LLM-PDF-파서-분석"
+  },
+  "docling-parser": {
+    "source": "AI/pdf-parser/2026-03-26-Docling-PDF-파서-분석"
+  },
+  "liteparse-parser": {
+    "source": "AI/pdf-parser/2026-03-26-LiteParse-PDF-파서-분석"
+  },
+  "marker-parser": {
+    "source": "AI/pdf-parser/2026-03-26-Marker-PDF-파서-분석"
+  },
+  "omnidocbench-comparison": {
+    "source": "AI/pdf-parser/2026-03-26-OmniDocBench-파싱-성능-비교"
+  },
+  "pdf-parser-comparison": {
+    "source": "AI/pdf-parser/2026-03-26-PDF-파서-5종-비교-분석"
+  },
+  "opendataloader-parser": {
+    "source": "AI/pdf-parser/2026-03-27-OpenDataLoader-PDF-파서-분석"
+  },
+  "mineru-pdf-parser": {
+    "source": "AI/pdf-parser/MinerU - PDF Parser"
+  },
+  "multicollinearity": {
+    "source": "AI/다중공선성 (Multicollinearity)"
+  },
+  "document-visual-text-extraction": {
+    "source": "AI/문서(pdf 등) 내 시각 자료와 텍스트의 추출 및 활용"
+  },
+  "document-extraction-research": {
+    "source": "AI/문서(pdf 등) 내 시각 자료와 텍스트의 추출 및 활용 연구"
+  },
+  "dimensionality-reduction": {
+    "source": "AI/차원 축소 (Dimensionality Reduction) 기법"
+  },
+  "spring-dao-dto-vo": {
+    "source": "Dev/2022-09-04-_Spring_DAO vs DTO vs VO"
+  },
+  "spring-security": {
+    "source": "Dev/2022-09-04-_Spring_Spring Security"
+  },
+  "aws-rds-setup": {
+    "source": "Dev/2023-07-13-AWS RDS 생성"
+  },
+  "development-stack-notes": {
+    "source": "Dev/2023-08-27-기술 정리"
+  },
+  "linux-environment-setup": {
+    "source": "Dev/2024-03-25-Linux 환경 구축하기"
+  },
+  "integrated-project-stack": {
+    "source": "Dev/2024-03-28-통합 프로젝트 기술"
+  },
+  "supervisord": {
+    "source": "Dev/2024-03-31-Supervisord"
+  },
+  "development-server-networking": {
+    "source": "Dev/2024-04-24-개발 서버 네트워크 문제"
+  },
+  "ceph": {
+    "source": "Dev/2024-04-26-Ceph"
+  },
+  "gcp-vscode-ssh": {
+    "source": "Dev/2024-09-23-GCP VSCODE SSH 연결 방법"
+  },
+  "duckdb": {
+    "source": "Dev/2024-12-25-DuckDB"
+  },
+  "web-authentication-security": {
+    "source": "Dev/2025-05-02-웹 인증과 보안"
+  },
+  "cicd-tool-comparison": {
+    "source": "Dev/2025-05-08-CICD 툴 비교"
+  },
+  "supabase-nextjs": {
+    "source": "Dev/2025-05-24-Supabase-NextJS"
+  },
+  "api-usage-tracking": {
+    "source": "Dev/2025-08-30-API-사용량-추적-시스템-설계"
+  },
+  "enterprise-ai-architecture": {
+    "source": "Dev/2025-09-13-엔터프라이즈-AI-서비스-아키텍처-설계"
+  },
+  "solo-developer-productivity": {
+    "source": "Dev/2025-12-09-1인-개발자-생산성-스택"
+  },
+  "azure-cpu-credits-ci-failure": {
+    "source": "Dev/2026-07-16-Azure B시리즈 CPU 크레딧과 CI 러너 장애"
+  },
+  "ci-optimization-measurements": {
+    "source": "Dev/2026-08-20-CI 최적화, 626초에서 90초까지"
+  },
+  "javascript-function-optimization": {
+    "source": "Dev/JS 함수 최적화"
+  },
+  "monkey-patching": {
+    "source": "Dev/Monkey Patching"
+  },
+  "aws-saa-c03-notes": {
+    "source": "Events/2022-12-07-_AWS_ SAA-C03 notes"
+  },
+  "statistics-fundamentals": {
+    "source": "Events/2024-01-18-통계 기초의 모든것"
+  },
+  "dacon-competition-strategy": {
+    "source": "Events/2024-01-22-데이스쿨 랭커 특강 정리"
+  },
+  "llm-course-notes": {
+    "source": "Events/2024-02-24-LLM 강의 정리"
+  },
+  "langchain-for-llm-application-development": {
+    "source": "Events/2024-03-02-LangChain for LLM Application Development"
+  },
+  "teddynote-rag-challenges": {
+    "source": "Events/2024-03-05-RAG 우리가 절대 쉽게 결과물을 얻을 수 없는 이유 노트"
+  },
+  "large-scale-ai-program-briefing": {
+    "source": "Events/2024-03-22-초거대 AI 확산 생태계 조성 사업 설명회"
+  },
+  "wanted-docker-day-1": {
+    "source": "Events/2024-04-05-원디트 프리온보딩 백엔드-Docker-1일차"
+  },
+  "genai-hack-for-public-good-in-korea": {
+    "source": "Events/2024-04-13-GenAI Hack for Public Good in Korea"
+  },
+  "weco-career-webinar": {
+    "source": "Events/2024-05-26-위코 웨비나 노트"
+  },
+  "backend-learning-roadmap": {
+    "source": "Events/2024-05-27-백엔드 개발자 학습 가이드 웨비나"
+  },
+  "llamaindex-webinar": {
+    "source": "Events/2024-05-30-LlamaIndex 온라인 세미나"
+  },
+  "autorag-seminar": {
+    "source": "Events/2024-06-03-김동규 연구원님"
+  },
+  "ai-talk-show-2024": {
+    "source": "Events/2024-06-24-ai-talk-show-2024"
+  },
+  "makinarocks-ai-optimal-control": {
+    "source": "Events/2024-07-10-마키나락스가 AI를 활용해 최적 제어 로직을 도출하는 방법"
+  },
+  "teddynote-langgraph": {
+    "source": "Events/2024-07-13-TeddyNote LangGraph"
+  },
+  "note-taking-with-ai": {
+    "source": "Events/2024-07-17-AI시대, 기록을 잘하는 방법"
+  },
+  "mlops-now-llm-in-production": {
+    "source": "Events/2024-07-24-​MLOps Now - LLM in Production"
+  },
+  "teddynote-agentic-rag": {
+    "source": "Events/2024-09-07-TeddyNote-Agentic RAG"
+  },
+  "metacode-software-design": {
+    "source": "Events/2024-12-01-메타코드 강의 후기_1강_소프트웨어 설계"
+  },
+  "teddynote-prompt-engineering-2": {
+    "source": "Events/2024-12-04-프롬프트엔지니어링2탄"
+  },
+  "obsidian-monthly-2025-01": {
+    "source": "Events/2025-01-25-월간 옵시디안-25년 1월"
+  },
+  "inflearn-ui-design": {
+    "source": "Events/2025-01-26-Inflearn-UIUX"
+  },
+  "data-blog-challenge": {
+    "source": "Events/데블챌 데이터 블로그 챌린지"
+  },
+  "review-java-spring-self-study": {
+    "source": "Events/항해99 1일 1아티클 챌린지/아티클 리뷰 - 7개월간의 자바스프링 독학 회고"
+  },
+  "review-cap-distributed-systems": {
+    "source": "Events/항해99 1일 1아티클 챌린지/아티클 리뷰 - CAP 이론과 분산 시스템의 이해"
+  },
+  "review-choosing-nextjs": {
+    "source": "Events/항해99 1일 1아티클 챌린지/아티클 리뷰 - NextJS 선택 전 알아야 할 것들"
+  },
+  "review-law-to-software-career": {
+    "source": "Events/항해99 1일 1아티클 챌린지/아티클 리뷰 - 법대생이었던 내가 일어나보니 개발자가 된 건에 대하여"
+  },
+  "review-application-modernization": {
+    "source": "Events/항해99 1일 1아티클 챌린지/아티클 리뷰 - 성공적인 애플리케이션 현대화를 위한 12가지 기본 원칙"
+  },
+  "review-senior-developer-skills": {
+    "source": "Events/항해99 1일 1아티클 챌린지/아티클 리뷰 - 시니어 개발자로 성장하기 위한 핵심 역량"
+  },
+  "review-java-solid-principles": {
+    "source": "Events/항해99 1일 1아티클 챌린지/아티클 리뷰 - 자바 클래스 설계의 다섯 가지 SOLID 원칙"
+  },
+  "review-junior-interview-preparation": {
+    "source": "Events/항해99 1일 1아티클 챌린지/아티클 리뷰 - 주니어 개발자가 면접을 앞두고 준비한 것들"
+  },
+  "review-junior-developer-revenge": {
+    "source": "Events/항해99 1일 1아티클 챌린지/아티클 리뷰 - 주니어 개발자의 복수"
+  },
+  "review-frontend-solid-principles": {
+    "source": "Events/항해99 1일 1아티클 챌린지/아티클 리뷰 - 프론트엔드와 SOLID 원칙"
+  },
+  "hanghae-article-challenge": {
+    "source": "Events/항해99 1일 1아티클 챌린지/항해99 1일 1아티클 챌린지"
+  },
+  "portfolio-notes": {
+    "source": "Others/2024-01-18-포트폴리오 내용 정리"
+  },
+  "ai-developer-interview-notes": {
+    "source": "Others/2024-02-05-AI 개발자 채용 AI 관련 지식 필기"
+  },
+  "potentday-retrospective": {
+    "source": "Projects/2024-01-28-포텐데이 회고"
+  },
+  "blog-rag-overview": {
+    "source": "Projects/Blog-rag/00-Overview"
+  },
+  "blog-rag-motivation": {
+    "source": "Projects/Blog-rag/01-Motivation"
+  },
+  "clidex-overview": {
+    "source": "Projects/Clidex/01-Overview"
+  },
+  "clidex-search-improvement": {
+    "source": "Projects/Clidex/02-Search-Improvement"
+  },
+  "clidex-search-quality-hardening": {
+    "source": "Projects/Clidex/03-Search-Quality-Hardening"
+  },
+  "clidex-cli-ux-design": {
+    "source": "Projects/Clidex/04-CLI-UX-Design"
+  },
+  "hostit-readme": {
+    "source": "Projects/Hostit/Hostit README"
+  },
+  "hostit-overview": {
+    "source": "Projects/Hostit/Hostit 개요"
+  },
+  "hostit-architecture": {
+    "source": "Projects/Hostit/Hostit 구조"
+  },
+  "langchain-open-tutorial-workflow": {
+    "source": "Projects/LangChain Open Tutorial/2024-12-30-workflow"
+  },
+  "langchain-open-tutorial-brainstorm": {
+    "source": "Projects/LangChain Open Tutorial/2025-01-05-brainstorm"
+  },
+  "langchain-open-tutorial-peer-review": {
+    "source": "Projects/LangChain Open Tutorial/2025-01-05-peer-review"
+  },
+  "langchain-open-tutorial-llamaparse": {
+    "source": "Projects/LangChain Open Tutorial/2025-01-12-llamaparse"
+  },
+  "langchain-open-tutorial-web-search": {
+    "source": "Projects/LangChain Open Tutorial/2025-01-18-web-search"
+  },
+  "langchain-open-tutorial-conversation-memory": {
+    "source": "Projects/LangChain Open Tutorial/2025-02-01-conversation-memory"
+  },
+  "langchain-open-tutorial-cot-web-search": {
+    "source": "Projects/LangChain Open Tutorial/2025-02-12-cot-web-search"
+  },
+  "langchain-open-tutorial-project-retrospective": {
+    "source": "Projects/LangChain Open Tutorial/2025-02-24-project-retrospective"
+  },
+  "langchain-open-tutorial-retrospective": {
+    "source": "Projects/LangChain Open Tutorial/2025-02-24-retrospective"
+  },
+  "men-in-black-traffic-violations": {
+    "source": "Projects/Men-in-Black/2023-10-29-차량 블랙박스 영상속 도로 교통 법규 위반 차량 감지"
+  },
+  "men-in-black-readme-file": {
+    "source": "Projects/Men-in-Black/2023-11-19-Men in Black readme file"
+  },
+  "midas-v3": {
+    "source": "Projects/Men-in-Black/2023-12-05-MiDas v3"
+  },
+  "zoedepth": {
+    "source": "Projects/Men-in-Black/2023-12-19-ZoeDepth"
+  },
+  "modular-rag-architecture": {
+    "source": "Projects/Modular-RAG/2024-10-20-Modular RAG 구조"
+  },
+  "modular-rag-chat-history": {
+    "source": "Projects/Modular-RAG/2024-11-17-Modular RAG - Chat History"
+  },
+  "modular-rag-rdbms-vs-nosql": {
+    "source": "Projects/Modular-RAG/2024-11-25-Modular RAG - RDBMS vs NoSQL"
+  },
+  "modular-rag-short-term-long-term-memory": {
+    "source": "Projects/Modular-RAG/2024-12-22-Modular RAG - Short Term, Long Term Memory"
+  },
+  "nuartz-overview": {
+    "source": "Projects/Nuartz/00-Overview"
+  },
+  "nuartz-motivation": {
+    "source": "Projects/Nuartz/01-Motivation"
+  },
+  "nuartz-quartz-internals": {
+    "source": "Projects/Nuartz/02-Quartz-Internals"
+  },
+  "nuartz-vercel-deployment": {
+    "source": "Projects/Nuartz/03-Vercel-Deployment"
+  },
+  "nuartz-headless-and-ecosystem": {
+    "source": "Projects/Nuartz/04-Headless-and-Ecosystem"
+  },
+  "nuartz-publishing": {
+    "source": "Projects/Nuartz/05-Publishing"
+  },
+  "nuartz-pagefind-migration": {
+    "source": "Projects/Nuartz/06-FlexSearch에서-Pagefind로-검색-엔진-마이그레이션"
+  },
+  "podly-github": {
+    "source": "Projects/Podly/2024-08-16-Podly Github"
+  },
+  "podly-ai-todo": {
+    "source": "Projects/Podly/2024-08-17-Podly AI Todo"
+  },
+  "podly-backend-todo": {
+    "source": "Projects/Podly/2024-08-17-Podly 백엔드 Todo"
+  },
+  "podly-development-report": {
+    "source": "Projects/Podly/2024-08-30-Podly_개발보고서"
+  },
+  "podly-authentication": {
+    "source": "Projects/Podly/2024-08-31-Podly_Authentication 과정"
+  },
+  "podly-deployment": {
+    "source": "Projects/Podly/2024-09-01-Podly_배포"
+  },
+  "podly-workflow": {
+    "source": "Projects/Podly/2024-09-01-Podly_플로우"
+  },
+  "podly-screens": {
+    "source": "Projects/Podly/2024-09-04-Podly_화면"
+  },
+  "podlybot-kakao-messenger": {
+    "source": "Projects/PodlyBot/2024-09-18-메신저봇R 활용 카카오 챗봇 만들기"
+  },
+  "misen-overview": {
+    "source": "Projects/misen/2026-04-04-misen-overview"
+  },
+  "syshin0116-dev-overview": {
+    "source": "Projects/syshin0116-dev/00-Overview"
+  },
+  "employment-data-business-plan-draft": {
+    "source": "Projects/고용노동 공공데이터 활용 공모전/2024-06-03-사업계획서_초안"
+  },
+  "employment-data-business-plan": {
+    "source": "Projects/고용노동 공공데이터 활용 공모전/2024-06-05-사업계획서-1,2번"
+  },
+  "employment-data-project-architecture": {
+    "source": "Projects/고용노동 공공데이터 활용 공모전/2024-06-13-고용노동 공모전 프로젝트구조"
+  },
+  "employment-data-project-plan": {
+    "source": "Projects/고용노동 공공데이터 활용 공모전/2024-06-24-고용노동 공모전 계획"
+  },
+  "adsp-data-fundamentals": {
+    "source": "Study/ADsP/2023-08-02-ADsP-1과목. 데이터의 이해"
+  },
+  "metacode-adsp-data-fundamentals": {
+    "source": "Study/ADsP/2024-02-16-메타코드-ADSP-1과목"
+  },
+  "metacode-adsp-analysis-planning": {
+    "source": "Study/ADsP/2024-02-20-메타코드-ADSP-2과목"
+  },
+  "adsp-key-points": {
+    "source": "Study/ADsP/2024-08-09-ADSP 중요 포인트"
+  },
+  "chinese-lesson-1": {
+    "source": "Study/Chinese/2024-07-15-중국어 1회"
+  },
+  "chinese-lesson-2": {
+    "source": "Study/Chinese/2024-07-19-중국어 2회"
+  },
+  "chinese-lesson-3": {
+    "source": "Study/Chinese/2024-07-22-중국어 3회"
+  },
+  "chinese-lesson-4": {
+    "source": "Study/Chinese/2024-07-24-중국어 4회"
+  },
+  "chinese-lesson-5": {
+    "source": "Study/Chinese/2024-07-26-중국어 5회"
+  },
+  "chinese-lesson-6": {
+    "source": "Study/Chinese/2024-07-29-중국어 6회"
+  },
+  "chinese-lesson-7": {
+    "source": "Study/Chinese/2024-07-31-중국어 7회"
+  },
+  "chinese-lesson-8": {
+    "source": "Study/Chinese/2024-08-02-중국어 8회"
+  },
+  "chinese-lesson-9": {
+    "source": "Study/Chinese/2024-08-05-중국어 9회"
+  },
+  "chinese-lesson-10": {
+    "source": "Study/Chinese/2024-08-12-중국어10회"
+  },
+  "coding-lottery-ranks": {
+    "source": "Study/Code-Test/2022-08-01-_lvl1_로또의 최고 순위와 최저 순위"
+  },
+  "coding-number-words": {
+    "source": "Study/Code-Test/2022-08-01-_lvl1_숫자 문자열과 영단어"
+  },
+  "coding-keypad": {
+    "source": "Study/Code-Test/2022-08-01-lvl1_카카오 인턴_키패드 누르기"
+  },
+  "coding-kth-number": {
+    "source": "Study/Code-Test/2022-08-02-_lvl1_K번째 수"
+  },
+  "coding-unfinished-runner": {
+    "source": "Study/Code-Test/2022-08-02-_lvl1_완주하지 못한 선수"
+  },
+  "coding-pokemon": {
+    "source": "Study/Code-Test/2022-08-03-_lvl1_폰켓몬"
+  },
+  "sql-practice": {
+    "source": "Study/Code-Test/2022-08-03-sql 문제 풀이"
+  },
+  "coding-crane-game": {
+    "source": "Study/Code-Test/2022-08-04-_lvl1__2019 카카오 인턴쉽_크레인 인형뽑기 게임"
+  },
+  "coding-report-results": {
+    "source": "Study/Code-Test/2022-08-04-_lvl1__2022_KAKAO_BLIND_신고 결과 받기"
+  },
+  "coding-signed-sum": {
+    "source": "Study/Code-Test/2022-08-04-_lvl1__월간 코드 챌린지 시즌2_음양 더하기"
+  },
+  "coding-missing-digits": {
+    "source": "Study/Code-Test/2022-08-04-_lvl1__월간 코드 챌린지 시즌3_없는 숫자 더하기"
+  },
+  "coding-gym-uniforms": {
+    "source": "Study/Code-Test/2022-08-05-_lvl1_체육복"
+  },
+  "coding-dot-product": {
+    "source": "Study/Code-Test/2022-08-08-_lvl1_내적"
+  },
+  "coding-prime-combinations": {
+    "source": "Study/Code-Test/2022-08-08-_lvl1_소수 만들기"
+  },
+  "coding-social-distancing": {
+    "source": "Study/Code-Test/2022-08-08-_lvl2_거리두기 확인하기"
+  },
+  "coding-string-compression": {
+    "source": "Study/Code-Test/2022-08-08-_lvl2_문자열 압축"
+  },
+  "coding-equal-queue-sums": {
+    "source": "Study/Code-Test/2022-08-19-_lvl2__2022 KAKAO TECH INTERNSHIP_두 큐 합 같게 만들기"
+  },
+  "coding-min-max": {
+    "source": "Study/Code-Test/2022-09-27-_lvl2_최대값과 최솟값"
+  },
+  "coding-billiards": {
+    "source": "Study/Code-Test/2023-03-18-_lvl1_당구 연습"
+  },
+  "coding-tangerine-selection": {
+    "source": "Study/Code-Test/2023-03-19-_lvl2_귤 고르기"
+  },
+  "coding-valid-parentheses": {
+    "source": "Study/Code-Test/2023-04-29-_lvl2_옳바른 괄호"
+  },
+  "coding-word-chain": {
+    "source": "Study/Code-Test/2023-05-01-_lvl2__Summer:Winder Coding(~2018)_영어 끝말잇기"
+  },
+  "coding-integer-triangle": {
+    "source": "Study/Code-Test/2023-05-01-_lvl3__동적계획법(Dynamic Programming)_정수 삼각형"
+  },
+  "coding-best-set": {
+    "source": "Study/Code-Test/2023-05-16-_lvl3_최고의 집합"
+  },
+  "coding-overtime-index": {
+    "source": "Study/Code-Test/2023-05-17-_lvl3_야근 지수"
+  },
+  "sql-restaurants-by-group": {
+    "source": "Study/Code-Test/2023-06-24-SQL-그룹별 조건에 맞는 식당 목록 출력하기"
+  },
+  "coding-minimum-product-sum": {
+    "source": "Study/Code-Test/2023-06-28-최솟값 만들기"
+  },
+  "coding-binary-conversion": {
+    "source": "Study/Code-Test/2023-06-30-이진 변환 반복하기"
+  },
+  "coding-number-expressions": {
+    "source": "Study/Code-Test/2023-07-01-숫자의 표현"
+  },
+  "coding-next-binary-number": {
+    "source": "Study/Code-Test/2023-07-03-다음 큰 숫자"
+  },
+  "coding-networks": {
+    "source": "Study/Code-Test/2023-08-05-lvl3-네트워크"
+  },
+  "coding-tower-of-hanoi": {
+    "source": "Study/Code-Test/2023-08-06-lvl2-하노이의 탑"
+  },
+  "coding-shared-taxi-fare": {
+    "source": "Study/Code-Test/2023-08-25-lvl3-합승 택시 요금"
+  },
+  "coding-triangle-snail": {
+    "source": "Study/Code-Test/2023-10-1-lvl2-삼각 달팽이"
+  },
+  "coding-next-greater-element": {
+    "source": "Study/Code-Test/2024-01-17-lvl2_뒤에 있는 큰 수 찾기"
+  },
+  "behavior-patterns": {
+    "source": "Study/Design-Patterns/2024-08-11-Behavior Patterns"
+  },
+  "creational-patterns": {
+    "source": "Study/Design-Patterns/2024-08-11-Creational Patterns"
+  },
+  "structural-patterns": {
+    "source": "Study/Design-Patterns/2024-08-11-Structural Patterns"
+  },
+  "docker": {
+    "source": "Study/Docker/2023-12-23-Docker"
+  },
+  "wanted-docker-day-2": {
+    "source": "Study/Docker/2024-04-05-원티드 프리온보딩 백엔드-Docker-2일차"
+  },
+  "wanted-docker-day-3": {
+    "source": "Study/Docker/2024-04-09-원티드 프리온보딩 백엔드-Docker-3일차"
+  },
+  "wanted-docker-day-4": {
+    "source": "Study/Docker/2024-04-12-원티드 프리온보딩 백엔드-Docker-4일차"
+  },
+  "ppv-and-para": {
+    "source": "Study/PPV and PARA"
+  },
+  "sqld-data-modeling": {
+    "source": "Study/SQLD/2023-05-27-SQLD_1과목-데이터 모델링의 이해"
+  },
+  "engineer-database-construction": {
+    "source": "Study/SeSAC/2023-07-19-SeSAC-정처기-2과목-데이터베이스 구축"
+  },
+  "sesac-python": {
+    "source": "Study/SeSAC/2023-07-24-SeSAC-파이썬 강의"
+  },
+  "sesac-pandas-visualization": {
+    "source": "Study/SeSAC/2023-07-25-SeSAC-판다스 라이브러리"
+  },
+  "sesac-data-analysis": {
+    "source": "Study/SeSAC/2023-07-26-SeSAC-데이터분석"
+  },
+  "coding-dual-priority-queue": {
+    "source": "Study/SeSAC/2023-07-29-SeSAC-이중우선순위큐"
+  },
+  "sesac-python-data-day-1": {
+    "source": "Study/SeSAC/2023-07-31-SeSAC-파이썬 데이터 처리 프로그래밍-1일차"
+  },
+  "sesac-python-data-day-2": {
+    "source": "Study/SeSAC/2023-08-01-SeSAC-파이썬 데이터 처리 프로그래밍-2일차"
+  },
+  "sesac-python-data-day-3": {
+    "source": "Study/SeSAC/2023-08-02-SeSAC-파이썬 데이터 처리 프로그래밍-3일차"
+  },
+  "sesac-python-data-day-4": {
+    "source": "Study/SeSAC/2023-08-03-SeSAC-파이썬 데이터 처리 프로그래밍-4일차"
+  },
+  "sesac-python-data-day-5": {
+    "source": "Study/SeSAC/2023-08-04-SeSAC-파이썬 데이터 처리 프로그래밍-5일차"
+  },
+  "sesac-project-communication": {
+    "source": "Study/SeSAC/2023-08-08-프로젝트 소통역량 강화"
+  },
+  "sesac-python-analysis-1": {
+    "source": "Study/SeSAC/2023-08-09-파이썬 라이브러리를 활용한 데이터 분석-1"
+  },
+  "sesac-data-analysis-videos": {
+    "source": "Study/SeSAC/2023-08-10-데이터분석 관련 영상 시청"
+  },
+  "sesac-python-analysis-2": {
+    "source": "Study/SeSAC/2023-08-11-파이썬 라이브러리를 활용한 데이터분석-2"
+  },
+  "sesac-python-analysis-3": {
+    "source": "Study/SeSAC/2023-08-14-파이썬 라이브러리를 활용한 데이터분석-3"
+  },
+  "predictive-analytics": {
+    "source": "Study/SeSAC/2023-08-21-빅데이터의 다음 단계는 예측 분석이다"
+  },
+  "sesac-ml-regression-classification": {
+    "source": "Study/SeSAC/2023-08-24-SeSAC-혼공 머신러닝+딥러닝-Ch3,4"
+  },
+  "pccp-day-3": {
+    "source": "Study/SeSAC/2023-08-25-PCCP-3일차"
+  },
+  "sesac-roboflow": {
+    "source": "Study/SeSAC/2023-08-25-SeSAC-Roboflow"
+  },
+  "sesac-tree-algorithms": {
+    "source": "Study/SeSAC/2023-08-28-SeSAC-혼공 머신러닝+딥러닝-Ch5트리 알고리즘"
+  },
+  "sesac-unsupervised-learning": {
+    "source": "Study/SeSAC/2023-08-29-SeSAC-혼공 머신러닝+딥러닝-Ch6. 비지도 학습"
+  },
+  "sesac-deep-learning": {
+    "source": "Study/SeSAC/2023-08-29-SeSAC-혼공 머신러닝+딥러닝-Chap7. 딥러닝"
+  },
+  "sesac-ml-dl-notes": {
+    "source": "Study/SeSAC/2023-08-29-SeSAC-혼공 머신러닝+딥러닝-정리"
+  },
+  "sesac-ml-dl-summary": {
+    "source": "Study/SeSAC/2023-08-31-혼공 머신러닝 & 딥러닝 요약"
+  },
+  "sesac-image-neural-networks": {
+    "source": "Study/SeSAC/2023-09-01-SeSAC-혼공 머신러닝+딥러닝-Ch8. 이미지를 위한 인공 신경망"
+  },
+  "sesac-text-neural-networks": {
+    "source": "Study/SeSAC/2023-09-04-SeSAC-혼공 머신러닝+딥러닝-Ch9. 텍스트를 위한 인공 신경망"
+  },
+  "sesac-natural-language-processing": {
+    "source": "Study/SeSAC/2023-09-24-SeSAC-Natural Language Process(자연어 처리)"
+  },
+  "sesac-meeting-summary-app": {
+    "source": "Study/SeSAC/2023-09-29-대화 요약 어플"
+  },
+  "sesac-anniversary-project": {
+    "source": "Study/SeSAC/2023-10-23-SeSAC 3주년 프로젝트"
+  },
+  "sesac-computer-vision-1": {
+    "source": "Study/SeSAC/2023-11-17-딥러닝 영상처리"
+  },
+  "sesac-computer-vision-2": {
+    "source": "Study/SeSAC/2023-11-20-딥러닝 영상처리2"
+  },
+  "azure-ml-classic": {
+    "source": "Study/SeSAC/2023-11-21-Azure ML Classic"
+  },
+  "sesac-orange-practice": {
+    "source": "Study/SeSAC/2023-11-21-Orange 실습"
+  },
+  "sesac-computer-vision-3": {
+    "source": "Study/SeSAC/2023-11-22-딥러닝 영상처리3"
+  },
+  "sesac-computer-vision-4": {
+    "source": "Study/SeSAC/2023-11-23-딥러닝 영상처리4"
+  },
+  "sesac-transformers-notes": {
+    "source": "Study/SeSAC/2023-11-29-Transformers 강의 정리"
+  },
+  "sesac-transformers-practice": {
+    "source": "Study/SeSAC/2023-11-30-Transformers 실습"
+  },
+  "sesac-data-basics-day-1": {
+    "source": "Study/SeSAC/data-analysis/2023-07-18-SeSAC-데이터 분석 기초-1일차"
+  },
+  "sesac-data-basics-day-2": {
+    "source": "Study/SeSAC/data-analysis/2023-07-19-SeSAC-데이터 분석 기초-2일차"
+  },
+  "sesac-sql-day-1": {
+    "source": "Study/SeSAC/data-analysis/2023-07-20-SeSAC-SQL로 데이터베이스 다루기-1일차"
+  },
+  "sesac-ai-basics": {
+    "source": "Study/SeSAC/data-analysis/2023-07-28-SeSAC-인공지능"
+  },
+  "big-data-analysis-exam": {
+    "source": "Study/빅분기/2023-09-22-빅분기"
+  },
+  "big-data-practical-type-1": {
+    "source": "Study/빅분기/2023-11-27-빅분기-실기-1유형"
+  },
+  "big-data-practical-type-2": {
+    "source": "Study/빅분기/2023-11-30-빅분기-실기-2유형"
+  },
+  "big-data-practical-type-3": {
+    "source": "Study/빅분기/2023-12-02-빅분기-실기-3유형"
+  },
+  "competitive-programming-math": {
+    "source": "Study/알고리즘 대회에 필요한 수학"
+  },
+  "java-variables": {
+    "source": "Study/자바의정석-2장-변수"
+  },
+  "engineer-software-methodologies": {
+    "source": "Study/정보처리기사/2023-07-05-소프트웨어 개발 방법론"
+  },
+  "engineer-software-engineering": {
+    "source": "Study/정보처리기사/2023-07-05-소프트웨어 공학"
+  },
+  "engineer-project-planning": {
+    "source": "Study/정보처리기사/2023-07-08-프로젝트 계획 및 분석"
+  },
+  "engineer-software-design": {
+    "source": "Study/정보처리기사/2023-07-11-소프트웨어 설계"
+  },
+  "engineer-server-implementation": {
+    "source": "Study/정보처리기사/2023-07-16-서버 프로그램 구현"
+  },
+  "engineer-screen-design": {
+    "source": "Study/정보처리기사/2023-07-16-화면 설계"
+  },
+  "engineer-operating-systems": {
+    "source": "Study/정보처리기사/2023-07-21-정처기-3과목-운영체제"
+  },
+  "prime-college-notes": {
+    "source": "Study/프라임칼리지 수업 정리"
+  },
+  "github-blog-setup": {
+    "source": "Tools/2024-01-01-깃 블로그 생성"
+  },
+  "blog-ssg-comparison": {
+    "source": "Tools/2024-01-03-Git Blog SSG 비교"
+  },
+  "hugo-blog-setup": {
+    "source": "Tools/2024-01-05-Hugo 블로그 생성 연습"
+  },
+  "obsidian-notion-automation": {
+    "source": "Tools/2024-03-09-Obsidian to Notion 자동화"
+  },
+  "zettelkasten": {
+    "source": "Tools/2024-07-29-Zettelkasten"
+  },
+  "second-brain-rag": {
+    "source": "Tools/2024-08-02-Second-Brain-RAG"
+  },
+  "visual-zettelkasten": {
+    "source": "Tools/2024-08-25-Visual Zettelkasten"
+  },
+  "moonlight-ai-paper-reader": {
+    "source": "Tools/2026-03-03-Moonlight-AI-논문-리더-활용법"
+  },
+  "hermes-claude-codex-workflows": {
+    "source": "Tools/2026-05-17-Hermes-Agent-사용-사례와-Claude-Codex-조합"
+  },
+  "cursor-project-rules": {
+    "source": "Tools/Cursor-Project-Rules"
+  },
+  "docker-vs-vm": {
+    "source": "Tools/Docker/2023-05-08-Docker와 VM 차이"
+  },
+  "docker-practice": {
+    "source": "Tools/Docker/2023-11-09-Docker-실습"
+  },
+  "docker-compose-flask-mysql": {
+    "source": "Tools/Docker/2024-03-27-Docker Compose에서 Flask와 MySQL 연결 문제"
+  },
+  "github-basics": {
+    "source": "Tools/Git/2022-09-08-_Github_Github정리"
+  },
+  "git-blog-themes": {
+    "source": "Tools/Git/2023-12-11-Git Blog Themes"
+  },
+  "github-actions-protobuf-error": {
+    "source": "Tools/Git/2024-01-15-Github Action google-protobuf 오류"
+  },
+  "github-actions-gcp-notes": {
+    "source": "Tools/Git/2024-11-09-정리-Github CI CD - GCP"
+  },
+  "github-actions-gcp-guide": {
+    "source": "Tools/Git/2024-11-17-방법-Github CI CD - GCP"
+  },
+  "langflow": {
+    "source": "Tools/LangFlow"
+  },
+  "macbook-setup": {
+    "source": "Tools/Mac/2025-04-18-맥북 초기 세팅"
+  },
+  "search-console-property-types": {
+    "source": "Tools/Obsidian/Google Search Console - 도메인 vs URL 접두어 속성"
+  },
+  "obsidian-quartz-github-pages": {
+    "source": "Tools/Obsidian/Quartz, GitHub Pages 사용하여 Obsidian 노트 배포"
+  },
+  "blog-search-indexing": {
+    "source": "Tools/Obsidian/검색 노출 시키는 방법"
+  },
+  "ubuntu-server-setup": {
+    "source": "Tools/Ubuntu-Server-Setup"
+  },
+  "vibe-coding-cursor": {
+    "source": "Tools/바이브코딩과 커서(Cursor)"
+  },
+  "tech-trends-2026-w26": {
+    "source": "trend/2026-W26"
+  },
+  "tech-trends-2026-w27": {
+    "source": "trend/2026-W27"
+  },
+  "tech-trends-2026-w28": {
+    "source": "trend/2026-W28"
+  },
+  "wiki-agentic-decision-workflow": {
+    "source": "wiki/agentic-decision-workflow"
+  },
+  "wiki-ai-fundamentals": {
+    "source": "wiki/ai-기초개념"
+  },
+  "wiki-blog-seo": {
+    "source": "wiki/blog-seo"
+  },
+  "wiki-cli-ux-design": {
+    "source": "wiki/cli-ux-design"
+  },
+  "wiki-clidex": {
+    "source": "wiki/clidex"
+  },
+  "wiki-cursor-project-rules": {
+    "source": "wiki/cursor-project-rules"
+  },
+  "wiki-docker": {
+    "source": "wiki/docker"
+  },
+  "wiki-git-basics": {
+    "source": "wiki/git-basics"
+  },
+  "wiki-github-actions-gcp-cicd": {
+    "source": "wiki/github-actions-gcp-cicd"
+  },
+  "wiki-index": {
+    "source": "wiki/index"
+  },
+  "wiki-langflow": {
+    "source": "wiki/langflow"
+  },
+  "wiki-llm-text-to-sql": {
+    "source": "wiki/llm-text-to-sql"
+  },
+  "wiki-llm-wiki": {
+    "source": "wiki/llm-wiki"
+  },
+  "wiki-log": {
+    "source": "wiki/log"
+  },
+  "wiki-mac-dev-setup": {
+    "source": "wiki/mac-dev-setup"
+  },
+  "wiki-misen": {
+    "source": "wiki/misen"
+  },
+  "wiki-moonlight-ai": {
+    "source": "wiki/moonlight-ai"
+  },
+  "wiki-object-detection": {
+    "source": "wiki/object-detection"
+  },
+  "wiki-obsidian-notion-sync": {
+    "source": "wiki/obsidian-notion-sync"
+  },
+  "wiki-quartz-publishing": {
+    "source": "wiki/quartz-publishing"
+  },
+  "wiki-second-brain-rag": {
+    "source": "wiki/second-brain-rag"
+  },
+  "wiki-sql-relational-db": {
+    "source": "wiki/sql-relational-db"
+  },
+  "wiki-static-site-generators": {
+    "source": "wiki/static-site-generators"
+  },
+  "wiki-tech-intelligence-radar": {
+    "source": "wiki/tech-intelligence-radar"
+  },
+  "wiki-transformer-architecture": {
+    "source": "wiki/transformer-architecture"
+  },
+  "wiki-ubuntu-server-setup": {
+    "source": "wiki/ubuntu-server-setup"
+  },
+  "wiki-vibe-coding": {
+    "source": "wiki/vibe-coding"
+  },
+  "wiki-zettelkasten": {
+    "source": "wiki/zettelkasten"
+  },
+  "wiki-blog-search-experiments": {
+    "source": "wiki/블로그-검색-실험"
+  },
+  "wiki-big-data-practical": {
+    "source": "wiki/빅분기-실기"
+  },
+  "wiki-information-processing-engineer": {
+    "source": "wiki/정보처리기사"
+  }
+}

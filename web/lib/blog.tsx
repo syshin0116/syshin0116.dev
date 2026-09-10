@@ -1,3 +1,4 @@
+import { blogPath } from "@/lib/blog-permalinks"
 import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -93,7 +94,7 @@ export function NoteList({ notes }: { notes: NotePreview[] }) {
           .slice(0, 3)
         return (
           <li key={note.slug}>
-            <Link href={`/blog/${note.slug}`} className="group block rounded-sm py-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
+            <Link href={blogPath(note.slug)} className="group block rounded-sm py-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
               <div className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
                 <h2 className="text-base font-medium leading-7 group-hover:underline underline-offset-4">{note.title}</h2>
                 {note.date && <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{note.date}</span>}

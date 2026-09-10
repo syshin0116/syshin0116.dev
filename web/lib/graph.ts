@@ -1,3 +1,4 @@
+import { blogPath } from "./blog-permalinks"
 export interface GraphNode {
   id: string
   title: string
@@ -46,7 +47,7 @@ export function getGraphNeighborhood(data: GraphData, root?: string, includeTags
 
 export function graphNodeHref(node: GraphNode): string {
   if (node.type === "tag") return `/blog/tags/${encodeURIComponent(node.id.slice(4))}`
-  return `/blog/${node.id.split("/").map(encodeURIComponent).join("/")}`
+  return blogPath(node.id)
 }
 
 export function graphNeighbors(data: GraphData, id?: string): Set<string> {

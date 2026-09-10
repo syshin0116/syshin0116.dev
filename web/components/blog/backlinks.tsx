@@ -1,3 +1,4 @@
+import { blogPath } from "@/lib/blog-permalinks"
 import Link from "next/link"
 import type { BacklinkEntry } from "nuartz"
 
@@ -24,7 +25,7 @@ function BacklinkList({ backlinks }: BacklinksProps) {
         {backlinks.map((bl) => (
           <li key={bl.slug}>
             <Link
-              href={`/blog/${bl.slug}`}
+              href={blogPath(bl.slug)}
               className="group block rounded-lg border p-3 hover:bg-muted transition-colors"
             >
               <div className="text-sm font-medium group-hover:underline">{bl.title}</div>
