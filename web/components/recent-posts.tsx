@@ -1,3 +1,4 @@
+import { blogPath } from "@/lib/blog-permalinks"
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import notesList from "@/.generated/notes-list.json";
@@ -27,7 +28,7 @@ export function RecentPosts() {
       <ul className="divide-y divide-border/60">
         {posts.map((post) => (
           <li key={post.slug}>
-            <Link href={`/blog/${post.slug}`} className="group block rounded-sm py-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
+            <Link href={blogPath(post.slug)} className="group block rounded-sm py-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring">
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground tabular-nums">
                   {formatDate(post.dateRaw ?? post.date)}

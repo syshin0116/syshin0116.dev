@@ -1,3 +1,4 @@
+import { permalinks } from "../lib/blog-permalinks"
 /**
  * Prebuild script - generates all static data at build time.
  *
@@ -137,11 +138,21 @@ async function main() {
   const files = await getAllMarkdownFiles(CONTENT_DIR)
   console.log(`prebuild: found ${files.length} markdown files`)
 
+  const aliases: Record<string, string> = {}
+  for (const file of files) {
+    for (const alias of (file.frontmatter.aliases as string[] | undefined) ?? []) {
+      const route = alias.replace(/^\//, "")
+      if (aliases[route] && aliases[route] !== file.slug) throw new Error(`Duplicate alias: ${route}`)
+      aliases[route] = file.slug
+    }
+  }
+  permalinks.validateSources(files.map(file => file.slug), aliases)
+
   const filesBySlug = new Map(files.map(file => [file.slug, file]))
   const resolveNote = createNoteResolver(files)
   const knownSlugs = new Set(filesBySlug.keys())
   const resolveLink = (target: string, heading?: string, from?: string) =>
-    noteHref(resolveNote(target, from) ?? normalizeNotePath(target), heading, "/blog/")
+    noteHref(permalinks.publicSlug(resolveNote(target, from) ?? normalizeNotePath(target)), heading, "/blog/")
 
   // 3. Render all pages in parallel
   console.log("prebuild: rendering all pages...")
@@ -359,6 +370,7 @@ async function main() {
       .trim()
       .slice(0, 350)
     previewIndex[file.slug] = { title, excerpt }
+    previewIndex[permalinks.publicSlug(file.slug)] = { title, excerpt }
   }
   writes.push(
     writeJSON(path.join(PUBLIC_DIR, "preview-index.json"), previewIndex)

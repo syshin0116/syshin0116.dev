@@ -5,7 +5,7 @@ import { useTheme } from "next-themes"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 
-export function GiscusComments() {
+export function GiscusComments({ discussionPath }: { discussionPath: string }) {
   const { resolvedTheme } = useTheme()
 
   return (
@@ -21,7 +21,8 @@ export function GiscusComments() {
             repoId="R_kgDOQbT8GQ"
             category="Announcements"
             categoryId="DIC_kwDOQbT8Gc4C3_kp"
-            mapping="pathname"
+            mapping="specific"
+            term={discussionPath}
             strict="0"
             reactionsEnabled="1"
             emitMetadata="0"

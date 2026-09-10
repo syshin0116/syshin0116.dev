@@ -1,5 +1,7 @@
 "use client"
 
+import { blogPath } from "@/lib/blog-permalinks"
+
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { FileText, Hash, Loader2, Search } from "lucide-react"
@@ -81,7 +83,7 @@ export function CommandPalette() {
         } else {
           const matches = searchNotes(await loadIndex(), q)
           count = matches.length
-          found = matches.slice(0, limit).map(entry => ({ ...entry, slug: `blog/${entry.slug}`, type: "note" }))
+          found = matches.slice(0, limit).map(entry => ({ ...entry, slug: blogPath(entry.slug).slice(1), type: "note" }))
         }
         if (!cancelled) { setResults(found); setTotal(count) }
       } catch { if (!cancelled) { setResults([]); setError(true) } }

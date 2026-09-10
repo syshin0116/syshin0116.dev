@@ -1,3 +1,4 @@
+import { blogPath } from "@/lib/blog-permalinks"
 import type {
   CustomEvent,
   LifecycleEvent,
@@ -350,7 +351,7 @@ function inspectionSources(
     sources.push({
       key: docId,
       docId,
-      url: `https://syshin0116.vercel.app/blog/${docId.slice(0, -3).split("/").map(encodeURIComponent).join("/")}`,
+      url: `https://syshin0116.vercel.app${blogPath(docId.slice(0, -3))}`,
       title,
       rank,
       ...(score !== undefined ? { score } : {}),

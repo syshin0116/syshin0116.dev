@@ -1,5 +1,7 @@
 "use client"
 
+import { blogPath } from "@/lib/blog-permalinks"
+
 import { useEffect, useState, useCallback } from "react"
 import { Search as SearchIcon, X } from "lucide-react"
 import Link from "next/link"
@@ -104,7 +106,7 @@ export function SearchDialog({ entries }: SearchProps) {
             {results.map((r) => (
               <li key={r.slug}>
                 <Link
-                  href={`/blog/${r.slug}`}
+                  href={blogPath(r.slug)}
                   onClick={() => setOpen(false)}
                   className={cn(
                     "block rounded-lg px-3 py-2.5 hover:bg-muted transition-colors"
