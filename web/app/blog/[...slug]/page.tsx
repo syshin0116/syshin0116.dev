@@ -1,3 +1,4 @@
+import { NoteList } from "@/lib/blog"
 import { notFound } from "next/navigation"
 import fs from "node:fs/promises"
 import path from "node:path"
@@ -121,7 +122,7 @@ export default async function BlogPostPage({
     const folderData = await loadFolderData(slugStr)
     if (folderData) {
       return (
-        <div className="mx-auto max-w-6xl w-full px-6 py-10">
+        <div className="mx-auto max-w-3xl w-full px-6 py-10">
           <div className="mb-6">
             <Breadcrumb slug={slug} />
           </div>
@@ -130,60 +131,11 @@ export default async function BlogPostPage({
               {slug[slug.length - 1]}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {folderData.files.length} notes
+              {folderData.files.length}개 글
             </p>
           </div>
-          <Separator className="mb-6" />
-          <div className="space-y-2">
-            {folderData.files.map(
-              (file: {
-                slug: string
-                title: string
-                description: string | null
-                date: string | null
-                tags: string[]
-              }) => {
-                return (
-                  <Link
-                    key={file.slug}
-                    href={`/blog/${file.slug}`}
-                    className="group block"
-                  >
-                    <div className="rounded-lg border px-4 py-3 transition-colors hover:bg-muted/50">
-                      <div className="flex items-start justify-between gap-4">
-                        <span className="font-medium group-hover:underline underline-offset-4">
-                          {file.title}
-                        </span>
-                        {file.date && (
-                          <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-                            {file.date}
-                          </span>
-                        )}
-                      </div>
-                      {file.description && (
-                        <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                          {file.description}
-                        </p>
-                      )}
-                      {file.tags.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {Array.from(new Set(file.tags)).map((tag) => (
-                            <Badge
-                              key={tag}
-                              variant="secondary"
-                              className="text-xs font-normal"
-                            >
-                              #{tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                )
-              }
-            )}
-          </div>
+          <Separator />
+          <NoteList notes={folderData.files} />
         </div>
       )
     }
@@ -245,44 +197,23 @@ export default async function BlogPostPage({
             )}
             {modifiedDate && modifiedDate !== date && (
               <span className="text-sm text-muted-foreground">
-                Updated {modifiedDate}
+                수정 {modifiedDate}
               </span>
             )}
             {rt >= 1 && (
               <span className="text-sm text-muted-foreground">
-                {rt} min read
+                읽는 시간 {rt}분
               </span>
-            )}
-            {date && tags.length > 0 && (
-              <span className="text-muted-foreground">·</span>
-            )}
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {Array.from(new Set(tags as string[])).map((tag) => (
-                  <Link
-                    key={tag}
-                    href={`/blog/tags/${tagPath(tag)}`}
-                  >
-                    <Badge
-                      variant="secondary"
-                      className="text-xs font-normal hover:bg-muted"
-                    >
-                      #{tag}
-                    </Badge>
-                  </Link>
-                ))}
-              </div>
             )}
           </div>
         </header>
 
-        <Separator className="mb-8" />
+        <Separator className="mb-6" />
 
         {frontmatter.summary && (
-          <div className="callout callout-summary not-prose mb-8" data-callout="summary">
-            <div className="callout-title">Summary</div>
+          <section aria-label="요약" className="mb-6 text-sm leading-7 text-muted-foreground">
             <p>{frontmatter.summary as string}</p>
-          </div>
+          </section>
         )}
 
         <HeadingAnchors />
@@ -299,6 +230,24 @@ export default async function BlogPostPage({
         <MermaidRendererDynamic />
         <CopyCode />
         <ImageZoom />
+
+        {tags.length > 0 && (
+          <nav aria-label="글 태그" className="mt-8 flex flex-wrap gap-1.5">
+            {Array.from(new Set(tags as string[])).map((tag) => (
+              <Link
+                key={tag}
+                href={`/blog/tags/${tagPath(tag)}`}
+              >
+                <Badge
+                  variant="secondary"
+                  className="text-xs font-normal hover:bg-muted"
+                >
+                  #{tag}
+                </Badge>
+              </Link>
+            ))}
+          </nav>
+        )}
 
         <Backlinks backlinks={backlinks} />
 

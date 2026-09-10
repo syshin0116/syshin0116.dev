@@ -197,7 +197,7 @@ test("representative post is keyboard-labelled and WCAG clean", async ({
     "블로그 탐색",
     "현재 위치",
     "이전 및 다음 글",
-    "Table of contents",
+    "목차",
   ]) {
     await expect(page.getByRole("navigation", { name })).toHaveCount(1)
   }
@@ -417,4 +417,64 @@ test("VR preview starts explicitly and denied AR can return to 2D", async ({ pag
   const observed = diagnostics.consoleProblems.filter(message => vendorWarnings.has(message))
   if (observed.length) testInfo.annotations.push({ type: "upstream-warning", description: [...new Set(observed)].join("; ") })
   diagnostics.consoleProblems = diagnostics.consoleProblems.filter(message => !vendorWarnings.has(message))
+})
+
+test("project summaries stay visible and cards support keyboard navigation without hover reflow", async ({ page }, testInfo) => {
+  await page.goto("/projects")
+  const links = page.locator('main a[href^="/projects/"]')
+  expect(await links.count()).toBeGreaterThan(1)
+  const first = links.first()
+  const destination = await first.getAttribute("href")
+  const title = await first.locator("h3").innerText()
+  await expect(first.locator("p").last()).toBeVisible()
+  await attachScreenshot(page, testInfo, "projects-at-rest")
+
+  if (testInfo.project.name === "site-desktop") {
+    const before = await links.nth(1).boundingBox()
+    await first.hover()
+    await expect.poll(async () => (await links.nth(1).boundingBox())?.y).toBe(before?.y)
+    await attachScreenshot(page, testInfo, "projects-hover")
+  }
+  await expectNoHorizontalOverflow(page)
+  await expectA11yClean(page)
+
+  for (let step = 0; step < 20 && !(await first.evaluate(element => element === document.activeElement)); step++) {
+    await page.keyboard.press("Tab")
+  }
+  await expect(first).toBeFocused()
+  await attachScreenshot(page, testInfo, "project-keyboard-focus")
+  await page.keyboard.press("Enter")
+  await expect(page).toHaveURL(new RegExp(`${destination}$`))
+  await expect(page.getByText(title, { exact: true })).toBeVisible()
+  await attachScreenshot(page, testInfo, "project-detail")
+})
+
+test("blog navigation preserves selection and folder keyboard controls on desktop and mobile", async ({ page }, testInfo) => {
+  await page.goto(REPRESENTATIVE_HREF)
+  const mobile = testInfo.project.name === "site-mobile"
+  if (mobile) await page.getByRole("button", { name: "메뉴 열기", exact: true }).click()
+  const nav = page.getByRole("navigation", { name: "블로그 탐색", exact: true })
+  const current = nav.locator('[aria-current="page"]')
+  await expect(current).toHaveCount(1)
+  await expect(current).toHaveCSS("box-shadow", "none")
+  await attachScreenshot(page, testInfo, "blog-current-page")
+  const folder = nav.getByRole("button", { name: "Dev 접기", exact: true })
+  const bounds = await folder.boundingBox()
+  expect(bounds?.width).toBeGreaterThanOrEqual(32)
+  expect(bounds?.height).toBeGreaterThanOrEqual(32)
+  await folder.click()
+  await expect(current).toBeHidden()
+  await attachScreenshot(page, testInfo, "blog-folder-collapsed")
+  await page.keyboard.press("Space")
+  await expect(current).toBeVisible()
+  await attachScreenshot(page, testInfo, "blog-folder-reopened")
+  if (mobile) await page.keyboard.press("Escape")
+
+  const breadcrumb = page.getByRole("navigation", { name: "현재 위치", exact: true })
+  await expect(breadcrumb).not.toContainText("Azure")
+  await breadcrumb.getByRole("link", { name: "Dev", exact: true }).click()
+  await expect(page.getByRole("heading", { level: 1, name: "Dev", exact: true })).toBeVisible()
+  await expect(page.getByRole("list", { name: "글 목록", exact: true })).toBeVisible()
+  await expectNoHorizontalOverflow(page)
+  await attachScreenshot(page, testInfo, "blog-category-list")
 })

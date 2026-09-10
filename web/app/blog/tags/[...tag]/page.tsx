@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import Link from "next/link"
+import { NoteList } from "@/lib/blog"
 import { notFound } from "next/navigation"
 import { Separator } from "@/components/ui/separator"
 import tagsData from "@/.generated/tags.json"
@@ -51,37 +51,13 @@ export default async function TagPage({
       <div className="mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">#{tagName}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {entries.length} {entries.length === 1 ? "note" : "notes"}
+          {entries.length}개 글
         </p>
       </div>
 
-      <Separator className="mb-8" />
+      <Separator />
 
-      <div className="space-y-2">
-        {entries.map((entry) => (
-          <Link
-            key={entry.slug}
-            href={`/blog/${entry.slug}`}
-            className="group block rounded-lg border px-4 py-3 transition-colors hover:bg-muted/50"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <span className="font-medium group-hover:underline group-hover:underline-offset-4">
-                {entry.title}
-              </span>
-              {entry.date && (
-                <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-                  {entry.date}
-                </span>
-              )}
-            </div>
-            {entry.description && (
-              <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                {entry.description}
-              </p>
-            )}
-          </Link>
-        ))}
-      </div>
+      <NoteList notes={entries} />
     </div>
   )
 }

@@ -116,6 +116,14 @@ async function attachEvidence(
   })
 }
 
+async function settleChatLayout(page: Page): Promise<void> {
+  await page.getByRole("region", { name: "RAG 평가 챗봇" }).evaluate(async (element) => {
+    await Promise.all(element.getAnimations({ subtree: true })
+      .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)
+      .map((animation) => animation.finished.catch(() => {})))
+  })
+}
+
 async function expectNoBrowserErrors(
   page: Page,
   diagnostics: BrowserDiagnostics
@@ -134,6 +142,7 @@ async function expectNoBrowserErrors(
 }
 
 async function expectA11yClean(page: Page): Promise<void> {
+  if (await page.getByRole("region", { name: "RAG 평가 챗봇" }).count()) await settleChatLayout(page)
   const result = await new AxeBuilder({ page }).analyze()
   expect(
     result.violations.map((violation) => ({
@@ -204,7 +213,15 @@ test.describe.serial("native assistant-ui production journey", () => {
     await page.goto("/")
     const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
     const send = page.getByRole("button", { name: "메시지 보내기" })
-    await expect(page.getByRole("status")).toContainText("AI에 연결하고 있습니다")
+    await expect(page.getByRole("status")).toHaveText("연결 중")
+    expect(await page.getByRole("status").evaluate((element) => element.closest("button"))).toBeNull()
+    await expect(page.getByText("서버를 준비하고 있어요.", { exact: false })).toBeHidden()
+    await page.getByRole("button", { name: "연결 상태 안내" }).click()
+    await expect(page.getByRole("dialog", { name: "연결 상태 안내" })).toContainText("콜드스타트")
+    await page.keyboard.press("Escape")
+    await expect(page.getByRole("dialog", { name: "연결 상태 안내" })).toBeHidden()
+    await settleChatLayout(page)
+    const connectingY = (await composer.boundingBox())!.y
     await attachEvidence(page, testInfo, "connection-pending")
     await composer.fill("연속 검색 연결 복구")
     await composer.press("Enter")
@@ -212,11 +229,22 @@ test.describe.serial("native assistant-ui production journey", () => {
     await expect(send).toBeDisabled()
     expect((await fixtureState(page)).commands).toHaveLength(0)
     await attachEvidence(page, testInfo, "connection-draft")
+    await page.getByRole("button", { name: "연결 상태 안내" }).click()
+    await expect(page.getByRole("dialog", { name: "연결 상태 안내" })).toBeFocused()
     finishConnection()
     await expect(send).toBeEnabled()
-    await expect(page.getByText("AI에 연결하고 있습니다", { exact: false })).toBeHidden()
+    await expect(page.getByRole("status")).toHaveText("연결됨")
+    await expect(page.getByRole("dialog", { name: "연결 상태 안내" })).toBeFocused()
+    await expect(page.getByRole("dialog", { name: "연결 상태 안내" })).toContainText("AI 연결이 완료됐어요.")
+    await attachEvidence(page, testInfo, "connection-help-ready")
+    await page.keyboard.press("Escape")
+    await expect(page.getByRole("button", { name: "연결 상태 안내" })).toBeFocused()
+    expect((await composer.boundingBox())!.y).toBeCloseTo(connectingY, 0)
     await attachEvidence(page, testInfo, "connection-ready")
+    await page.getByRole("button", { name: "연결 상태 안내" }).click()
+    await expect(page.getByRole("dialog", { name: "연결 상태 안내" })).toBeFocused()
     await page.context().setOffline(true)
+    await expect(composer).toBeFocused()
     await expect(page.getByRole("status")).toContainText("인터넷 연결이 끊겼습니다")
     await expect(send).toBeDisabled()
     await composer.press("Enter")
@@ -260,7 +288,7 @@ test.describe.serial("native assistant-ui production journey", () => {
     const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
     await expect(composer).toBeEnabled()
     const originalInput = await composer.elementHandle()
-    const initialBox = (await composer.boundingBox())!
+    let conversationY: number | undefined
     await attachEvidence(page, testInfo, "new-thread-empty")
     for (const turn of [1, 2, 3, 4, 5, 6]) {
       await composer.fill(`연속 검색 ${turn}`)
@@ -272,7 +300,9 @@ test.describe.serial("native assistant-ui production journey", () => {
       await expect(composer).toBeFocused()
       await expect(composer).toHaveValue("")
       await expect(composer).toHaveCount(1)
-      expect((await composer.boundingBox())!.y).toBeCloseTo(initialBox.y, 0)
+      await settleChatLayout(page)
+      conversationY ??= (await composer.boundingBox())!.y
+      expect((await composer.boundingBox())!.y).toBeCloseTo(conversationY, 0)
       await expect(composer).toBeInViewport()
       await expect(page.getByText(`연속 검색 ${turn}`, { exact: true })).toBeInViewport()
       const answer = page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true }).last()
@@ -392,6 +422,7 @@ test.describe.serial("native assistant-ui production journey", () => {
     await composer.press("Enter")
     await expect(page.getByRole("button", { name: "응답 중지" })).toBeVisible()
     await expect(page.getByLabel("답변 실행 상태")).toBeVisible()
+    await settleChatLayout(page)
     const inputY = (await composer.boundingBox())!.y
     await attachEvidence(page, testInfo, "queue-running")
     for (const text of ["연속 검색 두 번째", "세 번째 질문"]) {
@@ -451,13 +482,22 @@ test.describe.serial("native assistant-ui production journey", () => {
   test("retries a failed connection without replacing the draft", async ({ page }, testInfo) => {
     await resetFixture(page)
     let available = false
-    await page.route(`${fixtureOrigin}/ready`, (route) => route.fulfill({
-      status: available ? 200 : 404,
-      body: available ? "ready" : "unavailable",
-    }))
+    let failConnection!: () => void
+    const connection = new Promise<void>((resolve) => { failConnection = resolve })
+    await page.route(`${fixtureOrigin}/ready`, async (route) => {
+      await connection
+      await route.fulfill({
+        status: available ? 200 : 404,
+        body: available ? "ready" : "unavailable",
+      })
+    })
     await page.goto("/")
     const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
     await composer.fill("연속 검색 재연결")
+    await page.getByRole("button", { name: "연결 상태 안내" }).click()
+    await expect(page.getByRole("dialog", { name: "연결 상태 안내" })).toBeFocused()
+    failConnection()
+    await expect(composer).toBeFocused()
     const connectionError = page.getByRole("alert").filter({ hasText: "다시 연결" })
     await expect(connectionError).toBeVisible()
     await expect(page.getByRole("button", { name: "메시지 보내기" })).toBeDisabled()
@@ -1124,6 +1164,8 @@ test("has no horizontal overflow at supported widths and honors reduced motion",
     await expect(
       page.getByTestId("production-native-runtime-fixture")
     ).toBeVisible()
+    expect(await page.getByRole("button", { name: "LangGraph 관련 글을 찾아줘", exact: true })
+      .evaluate((element) => getComputedStyle(element).animationName)).toBe("none")
     await selectFixtureThread(page)
     const composer = page.getByRole("textbox", {
       name: "AI에게 보낼 메시지",
@@ -1159,21 +1201,30 @@ test("has no horizontal overflow at supported widths and honors reduced motion",
   }
 })
 
-for (const width of [390, 1280]) {
+for (const width of [390, 1280, 2560]) {
   test(`keeps the composer anchored and scrolls long answers independently at ${width}px`, async ({ page }, testInfo) => {
-    await page.setViewportSize({ width, height: 844 })
+    const height = width === 2560 ? 1440 : 844
+    await page.setViewportSize({ width, height })
     await resetFixture(page)
     await page.goto("/")
     await expect(page.getByText("연결됨", { exact: true })).toBeVisible()
     const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    await settleChatLayout(page)
     const initialBox = (await composer.boundingBox())!
+    const headingBox = (await page.getByRole("heading", { name: "무엇이 궁금하세요?" }).boundingBox())!
+    expect(initialBox.y - headingBox.y - headingBox.height).toBeLessThan(120)
+    expect(initialBox.y).toBeLessThan(height * 0.65)
+    const suggestion = page.getByRole("button", { name: "LangGraph 관련 글을 찾아줘", exact: true })
+    expect((await suggestion.boundingBox())!.y).toBeGreaterThan(initialBox.y + initialBox.height)
     await attachEvidence(page, testInfo, "layout-empty")
     await composer.fill("연속 검색 레이아웃 검증")
     await attachEvidence(page, testInfo, "layout-input")
     await composer.press("Enter")
     await expect(page.getByText("레이아웃 답변 끝", { exact: true })).toBeInViewport()
     const viewport = page.getByLabel("대화 메시지", { exact: true })
-    expect((await composer.boundingBox())!.y).toBeCloseTo(initialBox.y, 0)
+    await settleChatLayout(page)
+    const conversationY = (await composer.boundingBox())!.y
+    expect(conversationY).toBeGreaterThan(initialBox.y)
     expect(await viewport.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true)
     expect(await page.evaluate(() => window.scrollY)).toBe(0)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
@@ -1186,7 +1237,7 @@ for (const width of [390, 1280]) {
     const scrollTop = await viewport.evaluate((element) => element.scrollTop)
     await composer.fill("작성 중인 후속 질문")
     expect(await viewport.evaluate((element) => element.scrollTop)).toBe(scrollTop)
-    expect((await composer.boundingBox())!.y).toBeCloseTo(initialBox.y, 0)
+    expect((await composer.boundingBox())!.y).toBeCloseTo(conversationY, 0)
     await attachEvidence(page, testInfo, "layout-reading-history")
     await scroll.click()
     await expect(page.getByText("레이아웃 답변 끝", { exact: true })).toBeInViewport()
@@ -1207,10 +1258,33 @@ for (const width of [390, 1280]) {
     expect(await composer.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true)
     expect(await viewport.evaluate((element) => element.clientHeight)).toBeGreaterThan(0)
     await attachEvidence(page, testInfo, "layout-short-viewport")
-    await page.setViewportSize({ width, height: 844 })
+    await page.setViewportSize({ width, height })
     await page.getByRole("button", { name: "새 대화", exact: true }).click()
     await expect(page.getByRole("heading", { name: "무엇이 궁금하세요?" })).toBeVisible()
+    await settleChatLayout(page)
     expect((await composer.boundingBox())!.y).toBeCloseTo(initialBox.y, 0)
     await attachEvidence(page, testInfo, "layout-new-thread")
   })
 }
+
+test("keeps the empty welcome reachable when the viewport shrinks", async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 844, height: 844 })
+  await resetFixture(page)
+  await page.goto("/")
+  await expect(page.getByText("연결됨", { exact: true })).toBeVisible()
+  await page.getByRole("textbox", { name: "AI에게 보낼 메시지" }).fill("작성 중인 질문")
+  await page.setViewportSize({ width: 844, height: 320 })
+  await settleChatLayout(page)
+  const viewport = page.getByLabel("대화 메시지", { exact: true })
+  await viewport.evaluate((element) => { element.scrollTop = 0 })
+  const heading = page.getByRole("heading", { name: "무엇이 궁금하세요?" })
+  expect((await heading.boundingBox())!.y).toBeGreaterThanOrEqual((await viewport.boundingBox())!.y)
+  await heading.scrollIntoViewIfNeeded()
+  await expect(heading).toBeInViewport()
+  await attachEvidence(page, testInfo, "short-welcome-heading")
+  const subtitle = page.getByText("기술 글과 프로젝트에 대해 물어보세요.", { exact: true })
+  await subtitle.scrollIntoViewIfNeeded()
+  await expect(subtitle).toBeInViewport()
+  await expect(page.getByRole("textbox", { name: "AI에게 보낼 메시지" })).toHaveValue("작성 중인 질문")
+  await attachEvidence(page, testInfo, "short-welcome-subtitle")
+})
