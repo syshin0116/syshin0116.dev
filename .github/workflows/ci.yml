@@ -35,6 +35,13 @@ jobs:
           persist-credentials: false
       - name: Test component change detection without installing the application
         run: python3 -m unittest discover -s scripts/tests -p test_ci_changed_components.py -v
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.3"
+          checksum: 600cf9a742aca00d292673b16b5acffaa7b8c269a364ad0c2e79498dcb1fe101
+          enable-cache: false
+      - name: Verify repository contracts on every change
+        run: uv run --no-project --with pyyaml==6.0.3 python scripts/verify_repository_governance.py
       - name: Detect affected components
         id: components
         env:

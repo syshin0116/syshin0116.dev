@@ -216,7 +216,7 @@ UV_REQUIRED_VERSION = f"=={UV_VERSION}"
 UV_CHECKSUM = "600cf9a742aca00d292673b16b5acffaa7b8c269a364ad0c2e79498dcb1fe101"
 SETUP_UV_ACTION = "astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d"
 EXPECTED_SETUP_UV_WORKFLOW_COUNTS = {
-    ".github/workflows/ci.yml": 4,
+    ".github/workflows/ci.yml": 5,
     ".github/workflows/dependency-audit.yml": 2,
     ".github/workflows/protocol-compat.yml": 1,
 }
