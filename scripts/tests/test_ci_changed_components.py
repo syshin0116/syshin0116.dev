@@ -109,6 +109,20 @@ class PathClassificationTests(unittest.TestCase):
                     changes.classify_paths([path]),
                 )
 
+    def test_governance_configuration_runs_script_tests_through_infra(self) -> None:
+        for path in (
+            ".github/workflow-ast-baselines.json",
+            ".github/repository-governance.json",
+            ".github/repository-policy.json",
+            ".github/actions/local/action.yml",
+            "web/vercel.json",
+        ):
+            with self.subTest(path=path):
+                affected = changes.classify_paths([path])
+                self.assertTrue(affected["infra"])
+                self.assertFalse(affected["agent"])
+                self.assertEqual(path.startswith("web/"), affected["web"])
+
     def test_root_gitignore_runs_infrastructure_gate(self) -> None:
         self.assertEqual(
             {"web": False, "agent": False, "eval": False, "infra": True},
