@@ -86,8 +86,17 @@ This keeps a required check from remaining permanently pending after an
 upstream failure or merge-queue run.
 
 The Application CI `changes` bootstrap job has an exact 10-minute ceiling for
-frozen toolchain setup, the repository governance/unit suite, and component
-classification. The verifier targets only `jobs.changes.timeout-minutes`; it
+dependency-free component tests, classification, and the repository governance
+verifier. The verifier runs on every PR with only its pinned PyYAML dependency,
+so protected files remain checked even when no component suite is selected. The full repository
+script suite runs in `ci/agent` when affected, or in `ci/infra` for
+infrastructure-only changes, after the frozen dependency install. Changes under
+`.github/`, `web/vercel.json`, `DECISIONS.md`, and the Cloud Run delivery and
+GCP/Neon foundation runbooks select infrastructure verification too, because
+the script suite validates those files directly.
+Known blog and project presentation paths skip auth/chat integration; shared or
+unknown web paths retain it. Database services use an empty image when their
+component is unaffected, while all required jobs still report a result. The verifier targets only `jobs.changes.timeout-minutes`; it
 does not introduce a workflow-wide timeout baseline.
 
 The `ci/agent` job also has an immutable-resolution contract. It runs exactly
@@ -132,12 +141,11 @@ The only job keys are the reviewed name, `always()` condition, `changes`
 dependency, Ubuntu runner, 30-minute timeout, exact CI environment, exact PostgreSQL
 service, and ordered steps. `defaults`, `container`, `strategy`, `environment`, a
 self-hosted runner, any additional service, or any other extra or changed job key fails;
-changing any field of the one reviewed PostgreSQL service also fails. All twelve steps
-are exact and ordered: checkout is pinned to its
+changing any field of the one reviewed PostgreSQL service also fails. Steps remain exact and ordered: checkout is pinned to its
 reviewed SHA with only `persist-credentials: false`; setup-python v7.0.0 is
 pinned with Python 3.12; setup-uv v9.0.0 is pinned with uv 0.12.3, its reviewed
-checksum, and the reviewed cache inputs; the eight ordinary run steps retain their exact
-names, conditions, commands, and allowed keys; and the twelfth step builds, inspects,
+checksum, and the reviewed cache inputs; the ordinary run steps retain their exact
+names, conditions, commands, and allowed keys; the repository script suite runs after dependency setup; and the final step builds, inspects,
 migrates, boots, probes, logs, and removes the real delivery image.
 Adding, deleting, moving, replacing, or changing an action or step, including a pinned or
 local composite action, is a deliberate baseline change in the verifier and its mutation

@@ -13,6 +13,66 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 import ci_changed_components as changes  # noqa: E402
 
 
+class RuntimeClassificationTests(unittest.TestCase):
+    def test_presentation_changes_do_not_require_runtime(self) -> None:
+        self.assertFalse(
+            changes.runtime_affected(
+                [
+                    "web/app/blog/[...slug]/page.tsx",
+                    "web/components/blog/toc.tsx",
+                    "web/lib/blog.tsx",
+                    "web/app/projects/page.tsx",
+                    "web/components/project-list.tsx",
+                ]
+            )
+        )
+
+    def test_shared_and_unknown_paths_keep_integration_coverage(self) -> None:
+        for path in (
+            "web/components/ui/button.tsx",
+            "web/app/layout.tsx",
+            "web/app/globals.css",
+            "web/package.json",
+            "web/bun.lock",
+            "web/lib/auth.ts",
+            "web/components/chat/runtime.tsx",
+            "web/new-module.ts",
+            "agent/src/agent/graph.py",
+            "protocol/schema.json",
+            ".github/workflows/ci.yml",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(
+                    changes.runtime_affected(
+                        [
+                            "web/components/blog/toc.tsx",
+                            path,
+                        ]
+                    )
+                )
+
+    def test_cli_emits_runtime_for_dispatch(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "output"
+            self.assertEqual(
+                0,
+                changes.main(
+                    [
+                        "--event",
+                        "workflow_dispatch",
+                        "--head",
+                        "a" * 40,
+                        "--output",
+                        str(output),
+                    ]
+                ),
+            )
+            self.assertIn("runtime=true\n", output.read_text())
+
+    def test_docs_do_not_require_runtime(self) -> None:
+        self.assertFalse(changes.runtime_affected(["docs/reference/example.md"]))
+
+
 class PathClassificationTests(unittest.TestCase):
     def test_component_paths_are_selective(self) -> None:
         self.assertEqual(
@@ -46,6 +106,32 @@ class PathClassificationTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertEqual(
                     {"web": True, "agent": True, "eval": True, "infra": True},
+                    changes.classify_paths([path]),
+                )
+
+    def test_governance_configuration_runs_script_tests_through_infra(self) -> None:
+        for path in (
+            ".github/workflow-ast-baselines.json",
+            ".github/repository-governance.json",
+            ".github/repository-policy.json",
+            ".github/actions/local/action.yml",
+            "web/vercel.json",
+        ):
+            with self.subTest(path=path):
+                affected = changes.classify_paths([path])
+                self.assertTrue(affected["infra"])
+                self.assertFalse(affected["agent"])
+                self.assertEqual(path.startswith("web/"), affected["web"])
+
+    def test_operations_contract_documents_run_infrastructure_tests(self) -> None:
+        for path in (
+            "DECISIONS.md",
+            "docs/runbooks/cloud-run-delivery.md",
+            "docs/runbooks/gcp-neon-foundation.md",
+        ):
+            with self.subTest(path=path):
+                self.assertEqual(
+                    {"web": False, "agent": False, "eval": False, "infra": True},
                     changes.classify_paths([path]),
                 )
 

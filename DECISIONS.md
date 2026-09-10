@@ -178,3 +178,5 @@ Format: `YYYY-MM-DD: <decision>, because <reason>. Revisit if <condition>. [→ 
 - 2026-09-07: Consume Nuartz 0.3 through its public note resolver, embed renderer and backlink index; adapt its navigation and graph UI to existing /blog routes, because duplicated link resolution disagreed across the site. Revisit when Nuartz ships these UI components as package exports.
 
 - 2026-09-09: Require task worktrees based on freshly fetched origin/main, preserve unrelated checkout work, and track delivery through Kaneo local with verified project mapping; reuse existing CI and decision records instead of importing competition-specific infrastructure or automation assumptions. Keep AGENTS.md canonical and CLAUDE.md as a relative symlink to prevent instruction drift. Revisit if shared personal-project tooling replaces these repository instructions.
+
+- 2026-09-10: Keep always-reported CI gates, run change detection with Python alone, and omit DB services and auth/chat integration for known presentation-only changes. Unknown web paths and shared code retain full coverage. Revisit when presentation modules acquire runtime dependencies.
