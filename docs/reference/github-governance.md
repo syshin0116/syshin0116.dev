@@ -86,7 +86,9 @@ This keeps a required check from remaining permanently pending after an
 upstream failure or merge-queue run.
 
 The Application CI `changes` bootstrap job has an exact 10-minute ceiling for
-dependency-free component tests and classification. The full repository
+dependency-free component tests, classification, and the repository governance
+verifier. The verifier runs on every PR with only its pinned PyYAML dependency,
+so protected files remain checked even when no component suite is selected. The full repository
 script suite runs in `ci/agent` when affected, or in `ci/infra` for
 infrastructure-only changes, after the frozen dependency install. Changes under
 `.github/`, `web/vercel.json`, `DECISIONS.md`, and the Cloud Run delivery and
