@@ -72,7 +72,12 @@ def classify_paths(paths: Iterable[str]) -> dict[str, bool]:
             continue
         if path.startswith(".github/workflows/") or path in CHANGE_DETECTION_PATHS:
             return dict.fromkeys(COMPONENTS, True)
-        if path in {".dockerignore", ".gitignore"}:
+        if path.startswith(".github/") or path in {
+            ".dockerignore",
+            ".gitignore",
+            ".gitattributes",
+            "web/vercel.json",
+        }:
             affected["infra"] = True
         if path in PUBLICATION_DOCKER_CONTEXT_PATHS:
             affected["agent"] = True
