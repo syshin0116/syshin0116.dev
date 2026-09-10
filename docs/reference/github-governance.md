@@ -89,7 +89,9 @@ The Application CI `changes` bootstrap job has an exact 10-minute ceiling for
 dependency-free component tests and classification. The full repository
 script suite runs in `ci/agent` when affected, or in `ci/infra` for
 infrastructure-only changes, after the frozen dependency install. Changes under
-`.github/` and to `web/vercel.json` select infrastructure verification too.
+`.github/`, `web/vercel.json`, `DECISIONS.md`, and the Cloud Run delivery and
+GCP/Neon foundation runbooks select infrastructure verification too, because
+the script suite validates those files directly.
 Known blog and project presentation paths skip auth/chat integration; shared or
 unknown web paths retain it. Database services use an empty image when their
 component is unaffected, while all required jobs still report a result. The verifier targets only `jobs.changes.timeout-minutes`; it

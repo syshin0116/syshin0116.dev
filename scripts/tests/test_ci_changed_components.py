@@ -123,6 +123,18 @@ class PathClassificationTests(unittest.TestCase):
                 self.assertFalse(affected["agent"])
                 self.assertEqual(path.startswith("web/"), affected["web"])
 
+    def test_operations_contract_documents_run_infrastructure_tests(self) -> None:
+        for path in (
+            "DECISIONS.md",
+            "docs/runbooks/cloud-run-delivery.md",
+            "docs/runbooks/gcp-neon-foundation.md",
+        ):
+            with self.subTest(path=path):
+                self.assertEqual(
+                    {"web": False, "agent": False, "eval": False, "infra": True},
+                    changes.classify_paths([path]),
+                )
+
     def test_root_gitignore_runs_infrastructure_gate(self) -> None:
         self.assertEqual(
             {"web": False, "agent": False, "eval": False, "infra": True},
