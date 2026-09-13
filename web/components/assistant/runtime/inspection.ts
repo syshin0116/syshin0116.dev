@@ -350,7 +350,7 @@ function inspectionSources(
     sources.push({
       key: docId,
       docId,
-      url: `https://syshin0116.vercel.app/blog/${docId.slice(0, -3).split("/").map(encodeURIComponent).join("/")}`,
+      url: `https://syshin0116.dev/blog/${docId.slice(0, -3).split("/").map(encodeURIComponent).join("/")}`,
       title,
       rank,
       ...(score !== undefined ? { score } : {}),

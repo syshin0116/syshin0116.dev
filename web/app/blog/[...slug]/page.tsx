@@ -19,6 +19,7 @@ import { ImageZoom } from "@/components/blog/image-zoom"
 import { GiscusComments } from "@/components/blog/giscus-comments"
 import allSlugsData from "@/.generated/all-slugs.json"
 import { tagPath } from "@/lib/tag"
+import { SITE_URL } from "@/lib/site"
 
 export const revalidate = false
 
@@ -75,7 +76,7 @@ export async function generateMetadata({
     const folderData = await loadFolderData(slugStr)
     if (folderData) {
       return {
-        title: `${slug[slug.length - 1]} | Syshin's Blog`,
+        title: String(slug[slug.length - 1]),
         robots: { index: false, follow: true },
       }
     }
@@ -84,8 +85,9 @@ export async function generateMetadata({
 
   const title = pageData.frontmatter.title ?? slug[slug.length - 1]
   const description = pageData.frontmatter.description ?? ""
+  const ogImage = `/api/og?title=${encodeURIComponent(String(title))}`
   return {
-    title: `${title} | Syshin's Blog`,
+    title,
     description,
     alternates: {
       canonical: `/blog/${slugStr}`,
@@ -95,13 +97,13 @@ export async function generateMetadata({
       description,
       type: "article",
       url: `/blog/${slugStr}`,
-      images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+      images: [{ url: ogImage, width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: ["/og-image.png"],
+      images: [ogImage],
     },
   }
 }
@@ -164,9 +166,9 @@ export default async function BlogPostPage({
     author: {
       "@type": "Person",
       name: "Syshin",
-      url: "https://syshin0116.vercel.app",
+      url: SITE_URL,
     },
-    url: `https://syshin0116.vercel.app/blog/${slugStr}`,
+    url: `${SITE_URL}/blog/${slugStr}`,
   }
 
   return (

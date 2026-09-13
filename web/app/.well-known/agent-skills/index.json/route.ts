@@ -7,27 +7,27 @@ const skills = [
     type: "resource",
     description:
       "Overview of Syshin's AI portfolio, projects, technical expertise, and professional experience. Available as llms.txt for LLM consumption.",
-    url: "https://syshin0116.vercel.app/llms.txt",
+    url: "https://syshin0116.dev/llms.txt",
   },
   {
     name: "project-browser",
     type: "resource",
     description:
       "Browse detailed information about AI/ML projects including RAG systems, LangGraph agents, and computer vision applications.",
-    url: "https://syshin0116.vercel.app/projects",
+    url: "https://syshin0116.dev/projects",
   },
   {
     name: "blog-content",
     type: "resource",
     description:
       "Technical blog posts on AI, machine learning, RAG, LangChain, and software development.",
-    url: "https://syshin0116.vercel.app/blog",
+    url: "https://syshin0116.dev/blog",
   },
   {
     name: "api-catalog",
     type: "discovery",
     description: "RFC 9727 API catalog for automated API discovery.",
-    url: "https://syshin0116.vercel.app/.well-known/api-catalog",
+    url: "https://syshin0116.dev/.well-known/api-catalog",
   },
 ];
 

@@ -60,7 +60,7 @@ describe("InspectionProjector", () => {
           key: "AI/fixture.md",
           docId: "AI/fixture.md",
           title: "Fixture",
-          url: "https://syshin0116.vercel.app/blog/AI/fixture",
+          url: "https://syshin0116.dev/blog/AI/fixture",
           rank: 1,
           score: 1,
           provenance: {

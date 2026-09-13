@@ -50,14 +50,22 @@ function requireEmptySuccessfulAudit(
   result: AuditCommandResult,
   label: string,
 ): void {
-  if (result.exitCode !== 0) {
+  // bun audit reports advisories on stdout and exits non-zero, so the exit code
+  // alone names neither the package nor the advisory. Parse first, and only fall
+  // back to the raw streams when stdout is not the documented JSON.
+  const findings = parseAuditJson(result, label)
+  const advisories = Object.keys(findings)
+  if (advisories.length !== 0) {
     fail(
-      `${label} audit exited ${result.exitCode}; stderr=${result.stderr.trim()}`,
+      `${label} audit found ${advisories.length} advisories: ` +
+        `${advisories.join(", ")}\n${JSON.stringify(findings, null, 2)}`,
     )
   }
-  const findings = parseAuditJson(result, label)
-  if (Object.keys(findings).length !== 0) {
-    fail(`${label} audit must contain zero findings`)
+  if (result.exitCode !== 0) {
+    fail(
+      `${label} audit exited ${result.exitCode} with no findings in stdout; ` +
+        `stderr=${result.stderr.trim()}`,
+    )
   }
 }
 

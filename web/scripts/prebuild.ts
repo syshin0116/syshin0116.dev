@@ -148,6 +148,7 @@ async function main() {
   const rendered = await Promise.all(
     files.map(async (file) => {
       const result = await renderMarkdown(file.raw, {
+        baseUrl: "/blog/",
         resolveLink,
         knownSlugs,
         filePath: file.slug + ".md",

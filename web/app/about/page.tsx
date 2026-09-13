@@ -9,12 +9,12 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About | Syshin's Portfolio",
+  title: "About",
   description: "Learn about Syshin and their work",
   openGraph: {
     title: "About Syshin",
     description: "Learn about Syshin and their work",
-    url: "https://syshin0116.vercel.app/about",
+    url: "https://syshin0116.dev/about",
     type: "profile",
   },
 };

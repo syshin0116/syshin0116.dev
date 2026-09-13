@@ -153,7 +153,7 @@ export const projectsTimeline: ProjectTimeline[] = [
     tags: ["Full Stack", "Next.js 16", "Nuartz", "포트폴리오"],
     category: "personal",
     github: "https://github.com/syshin0116/syshin0116.dev",
-    demo: "https://syshin0116.vercel.app"
+    demo: "https://syshin0116.dev"
   },
   {
     id: "nuartz",

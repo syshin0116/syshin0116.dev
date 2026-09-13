@@ -1,10 +1,11 @@
+import { SITE_URL } from "@/lib/site"
 export function GET() {
   const body = `User-agent: *
 Allow: /
 Disallow: /login
 Disallow: /api/
 
-Sitemap: https://syshin0116.vercel.app/sitemap.xml
+Sitemap: ${SITE_URL}/sitemap.xml
 
 # Content Signals (https://contentsignals.org/)
 Content-Signal: ai-train=disallow, search=allow, ai-input=allow

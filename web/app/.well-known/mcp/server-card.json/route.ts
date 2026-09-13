@@ -15,8 +15,8 @@ export function GET() {
       prompts: false,
     },
     links: {
-      homepage: "https://syshin0116.vercel.app",
-      documentation: "https://syshin0116.vercel.app/llms.txt",
+      homepage: "https://syshin0116.dev",
+      documentation: "https://syshin0116.dev/llms.txt",
       source: "https://github.com/syshin0116/syshin0116.dev",
     },
   };

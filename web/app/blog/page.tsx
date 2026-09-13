@@ -6,7 +6,7 @@ import { getPublishedNotes, BlogList, NOTES_PER_PAGE } from "@/lib/blog"
 export const revalidate = false
 
 export const metadata: Metadata = {
-  title: "Blog | Syshin's Portfolio",
+  title: "Blog",
   description: "AI, 개발, 프로젝트에 관한 기술 블로그",
 }
 

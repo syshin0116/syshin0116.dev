@@ -50,8 +50,10 @@ describe("dependency audit policy", () => {
     const candidate = evidence()
     candidate.production = reviewedAudit
 
+    // The message must name the advisory: an exit code alone left six weeks of
+    // scheduled failures unactionable.
     expect(() => validateAuditPolicy(candidate)).toThrow(
-      "production audit exited 1",
+      /production audit found 1 advisories: brace-expansion/u,
     )
   })
 
@@ -60,7 +62,7 @@ describe("dependency audit policy", () => {
     candidate.complete = reviewedAudit
 
     expect(() => validateAuditPolicy(candidate)).toThrow(
-      "complete audit exited 1",
+      /complete audit found 1 advisories: brace-expansion/u,
     )
   })
 

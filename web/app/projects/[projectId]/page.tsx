@@ -22,12 +22,12 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   }
 
   return {
-    title: `${project.title} | Syshin's Portfolio`,
+    title: project.title,
     description: project.description,
     openGraph: {
       title: project.title,
       description: project.description,
-      url: `https://syshin0116.vercel.app/projects/${projectId}`,
+      url: `https://syshin0116.dev/projects/${projectId}`,
       type: "website",
     },
     twitter: {

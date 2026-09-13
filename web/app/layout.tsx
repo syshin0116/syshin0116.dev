@@ -6,6 +6,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { WebMCP } from "@/components/webmcp";
+import { SITE_URL } from "@/lib/site"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,12 +29,12 @@ export const metadata: Metadata = {
     "Projects",
     "Technical Portfolio",
   ],
-  metadataBase: new URL("https://syshin0116.vercel.app"),
+  metadataBase: new URL(SITE_URL),
   openGraph: {
     type: "website",
     siteName: "Syshin0116 Dev",
     locale: "en_US",
-    url: "https://syshin0116.vercel.app",
+    url: SITE_URL,
     title: "Syshin0116 Dev",
     description:
       "AI Research Engineer portfolio & tech blog.",
@@ -75,7 +76,7 @@ const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "Syshin Portfolio",
-  url: "https://syshin0116.vercel.app",
+  url: SITE_URL,
   sameAs: ["https://github.com/syshin0116", "https://twitter.com/syshin0116"],
 };
 
@@ -83,7 +84,7 @@ const personJsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: "Syshin",
-  url: "https://syshin0116.vercel.app",
+  url: SITE_URL,
   jobTitle: "Software Developer",
   sameAs: ["https://github.com/syshin0116", "https://twitter.com/syshin0116"],
 };
