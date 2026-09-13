@@ -4,7 +4,7 @@ import ProjectList from "@/components/project-list";
 import { projectsTimeline } from "@/data/projects";
 
 export const metadata = {
-  title: "Projects | Syshin's Portfolio",
+  title: "Projects",
   description: "Explore Syshin's major AI and Machine Learning projects.",
 };
 

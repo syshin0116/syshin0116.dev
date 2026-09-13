@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og"
+import { SITE_URL } from "@/lib/site"
 
 export const runtime = "edge"
 export const alt = "Syshin0116 Dev"
@@ -7,7 +8,7 @@ export const contentType = "image/png"
 
 export default async function OGImage() {
   const logoData = await fetch(
-    new URL("/logo.png", "https://syshin0116.vercel.app")
+    new URL("/logo.png", SITE_URL)
   ).then((r) => r.arrayBuffer())
   const logoSrc = `data:image/png;base64,${Buffer.from(logoData).toString("base64")}`
 

@@ -21,7 +21,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { page } = await params
   return {
-    title: `Blog – Page ${page} | Syshin's Portfolio`,
+    title: `Blog – Page ${page}`,
     description: "AI, 개발, 프로젝트에 관한 기술 블로그",
   }
 }

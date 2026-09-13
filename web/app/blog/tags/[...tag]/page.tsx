@@ -30,7 +30,7 @@ export async function generateMetadata({
   if (!tagIndex[tagName]) return {}
 
   return {
-    title: `#${tagName} | Syshin's Blog`,
+    title: `#${tagName}`,
     description: `Posts tagged ${tagName}`,
     robots: { index: false, follow: true },
   }

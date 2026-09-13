@@ -1,9 +1,10 @@
 import { MetadataRoute } from "next";
 import { projectsTimeline } from "@/data/projects";
 import sitemapData from "@/.generated/sitemap-data.json"
+import { SITE_URL } from "@/lib/site"
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://syshin0116.vercel.app";
+  const baseUrl = SITE_URL;
 
   const routes: MetadataRoute.Sitemap = [
     {

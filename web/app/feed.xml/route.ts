@@ -1,9 +1,10 @@
 import notesList from "@/.generated/notes-list.json"
 import type { NoteEntry } from "@/lib/blog"
+import { LEGACY_FEED_ORIGIN, SITE_URL } from "@/lib/site"
 
 export const dynamic = "force-static"
 
-const BASE_URL = "https://syshin0116.vercel.app"
+const BASE_URL = SITE_URL
 
 function escapeXml(str: string): string {
   return str
@@ -27,7 +28,8 @@ export async function GET() {
     .map((post) => {
       const title = escapeXml(String(post.title))
       const description = escapeXml(String(post.description ?? ""))
-      const url = `${BASE_URL}/blog/${post.slug.split("/").map(encodeURIComponent).join("/")}`
+      const path = `/blog/${post.slug.split("/").map(encodeURIComponent).join("/")}`
+      const url = `${BASE_URL}${path}`
       const pubDate = post.dateRaw
         ? new Date(post.dateRaw).toUTCString()
         : ""
@@ -38,7 +40,7 @@ export async function GET() {
       return `    <item>
       <title>${title}</title>
       <link>${url}</link>
-      <guid isPermaLink="true">${url}</guid>
+      <guid isPermaLink="false">${LEGACY_FEED_ORIGIN}${path}</guid>
       <description>${description}</description>
       ${pubDate ? `<pubDate>${pubDate}</pubDate>` : ""}
       ${categories}
