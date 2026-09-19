@@ -5,6 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: var(--font-geist-sans), var(--font-noto-sans-kr), ui-sans-serif, system-ui, sans-serif;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
@@ -677,7 +679,11 @@ a.tag {
 .reading-column { max-width: 72ch; margin-inline: auto; }
 .prose > :first-child { margin-top: 0; }
 .prose table { display: block; overflow-x: auto; }
-.prose { overflow-wrap: anywhere; }
+/* Korean breaks on 어절, not on arbitrary characters. `anywhere` split both Hangul
+   words and English identifiers mid-token. Long unbreakable strings are handled per
+   element below. */
+.prose { word-break: keep-all; overflow-wrap: break-word; }
+.prose code, .prose pre, .prose td, .prose a { overflow-wrap: anywhere; }
 .copy-code-btn:focus-visible, .prose .heading-anchor:focus-visible { opacity: 1; }
 
 .graph-surface {

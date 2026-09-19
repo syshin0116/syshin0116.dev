@@ -584,6 +584,26 @@ export function sourcesFromContent(content: unknown): InspectionSource[] {
   return dedupeSources(content.flatMap(sourcesFromContentBlock))
 }
 
+/** Hostname the blog's own posts are served from. */
+const SITE_HOSTNAME = "syshin0116.dev"
+
+/**
+ * Path to route in-app, or undefined when the source lives elsewhere. Citations to
+ * the blog itself should not open a new tab.
+ */
+export function internalSourcePath(url: string | undefined): string | undefined {
+  if (!url) return undefined
+  try {
+    const parsed = new URL(url)
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return undefined
+    return parsed.hostname === SITE_HOSTNAME
+      ? `${parsed.pathname}${parsed.search}${parsed.hash}`
+      : undefined
+  } catch {
+    return undefined
+  }
+}
+
 export function safeSourceUrl(url: string | undefined): string | undefined {
   if (!url) return undefined
   try {

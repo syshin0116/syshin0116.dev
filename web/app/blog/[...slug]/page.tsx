@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Breadcrumb } from "@/components/blog/breadcrumb"
 import { TableOfContents } from "@/components/blog/toc"
+import { ReaderModeToggle } from "@/components/blog/reader-mode-toggle"
 import { Backlinks } from "@/components/blog/backlinks"
 import { MermaidRendererDynamic } from "@/components/blog/mermaid-renderer-dynamic"
 import { GraphViewDynamic } from "@/components/blog/graph-view-dynamic"
@@ -207,6 +208,7 @@ export default async function BlogPostPage({
                 읽는 시간 {rt}분
               </span>
             )}
+            <ReaderModeToggle />
           </div>
         </header>
 

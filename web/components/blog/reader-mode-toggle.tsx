@@ -23,9 +23,15 @@ export function ReaderModeToggle() {
   }
 
   return (
-    <Button variant="ghost" size="icon" onClick={toggle}>
-      <BookOpen className="h-4 w-4" />
-      <span className="sr-only">Toggle reader mode</span>
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={toggle}
+      aria-pressed={active}
+      className="h-7 gap-1.5 px-2 text-xs text-muted-foreground"
+    >
+      <BookOpen className="size-3.5" aria-hidden="true" />
+      {active ? "읽기 모드 끄기" : "읽기 모드"}
     </Button>
   )
 }

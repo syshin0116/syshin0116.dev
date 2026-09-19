@@ -90,6 +90,7 @@ import { MAX_COMPOSER_CODE_UNITS, MAX_COMPOSER_UTF8_BYTES, useMessageQueue } fro
 import { AnswerActivity } from "./answer-activity"
 import {
   inspectionSourcesFromUnknown,
+  internalSourcePath,
   safeSourceUrl,
   type AgentActivity,
   type InspectionSource,
@@ -276,16 +277,57 @@ function SourceItems({ sources }: { sources: readonly InspectionSource[] }) {
   )
 }
 
+const PROMINENT_SOURCE_COUNT = 3
+
 function AnswerSources({ sources }: { sources: readonly InspectionSource[] }) {
+  const prominent = sources.slice(0, PROMINENT_SOURCE_COUNT)
+
   return (
-    <details className="mt-5 rounded-xl border border-border/70 bg-muted/30 text-xs">
-      <summary className="cursor-pointer list-none px-3 py-2.5 font-medium">
-        인용 출처 {sources.length}개
-      </summary>
-      <div aria-label="답변 인용 출처" className="border-t px-3 py-3">
-        <SourceItems sources={sources} />
-      </div>
-    </details>
+    <section aria-label="답변 근거" className="mt-5 space-y-2 text-xs">
+      <p className="font-medium text-muted-foreground">
+        근거가 된 글 {sources.length}개
+      </p>
+      <ul className="flex flex-wrap gap-2">
+        {prominent.map((source) => {
+          const url = safeSourceUrl(source.url)
+          const label = source.title ?? source.path ?? source.docId ?? source.key
+          const href = internalSourcePath(url)
+          const className =
+            "inline-flex max-w-full items-center rounded-full border bg-background px-3 py-1.5 font-medium transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+
+          return (
+            <li key={source.key} className="min-w-0">
+              {href ? (
+                <Link href={href} className={className}>
+                  <span className="truncate">{label}</span>
+                </Link>
+              ) : url ? (
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={className}
+                >
+                  <span className="truncate">{label}</span>
+                </a>
+              ) : (
+                <span className={className}>
+                  <span className="truncate">{label}</span>
+                </span>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+      <details className="rounded-xl border border-border/70 bg-muted/30">
+        <summary className="cursor-pointer list-none px-3 py-2.5 font-medium">
+          검색 세부 정보
+        </summary>
+        <div aria-label="검색 순위와 점수" className="border-t px-3 py-3">
+          <SourceItems sources={sources} />
+        </div>
+      </details>
+    </section>
   )
 }
 
@@ -303,6 +345,12 @@ function MessageActions() {
         <Copy className="size-3.5 group-data-[copied]/copy:hidden" />
         <Check className="hidden size-3.5 group-data-[copied]/copy:block" />
       </ActionBarPrimitive.Copy>
+      <ActionBarPrimitive.Reload
+        aria-label="답변 다시 생성"
+        className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors motion-reduce:transition-none hover:bg-muted hover:text-foreground disabled:opacity-40"
+      >
+        <RotateCcw className="size-3.5" />
+      </ActionBarPrimitive.Reload>
     </ActionBarPrimitive.Root>
   )
 }
@@ -345,8 +393,14 @@ function ChatMessage() {
         <MessagePrimitive.Error>
           <ErrorPrimitive.Root className="mt-3 rounded-xl border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
             <ErrorPrimitive.Message>
-              응답을 완료하지 못했습니다. 같은 대화에서 다시 시도해 주세요.
+              응답을 완료하지 못했습니다.
             </ErrorPrimitive.Message>
+            <ActionBarPrimitive.Root className="mt-2 flex items-center">
+              <ActionBarPrimitive.Reload className="rounded-md border border-destructive/40 px-2.5 py-1 text-xs font-medium transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50">
+                <RotateCcw className="mr-1 inline size-3" aria-hidden="true" />
+                다시 시도
+              </ActionBarPrimitive.Reload>
+            </ActionBarPrimitive.Root>
           </ErrorPrimitive.Root>
         </MessagePrimitive.Error>
       </div>
@@ -534,6 +588,13 @@ function Composer({ interrupted }: { interrupted: boolean }) {
   const router = useRouter()
   const compositionRef = useRef(false)
   const composerInputRef = useRef<HTMLTextAreaElement>(null)
+  // Autofocus only on pointer-and-keyboard viewports: on a phone it opens the
+  // keyboard on arrival, covering the welcome copy and the suggestions.
+  useEffect(() => {
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+      composerInputRef.current?.focus()
+    }
+  }, [])
   const connectionHelpRef = useRef<HTMLButtonElement>(null)
   const [composerError, setComposerError] = useState<string>()
   useEffect(() => { if (!interrupted) restoreComposerFocus() }, [interrupted])
@@ -569,7 +630,9 @@ function Composer({ interrupted }: { interrupted: boolean }) {
   }
 
   return (
-    <div>
+    // Suggestions sit above the composer on touch viewports, where the keyboard
+    // covers anything rendered below it.
+    <div className="flex flex-col">
       <div className="max-h-[min(12rem,25dvh)] overflow-y-auto overscroll-contain">
         {!online ? (
           <p role="status" className="mb-3 flex items-start gap-3 rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
@@ -649,7 +712,6 @@ function Composer({ interrupted }: { interrupted: boolean }) {
           }
           aria-invalid={composerError !== undefined}
           placeholder="궁금한 내용을 물어보세요…"
-          autoFocus
           rows={1}
           maxRows={8}
           maxLength={MAX_COMPOSER_CODE_UNITS}
@@ -729,7 +791,7 @@ function Composer({ interrupted }: { interrupted: boolean }) {
             <ComposerPrimitive.Cancel
               aria-label="응답 중지"
               onClick={queue.pause}
-              className="flex size-9 shrink-0 items-center justify-center rounded-xl border bg-background transition-colors motion-reduce:transition-none hover:bg-muted"
+              className="flex size-11 shrink-0 items-center justify-center rounded-xl border bg-background transition-colors motion-reduce:transition-none hover:bg-muted sm:size-9"
             >
               <CircleStop className="size-4" />
             </ComposerPrimitive.Cancel>
@@ -739,14 +801,14 @@ function Composer({ interrupted }: { interrupted: boolean }) {
             aria-label="메시지 보내기"
             disabled={!ready || !hasText}
             onClick={submit}
-            className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-colors motion-reduce:transition-none hover:bg-primary/85 disabled:opacity-30"
+            className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-colors motion-reduce:transition-none hover:bg-primary/85 disabled:opacity-30 sm:size-9"
           >
             <ArrowUp className="size-4" />
           </button>
           </div>
         </div>
       </ComposerPrimitive.Root>
-      <div className="chat-suggestions" data-visible={isEmpty} aria-hidden={!isEmpty} inert={!isEmpty}>
+      <div className="chat-suggestions order-first sm:order-none" data-visible={isEmpty} aria-hidden={!isEmpty} inert={!isEmpty}>
         <div className="min-h-0 overflow-hidden">
           <div className="flex flex-wrap justify-center gap-2 pb-2 pt-4">
             {SUGGESTIONS.map(({ label, prompt, icon: Icon }) => (
