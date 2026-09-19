@@ -14,6 +14,7 @@ import {
   INSPECTION_EVENT_NAME,
   InspectionProjector,
   inspectionSourcesFromUnknown,
+  internalSourcePath,
   projectInspectionCustomEvent,
   safeSourceUrl,
 } from "./inspection"
@@ -322,6 +323,27 @@ describe("InspectionProjector", () => {
         { key: "source-1", title: "x".repeat(301) },
       ])
     ).toEqual([])
+  })
+})
+
+describe("internalSourcePath", () => {
+  test("returns an app path for the blog's own host", () => {
+    expect(
+      internalSourcePath("https://syshin0116.dev/blog/AI/rag?x=1#s")
+    ).toBe("/blog/AI/rag?x=1#s")
+  })
+
+  test("leaves external and non-http sources to open normally", () => {
+    expect(internalSourcePath("https://example.com/blog/AI/rag")).toBeUndefined()
+    expect(internalSourcePath("javascript:alert(1)")).toBeUndefined()
+    expect(internalSourcePath("not a url")).toBeUndefined()
+    expect(internalSourcePath(undefined)).toBeUndefined()
+  })
+
+  test("does not treat a lookalike host as internal", () => {
+    expect(
+      internalSourcePath("https://syshin0116.dev.evil.test/blog/AI/rag")
+    ).toBeUndefined()
   })
 })
 

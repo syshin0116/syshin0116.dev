@@ -78,10 +78,14 @@ interface GraphLink {
   target: string
 }
 
+// Whitespace-split tokens are 어절 in Korean prose, which is read at roughly
+// 250-300 어절 per minute, not the 200 wpm used for English words.
+const EOJEOL_PER_MINUTE = 280
+
 function readingTime(raw: string): number {
   const body = raw.replace(/^---[\s\S]*?---\n?/, "")
   const words = body.trim().split(/\s+/).filter(Boolean).length
-  return Math.max(1, Math.ceil(words / 200))
+  return Math.max(1, Math.ceil(words / EOJEOL_PER_MINUTE))
 }
 
 async function ensureDir(dir: string) {
