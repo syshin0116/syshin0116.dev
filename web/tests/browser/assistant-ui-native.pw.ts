@@ -1212,10 +1212,19 @@ for (const width of [390, 1280, 2560]) {
     await settleChatLayout(page)
     const initialBox = (await composer.boundingBox())!
     const headingBox = (await page.getByRole("heading", { name: "무엇이 궁금하세요?" }).boundingBox())!
-    expect(initialBox.y - headingBox.y - headingBox.height).toBeLessThan(120)
     expect(initialBox.y).toBeLessThan(height * 0.65)
     const suggestion = page.getByRole("button", { name: "LangGraph 관련 글을 찾아줘", exact: true })
-    expect((await suggestion.boundingBox())!.y).toBeGreaterThan(initialBox.y + initialBox.height)
+    const suggestionBox = (await suggestion.boundingBox())!
+    if (width < 640) {
+      // The on-screen keyboard covers everything under the composer, so suggestions
+      // sit between the welcome copy and the composer on touch viewports.
+      expect(suggestionBox.y).toBeGreaterThan(headingBox.y + headingBox.height)
+      expect(suggestionBox.y + suggestionBox.height).toBeLessThanOrEqual(initialBox.y)
+      expect(suggestionBox.y - headingBox.y - headingBox.height).toBeLessThan(120)
+    } else {
+      expect(initialBox.y - headingBox.y - headingBox.height).toBeLessThan(120)
+      expect(suggestionBox.y).toBeGreaterThan(initialBox.y + initialBox.height)
+    }
     await attachEvidence(page, testInfo, "layout-empty")
     await composer.fill("연속 검색 레이아웃 검증")
     await attachEvidence(page, testInfo, "layout-input")
