@@ -149,7 +149,7 @@ export const projectsTimeline: ProjectTimeline[] = [
     periodType: "Q",
     periodNumber: 1,
     isCompleted: false,
-    description: "Nuartz 기반 블로그와 포트폴리오를 하나의 사이트로 통합. 4개 레포를 3개로 재편하고 blog-rag(Modular RAG) 백엔드와 연동 계획.",
+    description: "Nuartz 기반 기술 블로그와 포트폴리오. 공개 글을 검색하는 익명 AI 채팅과, 동일한 코퍼스로 검색 방법을 비교하는 RAG 평가 환경을 함께 운영.",
     tags: ["Full Stack", "Next.js 16", "Nuartz", "포트폴리오"],
     category: "personal",
     github: "https://github.com/syshin0116/syshin0116.dev",
@@ -1228,78 +1228,91 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
   "syshin0116-dev": {
     id: "syshin0116-dev",
     title: "Syshin0116.dev - 블로그 + 포트폴리오 통합",
-    subtitle: "Nuartz 기반 블로그·포트폴리오·AI 챗봇 통합 사이트",
+    subtitle: "Nuartz 기반 기술 블로그와 RAG 검색 방법 평가 환경",
     period: "2026.03 ~ 진행 중",
-    duration: "약 2주",
+    duration: "지속 개발",
     role: "1인 풀스택 개발",
     team: "개인 프로젝트",
-    description: "개인 기술 블로그, 프로젝트 포트폴리오, RAG 기반 AI 챗봇을 하나의 도메인으로 통합. Nuartz를 데이터 레이어로 사용하고 Next.js 16 + shadcn/ui로 모던 UI 구현. LangGraph SDK로 blog-rag 백엔드와 연동하여 블로그 콘텐츠 기반 질의응답 제공.",
+    description: "Obsidian에 작성한 기술 글과 프로젝트 포트폴리오를 Nuartz + Next.js로 발행하는 개인 사이트. Aegra·LangGraph·Deep Agents 기반 AI 채팅을 로그인 없이 체험할 수 있다. 직접 작성한 공개 글을 코퍼스로 삼아 여러 검색 방법을 같은 조건에서 구현·비교하는 RAG 평가 환경도 함께 구축했다.",
     techStack: {
-      frontend: ["Next.js 16 (App Router)", "React 19", "Tailwind CSS v4", "shadcn/ui", "Framer Motion"],
-      content: ["Nuartz (headless markdown)", "FlexSearch (CJK 검색)", "D3.js (그래프뷰)", "Mermaid"],
-      ai: ["LangGraph SDK", "LangChain Core", "blog-rag 백엔드 (FastAPI)"],
-      auth: ["NextAuth v5 (GitHub·Google OAuth)", "Neon Postgres (adapter)"],
-      rendering: ["KaTeX (수식)", "Shiki (코드 하이라이팅)", "remark/rehype"],
-      deployment: ["Vercel", "Bun"]
+      frontend: ["Next.js 16 (App Router)", "React 19", "Tailwind CSS v4", "shadcn/ui", "assistant-ui"],
+      content: ["Nuartz", "D3.js (그래프뷰)", "Mermaid"],
+      ai: ["Aegra (Agent Protocol v2)", "LangGraph", "Deep Agents", "LangGraph SDK"],
+      auth: ["Auth.js v5 (GitHub·Google OAuth)", "Neon Postgres"],
+      rendering: ["KaTeX (수식)", "Shiki (코드 하이라이팅)"],
+      deployment: ["Vercel (웹)", "Cloud Run (에이전트)", "GitHub Actions", "Bun", "uv"]
     },
     keyFeatures: [
       {
-        title: "RAG 기반 AI 챗봇",
+        title: "공개 AI 채팅",
         details: [
-          "LangGraph SDK로 blog-rag 백엔드 연동",
-          "자동/수동 검색 모드 (메타데이터, 벡터, 그래프 검색)",
-          "실시간 스트리밍 응답 + 도구 호출 시각화",
-          "출처 표시 기능"
+          "로그인 없는 Luna 체험과 소유자 로그인",
+          "assistant-ui 기반 스트리밍 응답과 대화 목록",
+          "도구·서브에이전트 실행 상태와 검색 출처 표시",
+          "익명 사용자의 실행 예산 제한과 대화 보관 기한 적용"
+        ]
+      },
+      {
+        title: "RAG 검색 방법 평가",
+        details: [
+          "채팅과 오프라인 평가가 같은 검색 인터페이스와 공개 글 코퍼스 사용",
+          "BM25, 필드 가중 BM25, 문자 n-gram, RRF 조합의 재현 가능한 비교 실행",
+          "코퍼스·질의셋·검색 방법의 식별 정보와 질의별 순위 기록",
+          "주제별 정답셋 검토와 공개 가능한 평가 결과 확정은 후속 과제"
         ]
       },
       {
         title: "Obsidian 호환 블로그",
         details: [
-          "위키링크, 백링크, 콜아웃 블록 지원",
-          "D3.js 인터랙티브 지식 그래프",
-          "Cmd+K 전문 검색 (FlexSearch, CJK 지원)",
-          "링크 호버 프리뷰, 리더 모드, 읽기 시간"
+          "위키링크, 백링크, 콜아웃과 지식 그래프",
+          "제목·경로·본문·태그 검색과 태그 필터·정렬",
+          "링크 호버 프리뷰, 읽기 모드, 읽는 시간과 모바일 목차",
+          "Mermaid 다이어그램, 수식, 코드 하이라이팅과 복사"
         ]
       },
       {
         title: "프로젝트 포트폴리오",
         details: [
-          "타임라인 뷰 (12+ 프로젝트)",
-          "상세 프로젝트 페이지 (기술스택, 성과, 아키텍처)",
-          "회사/개인 프로젝트 분류"
+          "업무·개인 프로젝트를 나눈 목록",
+          "프로젝트별 역할, 기술 스택, 성과와 해결 과제",
+          "홈의 최근 글·프로젝트와 GitHub·데모 링크"
         ]
       },
       {
-        title: "SEO 및 인프라",
+        title: "콘텐츠 발행과 운영",
         details: [
-          "JSON-LD 구조화 데이터, Open Graph 이미지",
-          "sitemap, robots.txt 자동 생성",
-          "Giscus 댓글, Vercel Analytics",
-          "다크/라이트 테마"
+          "원본 글과 정리된 Wiki를 분리하고 공개 글만 검색 코퍼스에 포함",
+          "JSON-LD, Open Graph, sitemap과 RSS 피드",
+          "Giscus 댓글, Vercel Analytics와 Speed Insights",
+          "웹·에이전트·평가 및 프로토콜 호환성을 CI에서 검증"
         ]
       }
     ],
     achievements: [
-      "4개 레포를 3개로 재편하여 통합 사이트 구축",
-      "Nuartz를 실제 프로덕션에서 사용하며 라이브러리 검증",
-      "RAG 챗봇으로 블로그 콘텐츠 기반 대화형 검색 제공",
-      "Obsidian 볼트 → 웹사이트 무중단 퍼블리싱 파이프라인"
+      "블로그·포트폴리오와 익명 AI 채팅을 하나의 사이트에서 제공",
+      "Nuartz의 문서 해석·렌더링·탐색 기능을 실제 사이트에 적용",
+      "채팅과 오프라인 평가에서 동일한 검색 구현을 재사용하는 구조 구축",
+      "검색 결과와 실행 환경을 기록하고 재현성을 검증하는 평가 파이프라인 구현"
     ],
     challenges: [
       {
-        title: "레포 통합",
-        description: "기존 블로그, 포트폴리오, Obsidian 볼트가 별도 레포. Nuartz를 공통 데이터 레이어로 사용하여 하나의 Next.js 앱으로 통합"
+        title: "공개 콘텐츠 경계 유지",
+        description: "블로그와 에이전트가 서로 다른 글을 노출하지 않도록 공개 글만 포함한 코퍼스를 빌드 시 생성하고, 에이전트와 평가가 같은 산출물을 사용하도록 구성"
       },
       {
-        title: "RAG 백엔드 연동",
-        description: "LangGraph SDK의 스트리밍 응답과 도구 호출을 프론트엔드에서 실시간 시각화. SSE + 상태 관리로 해결"
+        title: "스트리밍 대화와 실행 상태 연결",
+        description: "Aegra의 Agent Protocol v2와 assistant-ui 런타임을 연결해 메시지, 도구 호출, 서브에이전트 활동과 검색 출처를 화면에 반영"
+      },
+      {
+        title: "검색 방법 비교의 재현성",
+        description: "코퍼스와 질의셋, 검색 구현의 식별 정보를 실행 결과에 묶고 질의별 순위를 재검증. 자동 생성한 질의셋과 소유자가 검토한 정답셋을 구분해 평가 결과의 해석 범위를 제한"
       }
     ],
     learnings: [
-      "프로덕션 사용이 최고의 라이브러리 테스트",
-      "Next.js 16 App Router + React 19의 서버 컴포넌트 활용",
-      "NextAuth v5 + Neon Postgres 어댑터 통합 경험",
-      "통합 사이트의 UX 설계: 블로그, 포트폴리오, 챗봇의 조화"
+      "실제 콘텐츠로 Nuartz의 문서 처리와 탐색 기능 검증",
+      "검색 구현을 공유하면서 온라인 채팅과 오프라인 평가의 실행 환경 분리",
+      "익명 AI 체험에 필요한 사용자 격리, 비용 제한과 보관 정책 구현",
+      "검색 정확도뿐 아니라 데이터 출처와 재현 조건까지 포함하는 평가 설계"
     ]
   },
   "men-in-black": {
