@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 import tempfile
@@ -323,6 +324,57 @@ class DetectionTests(unittest.TestCase):
         self.assertEqual(
             {"web": True, "agent": True, "eval": True, "infra": False},
             changes.classify_paths(paths),
+        )
+
+
+class SharedPresentationImportTests(unittest.TestCase):
+    """The exempt list is only safe while nothing outside it renders these files."""
+
+    WEB_ROOT = REPO_ROOT / "web"
+    EXEMPT_PREFIXES = ("app/blog/", "components/blog/", "app/projects/")
+    IMPORT_PATTERN = re.compile(
+        r"""from\s+["']@/(components/blog/[\w./-]+|lib/blog)["']"""
+    )
+
+    def _is_exempt(self, relative: Path) -> bool:
+        text = relative.as_posix()
+        return text.startswith(self.EXEMPT_PREFIXES) or f"web/{text}" in {
+            "web/lib/blog.tsx",
+            "web/lib/blog.test.tsx",
+            "web/components/project-list.tsx",
+            "web/components/project-timeline.tsx",
+            "web/tests/site/site-accessibility.pw.ts",
+        }
+
+    def test_blog_modules_imported_from_non_exempt_code_are_runtime_affecting(
+        self,
+    ) -> None:
+        """A shared consumer means the module is not presentation-only."""
+        unguarded: set[str] = set()
+        for path in self.WEB_ROOT.rglob("*.tsx"):
+            relative = path.relative_to(self.WEB_ROOT)
+            if "node_modules" in relative.parts or ".generated" in relative.parts:
+                continue
+            if self._is_exempt(relative):
+                continue
+            for match in self.IMPORT_PATTERN.finditer(path.read_text(encoding="utf-8")):
+                target = match.group(1)
+                if not target.startswith("components/blog/"):
+                    continue
+                for suffix in (".tsx", ".ts"):
+                    candidate = f"web/{target}{suffix}"
+                    if (REPO_ROOT / candidate).exists():
+                        if changes.runtime_affected([candidate]):
+                            break
+                        unguarded.add(f"{candidate} imported by web/{relative}")
+                        break
+
+        self.assertEqual(
+            set(),
+            unguarded,
+            "these blog modules render outside the blog, so a change to them must "
+            "run the runtime checks: add them to shared_presentation_files in "
+            "scripts/ci_changed_components.py",
         )
 
 
