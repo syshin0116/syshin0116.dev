@@ -154,7 +154,11 @@ async function main() {
 
   const filesBySlug = new Map(files.map(file => [file.slug, file]))
   const resolveNote = createNoteResolver(files)
-  const knownSlugs = new Set(filesBySlug.keys())
+  // Wikilink hrefs now carry the public slug, so dead-link detection has to compare
+  // against public slugs too. Source slugs would mark every resolved link broken.
+  const knownSlugs = new Set(
+    [...filesBySlug.keys()].map(slug => permalinks.publicSlug(slug))
+  )
   const resolveLink = (target: string, heading?: string, from?: string) =>
     noteHref(permalinks.publicSlug(resolveNote(target, from) ?? normalizeNotePath(target)), heading, "/blog/")
 
