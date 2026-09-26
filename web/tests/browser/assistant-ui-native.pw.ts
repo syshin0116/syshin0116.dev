@@ -382,11 +382,14 @@ test.describe.serial("native assistant-ui production journey", () => {
     await composer.press("Enter")
     await expect(page.getByLabel("전송 대기열")).toContainText("전송 일시정지")
     await expect(page.getByLabel("전송 대기열")).toContainText("연속 검색 실패 복구")
+    expect((await fixtureState(page)).commands).toHaveLength(0)
     await attachEvidence(page, testInfo, "queue-rejected")
     reject = false
     await page.getByRole("button", { name: "대기 메시지 보내기" }).click()
     await expect(page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true })).toHaveCount(1)
     await expect(page.getByLabel("전송 대기열")).toBeHidden()
+    await expect(page.getByText("연속 검색 실패 복구", { exact: true })).toHaveCount(1)
+    expect((await fixtureState(page)).commands).toHaveLength(1)
     await attachEvidence(page, testInfo, "queue-retried")
   })
 
