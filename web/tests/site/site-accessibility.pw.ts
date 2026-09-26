@@ -495,3 +495,23 @@ test("legacy article URLs resolve to the canonical permalink with navigation and
   expect(preview.ok()).toBe(true)
   expect((await preview.json()).title).toContain("Azure")
 })
+
+test("a blog slug cannot read generated files outside the pages directory", async ({ request }) => {
+  // Slug segments come from the URL and are decoded before the file join, so a
+  // doubly-encoded traversal used to escape .generated/pages.
+  const escapes = [
+    "/blog/%252e%252e/notes-list",
+    "/blog/%252e%252e%252f%252e%252e%252fpackage",
+    "/blog/..%2f..%2fnotes-list",
+  ]
+  for (const target of escapes) {
+    const response = await request.get(target, { maxRedirects: 0 })
+    expect(
+      [301, 308, 404].includes(response.status()),
+      `${target} returned ${response.status()}`
+    ).toBe(true)
+    if (response.status() === 200) {
+      expect(await response.text()).not.toContain("\"slug\"")
+    }
+  }
+})

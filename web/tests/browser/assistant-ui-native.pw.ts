@@ -1124,6 +1124,21 @@ test("retries the public anonymous bootstrap without a challenge", async ({
   await attachEvidence(page, testInfo, "public-anonymous-retry")
 })
 
+test("does not focus the composer on arrival at phone width", async ({ page }) => {
+  // Focus opens the on-screen keyboard, which covers the welcome copy and the
+  // suggestions. Desktop still autofocuses.
+  await page.setViewportSize({ width: 390, height: 844 })
+  await resetFixture(page)
+  await page.goto("/")
+  const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+  await expect(composer).toBeVisible()
+  await expect(composer).not.toBeFocused()
+
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.reload()
+  await expect(page.getByRole("textbox", { name: "AI에게 보낼 메시지" })).toBeFocused()
+})
+
 test("keeps the welcome input and suggestions readable on mobile and in dark mode", async ({ page }, testInfo) => {
   await resetFixture(page)
   await page.goto("/")

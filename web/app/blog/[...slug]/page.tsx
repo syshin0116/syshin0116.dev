@@ -28,28 +28,42 @@ export const revalidate = false
 
 const GENERATED_DIR = path.join(process.cwd(), ".generated")
 
-async function loadPageData(slugStr: string) {
+/**
+ * Resolve a slug to a file inside one generated directory, or null when it points
+ * anywhere else. Slug segments arrive from the URL, and a doubly-encoded `..`
+ * survives the decode above, so the join alone would read outside the directory.
+ * Mirrors the guard in app/blog/api/content/[...path]/route.ts.
+ */
+export async function readGeneratedJson(kind: "pages" | "folders", slugStr: string) {
+  const root = path.join(GENERATED_DIR, kind)
+  const normalized = path.normalize(`${slugStr}.json`)
+  if (normalized === "." || normalized.startsWith("..")) {
+    return null
+  }
+  const filePath = path.resolve(root, normalized)
+  if (!filePath.startsWith(root + path.sep)) {
+    return null
+  }
   try {
-    const raw = await fs.readFile(
-      path.join(GENERATED_DIR, "pages", `${slugStr}.json`),
-      "utf-8"
-    )
-    return JSON.parse(raw)
+    const [realRoot, realFilePath] = await Promise.all([
+      fs.realpath(root),
+      fs.realpath(filePath),
+    ])
+    if (!realFilePath.startsWith(realRoot + path.sep)) {
+      return null
+    }
+    return JSON.parse(await fs.readFile(realFilePath, "utf-8"))
   } catch {
     return null
   }
 }
 
+async function loadPageData(slugStr: string) {
+  return readGeneratedJson("pages", slugStr)
+}
+
 async function loadFolderData(slugStr: string) {
-  try {
-    const raw = await fs.readFile(
-      path.join(GENERATED_DIR, "folders", `${slugStr}.json`),
-      "utf-8"
-    )
-    return JSON.parse(raw)
-  } catch {
-    return null
-  }
+  return readGeneratedJson("folders", slugStr)
 }
 
 export function generateStaticParams() {
