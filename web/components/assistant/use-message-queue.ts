@@ -1,7 +1,7 @@
 "use client"
 
 import { useAui, useAuiEvent, useAuiState } from "@assistant-ui/react"
-import { useLangChainError, useLangChainInterrupts } from "@assistant-ui/react-langchain"
+import { convertLangChainBaseMessage, useLangChainError, useLangChainInterrupts, useLangChainStream } from "@assistant-ui/react-langchain"
 import { useCallback, useEffect, useRef, useState } from "react"
 import type { AgentModel } from "@/lib/agent-model"
 
@@ -22,6 +22,7 @@ export function useMessageQueue({ ready, model, onSend }: { ready: boolean; mode
   const threadId = useAuiState((s) => s.threadListItem.id)
   const running = useAuiState((s) => s.thread.isRunning)
   const error = useLangChainError()
+  const stream = useLangChainStream()
   const interrupts = useLangChainInterrupts()
   const [acknowledgedError, setAcknowledgedError] = useState<unknown>()
   const blockedByError = Boolean(error && error !== acknowledgedError)
@@ -50,22 +51,27 @@ export function useMessageQueue({ ready, model, onSend }: { ready: boolean; mode
   }, [error, running, threadId, updateBatch])
 
   useEffect(() => {
-    if (!blockedByError) return
+    if (!blockedByError || running) return
     const timer = setTimeout(() => {
       const latest = sent.current.get(threadId)
       if (!latest) return
       sent.current.delete(threadId)
       const text = latest.items.map((item) => item.text).join("\n\n")
-      const delivered = aui.thread().getState().messages.some((message) =>
-        message.role === "user" && !latest.previousIds.has(message.id) &&
-        message.content.some((part) => part.type === "text" && part.text === text))
+      // The UI can still contain an optimistic user message after submit fails.
+      const delivered = stream?.messages.some((rawMessage) => {
+        const message = convertLangChainBaseMessage(rawMessage)
+        return message.role === "user" && message.id !== undefined &&
+          !latest.previousIds.has(message.id) &&
+          (typeof message.content === "string" ? message.content === text :
+            message.content.some((part) => part.type === "text" && part.text === text))
+      }) ?? false
       updateBatch(threadId, (current) => ({
         paused: true,
         items: delivered ? current.items : [...latest.items, ...current.items],
       }))
     }, 0)
     return () => clearTimeout(timer)
-  }, [aui, blockedByError, threadId, updateBatch])
+  }, [blockedByError, running, stream?.messages, threadId, updateBatch])
 
   useEffect(() => {
     if (!ready || running || blockedByError || interrupts.length || batch.paused || !batch.items.length) return
