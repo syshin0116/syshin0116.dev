@@ -597,7 +597,14 @@ function Composer({ interrupted }: { interrupted: boolean }) {
   }, [])
   const connectionHelpRef = useRef<HTMLButtonElement>(null)
   const [composerError, setComposerError] = useState<string>()
-  useEffect(() => { if (!interrupted) restoreComposerFocus() }, [interrupted])
+  // Restore focus when an interrupt ends, not on mount: `interrupted` starts false,
+  // so an unguarded effect focused the composer on every viewport and reopened the
+  // phone keyboard that the desktop-only autofocus above deliberately avoids.
+  const wasInterruptedRef = useRef(false)
+  useEffect(() => {
+    if (!interrupted && wasInterruptedRef.current) restoreComposerFocus()
+    wasInterruptedRef.current = interrupted
+  }, [interrupted])
   const guardImeEnter = createImeEnterGuard(() => compositionRef.current)
   const composerAui = useAui()
   const ready = runtimeUi.connectionStatus === "ready" && online
