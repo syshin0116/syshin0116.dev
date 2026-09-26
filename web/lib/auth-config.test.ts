@@ -11,7 +11,6 @@ import {
   AUTH_POSTGRES_SEARCH_PATH_OPTIONS,
   AuthRuntimeConfigurationError,
   parseAuthPostgresPoolConfig,
-  parseAuthEmailList,
   readAuthMigrationCliConfig,
   readAuthMigrationConfig,
   readAuthRuntimeConfig,
@@ -22,7 +21,6 @@ const VALID_ENV = {
   DATABASE_URL:
     "postgresql://auth:secret@db.example.test/auth?sslmode=require",
   AUTH_SECRET: "auth-secret-with-at-least-thirty-two-bytes",
-  AUTH_ALLOWED_EMAILS: "Owner@Example.com",
   AUTH_GITHUB_ID: "github-client-id",
   AUTH_GITHUB_SECRET: "github-client-secret",
   AUTH_GOOGLE_ID: "google-client-id",
@@ -72,7 +70,6 @@ describe("readAuthRuntimeConfig", () => {
       githubSecret: VALID_ENV.AUTH_GITHUB_SECRET,
       googleId: VALID_ENV.AUTH_GOOGLE_ID,
       googleSecret: VALID_ENV.AUTH_GOOGLE_SECRET,
-      allowedEmails: ["owner@example.com"],
     })
     expect(config.database).not.toHaveProperty("connectionString")
   })
@@ -97,23 +94,16 @@ describe("readAuthRuntimeConfig", () => {
     ).toThrow("AUTH_SECRET must be at least 32 bytes")
   })
 
-  test("rejects an empty production allowlist", () => {
-    expect(() =>
-      readAuthRuntimeConfig({ ...VALID_ENV, AUTH_ALLOWED_EMAILS: " , " })
-    ).toThrow(
-      "AUTH_ALLOWED_EMAILS must contain at least one email in production"
-    )
-  })
-
-  test("allows an empty local-development allowlist", () => {
-    expect(
-      readAuthRuntimeConfig({
+  test.each([undefined, "", "owner@example.com"])(
+    "does not require a production login allowlist: %s",
+    (legacyAllowlist) => {
+      expect(() => readAuthRuntimeConfig({
         ...VALID_ENV,
-        NODE_ENV: "development",
-        AUTH_ALLOWED_EMAILS: "",
-      }).allowedEmails
-    ).toEqual([])
-  })
+        AUTH_ALLOWED_EMAILS: legacyAllowlist,
+      })).not.toThrow()
+    }
+  )
+
 })
 
 describe("direct PostgreSQL URL validation", () => {
@@ -391,12 +381,6 @@ describe("direct PostgreSQL URL validation", () => {
       )
     ).toThrow(AuthRuntimeConfigurationError)
   })
-})
-
-test("parseAuthEmailList normalizes and deduplicates", () => {
-  expect(
-    parseAuthEmailList("Owner@Example.com, member@example.com,owner@example.com")
-  ).toEqual(["owner@example.com", "member@example.com"])
 })
 
 test("migration configuration never falls back to runtime DATABASE_URL", () => {

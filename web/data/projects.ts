@@ -1246,7 +1246,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       {
         title: "공개 AI 채팅",
         details: [
-          "로그인 없는 Luna 체험과 소유자 로그인",
+          "로그인 없는 Luna 체험과 로그인",
           "assistant-ui 기반 스트리밍 응답과 대화 목록",
           "도구·서브에이전트 실행 상태와 검색 출처 표시",
           "익명 사용자의 실행 예산 제한과 대화 보관 기한 적용"

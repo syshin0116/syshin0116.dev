@@ -26,7 +26,6 @@ export interface AgentTokenPostDependencies {
   authenticate: () => Promise<AgentTokenSession | null>
   checkBot: () => Promise<unknown>
   createToken: typeof createAgentToken
-  isAllowed: (email: string | null | undefined) => boolean
   isAdmin: (email: string | null | undefined) => boolean
   env: Readonly<Record<string, unknown>>
   nowSeconds: () => number
@@ -253,11 +252,8 @@ export function createAgentTokenPostHandler(
         503
       )
     }
-    if (dependencies.isAllowed(session?.user?.email)) {
-      return mintSignedInToken(session as AgentTokenSession, dependencies)
-    }
     if (session !== null) {
-      return jsonResponse({ error: "Forbidden" }, 403)
+      return mintSignedInToken(session, dependencies)
     }
 
     return jsonResponse({ error: "Unauthorized" }, 401)

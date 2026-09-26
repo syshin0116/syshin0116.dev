@@ -85,7 +85,7 @@ cp web/.env.example web/.env.local
 cp agent/.env.example .env
 ```
 
-- `web/.env.local` - Auth.js/OAuth settings, `AUTH_ALLOWED_EMAILS`, optional `AUTH_ADMIN_EMAILS`, `DATABASE_URL`, agent URL, and `AGENT_AUTH_SECRET`
+- `web/.env.local` - Auth.js/OAuth settings, optional `AUTH_ADMIN_EMAILS`, `DATABASE_URL`, agent URL, and `AGENT_AUTH_SECRET`
 - root `.env` - the same `AGENT_AUTH_SECRET`, the agent's direct `DATABASE_URL`, Aegra runtime flags, model, and provider keys
 
 Generate one Agent API secret and set the same value in both environments:
@@ -94,9 +94,11 @@ Generate one Agent API secret and set the same value in both environments:
 openssl rand -hex 32
 ```
 
-Production sign-in fails closed when `AUTH_ALLOWED_EMAILS` is empty. Aegra's
+Sign-in is open to verified Google and GitHub accounts. Signed-in users receive model
+selection and the existing signed-in usage budget; only `AUTH_ADMIN_EMAILS` grants admin
+access. Aegra's
 `/info`, `/live`, and `/ready` health surfaces remain public. Agent Protocol routes always
-require a signed, short-lived token. Production can issue one either from an allowed
+require a signed, short-lived token. Production can issue one either from an authenticated
 Auth.js session or from the bodyless Vercel BotID Basic anonymous bootstrap. Anonymous
 subjects are isolated, fixed to Luna, and covered by the public run and daily budgets.
 

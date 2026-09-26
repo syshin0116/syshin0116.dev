@@ -7,7 +7,6 @@ import NextAuth, {
 import type { AdapterAccount } from "next-auth/adapters"
 import GitHub from "next-auth/providers/github"
 import Google from "next-auth/providers/google"
-import { isAllowedEmail } from "@/lib/allowed-user"
 import {
   assertNoPostgresEnvironmentFallback,
   type AuthPostgresPoolConfig,
@@ -95,12 +94,6 @@ export function createAuthOptions(
   verifyProviderEmail: ProviderEmailVerifier = hasVerifiedProviderEmail
 ): NextAuthConfig {
   const config = readAuthRuntimeConfig(environment)
-  const nodeEnv =
-    environment.NODE_ENV === "development" ||
-    environment.NODE_ENV === "production" ||
-    environment.NODE_ENV === "test"
-      ? environment.NODE_ENV
-      : undefined
 
   return {
     secret: config.authSecret,
@@ -121,15 +114,6 @@ export function createAuthOptions(
     },
     callbacks: {
       async signIn({ user, account, profile }) {
-        if (
-          !isAllowedEmail(
-            user.email,
-            config.allowedEmails.join(","),
-            nodeEnv
-          )
-        ) {
-          return false
-        }
         return verifyProviderEmail({
           provider: account?.provider,
           email: user.email,

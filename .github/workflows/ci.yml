@@ -99,7 +99,6 @@ jobs:
       AUTH_DATABASE_MIGRATION_URL: postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable
       AUTH_POSTGRES_TEST_URL: postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable
       AUTH_SECRET: ci-only-auth-secret-ci-only-auth-secret
-      AUTH_ALLOWED_EMAILS: ci@example.com
       AUTH_GITHUB_ID: ci-github-client-id
       AUTH_GITHUB_SECRET: ci-github-client-secret
       AUTH_GOOGLE_ID: ci-google-client-id

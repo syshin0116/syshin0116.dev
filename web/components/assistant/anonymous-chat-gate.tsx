@@ -161,7 +161,7 @@ export function AnonymousChatGate() {
           <div className="flex shrink-0 flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 py-2 text-xs text-muted-foreground">
             <span>공개 체험 · Luna · 대화 최대 14일 보관</span>
             <Link className="font-medium underline underline-offset-4" href="/login">
-              소유자 로그인
+              로그인
             </Link>
           </div>
         </ChatShell>

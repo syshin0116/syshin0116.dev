@@ -4,6 +4,7 @@ import {
   Pool as NeonPool,
 } from "@neondatabase/serverless"
 import { readFile } from "node:fs/promises"
+import { hasVerifiedProviderEmail } from "./oauth-email"
 import {
   type AuthPostgresPoolConfig,
   readAuthRuntimeConfig,
@@ -19,7 +20,6 @@ const VALID_ENV = {
   DATABASE_URL:
     "postgresql://auth:secret@db.example.test/auth?sslmode=require",
   AUTH_SECRET: "auth-secret-with-at-least-thirty-two-bytes",
-  AUTH_ALLOWED_EMAILS: "owner@example.com",
   AUTH_GITHUB_ID: "github-client-id",
   AUTH_GITHUB_SECRET: "github-client-secret",
   AUTH_GOOGLE_ID: "google-client-id",
@@ -85,62 +85,72 @@ describe("Auth.js request-scoped Neon pool contract", () => {
     await Promise.all(pools.map(async (pool) => pool.end()))
   })
 
-  test("wires allowlist and verified-provider checks into sign-in", async () => {
-    const verifiedInputs: unknown[] = []
-    const pool = unconnectedNeonPool()
-    const options = createAuthOptions(
-      VALID_ENV,
-      () => pool,
-      async (input) => {
-        verifiedInputs.push(input)
-        return true
+  test.each([undefined, "owner@example.com"])(
+    "accepts a verified new Google user regardless of legacy allowlist %s",
+    async (legacyAllowlist) => {
+      const pool = unconnectedNeonPool()
+      const options = createAuthOptions(
+        { ...VALID_ENV, AUTH_ALLOWED_EMAILS: legacyAllowlist },
+        () => pool
+      )
+      try {
+        const accepted = await options.callbacks!.signIn!({
+          user: { id: "new-user", email: "new@example.com", emailVerified: null },
+          account: { provider: "google", providerAccountId: "new-google-user", type: "oidc" },
+          profile: { email: "new@example.com", email_verified: true },
+        })
+        expect(accepted).toBe(true)
+      } finally {
+        await pool.end()
       }
+    }
+  )
+
+  test.each([
+    { email: "new@example.com", profile: { email: "new@example.com", email_verified: false } },
+    { email: "new@example.com", profile: { email: "other@example.com", email_verified: true } },
+    { email: null, profile: { email: "new@example.com", email_verified: true } },
+  ])("rejects unverified or mismatched Google identity: %j", async ({ email, profile }) => {
+    const pool = unconnectedNeonPool()
+    const options = createAuthOptions(VALID_ENV, () => pool)
+    try {
+      const accepted = await options.callbacks!.signIn!({
+        user: { id: "new-user", email, emailVerified: null },
+        account: { provider: "google", providerAccountId: "new-google-user", type: "oidc" },
+        profile,
+      })
+      expect(accepted).toBe(false)
+    } finally {
+      await pool.end()
+    }
+  })
+
+  test.each([true, false])("verifies a new GitHub user's primary email: %s", async (verified) => {
+    const pool = unconnectedNeonPool()
+    const options = createAuthOptions(VALID_ENV, () => pool, (input) =>
+      hasVerifiedProviderEmail({
+        ...input,
+        fetchImpl: async (url, init) => {
+          expect(url).toBe("https://api.github.com/user/emails")
+          expect(new Headers(init?.headers).get("Authorization")).toBe("Bearer github-token")
+          return Response.json([{ email: "new@example.com", primary: true, verified }])
+        },
+      })
     )
-    const signIn = options.callbacks?.signIn
-    expect(signIn).toBeDefined()
-
-    const allowed = await signIn!({
-      user: {
-        id: "owner-id",
-        email: "owner@example.com",
-        emailVerified: null,
-      },
-      account: {
-        provider: "github",
-        providerAccountId: "provider-owner",
-        type: "oauth",
-        access_token: "provider-token",
-      },
-      profile: { login: "owner" },
-    })
-    const denied = await signIn!({
-      user: {
-        id: "denied-id",
-        email: "denied@example.com",
-        emailVerified: null,
-      },
-      account: {
-        provider: "google",
-        providerAccountId: "provider-denied",
-        type: "oidc",
-      },
-      profile: {
-        email: "denied@example.com",
-        email_verified: true,
-      },
-    })
-
-    expect(allowed).toBe(true)
-    expect(denied).toBe(false)
-    expect(verifiedInputs).toEqual([
-      {
-        provider: "github",
-        email: "owner@example.com",
-        accessToken: "provider-token",
-        profile: { login: "owner" },
-      },
-    ])
-    await pool.end()
+    try {
+      expect(await options.callbacks!.signIn!({
+        user: { id: "new-user", email: "new@example.com", emailVerified: null },
+        account: {
+          provider: "github",
+          providerAccountId: "new-github-user",
+          type: "oauth",
+          access_token: "github-token",
+        },
+        profile: {},
+      })).toBe(verified)
+    } finally {
+      await pool.end()
+    }
   })
 
   test("projects only a canonical adapter id into the session", async () => {
