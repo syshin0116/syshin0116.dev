@@ -9,7 +9,7 @@ when_to_read: >
 tags:
   [operations, dependencies, github-actions, aegra, agent-protocol, langgraph, quickjs]
 status: stable
-updated: "2026-07-31"
+updated: "2026-09-26"
 owners: ["@syshin0116"]
 refs:
   - ../../.github/workflows/dependency-audit.yml
@@ -57,30 +57,30 @@ The GPT-5.6 Luna guest Responses payload, including its explicit
 `reasoning.context=current_turn` override, is serialized by exact
 `langchain-openai==1.3.5` and `openai==2.53.0` pins. Both dependencies remain
 required manifest/lock audit targets and isolated from routine grouped
-Dependabot updates. `langchain-openai` is audited
-against the latest stable release below the reviewed exclusive `1.4.0`
-compatibility ceiling: 1.4.x requires `langchain-core>=1.5.1`, while this
-repository remains on 1.4.9. The report exposes that ceiling explicitly.
-Changing or removing it requires a focused compatibility PR with capture,
-native-stream, provider-usage, and full agent evidence.
+Dependabot updates. `langchain-openai` is audited against the latest stable release with no
+compatibility ceiling. The earlier exclusive `1.4.0` ceiling was written when this
+repository pinned `langchain-core==1.4.9`; core is now 1.6.2 and the pin itself had
+moved above the ceiling, so the audit failed closed on every run instead of
+reporting staleness. Moving the pin still requires a focused compatibility PR with
+capture, native-stream, provider-usage, and full agent evidence.
 
 ### assistant-ui activation
 
 The repository contains both `@assistant-ui/react` and
-`@assistant-ui/react-langgraph`, so the `assistant-ui` group is active and every
+`@assistant-ui/react-langchain`, so the `assistant-ui` group is active and every
 target below is mandatory.
 
 The activation rule remains fail-closed: if either package appears in
 `web/package.json` or `web/bun.lock`, the whole group is mandatory:
 
 - `@assistant-ui/react`;
-- `@assistant-ui/react-langgraph`;
+- `@assistant-ui/react-langchain`;
 - JavaScript `@langchain/langgraph-sdk`.
 
 All three must be exact direct manifest versions, repeated exactly in the Bun root
 workspace and resolved by matching Bun lock entries. Their stable releases come only from
 `https://registry.npmjs.org/%40assistant-ui%2Freact`,
-`https://registry.npmjs.org/%40assistant-ui%2Freact-langgraph`, and
+`https://registry.npmjs.org/%40assistant-ui%2Freact-langchain`, and
 `https://registry.npmjs.org/%40langchain%2Flanggraph-sdk`. A partial group or a range such
 as `^1.9.28` fails before any result can be called current.
 

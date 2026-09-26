@@ -214,8 +214,6 @@ REQUIRED_TARGETS = (
         pin_kind="python",
         source=_pypi_source("langchain-openai"),
         pin_sources=(PYTHON_MANIFEST, PYTHON_LOCK),
-        # 1.4.x requires langchain-core>=1.5.1; this repository pins 1.4.9.
-        stable_version_ceiling="1.4.0",
     ),
     Target(
         id="openai-python",
@@ -248,7 +246,7 @@ ASSISTANT_UI_GROUP = OptionalTargetGroup(
     display_name="assistant-ui native client",
     activation_packages=(
         "@assistant-ui/react",
-        "@assistant-ui/react-langgraph",
+        "@assistant-ui/react-langchain",
     ),
     targets=(
         Target(
@@ -260,11 +258,11 @@ ASSISTANT_UI_GROUP = OptionalTargetGroup(
             pin_sources=(NPM_MANIFEST, NPM_LOCK),
         ),
         Target(
-            id="assistant-ui-react-langgraph",
-            display_name="assistant-ui LangGraph adapter",
-            package="@assistant-ui/react-langgraph",
+            id="assistant-ui-react-langchain",
+            display_name="assistant-ui LangChain adapter",
+            package="@assistant-ui/react-langchain",
             pin_kind="npm",
-            source=_npm_source("@assistant-ui/react-langgraph"),
+            source=_npm_source("@assistant-ui/react-langchain"),
             pin_sources=(NPM_MANIFEST, NPM_LOCK),
         ),
         Target(
@@ -277,7 +275,7 @@ ASSISTANT_UI_GROUP = OptionalTargetGroup(
         ),
     ),
     inactive_reason=(
-        "Neither @assistant-ui/react nor @assistant-ui/react-langgraph is present "
+        "Neither @assistant-ui/react nor @assistant-ui/react-langchain is present "
         "in web/package.json or web/bun.lock. Adding either package activates exact "
         "manifest/lock and upstream checks for both assistant-ui packages and the "
         "JavaScript LangGraph SDK."
