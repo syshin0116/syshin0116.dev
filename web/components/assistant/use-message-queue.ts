@@ -1,7 +1,7 @@
 "use client"
 
 import { useAui, useAuiEvent, useAuiState } from "@assistant-ui/react"
-import { convertLangChainBaseMessage, useLangChainError, useLangChainInterrupts, useLangChainStream } from "@assistant-ui/react-langchain"
+import { useLangChainError, useLangChainInterrupts } from "@assistant-ui/react-langchain"
 import { useCallback, useEffect, useRef, useState } from "react"
 import type { AgentModel } from "@/lib/agent-model"
 
@@ -17,12 +17,11 @@ type PendingMessage = { id: string; text: string }
 type Batch = { items: PendingMessage[]; paused: boolean }
 const EMPTY_BATCH: Batch = { items: [], paused: false }
 
-export function useMessageQueue({ ready, model, onSend }: { ready: boolean; model?: AgentModel; onSend: () => void }) {
+export function useMessageQueue({ ready, model, onSend, wasRejected }: { ready: boolean; model?: AgentModel; onSend: () => void; wasRejected: (error: unknown) => boolean }) {
   const aui = useAui()
   const threadId = useAuiState((s) => s.threadListItem.id)
   const running = useAuiState((s) => s.thread.isRunning)
   const error = useLangChainError()
-  const stream = useLangChainStream()
   const interrupts = useLangChainInterrupts()
   const [acknowledgedError, setAcknowledgedError] = useState<unknown>()
   const blockedByError = Boolean(error && error !== acknowledgedError)
@@ -35,7 +34,7 @@ export function useMessageQueue({ ready, model, onSend }: { ready: boolean; mode
   }, [])
   const [dispatchError, setDispatchError] = useState<{ threadId: string; message: string }>()
   const dispatching = useRef(new Set<string>())
-  const sent = useRef(new Map<string, { items: PendingMessage[]; previousIds: Set<string> }>())
+  const sent = useRef(new Map<string, { items: PendingMessage[] }>())
   const batch = batches[threadId] ?? EMPTY_BATCH
 
   useAuiEvent({ scope: "*", event: "thread.runStart" }, ({ threadId }) => {
@@ -56,22 +55,13 @@ export function useMessageQueue({ ready, model, onSend }: { ready: boolean; mode
       const latest = sent.current.get(threadId)
       if (!latest) return
       sent.current.delete(threadId)
-      const text = latest.items.map((item) => item.text).join("\n\n")
-      // The UI can still contain an optimistic user message after submit fails.
-      const delivered = stream?.messages.some((rawMessage) => {
-        const message = convertLangChainBaseMessage(rawMessage)
-        return message.role === "user" && message.id !== undefined &&
-          !latest.previousIds.has(message.id) &&
-          (typeof message.content === "string" ? message.content === text :
-            message.content.some((part) => part.type === "text" && part.text === text))
-      }) ?? false
       updateBatch(threadId, (current) => ({
         paused: true,
-        items: delivered ? current.items : [...latest.items, ...current.items],
+        items: wasRejected(error) ? [...latest.items, ...current.items] : current.items,
       }))
     }, 0)
     return () => clearTimeout(timer)
-  }, [blockedByError, running, stream?.messages, threadId, updateBatch])
+  }, [blockedByError, error, running, threadId, updateBatch, wasRejected])
 
   useEffect(() => {
     if (!ready || running || blockedByError || interrupts.length || batch.paused || !batch.items.length) return
@@ -84,7 +74,7 @@ export function useMessageQueue({ ready, model, onSend }: { ready: boolean; mode
         return
       }
       dispatching.current.add(threadId)
-      sent.current.set(threadId, { items: batch.items, previousIds: new Set(aui.thread().getState().messages.map((message) => message.id)) })
+      sent.current.set(threadId, { items: batch.items })
       onSend()
       aui.thread().append({
         role: "user",

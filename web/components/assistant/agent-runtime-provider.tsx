@@ -36,6 +36,7 @@ import {
   reduceAgentError,
   type AgentErrorRoutingState,
 } from "./runtime/error-state"
+import { trackRunStartRejections } from "./runtime/run-start-rejections"
 import { AegraThreadAdapter } from "./runtime/thread-adapter"
 
 
@@ -47,6 +48,7 @@ type AgentRuntimeUiState = AgentErrorRoutingState & {
   activeThreadId?: string
   inspectionAvailability: InspectionAvailability
   beginTurn: () => void
+  wasRunStartRejected: (error: unknown) => boolean
   dismissTurnError: () => void
   retryConnection: () => void
   modelSelection: boolean
@@ -119,6 +121,7 @@ function ConfiguredAgentRuntimeProvider({
     onAuthenticationExpired: handleAuthenticationExpired,
     tokenIntent,
   }), [apiUrl, identity, initialToken, handleAuthenticationExpired, tokenIntent])
+  const runStartRejections = useMemo(() => trackRunStartRejections(tokenBroker.fetchWithAuthRetry), [tokenBroker])
   const client = useMemo(() => new Client({
     apiUrl,
     apiKey: null,
@@ -160,6 +163,8 @@ function ConfiguredAgentRuntimeProvider({
   }, [tokenBroker])
   const runtime = useStreamRuntime({
     client,
+    // APv2 commands use the stream fetch, not the client callerOptions fetch.
+    fetch: runStartRejections.fetch as typeof fetch,
     assistantId,
     unstable_threadListAdapter: threadAdapter,
     onCreated: () => {
@@ -218,6 +223,7 @@ function ConfiguredAgentRuntimeProvider({
       activeThreadId,
       inspectionAvailability,
       beginTurn,
+      wasRunStartRejected: runStartRejections.wasRejected,
       dismissTurnError,
       retryConnection,
       modelSelection,
@@ -228,6 +234,7 @@ function ConfiguredAgentRuntimeProvider({
       activeThreadId,
       activities,
       beginTurn,
+      runStartRejections,
       dismissTurnError,
       errorRouting,
       inspectionAvailability,
