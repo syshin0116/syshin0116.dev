@@ -170,16 +170,6 @@
       ],
       "protection_rules": [
         {
-          "type": "required_reviewers",
-          "prevent_self_review": false,
-          "reviewers": [
-            {
-              "type": "User",
-              "login": "syshin0116"
-            }
-          ]
-        },
-        {
           "type": "branch_policy"
         }
       ]

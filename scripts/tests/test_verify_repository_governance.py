@@ -181,16 +181,6 @@ def desired_live_responses() -> dict[str, object]:
             "name": "Agent Production",
             "can_admins_bypass": False,
             "protection_rules": [
-                {
-                    "type": "required_reviewers",
-                    "prevent_self_review": False,
-                    "reviewers": [
-                        {
-                            "type": "User",
-                            "reviewer": {"login": "syshin0116"},
-                        }
-                    ],
-                },
                 {"type": "branch_policy"},
             ],
             "deployment_branch_policy": {
