@@ -393,6 +393,22 @@ test.describe.serial("native assistant-ui production journey", () => {
     await attachEvidence(page, testInfo, "queue-retried")
   })
 
+  test("does not requeue an accepted run that fails before a message echo", async ({ page }, testInfo) => {
+    await resetFixture(page, "stale-source")
+    await page.goto("/")
+    await selectFixtureThread(page)
+    const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    await composer.fill("수락 후 실패한 실행")
+    await composer.press("Enter")
+    await expect(page.getByRole("alert").filter({ has: page.getByRole("button", { name: "확인", exact: true }) })).toBeVisible()
+    await expect(page.getByRole("button", { name: "응답 중지" })).toBeHidden()
+    await settleChatLayout(page)
+    await attachEvidence(page, testInfo, "accepted-run-failed-before-echo")
+    await expect(page.getByLabel("전송 대기열")).toBeHidden()
+    await expect(page.getByRole("button", { name: "대기 메시지 보내기" })).toHaveCount(0)
+    expect((await fixtureState(page)).commands).toHaveLength(1)
+  })
+
   test("keeps pending messages in their original thread across a conversation switch", async ({ page }, testInfo) => {
     await resetFixture(page)
     await page.goto("/")

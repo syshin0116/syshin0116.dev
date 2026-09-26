@@ -608,7 +608,7 @@ function Composer({ interrupted }: { interrupted: boolean }) {
   const guardImeEnter = createImeEnterGuard(() => compositionRef.current)
   const composerAui = useAui()
   const ready = runtimeUi.connectionStatus === "ready" && online
-  const queue = useMessageQueue({ ready, model: runtimeUi.modelSelection ? runtimeUi.selectedModel : undefined, onSend: runtimeUi.beginTurn })
+  const queue = useMessageQueue({ ready, model: runtimeUi.modelSelection ? runtimeUi.selectedModel : undefined, onSend: runtimeUi.beginTurn, wasRejected: runtimeUi.wasRunStartRejected })
   const running = useAuiState((state) => state.thread.isRunning)
   const hasText = useAuiState((state) => state.composer.text.trim().length > 0)
   const connectionError = runtimeUi.connectionError
