@@ -164,12 +164,12 @@ EXPECTED_ENVIRONMENTS = {
             "custom_branch_policies": True,
         },
         "branch_policies": [{"name": "main", "type": "branch"}],
+        # No reviewer gate: a merge to main deploys. The gate held every agent
+        # release for days and let three runs expire unapproved, so production ran
+        # three weeks behind main. The release job still refuses to ship unless the
+        # source SHA is main's tip and ci/check, protocol/compat and wiki/verify
+        # passed on it, and the branch policy keeps non-main refs out.
         "protection_rules": [
-            {
-                "type": "required_reviewers",
-                "prevent_self_review": False,
-                "reviewers": [{"type": "User", "login": "syshin0116"}],
-            },
             {"type": "branch_policy"},
         ],
     },
@@ -274,7 +274,7 @@ VERCEL_PRODUCTION_OBSERVER_FILES_SHA256 = {
 DEPENDENCY_WEB_AUDIT_COMMAND = "bun run audit:security"
 UPSTREAM_VERSION_AUDIT_SCRIPT = "scripts/upstream_version_audit.py"
 UPSTREAM_VERSION_AUDIT_SCRIPT_SHA256 = (
-    "c8c60905b320bd8263496d096cc30f86c5b1e10b40956ec25539390b8bb45b2f"
+    "87d25d4ba6d9e4657926364d51c91c0d1c03b7cfdfe2a9cc84dbd640e367d7ca"
 )
 EXPECTED_DEPENDENCY_AUDIT_JOB_AST_SHA256 = {
     "eval": "6794798be8f5995443a1758a0d9567ee54799d305012e39d5a67c50ca42544ad",

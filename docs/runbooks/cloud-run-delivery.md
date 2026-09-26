@@ -8,7 +8,7 @@ when_to_read: >
   workflows or image, rotating agent database credentials, or rolling back a revision.
 tags: [operations, gcp, cloud-run, aegra, github-actions, neon, rollback]
 status: stable
-updated: "2026-08-15"
+updated: "2026-09-26"
 owners: ["@syshin0116"]
 refs:
   - ../../infra/gcp/README.md
@@ -113,17 +113,19 @@ and `Production` environments:
 | Environment | Branch policy | Reviewer |
 |---|---|---|
 | `Agent Preview` | no branch restriction | `syshin0116`, self-review allowed |
-| `Agent Production` | branch `main` only | `syshin0116`, self-review allowed |
+| `Agent Production` | branch `main` only | none: a merge to `main` deploys |
 
-Disable admin bypass on both environments. Each delivery has one approval boundary: the
-builder runs first without a GitHub environment, then the separate release job references
-the exact target environment once. The builder can write only to its isolated registry
-and receives no deployer identity. The approved Production release updates only the
+Disable admin bypass on both environments. Production carries no reviewer gate. What
+stops a bad release is the release job itself, which refuses to ship unless the source
+SHA is still `main`'s tip and `ci/check`, `protocol/compat`, and `wiki/verify` all passed
+on it, plus the no-traffic smoke step below; the branch policy keeps every other ref out.
+The builder runs first without a GitHub environment, then the separate release job
+references the exact target environment once. The builder can write only to its isolated registry
+and receives no deployer identity. The Production release updates only the
 Production service, although the scoped deployer role also covers the migration,
 grant-probe, and manual-maintenance jobs. Preview has no service or job to update. The
 deployer cannot write an image. This keeps the writer and deployer credentials on
-different runners without falsely claiming that one GitHub environment can require two
-independent approvals:
+different runners:
 [GitHub deployment environments](https://docs.github.com/en/actions/concepts/workflows-and-actions/deployment-environments).
 
 Both environments contain **zero GitHub environment variables and zero GitHub environment
@@ -409,8 +411,8 @@ the exact source SHA for Linux amd64, and pushes a fresh run-attempt tag with
 `--provenance=false` and `--sbom=false`. It resolves that push to an immutable digest and
 passes only the digest to the release workflow.
 
-After owner approval on `Agent Production`, `agent-release.yml` starts the Production
-release job. It first requires the source SHA to remain the current `main` commit
+`agent-release.yml` starts the Production release job as soon as the build succeeds. It
+first requires the source SHA to remain the current `main` commit
 and requires the exact `ci/check`, `protocol/compat`, and `wiki/verify` check runs to pass.
 It then authenticates the dedicated deployer through WIF and:
 
