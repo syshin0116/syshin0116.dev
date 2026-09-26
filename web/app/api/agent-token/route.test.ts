@@ -40,7 +40,6 @@ function dependencies(
         ttl,
         scopes
       ),
-    isAllowed: (email) => email === "owner@example.com",
     isAdmin: (email) => email === "owner@example.com",
     env: VALID_ENV,
     nowSeconds: () => NOW,
@@ -172,7 +171,6 @@ describe("POST /api/agent-token signed-in precedence", () => {
     const handler = createAgentTokenPostHandler(
       dependencies({
         authenticate: async () => session,
-        isAllowed: (email) => email === "member@example.com",
       })
     )
 
@@ -197,7 +195,6 @@ describe("POST /api/agent-token signed-in precedence", () => {
     const handler = createAgentTokenPostHandler(
       dependencies({
         authenticate: async () => session,
-        isAllowed: (email) => email === "member@example.com",
       })
     )
 
@@ -208,7 +205,7 @@ describe("POST /api/agent-token signed-in precedence", () => {
     expect(payload.sub).toBe("42")
   })
 
-  test("never downgrades a disallowed signed-in session to anonymous", async () => {
+  test("grants a previously unlisted session signed-in access without an anonymous fallback", async () => {
     let botChecks = 0
     const session: Session = {
       user: {
@@ -231,12 +228,16 @@ describe("POST /api/agent-token signed-in precedence", () => {
 
     const response = await handler(request())
 
-    expect(response.status).toBe(403)
-    expect(await responseBody(response)).toEqual({ error: "Forbidden" })
+    expect(response.status).toBe(200)
+    expect(jwtPayload((await responseBody(response)).token as string)).toMatchObject({
+      sub: "outsider-id",
+      scope: "model:select",
+    })
+    expect(setCookie(response)).toBeNull()
     expect(botChecks).toBe(0)
   })
 
-  test("preserves Unauthorized when an allowed session has no subject", async () => {
+  test("preserves Unauthorized when a signed-in session has no subject", async () => {
     const session: Session = {
       user: {
         id: "",
@@ -249,7 +250,6 @@ describe("POST /api/agent-token signed-in precedence", () => {
     const handler = createAgentTokenPostHandler(
       dependencies({
         authenticate: async () => session,
-        isAllowed: () => true,
       })
     )
 

@@ -2,13 +2,13 @@
 title: "Web Auth.js operations runbook"
 description: >
   Apply and verify the Auth.js PostgreSQL contract, configure OAuth providers,
-  validate the owner journey, and roll back without exposing migration credentials.
+  validate the signed-in journey, and roll back without exposing migration credentials.
 when_to_read: >
   Before changing web authentication, Auth.js tables, OAuth callbacks, Vercel auth
   variables, or the Auth.js Neon branch.
 tags: [operations, authjs, oauth, postgres, neon, vercel]
 status: stable
-updated: "2026-07-31"
+updated: "2026-09-27"
 owners: ["@syshin0116"]
 refs:
   - ../adr/0007-postgres-on-neon-split-projects.md
@@ -67,8 +67,7 @@ Vercel runtime configuration contains only:
 
 - `DATABASE_URL`: the branch-scoped, least-privileged direct endpoint;
 - `AUTH_SECRET`: at least 32 bytes;
-- `AUTH_ALLOWED_EMAILS`: a non-empty production allowlist;
-- optional `AUTH_ADMIN_EMAILS`, which must remain a deliberate subset of allowed users;
+- optional `AUTH_ADMIN_EMAILS`: the explicit admin list; empty grants no admin access;
 - `AUTH_GITHUB_ID` / `AUTH_GITHUB_SECRET`;
 - `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`.
 
@@ -165,7 +164,10 @@ preview and production. The custom-domain targets are
 Vercel callbacks until the canonical custom-domain DNS resolves and both HTTPS callback
 paths pass the preview-to-production acceptance gate.
 
-Sign-in accepts only an allowlisted email that the provider proves is verified. Google
+Sign-in accepts any email that the provider proves is verified. `AUTH_ALLOWED_EMAILS`
+is no longer read, even if a legacy value remains in the environment. All signed-in
+users receive `model:select` and the existing signed-in usage budget; `AUTH_ADMIN_EMAILS`
+separately controls the `admin` scope. Google
 must return a matching `email_verified=true` claim. GitHub must return a matching primary,
 verified address from `/user/emails`. Provider API failures deny sign-in. Cross-provider
 account linking keeps Auth.js's safe default; `allowDangerousEmailAccountLinking` remains

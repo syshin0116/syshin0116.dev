@@ -3,7 +3,7 @@ import { checkBotId } from "botid/server"
 import { auth } from "@/lib/auth"
 import { createAgentToken } from "@/lib/agent-auth"
 import { createAgentTokenPostHandler } from "@/lib/agent-token-route"
-import { isAdminEmail, isAllowedEmail } from "@/lib/allowed-user"
+import { isAdminEmail } from "@/lib/admin-email"
 
 export function createRuntimeAgentTokenPostHandler(
   mode: "anonymous" | "owner"
@@ -14,7 +14,6 @@ export function createRuntimeAgentTokenPostHandler(
       checkBot: () =>
         checkBotId({ advancedOptions: { checkLevel: "basic" } }),
       createToken: createAgentToken,
-      isAllowed: isAllowedEmail,
       isAdmin: isAdminEmail,
       env: process.env,
       nowSeconds: () => Math.floor(Date.now() / 1_000),

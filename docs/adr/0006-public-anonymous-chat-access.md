@@ -12,7 +12,7 @@ date: "2026-07-26"
 deciders: ["@syshin0116"]
 supersedes:
 superseded_by:
-updated: "2026-08-15"
+updated: "2026-09-27"
 owners: ["@syshin0116"]
 refs: [../research/public-exposure.md, ../plans/rag-restack.md, 0004-adopt-aegra.md, 0007-postgres-on-neon-split-projects.md]
 template: adr
@@ -31,7 +31,7 @@ template: adr
 ## Context
 
 The original chatbot failed closed: `web/lib/allowed-user.ts` gated sign-in on
-`AUTH_ALLOWED_EMAILS`, `/api/agent-token` mints only for an allowed session, and the
+`AUTH_ALLOWED_EMAILS`, `/api/agent-token` minted only for an allowed session, and the
 agent rejects every path except `/ok` and `/info` without a valid HS256 JWT. Every
 resource is scoped to the token subject, which is an Auth.js `users.id` - a decision
 recorded in `DECISIONS.md` on 2026-07-11.
@@ -67,8 +67,12 @@ request, runs Vercel BotID Basic protection through `checkBotId`, then mints a t
 with subject `anon:<uuid4>`, scope `anon`, and a 300s TTL, persisting the uuid in an
 httpOnly `SameSite=Lax` cookie so a visitor keeps history on that device. The browser
 registers the same route with `botid/client/core`; a bodyless cookie resume still passes
-BotID before minting a fresh short-lived agent token. The allowed-email and admin-scope
-paths are unchanged. **No owner-scoping code changes.**
+BotID before minting a fresh short-lived agent token. The original decision preserved allowed-email and admin-scope paths.
+
+As of 2026-09-27, verified Google and GitHub users may sign in without an email
+allowlist. Every signed-in user receives model selection and the existing signed-in
+usage budget. `AUTH_ADMIN_EMAILS` remains the explicit admin boundary. Anonymous
+budgets and per-user resource isolation are unchanged.
 
 Capabilities are tiered:
 
@@ -292,8 +296,9 @@ Those remain post-launch operational evidence, not application implementation ga
   operational risks; this ADR assumes no provider-side hard cap.
 - Reputational surface: content generated under this domain by anonymous prompting.
   Cost controls do nothing about a screenshot.
-- `web/lib/allowed-user.ts` **fails open** in non-production when `AUTH_ALLOWED_EMAILS`
-  is empty. Harmless for a private chat UI, not harmless now.
+- Signed-in access is public as of 2026-09-27 and uses the existing signed-in budget,
+  which is larger than the anonymous budget. Registration can therefore increase
+  provider spend beyond the anonymous public budget.
 
 **Follow-ups**
 

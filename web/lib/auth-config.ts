@@ -56,7 +56,6 @@ export interface AuthRuntimeConfig {
   githubSecret: string
   googleId: string
   googleSecret: string
-  allowedEmails: readonly string[]
 }
 
 type Environment = Readonly<Record<string, unknown>>
@@ -79,18 +78,6 @@ function configuredString(
     )
   }
   return value
-}
-
-export function parseAuthEmailList(value: unknown): readonly string[] {
-  if (typeof value !== "string") return []
-  return [
-    ...new Set(
-      value
-        .split(",")
-        .map((email) => email.trim().toLowerCase())
-        .filter(Boolean)
-    ),
-  ]
 }
 
 function postgresUrlError(
@@ -367,11 +354,7 @@ export function parseAuthPostgresPoolConfig(
 }
 
 export function readAuthRuntimeConfig(
-  environment: Environment = process.env,
-  nodeEnv =
-    typeof environment.NODE_ENV === "string"
-      ? environment.NODE_ENV
-      : process.env.NODE_ENV
+  environment: Environment = process.env
 ): AuthRuntimeConfig {
   assertNoPostgresEnvironmentFallback(environment)
   const database = parseAuthPostgresPoolConfig(
@@ -385,15 +368,6 @@ export function readAuthRuntimeConfig(
     )
   }
 
-  const allowedEmails = parseAuthEmailList(
-    environment.AUTH_ALLOWED_EMAILS
-  )
-  if (nodeEnv === "production" && allowedEmails.length === 0) {
-    throw new AuthRuntimeConfigurationError(
-      "AUTH_ALLOWED_EMAILS must contain at least one email in production"
-    )
-  }
-
   return {
     database,
     authSecret,
@@ -401,7 +375,6 @@ export function readAuthRuntimeConfig(
     githubSecret: configuredString(environment, "AUTH_GITHUB_SECRET"),
     googleId: configuredString(environment, "AUTH_GOOGLE_ID"),
     googleSecret: configuredString(environment, "AUTH_GOOGLE_SECRET"),
-    allowedEmails,
   }
 }
 

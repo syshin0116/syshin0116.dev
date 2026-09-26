@@ -64,7 +64,6 @@ export default defineConfig({
           timeout: 120_000,
           env: {
             AUTH_SECRET: "site-browser-test-auth-secret-site-browser-test",
-            AUTH_ALLOWED_EMAILS: "owner@example.com",
             AUTH_GITHUB_ID: "site-browser-test-github-id",
             AUTH_GITHUB_SECRET: "site-browser-test-github-secret",
             AUTH_GOOGLE_ID: "site-browser-test-google-id",
