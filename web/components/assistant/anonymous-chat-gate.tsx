@@ -75,7 +75,7 @@ function GateCard({
           적용됩니다.
         </p>
         <Button asChild variant="link" className="mt-2">
-          <Link href="/login">소유자 계정으로 로그인</Link>
+          <Link href="/login">로그인</Link>
         </Button>
       </div>
     </section>
