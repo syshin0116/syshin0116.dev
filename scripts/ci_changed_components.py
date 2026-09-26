@@ -126,6 +126,16 @@ def runtime_affected(paths: Iterable[str]) -> bool:
         "web/components/blog/",
         "web/app/projects/",
     )
+    # Server routes under web/app/blog/ are not presentation: the chat journey
+    # resolves blog content through them.
+    runtime_prefixes = ("web/app/blog/api/",)
+    # The shared navbar renders these on every page, chat included, so a change
+    # here can break a journey no presentation-only check covers. Kept in sync by
+    # test_shared_navbar_blog_imports_are_runtime_affecting.
+    shared_presentation_files = {
+        "web/components/blog/blog-tree-provider.tsx",
+        "web/components/blog/nav-sidebar.tsx",
+    }
     presentation_files = {
         "web/lib/blog.tsx",
         "web/lib/blog.test.tsx",
@@ -135,8 +145,14 @@ def runtime_affected(paths: Iterable[str]) -> bool:
     }
     return any(
         path.startswith("web/")
-        and not path.startswith(presentation_prefixes)
-        and path not in presentation_files
+        and (
+            path.startswith(runtime_prefixes)
+            or path in shared_presentation_files
+            or (
+                not path.startswith(presentation_prefixes)
+                and path not in presentation_files
+            )
+        )
         for path in paths
     )
 
