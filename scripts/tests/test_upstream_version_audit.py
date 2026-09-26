@@ -38,7 +38,7 @@ PYTHON_VERSIONS = {
 }
 NPM_VERSIONS = {
     "@assistant-ui/react": "0.14.28",
-    "@assistant-ui/react-langgraph": "0.14.13",
+    "@assistant-ui/react-langchain": "0.14.13",
     "@langchain/langgraph-sdk": "1.9.28",
 }
 
@@ -97,12 +97,6 @@ class OfflineFetcher:
                 PYTHON_VERSIONS[source.package],
             )
             payload: object = pypi_payload(source.package, version)
-            if (
-                source.package == "langchain-openai"
-                and source.package not in self.overrides
-            ):
-                payload = pypi_payload(source.package, "1.4.1")
-                payload["releases"]["1.3.5"] = [{"yanked": False}]
         elif source.ecosystem == "npm":
             version = self.overrides.get(
                 source.package,
@@ -234,8 +228,8 @@ def activate_assistant_ui(root: Path, *, partial: bool = False) -> None:
         "@langchain/langgraph-sdk": NPM_VERSIONS["@langchain/langgraph-sdk"],
     }
     if not partial:
-        dependencies["@assistant-ui/react-langgraph"] = NPM_VERSIONS[
-            "@assistant-ui/react-langgraph"
+        dependencies["@assistant-ui/react-langchain"] = NPM_VERSIONS[
+            "@assistant-ui/react-langchain"
         ]
     (root / audit.NPM_MANIFEST).write_text(
         json.dumps(
@@ -675,7 +669,7 @@ class RepositoryAuditTests(unittest.TestCase):
         self.assertEqual("current", langchain_openai["status"])
         self.assertEqual("1.3.5", langchain_openai["installed"])
         self.assertEqual("1.3.5", langchain_openai["latest"])
-        self.assertEqual("1.4.0", langchain_openai["stableVersionCeiling"])
+        self.assertIsNone(langchain_openai["stableVersionCeiling"])
         openai = target(document, "openai-python")
         self.assertEqual("2.52.0", openai["installed"])
         self.assertEqual("2.52.0", openai["latest"])
@@ -692,7 +686,7 @@ class RepositoryAuditTests(unittest.TestCase):
         self.assertEqual(13, document["activeTargetCount"])
         for target_id, expected in (
             ("assistant-ui-react", "0.14.28"),
-            ("assistant-ui-react-langgraph", "0.14.13"),
+            ("assistant-ui-react-langchain", "0.14.13"),
             ("langgraph-sdk-javascript", "1.9.28"),
         ):
             result = target(document, target_id)
@@ -709,7 +703,7 @@ class RepositoryAuditTests(unittest.TestCase):
         document = audit.audit_repository(self.root, fetch=OfflineFetcher())
 
         self.assertEqual("error", document["status"])
-        missing = target(document, "assistant-ui-react-langgraph")
+        missing = target(document, "assistant-ui-react-langchain")
         self.assertEqual("error", missing["status"])
         self.assertIn("expected", missing["message"])
 
@@ -959,7 +953,7 @@ class RepositoryAuditTests(unittest.TestCase):
             result["source"],
         )
 
-    def test_newer_compatible_langchain_openai_release_fails_the_audit(self) -> None:
+    def test_newer_langchain_openai_release_fails_the_audit(self) -> None:
         fallback = OfflineFetcher()
 
         def fetch(source: audit.Source) -> audit.JsonResponse:
@@ -983,8 +977,8 @@ class RepositoryAuditTests(unittest.TestCase):
         self.assertEqual(["langchain-openai"], document["outdatedTargets"])
         result = target(document, "langchain-openai")
         self.assertEqual("1.3.5", result["installed"])
-        self.assertEqual("1.3.6", result["latest"])
-        self.assertEqual("1.4.0", result["stableVersionCeiling"])
+        self.assertEqual("1.4.1", result["latest"])
+        self.assertIsNone(result["stableVersionCeiling"])
 
     def test_newer_quickjs_releases_are_visible_and_fail_the_audit(self) -> None:
         cases = (
