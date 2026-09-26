@@ -1396,7 +1396,7 @@ export function SignedOutChat() {
           AI 검색 실험실
         </h1>
         <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
-          공개 체험은 현재 비활성 상태입니다. 소유자 계정으로 로그인하면
+          공개 체험은 현재 비활성 상태입니다. 로그인하면
           AI 검색 실험실을 계속 테스트할 수 있습니다.
         </p>
         <Button asChild className="mt-7 rounded-xl px-5">

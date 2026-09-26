@@ -180,10 +180,11 @@ Run all of these on preview with a fresh browser profile before production:
 
 1. GitHub login reaches its callback and creates one user, account, and session.
 2. Google login reaches its callback and applies the default account-linking rule.
-3. A non-allowlisted or unverified address is rejected and creates no persisted user or
-   account.
+3. A new provider-verified address succeeds without an allowlist. An unverified
+   address is rejected and creates no persisted user or account.
 4. `/api/auth/session` returns a non-empty string user ID.
-5. `/api/agent-token` returns a JWT whose string `sub` equals that user ID.
+5. `/api/agent-token` returns a JWT whose string `sub` equals that user ID and includes
+   `model:select`. Only a user in `AUTH_ADMIN_EMAILS` receives `admin`.
 6. Logout invalidates the session; a new browser cannot reuse it.
 7. Session refresh and a second fresh login succeed.
 
