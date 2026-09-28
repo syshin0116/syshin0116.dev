@@ -25,6 +25,7 @@ function ProjectCard({ project }: { project: Project }) {
           />
         </div>
         <p className="text-xs leading-5 text-muted-foreground">
+          <span className="md:sr-only">{project.category === "company" ? "업무" : "개인"} · </span>
           {project.company && `${project.company} · `}{project.period}
         </p>
         <p className="mt-2 text-sm leading-6 text-muted-foreground line-clamp-2">
