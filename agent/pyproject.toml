@@ -16,7 +16,7 @@ dependencies = [
     "langsmith==0.12.2",
     "langgraph==1.2.12",
     "langgraph-sdk==0.4.5",
-    "PyJWT==2.13.0",
+    "PyJWT==2.15.0",
     "httpx==0.28.1",
     "langchain-anthropic>=1.5.4",
     "langchain-openai==1.6.0",
