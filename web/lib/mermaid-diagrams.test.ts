@@ -24,6 +24,7 @@ describe("renderMermaidDiagrams", () => {
     expect(html).toContain("질문")
     expect(html).toContain("--bg:var(--background);--fg:var(--foreground)")
     expect(html).not.toContain("data-language")
+    expect(html).toContain('role="graphics-document document" aria-roledescription="flowchart-v2"')
   })
 
   test("keeps diagram styles and ids from leaking into the page", () => {
@@ -52,6 +53,14 @@ describe("renderMermaidDiagrams", () => {
 
     expect(html).toContain('marker-start="url(#mermaid-diagram-0-arrowhead-start)"')
     expect(html).not.toContain("auto-start-reverse")
+  })
+
+  test("keeps class diagram markers pointing at the source side", () => {
+    const html = renderMermaidDiagrams(highlighted("classDiagram", "Animal &#x3C;|-- Duck"))
+
+    expect(html).toContain('aria-roledescription="class"')
+    expect(html).toContain('marker-start="url(#mermaid-diagram-0-cls-inherit)"')
+    expect(html).toMatch(/<marker id="mermaid-diagram-0-cls-inherit"[^>]*orient="auto-start-reverse"/)
   })
 
   test("keeps a sequence diagram as code when a note would be dropped", () => {
