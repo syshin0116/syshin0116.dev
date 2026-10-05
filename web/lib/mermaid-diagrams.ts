@@ -129,9 +129,10 @@ function assertFlowchartTextRendered(source: string, svg: string): void {
 }
 
 // Sequence statements whose rendering is verified; anything else (activate,
-// loop, alt, rect, autonumber, box, ...) is left for the client renderer.
+// loop, alt, rect, autonumber, box, `-x` lost messages drawn as plain arrows,
+// ...) is left for the client renderer.
 const SEQUENCE_STATEMENT =
-  /^\s*(?:(?:participant|actor)\s+\S.*|[^\s:]+?\s*(?:-->>|->>|-->|->|--x|-x|--\)|-\))[+-]?\s*[^\s:]+\s*:.*|Note\s+(?:left of|right of|over)\s+[^:]+:.*)$/
+  /^\s*(?:(?:participant|actor)\s+\S.*|[^\s:]+?\s*(?:-->>|->>|-->|->|--\)|-\))[+-]?\s*[^\s:]+\s*:.*|Note\s+(?:left of|right of|over)\s+[^:]+:.*)$/
 
 function assertSequenceStatementsSupported(source: string): void {
   const [, ...body] = source.replace(/%%.*$/gm, "").trim().split("\n")
@@ -216,20 +217,27 @@ function applyDashedBorders(svg: string, styles: Map<string, Map<string, string>
   return dashed
 }
 
-/**
- * The flowchart edge parser drops an edge and its target without an error
- * when an inline label is not spaced (`A -.label.-> B`, `A --label--> B`,
- * `A ==label==> B`) or a bare node id touches a `-` connector (`A-->B` reads
- * as node `A--`). Label text is emptied first so `--flag` inside a node is
- * ignored while its brackets still separate the id from the connector.
- */
-function assertEdgesParseable(source: string): void {
-  const structure = source
-    .replace(/%%.*$/gm, "")
-    .replace(/"[^"\n]*"/g, '""')
-    .replace(/\[[^\]\n]*\]|\([^)\n]*\)|\{[^}\n]*\}|\|[^|\n]*\|/g, (label) => label[0] + label.at(-1))
-  const compact = structure.match(/(?:--|==)[^\s>=|-]\S*|-\.[^\s.-]\S*|[\p{L}\p{N}_](?:--|-\.)\S*/u)
-  if (compact) throw new Error(`unspaced edge: ${compact[0]}`)
+// Flowchart syntax whose rendering is verified; anything else (`&` chains,
+// extended `---->` links, `[/ /]` shapes, linkStyle, click, ...) is left for
+// the client renderer because the parser skips it without an error.
+const FLOWCHART_ID = String.raw`[\p{L}\p{N}_]+(?:-[\p{L}\p{N}_]+)*`
+const FLOWCHART_NODE = String.raw`${FLOWCHART_ID}(?:\[\([^)\]]*\)\]|\[(?![/\\(])[^\]]*\]|\{(?!\{)[^}]*\}|\((?!\()[^)]*\))?`
+const FLOWCHART_LINK = String.raw`(?:<-->|-->|---|-\.->|==>|-- [^-|]+? -->|-\. [^|]+? \.->|== [^=|]+? ==>)(?:\|[^|]*\|)?`
+const FLOWCHART_STATEMENT = new RegExp(
+  String.raw`^\s*(?:${FLOWCHART_NODE}(?:\s*${FLOWCHART_LINK}\s*${FLOWCHART_NODE})*` +
+    String.raw`|subgraph\s+(?:${FLOWCHART_ID}(?:\[[^\]]*\])?|"[^"]*")|end|direction\s+(?:TB|TD|BT|LR|RL)` +
+    String.raw`|classDef\s+[\w-]+\s+\S.*|class\s+[\w,-]+\s+[\w-]+|style\s+${FLOWCHART_ID}\s+\S.*)\s*;?\s*$`,
+  "u"
+)
+
+function assertFlowchartStatementsSupported(source: string): void {
+  const [, ...body] = source.replace(/%%.*$/gm, "").trim().split("\n")
+  for (const line of body) {
+    const statement = line.replace(/:::[\w-]+/g, "")
+    if (statement.trim() && !FLOWCHART_STATEMENT.test(statement)) {
+      throw new Error(`unverified flowchart statement: ${line.trim()}`)
+    }
+  }
 }
 
 /**
@@ -244,7 +252,7 @@ export function renderMermaidDiagrams(html: string): string {
     const id = `mermaid-diagram-${index++}`
     try {
       const type = diagramType(source)
-      if (type === "flowchart-v2") assertEdgesParseable(source)
+      if (type === "flowchart-v2") assertFlowchartStatementsSupported(source)
       if (type === "sequence") assertSequenceStatementsSupported(source)
       const styles = type === "flowchart-v2" ? nodeStyles(source) : new Map()
       const rendered = applyDashedBorders(renderMermaidSVG(source, DIAGRAM_COLORS), styles)

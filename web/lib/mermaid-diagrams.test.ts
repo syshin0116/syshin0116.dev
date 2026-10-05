@@ -110,6 +110,13 @@ describe("renderMermaidDiagrams", () => {
       highlighted("erDiagram", "p[Person] {", "string name", "}"),
       highlighted("sequenceDiagram", "A-&#x3E;&#x3E;B: 요청", "activate B", "B--&#x3E;&#x3E;A: 응답"),
       highlighted("graph LR", "A:::x --&#x3E; B:::y", "classDef x,y fill:#f00"),
+      highlighted("graph LR", "A[one]", "B[two]", "A ----&#x3E; B"),
+      highlighted("graph LR", "A[/input/] --&#x3E; B"),
+      highlighted("graph LR", "A --&#x3E;|라벨| B", "linkStyle 0 color:red"),
+      highlighted("graph LR", "A --&#x3E; B", "style A,B stroke-dasharray:4 3"),
+      highlighted("graph LR", "A &#x26; B --&#x3E; C"),
+      highlighted("sequenceDiagram", "A-xB: lost"),
+      highlighted("sequenceDiagram", "A--xB: lost"),
     ]
 
     for (const figure of figures) expect(renderMermaidDiagrams(figure)).toBe(figure)
