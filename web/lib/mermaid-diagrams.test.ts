@@ -127,6 +127,7 @@ describe("renderMermaidDiagrams", () => {
       highlighted("graph LR", "A --&#x3E; B", "classDef hot fill:#f00", "class A hot;"),
       highlighted("graph LR", "A:::warning-node --&#x3E; B", "classDef warning-node fill:#f00"),
       highlighted("sequenceDiagram", "A-&#x3E;&#x3E;B: I #9829; you!"),
+      highlighted("flowchart TB", "subgraph G[그룹]", "direction LR", "A --&#x3E; B", "end"),
     ]
 
     for (const figure of figures) expect(renderMermaidDiagrams(figure)).toBe(figure)

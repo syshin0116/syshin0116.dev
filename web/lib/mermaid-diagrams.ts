@@ -142,6 +142,35 @@ function assertSequenceStatementsSupported(source: string): void {
   }
 }
 
+function hasCycle(svg: string): boolean {
+  const targets = new Map<string, string[]>()
+  for (const [, from, to] of svg.matchAll(/data-from="([^"]+)" data-to="([^"]+)"/g)) {
+    targets.set(from, [...(targets.get(from) ?? []), to])
+  }
+  const done = new Set<string>()
+  const visiting = new Set<string>()
+  const visit = (node: string): boolean => {
+    if (visiting.has(node)) return true
+    if (done.has(node)) return false
+    visiting.add(node)
+    const cyclic = (targets.get(node) ?? []).some(visit)
+    visiting.delete(node)
+    done.add(node)
+    return cyclic
+  }
+  return [...targets.keys()].some(visit)
+}
+
+/**
+ * Back edges can flip a top-down flowchart into a wide horizontal layout.
+ * https://github.com/lukilabs/beautiful-mermaid/issues/83
+ */
+function assertVerticalLayoutKept(source: string, svg: string): void {
+  if (!/^\s*(?:graph|flowchart)\s+(?:TB|TD)\b/.test(source)) return
+  const [, , width, height] = (svg.match(/viewBox="([^"]+)"/)?.[1] ?? "").split(" ").map(Number)
+  if (width > height * 2 && hasCycle(svg)) throw new Error("top-down cycle laid out horizontally")
+}
+
 /**
  * Notes placed before the first sequence message are dropped without an
  * error, which would publish a diagram missing part of the post.
@@ -244,7 +273,14 @@ function assertFlowchartStatementsSupported(source: string): void {
   if (!/^(?:graph|flowchart)(?:\s+(?:TB|TD|BT|LR|RL))?\s*$/.test(header)) {
     throw new Error(`unverified flowchart header: ${header}`)
   }
+  let subgraphDepth = 0
   for (const line of body) {
+    // A subgraph `direction` is applied to the whole diagram.
+    // https://github.com/lukilabs/beautiful-mermaid/issues/144
+    if (/^\s*subgraph\b/.test(line)) subgraphDepth++
+    else if (/^\s*end\s*$/.test(line)) subgraphDepth--
+    else if (subgraphDepth > 0 && /^\s*direction\b/.test(line)) throw new Error("subgraph direction")
+
     const statement = line.replace(/:::\w+/g, "")
     if (statement.trim() && (UNRENDERED_TEXT.test(statement) || !FLOWCHART_STATEMENT.test(statement))) {
       throw new Error(`unverified flowchart statement: ${line.trim()}`)
@@ -269,7 +305,10 @@ export function renderMermaidDiagrams(html: string): string {
       const styles = type === "flowchart-v2" ? nodeStyles(source) : new Map()
       const rendered = applyDashedBorders(renderMermaidSVG(source, DIAGRAM_COLORS), styles)
       if (rendered.includes('viewBox="0 0 0 0"')) throw new Error("rendered an empty diagram")
-      if (type === "flowchart-v2") assertFlowchartTextRendered(source, rendered)
+      if (type === "flowchart-v2") {
+        assertFlowchartTextRendered(source, rendered)
+        assertVerticalLayoutKept(source, rendered)
+      }
       assertNotesRendered(source, rendered)
       const svg = isolateSvg(rendered, id, type)
       return `<figure class="mermaid-diagram">${svg}</figure>`
