@@ -116,6 +116,66 @@ function assertNotesRendered(source: string, svg: string): void {
   }
 }
 
+// Node style properties beautiful-mermaid draws, plus the dash pattern
+// applied below. Anything else would be dropped without an error.
+const SUPPORTED_NODE_STYLES = new Set(["fill", "stroke", "stroke-width", "color", "stroke-dasharray"])
+
+function styleProperties(declaration: string): Map<string, string> {
+  return new Map(
+    declaration
+      .replace(/;\s*$/, "")
+      .split(",")
+      .map((property) => property.split(":").map((part) => part.trim()) as [string, string])
+      .filter(([name, value]) => name && value)
+  )
+}
+
+/**
+ * Resolve `style` and `classDef` declarations per node, rejecting properties
+ * the renderer would silently ignore.
+ */
+function nodeStyles(source: string): Map<string, Map<string, string>> {
+  const classes = new Map<string, Map<string, string>>()
+  const styles = new Map<string, Map<string, string>>()
+  const assign = (node: string, properties: Map<string, string> | undefined) => {
+    if (!properties) return
+    styles.set(node, new Map([...(styles.get(node) ?? []), ...properties]))
+  }
+
+  for (const [, names, declaration] of source.matchAll(/^\s*classDef\s+(\S+)\s+(.+)$/gm)) {
+    for (const name of names.split(",")) classes.set(name, styleProperties(declaration))
+  }
+  for (const [, nodes, name] of source.matchAll(/^\s*class\s+(\S+)\s+(\S+?);?\s*$/gm)) {
+    for (const node of nodes.split(",")) assign(node, classes.get(name))
+  }
+  for (const [, node, name] of source.matchAll(/([\w-]+)(?:\[[^\]\n]*\]|\([^)\n]*\)|\{[^}\n]*\})?:::([\w-]+)/g)) {
+    assign(node, classes.get(name))
+  }
+  for (const [, node, declaration] of source.matchAll(/^\s*style\s+(\S+)\s+(.+)$/gm)) {
+    assign(node, styleProperties(declaration))
+  }
+
+  for (const [node, properties] of styles) {
+    for (const name of properties.keys()) {
+      if (!SUPPORTED_NODE_STYLES.has(name)) throw new Error(`unsupported style ${name} on ${node}`)
+    }
+  }
+  return styles
+}
+
+function applyDashedBorders(svg: string, styles: Map<string, Map<string, string>>): string {
+  let dashed = svg
+  for (const [node, properties] of styles) {
+    const pattern = properties.get("stroke-dasharray")
+    if (!pattern || !/^[\d.\s]+$/.test(pattern)) continue
+    dashed = dashed.replace(
+      new RegExp(`(<g class="node" data-id="${node.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]*>\\s*<(?:rect|polygon|path|circle|ellipse)\\b)`),
+      `$1 stroke-dasharray="${pattern}"`
+    )
+  }
+  return dashed
+}
+
 /**
  * The flowchart edge parser requires spaces around inline labels, so `A -.label.-> B`,
  * `A --label--> B`, and `A ==label==> B` drop the edge and its target without
@@ -142,7 +202,8 @@ export function renderMermaidDiagrams(html: string): string {
     try {
       const type = diagramType(source)
       if (type === "flowchart-v2") assertEdgeLabelsSpaced(source)
-      const rendered = renderMermaidSVG(source, DIAGRAM_COLORS)
+      const styles = type === "flowchart-v2" ? nodeStyles(source) : new Map()
+      const rendered = applyDashedBorders(renderMermaidSVG(source, DIAGRAM_COLORS), styles)
       if (rendered.includes('viewBox="0 0 0 0"')) throw new Error("rendered an empty diagram")
       assertNotesRendered(source, rendered)
       const svg = isolateSvg(rendered, id, type)

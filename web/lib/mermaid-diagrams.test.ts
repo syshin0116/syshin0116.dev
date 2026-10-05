@@ -72,6 +72,17 @@ describe("renderMermaidDiagrams", () => {
     expect(html).not.toMatch(/^\s*\.mono \{/m)
   })
 
+  test("draws classDef dash patterns and falls back on other unsupported styles", () => {
+    const dashed = renderMermaidDiagrams(
+      highlighted("graph LR", "A[도구]:::sw --&#x3E; B", "classDef sw fill:#eee,stroke:#999,stroke-dasharray:4 3;")
+    )
+    expect(dashed).toMatch(/data-id="A"[^>]*>\s*<rect stroke-dasharray="4 3"/)
+    expect(dashed).not.toMatch(/data-id="B"[^>]*>\s*<rect stroke-dasharray/)
+
+    const bold = highlighted("graph LR", "A --&#x3E; B", "style A font-weight:bold")
+    expect(renderMermaidDiagrams(bold)).toBe(bold)
+  })
+
   test("keeps flowcharts with unspaced edge labels as code", () => {
     for (const edge of ["B2 -.옆 엑셀로 우회.-&#x3E; B2", "A --라벨--&#x3E; B", "A ==강조==&#x3E; B"]) {
       const figure = highlighted("graph LR", edge)
