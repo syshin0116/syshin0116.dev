@@ -171,6 +171,15 @@ function styleProperties(declaration: string): Map<string, string> {
  * Resolve `style` and `classDef` declarations per node, rejecting properties
  * the renderer would silently ignore.
  */
+function assertStyleSupported(properties: Map<string, string>, target: string): void {
+  for (const name of properties.keys()) {
+    if (!SUPPORTED_NODE_STYLES.has(name)) throw new Error(`unsupported style ${name} on ${target}`)
+  }
+  // Label contrast is computed from hex fills only.
+  const fill = properties.get("fill")
+  if (fill && relativeLuminance(fill) === null) throw new Error(`non-hex fill ${fill} on ${target}`)
+}
+
 function nodeStyles(source: string): Map<string, Map<string, string>> {
   const classes = new Map<string, Map<string, string>>()
   const styles = new Map<string, Map<string, string>>()
@@ -182,7 +191,10 @@ function nodeStyles(source: string): Map<string, Map<string, string>> {
   for (const [, name, declaration] of source.matchAll(/^\s*classDef\s+(\S+)\s+(.+)$/gm)) {
     // The parser reads one class name and drops `classDef a,b ...` entirely.
     if (name.includes(",")) throw new Error(`multi-name classDef ${name}`)
-    classes.set(name, styleProperties(declaration))
+    // Checked per declaration: `default` applies without any assignment.
+    const properties = styleProperties(declaration)
+    assertStyleSupported(properties, `classDef ${name}`)
+    classes.set(name, properties)
   }
   for (const [, nodes, name] of source.matchAll(/^\s*class\s+(\S+)\s+(\S+?);?\s*$/gm)) {
     for (const node of nodes.split(",")) assign(node, classes.get(name))
@@ -191,16 +203,9 @@ function nodeStyles(source: string): Map<string, Map<string, string>> {
     assign(node, classes.get(name))
   }
   for (const [, node, declaration] of source.matchAll(/^\s*style\s+(\S+)\s+(.+)$/gm)) {
-    assign(node, styleProperties(declaration))
-  }
-
-  for (const [node, properties] of styles) {
-    for (const name of properties.keys()) {
-      if (!SUPPORTED_NODE_STYLES.has(name)) throw new Error(`unsupported style ${name} on ${node}`)
-    }
-    // Label contrast is computed from hex fills only.
-    const fill = properties.get("fill")
-    if (fill && relativeLuminance(fill) === null) throw new Error(`non-hex fill ${fill} on ${node}`)
+    const properties = styleProperties(declaration)
+    assertStyleSupported(properties, node)
+    assign(node, properties)
   }
   return styles
 }
@@ -222,7 +227,8 @@ function applyDashedBorders(svg: string, styles: Map<string, Map<string, string>
 // extended `---->` links, `[/ /]` shapes, linkStyle, click, ...) is left for
 // the client renderer because the parser skips it without an error. Links
 // need surrounding spaces: `A-->B` reads as node `A--`.
-const FLOWCHART_ID = String.raw`[\p{L}\p{N}_]+(?:-[\p{L}\p{N}_]+)*`
+// The parser matches ids with ASCII `\w` and drops a Unicode-id node.
+const FLOWCHART_ID = String.raw`[A-Za-z0-9_]+(?:-[A-Za-z0-9_]+)*`
 const FLOWCHART_NODE = String.raw`${FLOWCHART_ID}(?:\[\([^)\]]*\)\]|\[(?![/\\(])[^\]]*\]|\{(?!\{)[^}]*\}|\((?!\()[^)]*\))?`
 const FLOWCHART_LINK = String.raw`(?:<-->|-->|---|-\.->|==>|-- [^-|]+? -->|-\. [^|]+? \.->|== [^=|]+? ==>)(?:\|[^|]*\|)?`
 const FLOWCHART_STATEMENT = new RegExp(
