@@ -53,6 +53,9 @@
   "agent-state-synchronization": {
     "source": "AI/2026-08-26-LLM-에이전트-상태-동기화"
   },
+  "wiki-instead-of-rag": {
+    "source": "AI/2026-10-05-RAG-대신-위키"
+  },
   "ax-requirements-discovery": {
     "source": "AI/AX-Engineering/01-고객이-원하는-걸-모를-때의-요구사항-발굴"
   },
