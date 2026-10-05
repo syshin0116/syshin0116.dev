@@ -85,6 +85,15 @@ describe("renderMermaidDiagrams", () => {
     }
   })
 
+  test("keeps flowcharts as code when the parser drops ids or labels", () => {
+    for (const edge of ["A --&#x3E; 노드[끝]", "A ~~~ B"]) {
+      const figure = highlighted("flowchart LR", edge)
+      expect(renderMermaidDiagrams(figure)).toBe(figure)
+    }
+    const labelled = highlighted("flowchart LR", "A[시작] --&#x3E; B", "B --&#x3E;|확인| C{통과?}", "C -- 예 --&#x3E; D")
+    expect(renderMermaidDiagrams(labelled)).toStartWith('<figure class="mermaid-diagram">')
+  })
+
   test("keeps flowcharts with unparseable unspaced edges as code", () => {
     for (const edge of ["B2 -.옆 엑셀로 우회.-&#x3E; B2", "A --라벨--&#x3E; B", "A ==강조==&#x3E; B", "A--&#x3E;B", "A-.-&#x3E;B", "가--&#x3E;나"]) {
       const figure = highlighted("graph LR", edge)

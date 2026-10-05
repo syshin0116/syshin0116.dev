@@ -105,6 +105,31 @@ function isolateSvg(svg: string, id: string, diagramType: string): string {
   return isolated
 }
 
+const WORD = /[\p{L}\p{N}_]+/gu
+const FLOWCHART_DIRECTIVE = /^\s*(?:classDef|class|style|linkStyle|click|direction|end)\b/
+
+/**
+ * The flowchart parser stops at syntax it does not know (Unicode ids, `~~~`,
+ * unspaced connectors, ...) and still returns a diagram without the rest of
+ * the line. Every word of the source's ids and labels must therefore show up
+ * in the SVG's text or node ids, or the block is left for the client renderer.
+ */
+function assertFlowchartTextRendered(source: string, svg: string): void {
+  const rendered = new Set(
+    Array.from(svg.matchAll(/data-(?:id|label)="([^"]*)"|>([^<]+)</g), (match) =>
+      decodeHTML(match[1] ?? match[2]).match(WORD) ?? []
+    ).flat()
+  )
+  const [, ...body] = source.replace(/%%.*$/gm, "").trim().split("\n")
+  for (const line of body) {
+    if (FLOWCHART_DIRECTIVE.test(line)) continue
+    const text = line.replace(/:::[\w-]+/g, "").replace(/<br\s*\/?>/gi, " ").replace(/^\s*subgraph\b/, "")
+    for (const word of text.match(WORD) ?? []) {
+      if (!rendered.has(word)) throw new Error(`dropped text: ${word}`)
+    }
+  }
+}
+
 /**
  * Notes placed before the first sequence message are dropped without an
  * error, which would publish a diagram missing part of the post.
@@ -211,6 +236,7 @@ export function renderMermaidDiagrams(html: string): string {
       const styles = type === "flowchart-v2" ? nodeStyles(source) : new Map()
       const rendered = applyDashedBorders(renderMermaidSVG(source, DIAGRAM_COLORS), styles)
       if (rendered.includes('viewBox="0 0 0 0"')) throw new Error("rendered an empty diagram")
+      if (type === "flowchart-v2") assertFlowchartTextRendered(source, rendered)
       assertNotesRendered(source, rendered)
       const svg = isolateSvg(rendered, id, type)
       return `<figure class="mermaid-diagram">${svg}</figure>`
