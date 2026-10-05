@@ -44,12 +44,29 @@ function keepStyledLabelsReadable(svg: string): string {
   })
 }
 
+// Matches the `aria-roledescription` the client Mermaid renderer sets.
+const DIAGRAM_TYPES: Record<string, string> = {
+  graph: "flowchart-v2",
+  flowchart: "flowchart-v2",
+  sequenceDiagram: "sequence",
+  stateDiagram: "stateDiagram",
+  "stateDiagram-v2": "stateDiagram",
+  classDiagram: "class",
+  erDiagram: "er",
+  "xychart-beta": "xychart",
+}
+
+function diagramType(source: string): string {
+  const keyword = source.trim().split(/\s+/, 1)[0] ?? ""
+  return DIAGRAM_TYPES[keyword] ?? "diagram"
+}
+
 /**
  * Inline SVG `<style>` and ids are document-global. beautiful-mermaid emits
  * bare `svg {}` / `text {}` rules, a Google Fonts import, and fixed marker ids,
  * so scope the rules to this diagram, use the site font, and prefix the ids.
  */
-function isolateSvg(svg: string, id: string): string {
+function isolateSvg(svg: string, id: string, diagramType: string): string {
   const ids = new Set(Array.from(svg.matchAll(/\sid="([^"]+)"/g), (match) => match[1]))
   let isolated = svg
     .replace(/^\s*@import url\([^)]*\);\n/m, "")
@@ -60,11 +77,12 @@ function isolateSvg(svg: string, id: string): string {
       /^(\s*)svg \{/m,
       `$1#${id} {\n    --line: initial; --accent: initial; --muted: initial; --surface: initial; --border: initial;`
     )
-    .replace("<svg ", `<svg id="${id}" `)
-    // The start marker's polygon is already reversed, so auto-start-reverse
-    // flips it back into the line and `<-->` loses its start head.
+    .replace("<svg ", `<svg id="${id}" role="graphics-document document" aria-roledescription="${diagramType}" `)
+    // The flowchart start marker's polygon is already reversed, so
+    // auto-start-reverse flips it back into the line and `<-->` loses its
+    // start head. Class diagram markers are drawn unreversed and keep it.
     // https://github.com/lukilabs/beautiful-mermaid/issues/133
-    .replaceAll('orient="auto-start-reverse"', 'orient="auto"')
+    .replace(/(<marker id="arrowhead-start[^"]*"[^>]*?)orient="auto-start-reverse"/g, '$1orient="auto"')
 
   isolated = keepStyledLabelsReadable(isolated)
 
@@ -100,7 +118,7 @@ export function renderMermaidDiagrams(html: string): string {
     try {
       const rendered = renderMermaidSVG(source, DIAGRAM_COLORS)
       assertNotesRendered(source, rendered)
-      const svg = isolateSvg(rendered, id)
+      const svg = isolateSvg(rendered, id, diagramType(source))
       return `<figure class="mermaid-diagram">${svg}</figure>`
     } catch (error) {
       console.warn(`mermaid: kept ${id} as code for the client renderer:`, (error as Error).message)
