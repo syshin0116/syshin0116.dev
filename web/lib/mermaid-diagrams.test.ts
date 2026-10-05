@@ -62,16 +62,6 @@ describe("renderMermaidDiagrams", () => {
     expect(html).not.toContain("auto-start-reverse")
   })
 
-  test("keeps class diagram markers pointing at the source side", () => {
-    const html = renderMermaidDiagrams(highlighted("classDiagram", "Animal &#x3C;|-- Duck"))
-
-    expect(html).toContain('aria-roledescription="class"')
-    expect(html).toContain('marker-start="url(#mermaid-diagram-0-cls-inherit)"')
-    expect(html).toMatch(/<marker id="mermaid-diagram-0-cls-inherit"[^>]*orient="auto-start-reverse"/)
-    expect(html).not.toContain("@import")
-    expect(html).not.toMatch(/^\s*\.mono \{/m)
-  })
-
   test("draws classDef dash patterns and falls back on other unsupported styles", () => {
     const dashed = renderMermaidDiagrams(
       highlighted("graph LR", "A[도구]:::sw --&#x3E; B", "classDef sw fill:#eee,stroke:#999,stroke-dasharray:4 3;")
@@ -112,9 +102,25 @@ describe("renderMermaidDiagrams", () => {
     expect(renderMermaidDiagrams(laterNoteOnly)).toStartWith('<figure class="mermaid-diagram">')
   })
 
-  test("leaves unsupported diagrams as code for the client renderer", () => {
-    const figure = highlighted("pie title Share", '"a" : 1')
+  test("leaves diagram types and statements without build-time checks as code", () => {
+    const figures = [
+      highlighted("pie title Share", '"a" : 1'),
+      highlighted("classDiagram", "Animal &#x3C;|-- Duck"),
+      highlighted("stateDiagram-v2", "state fork_state &#x3C;&#x3C;fork&#x3E;&#x3E;", "[*] --&#x3E; fork_state"),
+      highlighted("erDiagram", "p[Person] {", "string name", "}"),
+      highlighted("sequenceDiagram", "A-&#x3E;&#x3E;B: 요청", "activate B", "B--&#x3E;&#x3E;A: 응답"),
+      highlighted("graph LR", "A:::x --&#x3E; B:::y", "classDef x,y fill:#f00"),
+    ]
 
-    expect(renderMermaidDiagrams(figure)).toBe(figure)
+    for (const figure of figures) expect(renderMermaidDiagrams(figure)).toBe(figure)
+  })
+
+  test("renders verified sequence statements at build time", () => {
+    const html = renderMermaidDiagrams(
+      highlighted("sequenceDiagram", "participant C as 클라이언트", "C-&#x3E;&#x3E;+API: 요청", "API--&#x3E;&#x3E;-C: 응답", "Note over C,API: 완료")
+    )
+
+    expect(html).toContain('aria-roledescription="sequence"')
+    expect(html).toContain("클라이언트")
   })
 })

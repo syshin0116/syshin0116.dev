@@ -44,21 +44,21 @@ function keepStyledLabelsReadable(svg: string): string {
   })
 }
 
-// Matches the `aria-roledescription` the client Mermaid renderer sets.
+// Diagram types rendered at build time, with the `aria-roledescription` the
+// client Mermaid renderer sets. beautiful-mermaid also draws state, class, ER,
+// and XY charts, but silently skips syntax in each (forks, aliases, ...); only
+// the types the blog uses and these checks cover are rendered here.
 const DIAGRAM_TYPES: Record<string, string> = {
   graph: "flowchart-v2",
   flowchart: "flowchart-v2",
   sequenceDiagram: "sequence",
-  stateDiagram: "stateDiagram",
-  "stateDiagram-v2": "stateDiagram",
-  classDiagram: "class",
-  erDiagram: "er",
-  "xychart-beta": "xychart",
 }
 
 function diagramType(source: string): string {
   const keyword = source.trim().split(/\s+/, 1)[0] ?? ""
-  return DIAGRAM_TYPES[keyword] ?? "diagram"
+  const type = DIAGRAM_TYPES[keyword]
+  if (!type) throw new Error(`not rendered at build time: ${keyword}`)
+  return type
 }
 
 // Shrink a wide diagram to the column, but not below this share of its size;
@@ -67,9 +67,8 @@ const MIN_DIAGRAM_SCALE = 0.75
 
 /**
  * Inline SVG `<style>` and ids are document-global. beautiful-mermaid emits
- * bare `svg {}` / `text {}` / `.mono {}` rules, Google Fonts imports, and fixed
- * marker ids, so scope the rules to this diagram, use the site fonts, and
- * prefix the ids.
+ * bare `svg {}` / `text {}` rules, Google Fonts imports, and fixed marker ids,
+ * so scope the rules to this diagram, use the site font, and prefix the ids.
  */
 function isolateSvg(svg: string, id: string, diagramType: string): string {
   const ids = new Set(Array.from(svg.matchAll(/\sid="([^"]+)"/g), (match) => match[1]))
@@ -77,7 +76,6 @@ function isolateSvg(svg: string, id: string, diagramType: string): string {
   let isolated = svg
     .replace(/^\s*@import url\([^)]*\);\n/gm, "")
     .replace(/^(\s*)text \{[^}]*\}/m, `$1#${id} text { font-family: var(--font-sans); }`)
-    .replace(/^(\s*)\.mono \{[^}]*\}/m, `$1#${id} .mono { font-family: ui-monospace, monospace; }`)
     .replace(
       /(<svg [^>]*?style=")/,
       `$1width:clamp(${(width * MIN_DIAGRAM_SCALE).toFixed(1)}px,100%,${width}px);height:auto;`
@@ -91,7 +89,7 @@ function isolateSvg(svg: string, id: string, diagramType: string): string {
     .replace("<svg ", `<svg id="${id}" role="graphics-document document" aria-roledescription="${diagramType}" `)
     // The flowchart start marker's polygon is already reversed, so
     // auto-start-reverse flips it back into the line and `<-->` loses its
-    // start head. Class diagram markers are drawn unreversed and keep it.
+    // start head.
     // https://github.com/lukilabs/beautiful-mermaid/issues/133
     .replace(/(<marker id="arrowhead-start[^"]*"[^>]*?)orient="auto-start-reverse"/g, '$1orient="auto"')
 
@@ -127,6 +125,18 @@ function assertFlowchartTextRendered(source: string, svg: string): void {
     for (const word of text.match(WORD) ?? []) {
       if (!rendered.has(word)) throw new Error(`dropped text: ${word}`)
     }
+  }
+}
+
+// Sequence statements whose rendering is verified; anything else (activate,
+// loop, alt, rect, autonumber, box, ...) is left for the client renderer.
+const SEQUENCE_STATEMENT =
+  /^\s*(?:(?:participant|actor)\s+\S.*|[^\s:]+?\s*(?:-->>|->>|-->|->|--x|-x|--\)|-\))[+-]?\s*[^\s:]+\s*:.*|Note\s+(?:left of|right of|over)\s+[^:]+:.*)$/
+
+function assertSequenceStatementsSupported(source: string): void {
+  const [, ...body] = source.replace(/%%.*$/gm, "").trim().split("\n")
+  for (const line of body) {
+    if (line.trim() && !SEQUENCE_STATEMENT.test(line)) throw new Error(`unverified sequence statement: ${line.trim()}`)
   }
 }
 
@@ -167,8 +177,10 @@ function nodeStyles(source: string): Map<string, Map<string, string>> {
     styles.set(node, new Map([...(styles.get(node) ?? []), ...properties]))
   }
 
-  for (const [, names, declaration] of source.matchAll(/^\s*classDef\s+(\S+)\s+(.+)$/gm)) {
-    for (const name of names.split(",")) classes.set(name, styleProperties(declaration))
+  for (const [, name, declaration] of source.matchAll(/^\s*classDef\s+(\S+)\s+(.+)$/gm)) {
+    // The parser reads one class name and drops `classDef a,b ...` entirely.
+    if (name.includes(",")) throw new Error(`multi-name classDef ${name}`)
+    classes.set(name, styleProperties(declaration))
   }
   for (const [, nodes, name] of source.matchAll(/^\s*class\s+(\S+)\s+(\S+?);?\s*$/gm)) {
     for (const node of nodes.split(",")) assign(node, classes.get(name))
@@ -233,6 +245,7 @@ export function renderMermaidDiagrams(html: string): string {
     try {
       const type = diagramType(source)
       if (type === "flowchart-v2") assertEdgesParseable(source)
+      if (type === "sequence") assertSequenceStatementsSupported(source)
       const styles = type === "flowchart-v2" ? nodeStyles(source) : new Map()
       const rendered = applyDashedBorders(renderMermaidSVG(source, DIAGRAM_COLORS), styles)
       if (rendered.includes('viewBox="0 0 0 0"')) throw new Error("rendered an empty diagram")
