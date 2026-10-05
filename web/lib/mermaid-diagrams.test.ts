@@ -27,6 +27,13 @@ describe("renderMermaidDiagrams", () => {
     expect(html).toContain('role="graphics-document document" aria-roledescription="flowchart-v2"')
   })
 
+  test("shrinks a wide diagram only down to a readable scale", () => {
+    const html = renderMermaidDiagrams(highlighted("graph LR", "A --> B"))
+    const width = Number(html.match(/<svg [^>]*?width="([\d.]+)"/)![1])
+
+    expect(html).toContain(`style="width:clamp(${(width * 0.75).toFixed(1)}px,100%,${width}px);height:auto;`)
+  })
+
   test("keeps diagram styles and ids from leaking into the page", () => {
     const html = renderMermaidDiagrams(highlighted("graph LR", "A --> B") + highlighted("graph LR", "C --> D"))
 
@@ -61,6 +68,17 @@ describe("renderMermaidDiagrams", () => {
     expect(html).toContain('aria-roledescription="class"')
     expect(html).toContain('marker-start="url(#mermaid-diagram-0-cls-inherit)"')
     expect(html).toMatch(/<marker id="mermaid-diagram-0-cls-inherit"[^>]*orient="auto-start-reverse"/)
+    expect(html).not.toContain("@import")
+    expect(html).not.toMatch(/^\s*\.mono \{/m)
+  })
+
+  test("keeps flowcharts with unspaced edge labels as code", () => {
+    for (const edge of ["B2 -.옆 엑셀로 우회.-&#x3E; B2", "A --라벨--&#x3E; B", "A ==강조==&#x3E; B"]) {
+      const figure = highlighted("graph LR", edge)
+      expect(renderMermaidDiagrams(figure)).toBe(figure)
+    }
+    const spaced = highlighted("graph LR", 'A -. "우회" .-&#x3E; B', "C[--flag] --&#x3E; D")
+    expect(renderMermaidDiagrams(spaced)).toStartWith('<figure class="mermaid-diagram">')
   })
 
   test("keeps a sequence diagram as code when a note would be dropped", () => {

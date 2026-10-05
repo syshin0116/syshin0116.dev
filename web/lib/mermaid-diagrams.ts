@@ -61,16 +61,27 @@ function diagramType(source: string): string {
   return DIAGRAM_TYPES[keyword] ?? "diagram"
 }
 
+// Shrink a wide diagram to the column, but not below this share of its size;
+// past that the figure scrolls so labels stay readable on mobile.
+const MIN_DIAGRAM_SCALE = 0.75
+
 /**
  * Inline SVG `<style>` and ids are document-global. beautiful-mermaid emits
- * bare `svg {}` / `text {}` rules, a Google Fonts import, and fixed marker ids,
- * so scope the rules to this diagram, use the site font, and prefix the ids.
+ * bare `svg {}` / `text {}` / `.mono {}` rules, Google Fonts imports, and fixed
+ * marker ids, so scope the rules to this diagram, use the site fonts, and
+ * prefix the ids.
  */
 function isolateSvg(svg: string, id: string, diagramType: string): string {
   const ids = new Set(Array.from(svg.matchAll(/\sid="([^"]+)"/g), (match) => match[1]))
+  const width = Number(svg.match(/<svg [^>]*?\bwidth="([\d.]+)"/)?.[1] ?? 0)
   let isolated = svg
-    .replace(/^\s*@import url\([^)]*\);\n/m, "")
+    .replace(/^\s*@import url\([^)]*\);\n/gm, "")
     .replace(/^(\s*)text \{[^}]*\}/m, `$1#${id} text { font-family: var(--font-sans); }`)
+    .replace(/^(\s*)\.mono \{[^}]*\}/m, `$1#${id} .mono { font-family: ui-monospace, monospace; }`)
+    .replace(
+      /(<svg [^>]*?style=")/,
+      `$1width:clamp(${(width * MIN_DIAGRAM_SCALE).toFixed(1)}px,100%,${width}px);height:auto;`
+    )
     // The optional overrides share names with the site's shadcn tokens
     // (--accent, --muted, --border); reset them so the fg/bg derivations apply.
     .replace(
@@ -106,6 +117,19 @@ function assertNotesRendered(source: string, svg: string): void {
 }
 
 /**
+ * The flowchart edge parser requires spaces around inline labels, so `A -.label.-> B`,
+ * `A --label--> B`, and `A ==label==> B` drop the edge and its target without
+ * an error. Label text is removed first so `--flag` inside a node is ignored.
+ */
+function assertEdgeLabelsSpaced(source: string): void {
+  const structure = source
+    .replace(/%%.*$/gm, "")
+    .replace(/"[^"\n]*"|\[[^\]\n]*\]|\([^)\n]*\)|\{[^}\n]*\}|\|[^|\n]*\|/g, "")
+  const compact = structure.match(/(?:--|==)[^\s>=|-]\S*|-\.[^\s.-]\S*/)
+  if (compact) throw new Error(`unspaced edge label: ${compact[0]}`)
+}
+
+/**
  * Replace highlighted Mermaid code blocks with build-time SVG. A block that
  * beautiful-mermaid cannot render faithfully stays as code, and the client
  * renderer draws it with the full Mermaid library instead.
@@ -116,9 +140,12 @@ export function renderMermaidDiagrams(html: string): string {
     const source = mermaidSource(code)
     const id = `mermaid-diagram-${index++}`
     try {
+      const type = diagramType(source)
+      if (type === "flowchart-v2") assertEdgeLabelsSpaced(source)
       const rendered = renderMermaidSVG(source, DIAGRAM_COLORS)
+      if (rendered.includes('viewBox="0 0 0 0"')) throw new Error("rendered an empty diagram")
       assertNotesRendered(source, rendered)
-      const svg = isolateSvg(rendered, id, diagramType(source))
+      const svg = isolateSvg(rendered, id, type)
       return `<figure class="mermaid-diagram">${svg}</figure>`
     } catch (error) {
       console.warn(`mermaid: kept ${id} as code for the client renderer:`, (error as Error).message)
