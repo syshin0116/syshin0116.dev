@@ -85,11 +85,11 @@ describe("renderMermaidDiagrams", () => {
   })
 
   test("keeps flowcharts with unparseable unspaced edges as code", () => {
-    for (const edge of ["B2 -.옆 엑셀로 우회.-&#x3E; B2", "A --라벨--&#x3E; B", "A ==강조==&#x3E; B", "A--&#x3E;B", "A-.-&#x3E;B", "가--&#x3E;나"]) {
+    for (const edge of ["B2 -.옆 엑셀로 우회.-&#x3E; B2", "A --라벨--&#x3E; B", "A ==강조==&#x3E; B", "A--&#x3E;B", "A-.-&#x3E;B", "가--&#x3E;나", "E[x]--&#x3E;F"]) {
       const figure = highlighted("graph LR", edge)
       expect(renderMermaidDiagrams(figure)).toBe(figure)
     }
-    const spaced = highlighted("graph LR", 'A -. "우회" .-&#x3E; B', "C[--flag] --&#x3E; D", "E[x]--&#x3E;F", "G==&#x3E;H")
+    const spaced = highlighted("graph LR", 'A -. "우회" .-&#x3E; B', "C[--flag] --&#x3E; D", "E ==&#x3E; F")
     expect(renderMermaidDiagrams(spaced)).toStartWith('<figure class="mermaid-diagram">')
   })
 
@@ -117,6 +117,10 @@ describe("renderMermaidDiagrams", () => {
       highlighted("graph LR", "A &#x26; B --&#x3E; C"),
       highlighted("sequenceDiagram", "A-xB: lost"),
       highlighted("sequenceDiagram", "A--xB: lost"),
+      highlighted("graph LR; A ~~~ B"),
+      highlighted("graph LR", "A", "B", "A--&#x3E;B"),
+      highlighted("graph LR", 'A["`**굵게**`"] --&#x3E; B'),
+      highlighted("sequenceDiagram", 'participant API as "Public API"', "API-&#x3E;&#x3E;API: 호출"),
     ]
 
     for (const figure of figures) expect(renderMermaidDiagrams(figure)).toBe(figure)
