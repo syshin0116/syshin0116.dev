@@ -15,7 +15,9 @@ export function MermaidRenderer() {
       if (cancelled) return
       mermaid.initialize({
         startOnLoad: false,
-        theme: document.documentElement.classList.contains("dark") ? "dark" : "default",
+        // Only diagrams the build-time renderer skipped reach here; neutral keeps
+        // them close to its grayscale look.
+        theme: document.documentElement.classList.contains("dark") ? "dark" : "neutral",
         securityLevel: "strict",
       })
       for (const block of Array.from(blocks)) {

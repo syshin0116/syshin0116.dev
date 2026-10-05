@@ -671,6 +671,7 @@ a.tag {
   }
   .mermaid-diagram svg {
     display: block;
+    max-width: 100%;
     height: auto;
     margin-inline: auto;
   }
