@@ -159,6 +159,9 @@ function nodeStyles(source: string): Map<string, Map<string, string>> {
     for (const name of properties.keys()) {
       if (!SUPPORTED_NODE_STYLES.has(name)) throw new Error(`unsupported style ${name} on ${node}`)
     }
+    // Label contrast is computed from hex fills only.
+    const fill = properties.get("fill")
+    if (fill && relativeLuminance(fill) === null) throw new Error(`non-hex fill ${fill} on ${node}`)
   }
   return styles
 }
@@ -177,16 +180,19 @@ function applyDashedBorders(svg: string, styles: Map<string, Map<string, string>
 }
 
 /**
- * The flowchart edge parser requires spaces around inline labels, so `A -.label.-> B`,
- * `A --label--> B`, and `A ==label==> B` drop the edge and its target without
- * an error. Label text is removed first so `--flag` inside a node is ignored.
+ * The flowchart edge parser drops an edge and its target without an error
+ * when an inline label is not spaced (`A -.label.-> B`, `A --label--> B`,
+ * `A ==label==> B`) or a bare node id touches a `-` connector (`A-->B` reads
+ * as node `A--`). Label text is emptied first so `--flag` inside a node is
+ * ignored while its brackets still separate the id from the connector.
  */
-function assertEdgeLabelsSpaced(source: string): void {
+function assertEdgesParseable(source: string): void {
   const structure = source
     .replace(/%%.*$/gm, "")
-    .replace(/"[^"\n]*"|\[[^\]\n]*\]|\([^)\n]*\)|\{[^}\n]*\}|\|[^|\n]*\|/g, "")
-  const compact = structure.match(/(?:--|==)[^\s>=|-]\S*|-\.[^\s.-]\S*/)
-  if (compact) throw new Error(`unspaced edge label: ${compact[0]}`)
+    .replace(/"[^"\n]*"/g, '""')
+    .replace(/\[[^\]\n]*\]|\([^)\n]*\)|\{[^}\n]*\}|\|[^|\n]*\|/g, (label) => label[0] + label.at(-1))
+  const compact = structure.match(/(?:--|==)[^\s>=|-]\S*|-\.[^\s.-]\S*|[\p{L}\p{N}_](?:--|-\.)\S*/u)
+  if (compact) throw new Error(`unspaced edge: ${compact[0]}`)
 }
 
 /**
@@ -201,7 +207,7 @@ export function renderMermaidDiagrams(html: string): string {
     const id = `mermaid-diagram-${index++}`
     try {
       const type = diagramType(source)
-      if (type === "flowchart-v2") assertEdgeLabelsSpaced(source)
+      if (type === "flowchart-v2") assertEdgesParseable(source)
       const styles = type === "flowchart-v2" ? nodeStyles(source) : new Map()
       const rendered = applyDashedBorders(renderMermaidSVG(source, DIAGRAM_COLORS), styles)
       if (rendered.includes('viewBox="0 0 0 0"')) throw new Error("rendered an empty diagram")

@@ -79,16 +79,18 @@ describe("renderMermaidDiagrams", () => {
     expect(dashed).toMatch(/data-id="A"[^>]*>\s*<rect stroke-dasharray="4 3"/)
     expect(dashed).not.toMatch(/data-id="B"[^>]*>\s*<rect stroke-dasharray/)
 
-    const bold = highlighted("graph LR", "A --&#x3E; B", "style A font-weight:bold")
-    expect(renderMermaidDiagrams(bold)).toBe(bold)
+    for (const style of ["style A font-weight:bold", "style A fill:white"]) {
+      const figure = highlighted("graph LR", "A --&#x3E; B", style)
+      expect(renderMermaidDiagrams(figure)).toBe(figure)
+    }
   })
 
-  test("keeps flowcharts with unspaced edge labels as code", () => {
-    for (const edge of ["B2 -.옆 엑셀로 우회.-&#x3E; B2", "A --라벨--&#x3E; B", "A ==강조==&#x3E; B"]) {
+  test("keeps flowcharts with unparseable unspaced edges as code", () => {
+    for (const edge of ["B2 -.옆 엑셀로 우회.-&#x3E; B2", "A --라벨--&#x3E; B", "A ==강조==&#x3E; B", "A--&#x3E;B", "A-.-&#x3E;B", "가--&#x3E;나"]) {
       const figure = highlighted("graph LR", edge)
       expect(renderMermaidDiagrams(figure)).toBe(figure)
     }
-    const spaced = highlighted("graph LR", 'A -. "우회" .-&#x3E; B', "C[--flag] --&#x3E; D")
+    const spaced = highlighted("graph LR", 'A -. "우회" .-&#x3E; B', "C[--flag] --&#x3E; D", "E[x]--&#x3E;F", "G==&#x3E;H")
     expect(renderMermaidDiagrams(spaced)).toStartWith('<figure class="mermaid-diagram">')
   })
 
