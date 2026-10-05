@@ -121,6 +121,8 @@ describe("renderMermaidDiagrams", () => {
       highlighted("graph LR", "A", "B", "A--&#x3E;B"),
       highlighted("graph LR", 'A["`**굵게**`"] --&#x3E; B'),
       highlighted("sequenceDiagram", 'participant API as "Public API"', "API-&#x3E;&#x3E;API: 호출"),
+      highlighted("graph LR", "A[노드 끝] --&#x3E; 노드[끝]"),
+      highlighted("graph LR", "A --&#x3E; B", "classDef default font-weight:bold"),
     ]
 
     for (const figure of figures) expect(renderMermaidDiagrams(figure)).toBe(figure)
