@@ -138,7 +138,7 @@ function assertSequenceStatementsSupported(source: string): void {
   const [header, ...body] = source.replace(/%%.*$/gm, "").trim().split("\n")
   if (header.trim() !== "sequenceDiagram") throw new Error(`unverified sequence header: ${header}`)
   for (const line of body) {
-    if (line.trim() && !SEQUENCE_STATEMENT.test(line)) throw new Error(`unverified sequence statement: ${line.trim()}`)
+    if (line.trim() && (UNRENDERED_TEXT.test(line) || !SEQUENCE_STATEMENT.test(line))) throw new Error(`unverified sequence statement: ${line.trim()}`)
   }
 }
 
@@ -168,7 +168,7 @@ function styleProperties(declaration: string): Map<string, string> {
 }
 
 /**
- * Resolve `style` and `classDef` declarations per node, rejecting properties
+ * Resolve `style` and `classDef` (applied with `:::`) declarations per node, rejecting properties
  * the renderer would silently ignore.
  */
 function assertStyleSupported(properties: Map<string, string>, target: string): void {
@@ -196,9 +196,6 @@ function nodeStyles(source: string): Map<string, Map<string, string>> {
     assertStyleSupported(properties, `classDef ${name}`)
     classes.set(name, properties)
   }
-  for (const [, nodes, name] of source.matchAll(/^\s*class\s+(\S+)\s+(\S+?);?\s*$/gm)) {
-    for (const node of nodes.split(",")) assign(node, classes.get(name))
-  }
   for (const [, node, name] of source.matchAll(/([\w-]+)(?:\[[^\]\n]*\]|\([^)\n]*\)|\{[^}\n]*\})?:::([\w-]+)/g)) {
     assign(node, classes.get(name))
   }
@@ -223,6 +220,10 @@ function applyDashedBorders(svg: string, styles: Map<string, Map<string, string>
   return dashed
 }
 
+// Markdown strings (backticks) and entity codes (`#9829;`) are printed
+// literally by the renderer.
+const UNRENDERED_TEXT = /`|#\w+;/
+
 // Flowchart syntax whose rendering is verified; anything else (`&` chains,
 // extended `---->` links, `[/ /]` shapes, linkStyle, click, ...) is left for
 // the client renderer because the parser skips it without an error. Links
@@ -234,7 +235,7 @@ const FLOWCHART_LINK = String.raw`(?:<-->|-->|---|-\.->|==>|-- [^-|]+? -->|-\. [
 const FLOWCHART_STATEMENT = new RegExp(
   String.raw`^\s*(?:${FLOWCHART_NODE}(?:\s+${FLOWCHART_LINK}\s+${FLOWCHART_NODE})*` +
     String.raw`|subgraph\s+(?:${FLOWCHART_ID}(?:\[[^\]]*\])?|"[^"]*")|end|direction\s+(?:TB|TD|BT|LR|RL)` +
-    String.raw`|classDef\s+[\w-]+\s+\S.*|class\s+[\w,-]+\s+[\w-]+|style\s+${FLOWCHART_ID}\s+\S.*)\s*;?\s*$`,
+    String.raw`|classDef\s+(?!default\s)\w+\s+\S.*|style\s+${FLOWCHART_ID}\s+\S.*)\s*$`,
   "u"
 )
 
@@ -244,9 +245,8 @@ function assertFlowchartStatementsSupported(source: string): void {
     throw new Error(`unverified flowchart header: ${header}`)
   }
   for (const line of body) {
-    // Backticks start Markdown strings, which the renderer prints literally.
-    const statement = line.replace(/:::[\w-]+/g, "")
-    if (statement.trim() && (statement.includes("`") || !FLOWCHART_STATEMENT.test(statement))) {
+    const statement = line.replace(/:::\w+/g, "")
+    if (statement.trim() && (UNRENDERED_TEXT.test(statement) || !FLOWCHART_STATEMENT.test(statement))) {
       throw new Error(`unverified flowchart statement: ${line.trim()}`)
     }
   }

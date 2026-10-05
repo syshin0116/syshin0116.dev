@@ -123,6 +123,10 @@ describe("renderMermaidDiagrams", () => {
       highlighted("sequenceDiagram", 'participant API as "Public API"', "API-&#x3E;&#x3E;API: 호출"),
       highlighted("graph LR", "A[노드 끝] --&#x3E; 노드[끝]"),
       highlighted("graph LR", "A --&#x3E; B", "classDef default font-weight:bold"),
+      highlighted("graph LR", "A --&#x3E; B", "classDef default fill:#f00"),
+      highlighted("graph LR", "A --&#x3E; B", "classDef hot fill:#f00", "class A hot;"),
+      highlighted("graph LR", "A:::warning-node --&#x3E; B", "classDef warning-node fill:#f00"),
+      highlighted("sequenceDiagram", "A-&#x3E;&#x3E;B: I #9829; you!"),
     ]
 
     for (const figure of figures) expect(renderMermaidDiagrams(figure)).toBe(figure)
