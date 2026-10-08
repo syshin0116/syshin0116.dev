@@ -235,7 +235,7 @@ export default async function BlogPostPage({
         <Separator className="mb-6" />
 
         {frontmatter.summary && (
-          <section aria-label="요약" className="mb-6 text-sm leading-7 text-muted-foreground">
+          <section aria-label="요약" className="mb-6 text-sm leading-7 text-muted-foreground [word-break:keep-all] [overflow-wrap:break-word]">
             <p>{frontmatter.summary as string}</p>
           </section>
         )}
