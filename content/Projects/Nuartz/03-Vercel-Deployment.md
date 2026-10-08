@@ -13,8 +13,7 @@ enableToc: true
 description: Phase 1 구현 내용 정리, 그리고 Vercel 배포 과정에서 만난 workspace 프로토콜, Turbopack, 각종 버그들을 기록한다.
 summary: "monorepo 구조와 3-column 레이아웃을 구현하고 Vercel에 첫 배포를 시도했다. workspace 프로토콜 문제, Turbopack의 worker_threads 충돌로 webpack 전환, D3 graph view 노드 좌표 버그, KaTeX CSS 누락, 한국어 FlexSearch 토크나이저 구현까지 - 배포하면서 만난 것들을 전부 기록했다."
 ---
-> [!info] 이전 글
-> Quartz 플러그인 분석을 통해 어떤 전략을 쓸지 정했다. → [[02-Quartz-Internals|Quartz 플러그인 해부]]
+Obsidian 노트를 Next.js로 서빙하는 라이브러리 Nuartz의 Phase 1을 구현하고 Vercel에 처음 배포했다. 이 글은 구현 구조를 정리하고, 배포하며 만난 문제(workspace 프로토콜, Turbopack, 그래프 뷰·KaTeX·한국어 검색 버그)와 해결 방법을 기록한다. 어떤 구현 전략을 택했는지는 [[02-Quartz-Internals|Quartz 플러그인 해부]]에서 다뤘다.
 
 ---
 
