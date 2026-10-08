@@ -214,7 +214,7 @@ EXPECTED_DEPENDABOT_SECURITY_UPDATES_STATUS = "enabled"
 UV_VERSION = "0.12.3"
 UV_REQUIRED_VERSION = f"=={UV_VERSION}"
 UV_CHECKSUM = "600cf9a742aca00d292673b16b5acffaa7b8c269a364ad0c2e79498dcb1fe101"
-SETUP_UV_ACTION = "astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d"
+SETUP_UV_ACTION = "astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7"
 EXPECTED_SETUP_UV_WORKFLOW_COUNTS = {
     ".github/workflows/ci.yml": 5,
     ".github/workflows/dependency-audit.yml": 2,
@@ -236,7 +236,7 @@ EVAL_CI_JOB = "eval"
 EVAL_PUBLICATION_WORKFLOW = ".github/workflows/eval-publication.yml"
 AGENT_DELIVERY_WORKFLOW_AST_SHA256 = {
     ".github/workflows/agent-image-build.yml": (
-        "2bf2aead58ebfd05b85373aea0f35fce4a879af2bd10baffa8ab681da6b51347"
+        "07f2ca0a49b11ec3c67fb3c415f14f1cd3a486c70986980c746545c04ba9f119"
     ),
     ".github/workflows/agent-release.yml": (
         "7cb0f945db8fbf2d100bc6ac1f9f8c1f52e694e870282e3f280a3cfd68fa8460"
@@ -277,7 +277,7 @@ UPSTREAM_VERSION_AUDIT_SCRIPT_SHA256 = (
     "87d25d4ba6d9e4657926364d51c91c0d1c03b7cfdfe2a9cc84dbd640e367d7ca"
 )
 EXPECTED_DEPENDENCY_AUDIT_JOB_AST_SHA256 = {
-    "eval": "6794798be8f5995443a1758a0d9567ee54799d305012e39d5a67c50ca42544ad",
+    "eval": "f38e732775950edd2e021daf7a25755ef05b4203f5ed89a1dd29009d70d7ee97",
     "upstream": "69d71776cf99461e058269b3aec66b5730c661a820d6360b355f6031c13601f3",
     "check": "ccebb8e1c855a2f3fd87a3156b6de7335cfb252f5c16899d9132743b359cf117",
 }
