@@ -37,6 +37,7 @@ updates:
         patterns:
           - "@langchain/core"
           - "@langchain/langgraph*"
+          - "@langchain/react"
         update-types:
           - "major"
           - "minor"

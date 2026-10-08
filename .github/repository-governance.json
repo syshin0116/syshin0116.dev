@@ -265,7 +265,8 @@
             "applies_to": "version-updates",
             "patterns": [
               "@langchain/core",
-              "@langchain/langgraph*"
+              "@langchain/langgraph*",
+              "@langchain/react"
             ],
             "exclude_patterns": [],
             "update_types": [
