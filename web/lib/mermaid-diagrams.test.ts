@@ -41,6 +41,7 @@ describe("renderMermaidDiagrams", () => {
     expect(html).not.toMatch(/^\s*(svg|text) \{/m)
     expect(html).toContain("#mermaid-diagram-0 text { font-family: var(--font-sans); }")
     expect(html).toContain("--accent: initial;")
+    expect(html).toContain("--muted: color-mix(in srgb, var(--fg) 60%, var(--bg));")
     expect(html).toContain('id="mermaid-diagram-0-arrowhead"')
     expect(html).toContain('marker-end="url(#mermaid-diagram-1-arrowhead)"')
     expect(html).not.toContain('id="arrowhead"')
