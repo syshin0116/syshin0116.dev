@@ -65,6 +65,8 @@ function diagramType(source: string): string {
 // past that the figure scrolls so labels stay readable on mobile.
 const MIN_DIAGRAM_SCALE = 0.75
 
+const READABLE_MUTED_TEXT = "color-mix(in srgb, var(--fg) 60%, var(--bg))"
+
 /**
  * Inline SVG `<style>` and ids are document-global. beautiful-mermaid emits
  * bare `svg {}` / `text {}` rules, Google Fonts imports, and fixed marker ids,
@@ -82,9 +84,11 @@ function isolateSvg(svg: string, id: string, diagramType: string): string {
     )
     // The optional overrides share names with the site's shadcn tokens
     // (--accent, --muted, --border); reset them so the fg/bg derivations apply.
+    // --muted feeds edge and message labels, whose default 40% mix is about
+    // 2.6:1 on white; 60% clears WCAG AA (4.5:1) in both themes.
     .replace(
       /^(\s*)svg \{/m,
-      `$1#${id} {\n    --line: initial; --accent: initial; --muted: initial; --surface: initial; --border: initial;`
+      `$1#${id} {\n    --line: initial; --accent: initial; --muted: ${READABLE_MUTED_TEXT}; --surface: initial; --border: initial;`
     )
     .replace("<svg ", `<svg id="${id}" role="graphics-document document" aria-roledescription="${diagramType}" `)
     // The flowchart start marker's polygon is already reversed, so
