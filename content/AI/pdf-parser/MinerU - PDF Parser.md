@@ -21,9 +21,9 @@ modified: 2025-04-03
 ---
 ## MinerU 소개
 
-RAG(Retrieval-Augmented Generation) 시스템 구축을 위해 PDF 파서를 찾던 중 발견한 MinerU는 내가 찾던 대부분의 조건을 충족시키는 도구다. [[RAG용 PDF Loader 비교]] 문서에서 다룬 다른 PDF 로더들과 비교했을 때, 특히 레이아웃 분석과 문서 구조 이해 측면에서 뛰어난 성능을 보여준다. [[LayoutLM]]과 같은 최신 문서 이해 기술을 활용하여 복잡한 문서 구조도 정확하게 처리할 수 있다.
+MinerU는 OpenDataLab에서 개발한 오픈소스 도구로, PDF 문서를 Markdown과 JSON 형식으로 변환한다. 텍스트 추출에 그치지 않고 문서의 레이아웃, 표, 수식, 이미지 같은 복잡한 요소까지 인식해 처리한다.
 
-MinerU는 AGPL-3 라이센스를 사용하고 있어 이 점은 주의가 필요하지만, 그 외 모든 요구사항을 매우 뛰어난 품질로 충족시키는 오픈소스 도구다. OpenDataLab에서 개발한 이 도구는 PDF 문서를 Markdown 및 JSON 형식으로 변환하며, 단순한 텍스트 추출을 넘어 문서의 레이아웃, 표, 수식, 이미지 등 복잡한 요소들을 정확하게 인식하고 처리할 수 있다.
+RAG(Retrieval-Augmented Generation) 시스템 구축을 위해 PDF 파서를 찾다가 발견했는데, 내가 찾던 대부분의 조건을 충족했다. [[RAG용 PDF Loader 비교]] 문서에서 다룬 다른 PDF 로더들과 비교하면 특히 레이아웃 분석과 문서 구조 이해에서 뛰어나다. [[LayoutLM]]과 같은 최신 문서 이해 기술을 활용하여 복잡한 문서 구조도 정확하게 처리할 수 있다. 다만 AGPL-3 라이센스를 사용하고 있어 이 점은 주의가 필요하다.
 
 MinerU는 아래 라이브러리들은 활용한다:
 - [PDF-Extract-Kit](https://github.com/opendatalab/PDF-Extract-Kit)

@@ -17,6 +17,8 @@ modified: 2024-08-25
 ---
 ## Intro
 
+Visual Zettelkasten은 Excalidraw로 노트에 그림을 더해, 생각과 노트 사이의 연결을 시각적으로 표현하는 지식 관리 방식이다. PKM(Personal Knowledge Management, 개인 지식 관리)으로 보면 노트만 쓰는 방식이 2D, 노트를 서로 연결하는 옵시디안이 3D, 옵시디안에 그림까지 더한 것이 4D에 해당한다.
+
 ![](https://i.imgur.com/57noLAD.png)
 
 

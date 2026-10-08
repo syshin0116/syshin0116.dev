@@ -24,6 +24,8 @@ published: 2026-04-29
 modified: 2026-05-10
 ---
 
+LLM 에이전트 플랫폼은 200ms 안에 첫 토큰이 나와야 하는 짧은 챗과, 수 분이 걸리면서도 사용자가 탭을 닫았다 돌아오면 진행 상황이 이어져야 하는 long-running 작업을 같은 인프라에서 다뤄야 한다. 이 글은 두 요구를 함께 만족시키는 스트리밍·durability 구조를 LangGraph Platform, OpenAI Responses background, Inngest+Mastra, Cloudflare Agents 같은 production 사례와 비교하고, 워크로드별 권고와 K8s 운영 방법까지 정리한다.
+
 ## TL;DR
 
 - "단일 업계 표준"은 없다. 워크로드별로 4개 패턴(worker pool / actor-as-handler / inline-stateless / 장기 WebSocket)이 갈려있고, 동시에 OpenAI Realtime처럼 정반대 방향으로 가는 흐름도 있다

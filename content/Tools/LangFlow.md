@@ -20,14 +20,13 @@ summary: "LangFlow는 AI 워크플로우를 시각적으로 구축할 수 있는
 published: 2025-06-03
 modified: 2025-06-03
 ---
-> [!info]
-> 이 글은 [[데블챌 데이터 블로그 챌린지]] 참여 글입니다.
-
 ## 소개
+
+LangFlow는 드래그 앤 드롭 방식의 시각적 빌더로 AI 에이전트와 워크플로우를 구축하고 API로 배포할 수 있는 오픈소스 도구다. 이 글은 LangFlow를 일주일 정도 사용해본 리뷰로, 핵심 기능과 스타터 프로젝트, 장단점, n8n 등 유사 도구와의 비교를 정리한다.
 
 ![](https://i.imgur.com/DTM6zKT.png)
 
-GitHub trending 레포를 둘러보다가 발견한 LangFlow를 리뷰한다. 나는 곧 노코드 챗봇 개발이 예정되어 있어서, 다양한 도구를 리서치하고 있는 중이다. LangFlow는 MIT 라이센스로 제공되는 오픈소스 프로젝트로, 완전히 자유롭게 사용, 수정 및 배포가 가능하다는 점이 매력적이다.
+GitHub trending 레포를 둘러보다가 발견했고, 마침 노코드 챗봇 개발이 예정되어 있어 다양한 도구를 리서치하던 중이었다. MIT 라이센스로 제공되어 자유롭게 사용, 수정 및 배포가 가능하다는 점이 매력적이다.
 
 ## 핵심 기능
 
@@ -211,3 +210,6 @@ LangFlow는 AI 워크플로우 구축을 위한 시각적 도구로서 잠재력
 - [LangFlow 공식 문서](https://docs.langflow.org/)
 - [YouTube: LangFlow 비교 영상](https://www.youtube.com/watch?v=_vrq_RRQKGs)
 - [Reddit: LangFlow vs Flowise vs n8n vs Make 토론](https://www.reddit.com/r/langflow/comments/1ij66dl/langflow_vs_flowise_vs_n8n_vs_make/)
+
+> [!info]
+> 이 글은 [[데블챌 데이터 블로그 챌린지]] 참여 글입니다.

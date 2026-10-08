@@ -16,6 +16,8 @@ summary: "Claude Code, Codex, Gemini CLI 같은 AI 에이전트들이 \"CSV를 J
 ---
 ![Clidex Logo](https://raw.githubusercontent.com/syshin0116/clidex/main/assets/logo.gif)
 
+Clidex는 LLM과 AI 에이전트를 위한 CLI 도구 검색기다. 에이전트는 `grep`이나 `find` 같은 기본 명령어는 자연스럽게 쓰지만, `ripgrep`, `fd`, `bat` 같은 더 좋은 대안 도구의 존재를 모른다. Clidex는 어떤 도구가 있고 어떻게 설치하는지를 구조화된 데이터로 알려줘서, 에이전트가 웹 검색 없이 도구를 찾아 바로 설치할 수 있게 한다.
+
 ---
 
 ## 동기

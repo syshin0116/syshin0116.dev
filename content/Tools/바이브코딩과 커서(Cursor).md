@@ -16,12 +16,9 @@ summary: "바이브코딩은 코딩에 대한 즐거움과 몰입을 중시하�
 published: 2025-06-02
 modified: 2025-06-02
 ---
-> [!info]
-> 이 글은 [[데블챌 데이터 블로그 챌린지]] 참여 글입니다.
-
 ## 바이브코딩이란?
 
-바이브코딩(Vibe Coding)은 단순히 코드를 작성하는 것을 넘어 개발 과정에서의 몰입과 즐거움을 중요시하는 개발 철학이다. 전통적인 코딩 방식에서는 구문 오류, 디버깅, 반복적인 작업 등으로 인해 개발의 흐름이 끊기는 경우가 많았다. 바이브코딩은 이러한 방해 요소를 최소화하고, 개발자가 창의적인 문제 해결과 설계에 집중할 수 있도록 한다.
+바이브코딩(Vibe Coding)은 개발자가 코드를 직접 짜는 대신 AI 코딩 에이전트에 자연어로 원하는 것을 설명하고 구현을 맡기는 개발 방식이다. 이 글은 바이브코딩의 개념과 장점, 직접 겪은 경험을 소개하고, 대표 도구인 Cursor의 기능과 고급 활용법, MCP 활용까지 정리한다.
 
 바이브코딩은 전 Tesla AI 디렉터이자 OpenAI의 설립 멤버인 Andrej Karpathy가 처음 사용한 용어로, "코딩에 별로 공수를 들이지 않고 LLM에게 다 시켜서 바이브대로 간다"는 의미를 담고 있다. 이것이 가능해진 이유는 Cursor와 같은 도구가 발전했고, 최근 LLM 모델들의 코딩 능력이 크게 향상되었기 때문이다.
 
@@ -218,3 +215,6 @@ USB-C 포트와 같이, MCP는 LLM 호스트(Cursor, Claude)와 다양한 애플
 - [Smithery Context7](https://smithery.ai/server/@upstash/context7-mcp) 
 - [Vibe-Coding Wikipedia](https://en.wikipedia.org/wiki/Vibe_coding)
 - [What is vibe coding?](https://www.ibm.com/think/topics/vibe-coding)
+
+> [!info]
+> 이 글은 [[데블챌 데이터 블로그 챌린지]] 참여 글입니다.

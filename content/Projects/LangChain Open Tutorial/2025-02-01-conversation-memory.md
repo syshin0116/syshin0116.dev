@@ -19,10 +19,6 @@ modified: 2025-02-01
 
 - Author: [syshin0116](https://github.com/syshin0116)
 
-- Design:
-
-- Peer Review:
-
 - This is a part of [LangChain Open Tutorial](https://github.com/LangChain-OpenTutorial/LangChain-OpenTutorial)
 
   
@@ -35,7 +31,7 @@ modified: 2025-02-01
 
   
 
-In modern AI systems, **memory management** is essential for crafting **personalized and context-aware** user experiences. Without the ability to recall prior messages, an AI assistant would quickly become repetitive and less engaging. This updated code demonstrates a robust approach to handling both **short-term** and **long-term** memory in a conversational setting, by integrating:
+This tutorial builds a LangGraph conversational agent that remembers users across turns by handling both **short-term** and **long-term** memory. Without the ability to recall prior messages, an AI assistant would quickly become repetitive and less engaging. The implementation integrates:
 
   
 

@@ -14,14 +14,9 @@ enableToc: true
 description: 흩어져 있던 4개 레포를 3개로 재편하고, 블로그와 포트폴리오를 하나로 합치는 리팩토링 계획.
 summary: "portfolio-web, portfolio-ai, nuartz, syshin0116.github.io 4개 레포를 syshin0116.dev + blog-rag + nuartz 3개로 재편한다. syshin0116.dev는 Nuartz 기반 블로그 + 포트폴리오 통합 사이트, blog-rag는 Modular RAG 백엔드다. MoAI-ADK의 SPEC-First 방식을 blog-rag 설계에 도입하기로 했다."
 ---
-> [!info] 관련 글
-> 레포 재편 결정 과정은 [[Projects/Nuartz/04-Headless-and-Ecosystem|Nuartz - Headless 설계와 레포 생태계 재편]]에서 먼저 다뤘다.
-
----
-
 ## 왜 다시 리팩토링인가
 
-[[Projects/Nuartz/04-Headless-and-Ecosystem|Headless 설계 글]]에서 레포 재편 방향을 잡았다. 그 이후 실제로 작업에 들어가면서 생각이 더 구체화됐다.
+블로그, 포트폴리오, RAG 백엔드, 라이브러리로 나뉜 레포 4개를 3개로 줄이고, 블로그와 포트폴리오를 syshin0116.dev 한 사이트로 합치기로 했다. 레포 재편 방향은 [[Projects/Nuartz/04-Headless-and-Ecosystem|Nuartz - Headless 설계와 레포 생태계 재편]]에서 처음 잡았고, 실제로 작업에 들어가면서 생각이 더 구체화됐다.
 
 기존 구조의 문제를 한 줄로 요약하면 이렇다: **블로그가 있는데 포트폴리오가 없고, 포트폴리오가 있는데 블로그가 없다.**
 

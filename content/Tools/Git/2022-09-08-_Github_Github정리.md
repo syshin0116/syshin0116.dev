@@ -5,7 +5,7 @@ tags:
 - github
 draft: false
 enableToc: true
-summary: "<img width=\"900\" alt=\"Screen Shot 2022-09-09 at 12 50 10 AM\" src=\"https://t1.daumcdn.net/cfile/tistory/993CCF4B5F17C75211 출처: [https://ux.stories.pe.kr/182 [UX 공작소:티스토리]](https://ux.stories.pe.kr/182)"
+summary: "Git과 Github의 개념, Github을 쓰는 이유와 기본 사용법을 정리한다."
 published: 2022-09-08 02:35:29 +0900
 modified: 2022-09-08 02:35:29 +0900
 categories:

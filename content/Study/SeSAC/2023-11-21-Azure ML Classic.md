@@ -8,7 +8,7 @@ tags:
 - Data-Science
 draft: false
 enableToc: true
-summary: "1. https://studio.azureml.net/ 접속 1. Experiments > Blank Experiment"
+summary: "1. 접속 1. Experiments Blank Experiment"
 published: 2023-11-21 14:58 +0900
 modified: 2023-11-21 14:58 +0900
 layout: post
