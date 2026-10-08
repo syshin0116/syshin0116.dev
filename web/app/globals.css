@@ -679,6 +679,9 @@ a.tag {
 .reading-column { max-width: 72ch; margin-inline: auto; }
 .prose > :first-child { margin-top: 0; }
 .prose table { display: block; overflow-x: auto; }
+.prose .katex-display { overflow-x: auto; overflow-y: hidden; }
+.prose iframe { max-width: 100%; }
+.prose iframe[src*="youtube.com/embed"] { height: auto; aspect-ratio: 16 / 9; }
 /* Korean breaks on 어절, not on arbitrary characters. `anywhere` split both Hangul
    words and English identifiers mid-token. Long unbreakable strings are handled per
    element below. */
