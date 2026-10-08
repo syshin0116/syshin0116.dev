@@ -13,7 +13,7 @@ tags:
   - knowledge-management
 draft: false
 enableToc: true
-description: 이 시리즈가 만든 모든 앞단 산출물(인테이크 양식, as-is 맵, 위임 결정, 데이터 계약, feed-forward ADR, federation 규칙)은 도구가 아니라 기질(substrate)에 산다. AI 코딩 도구는 소모 레이어이고, durable substrate는 데이터와 그것이 사는 open format, 접근을 중개하는 open protocol, 그리고 도메인 엔티티 모델이다. tool line이라는 멘탈 모델 하나와 세 가지 내구성 테스트로 정리한다
+description: AI 프로젝트가 남기는 모든 앞단 산출물(인테이크 양식, as-is 맵, 위임 결정, 데이터 계약, feed-forward ADR, federation 규칙)은 도구가 아니라 기질(substrate)에 산다. AI 코딩 도구는 소모 레이어이고, durable substrate는 데이터와 그것이 사는 open format, 접근을 중개하는 open protocol, 그리고 도메인 엔티티 모델이다. tool line이라는 멘탈 모델 하나와 세 가지 내구성 테스트로 정리한다
 summary: "'AX Engineering' 시리즈를 닫는 글. 클로드 코드·Codex·Multica·모델·하니스는 선 위의 소모품이고, 선 아래에는 durable substrate가 있다. open format(markdown/git), open protocol(MCP, AGENTS.md), provider-agnostic entity model. 산업 자체가 이 베팅에 걸었다(Linux Foundation의 Agentic AI Foundation, 2025-12: 소모 도구를 만드는 바로 그 벤더들이 durable substrate를 공동 출자). 'tool line' 멘탈 모델과 세 가지 내구성 테스트(Format/Protocol/Model)로 아무 산출물의 수명을 판정하고, 독자가 이미 만든 Wiki/ADR이 그 기질임을 보인다. 단일 벤더에 조직 메모리를 짓는 함정도 경고한다."
 published: 2026-05-30
 modified: 2026-05-30
@@ -21,9 +21,9 @@ modified: 2026-05-30
 
 ## 들어가며: 도구는 바뀐다, 산출물은 남아야 한다
 
-이 시리즈는 많은 걸 만들었다. 인터뷰로 캔 요구사항, 현행 업무 맵, 인테이크 양식, 위임 결정, 데이터 계약, feed-forward ADR, federation 규칙. 그런데 그것들을 *만든 도구*는 끊임없이 바뀐다. Cursor, 클로드 코드, Codex, Gemini CLI, Junie. "격주마다 새 출시"가 농담이 아니고, 모델조차 빠르게 상품화(commoditize)되어 서로 갈아 끼울 수 있게 됐다.[^churn]
+AI 프로젝트는 많은 산출물을 남긴다. 인터뷰로 캔 요구사항, 현행 업무 맵, 인테이크 양식, 위임 결정, 데이터 계약, 결정 기록(ADR), 팀 간 지식 통합 규칙. 그런데 그것들을 *만든 도구*는 끊임없이 바뀐다. Cursor, 클로드 코드, Codex, Gemini CLI, Junie. "격주마다 새 출시"가 농담이 아니고, 모델조차 빠르게 상품화(commoditize)되어 서로 갈아 끼울 수 있게 됐다.[^churn]
 
-그래서 진짜 질문은 "어떤 도구를 쓸까"가 아니다. **"그 도구가 사라져도 산출물이 남는가"**다. BCG의 10-20-70을 마지막으로 한 번 더 보자. AI 가치의 10%만 알고리즘(도구)이고, **70%는 사람과 프로세스**다.[^bcg] 도구는 그 10%다. 이 시리즈가 만든 모든 것은 나머지 90%에 속한다.
+그래서 진짜 질문은 "어떤 도구를 쓸까"가 아니다. **"그 도구가 사라져도 산출물이 남는가"**다. BCG의 10-20-70 법칙에 따르면 AI 가치의 10%만 알고리즘(도구)이고, 20%는 기술과 데이터, **70%는 사람과 프로세스**다.[^bcg] 도구는 그 10%다. 위에 나열한 산출물은 모두 나머지 90%에 속한다.
 
 결론을 먼저 적는다.
 

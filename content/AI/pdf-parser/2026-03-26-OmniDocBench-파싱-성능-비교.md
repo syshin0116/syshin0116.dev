@@ -19,7 +19,7 @@ modified: 2026-03-26
 ---
 ## 왜 OmniDocBench인가
 
-[[2026-03-23-MinerU-2x-파이프라인-분석|이전 글들]]에서 READoc 벤치마크(Edit Similarity)로 파서를 비교했지만, 이 메트릭은 **전체 텍스트 유사도만 측정**한다. 테이블 구조가 정확한지, 수식이 LaTeX로 변환되었는지, 읽기 순서가 맞는지는 알 수 없다.
+PDF 파서 비교에 흔히 쓰는 READoc 벤치마크(Edit Similarity)는 **전체 텍스트 유사도만 측정**한다([[2026-03-23-MinerU-2x-파이프라인-분석|이전 글들]]의 비교도 이 메트릭이었다). 테이블 구조가 정확한지, 수식이 LaTeX로 변환되었는지, 읽기 순서가 맞는지는 알 수 없다.
 
 OmniDocBench(CVPR 2025)는 이 한계를 해결한다:
 - **텍스트**: Normalized Edit Distance

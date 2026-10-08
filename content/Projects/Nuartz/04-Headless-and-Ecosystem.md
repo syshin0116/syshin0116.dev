@@ -12,10 +12,7 @@ enableToc: true
 description: Nuartz를 UI 없는 데이터 레이어로 유지하기로 결정한 이유, 그리고 개인 블로그/포트폴리오를 포함한 레포 생태계를 어떻게 재편했는지 기록한다.
 summary: "Nuartz를 headless로 유지하기로 했다. 공식 데모 사이트와 개인 포트폴리오가 UI가 달라야 해서, packages/nuartz는 데이터 레이어만 export한다. 기존 4개 레포(syshin0116.github.io, portfolio-web, portfolio-ai, nuartz)를 nuartz + syshin0116.dev + blog-rag 3개로 재편했다."
 ---
-> [!info] 이전 글
-> Nuartz 첫 배포 과정은 [[03-Vercel-Deployment|이전 글]]에서 다뤘다.
-
-Phase 1 배포를 마치고 나서 다음 단계를 준비하다 보니 두 가지 질문이 생겼다.
+Obsidian 노트를 Next.js로 서빙하는 라이브러리 Nuartz의 첫 배포([[03-Vercel-Deployment|이전 글]])를 마치고 나서 다음 단계를 준비하다 보니 두 가지 질문이 생겼다.
 
 1. **Nuartz는 어디까지 담당해야 하나?** 마크다운 파싱만? 아니면 사이드바, 내비게이션 같은 UI 컴포넌트까지?
 2. **블로그와 포트폴리오를 어떻게 구성하지?** 기존에 흩어져 있는 레포들을 어떻게 정리할까?
