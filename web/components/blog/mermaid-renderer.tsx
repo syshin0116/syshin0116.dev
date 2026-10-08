@@ -18,6 +18,13 @@ export function MermaidRenderer() {
         // Only diagrams the build-time renderer skipped reach here; neutral keeps
         // them close to its grayscale look.
         theme: document.documentElement.classList.contains("dark") ? "dark" : "neutral",
+        // Mermaid 12 defaults to the ELK layout and the neo look, which ignore
+        // subgraph `direction` and collide self-loop labels in our posts, and
+        // narrows flowchart labels (wrap at 120px, 120px minimum width). These
+        // keep the Mermaid 11 rendering.
+        layout: "dagre",
+        look: "classic",
+        flowchart: { wrappingWidth: 200, minNodeWidth: 0 },
         securityLevel: "strict",
       })
       for (const block of Array.from(blocks)) {
