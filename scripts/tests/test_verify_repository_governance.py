@@ -2735,6 +2735,7 @@ runs:
             "bun:/web:web-langgraph": [
                 "@langchain/core",
                 "@langchain/langgraph*",
+                "@langchain/react",
             ],
             "bun:/web:web-auth": ["@auth/*", "next-auth"],
             "bun:/web:web-neon": ["@neondatabase/*"],

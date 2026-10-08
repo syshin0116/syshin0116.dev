@@ -337,7 +337,11 @@ EXPECTED_DEPENDABOT = {
                 {
                     "name": "web-langgraph",
                     "applies_to": "version-updates",
-                    "patterns": ["@langchain/core", "@langchain/langgraph*"],
+                    "patterns": [
+                        "@langchain/core",
+                        "@langchain/langgraph*",
+                        "@langchain/react",
+                    ],
                     "exclude_patterns": [],
                     "update_types": ["major", "minor", "patch"],
                 },

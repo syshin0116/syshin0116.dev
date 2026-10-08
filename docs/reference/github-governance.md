@@ -399,7 +399,8 @@ the OpenAI Python SDK (`openai`), the direct QuickJS Rust binding
 `lucide-react`, React/React DOM and their type packages, and NumPy remain
 isolated bump PRs. The Bun limit equals its 10 possible group PRs, so all nine
 focused compatibility updates can coexist without starving the routine monthly
-rollup. React and icon updates require focused build/browser evidence, Neon
+rollup. `@langchain/react` shares the LangGraph group because each release pins
+one exact `@langchain/langgraph-sdk` version. React and icon updates require focused build/browser evidence, Neon
 updates require the Auth.js adapter type contract, and TypeScript updates
 must be validated against the pinned ESLint/Bun/Next toolchain. NumPy is part of the
 persisted BM25 artifact provenance contract; the other exclusions can change an
