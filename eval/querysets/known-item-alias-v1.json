@@ -1,8 +1,8 @@
 {
   "corpus": {
     "document_count": 338,
-    "fingerprint": "sha256:0d62169ff28079e13f1a7bb8c027e3dca5f78b50953f7cf3da48e3de1ab72aeb",
-    "git_tree_sha": "b0b603f1bf4a5dbe920acf144d01e2dbd073703e"
+    "fingerprint": "sha256:d48de943f09fd69602309ce2c7075134431c51e15a2d7c733c1b76e03d5313c2",
+    "git_tree_sha": "8ac60c5a8d538bcc72be4169542e7a4121882ce9"
   },
   "dataset_id": "known-item-alias-v1",
   "dataset_kind": "known-item",
@@ -240,7 +240,7 @@
   "provenance": {
     "generator": "blogeval.wikilink-aliases",
     "generator_version": 1,
-    "included_occurrence_count": 140,
+    "included_occurrence_count": 139,
     "source_artifacts": [
       {
         "derived_from": [
@@ -248,10 +248,10 @@
         ],
         "path": "wikilinks.json",
         "schema": "published-wikilinks-v2",
-        "sha256": "sha256:ead979aab7fe6ea766d3511d6882d80807d351e727f712a7b4419a938d1deae9"
+        "sha256": "sha256:567d1390adfd4b9fea75a399809f2554311a402388258fe684c52cca103285c4"
       }
     ],
-    "source_occurrence_count": 164
+    "source_occurrence_count": 163
   },
   "qrels": [
     {
@@ -453,21 +453,6 @@
       "query_id": "alias-6b44d1b9e0060b17",
       "relevant_doc_ids": [
         "AI/pdf-parser/2026-03-26-Docling-PDF-파서-분석.md"
-      ]
-    },
-    {
-      "evidence": [
-        {
-          "kind": "wikilink-alias",
-          "occurrences": 1,
-          "source_doc_id": "Projects/syshin0116-dev/00-Overview.md",
-          "target": "Projects/Nuartz/04-Headless-and-Ecosystem"
-        }
-      ],
-      "query": "Headless 설계 글",
-      "query_id": "alias-51711a968135fa54",
-      "relevant_doc_ids": [
-        "Projects/Nuartz/04-Headless-and-Ecosystem.md"
       ]
     },
     {
