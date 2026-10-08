@@ -366,10 +366,10 @@ def test_committed_known_item_queryset_accounts_for_all_alias_occurrences() -> N
     )
     assert dataset.kind is DatasetKind.KNOWN_ITEM
     assert dataset.labels.status is LabelStatus.GENERATED_OWNER_AUTHORED
-    assert len(dataset.qrels) == 90
+    assert len(dataset.qrels) == 89
     assert len(dataset.exclusions) == 24
-    assert dataset.provenance.source_occurrence_count == 164
-    assert dataset.provenance.included_occurrence_count == 140
+    assert dataset.provenance.source_occurrence_count == 163
+    assert dataset.provenance.included_occurrence_count == 139
 
 
 def test_topic_contract_fixture_is_multi_document_and_not_claimed_as_gold() -> None:

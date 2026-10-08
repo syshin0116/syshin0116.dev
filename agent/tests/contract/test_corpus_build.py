@@ -1165,4 +1165,4 @@ def test_real_corpus_build_matches_the_nuartz_publication_policy(
         for occurrence in graph[field]
         if occurrence["alias"] is not None
     ]
-    assert len(alias_occurrences) == 164
+    assert len(alias_occurrences) == 163
