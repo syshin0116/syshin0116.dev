@@ -21,10 +21,6 @@ modified: 2025-02-13
 
 - Author: [syshin0116](https://github.com/syshin0116)
 
-- Design:
-
-- Peer Review:
-
 - This is a part of [LangChain Open Tutorial](https://github.com/LangChain-OpenTutorial/LangChain-OpenTutorial)
 
   

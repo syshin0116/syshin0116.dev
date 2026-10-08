@@ -12,9 +12,9 @@ description: "nuartz의 검색 엔진을 FlexSearch에서 Pagefind로 마이그�
 
 ## 왜 마이그레이션했나
 
-nuartz의 검색 기능은 원래 FlexSearch 기반이었다. 동작은 했지만, Nextra 등 다른 문서 사이트 프레임워크를 리서치하던 중 Pagefind를 발견했다. Pagefind는 CloudCannon에서 만든 정적 사이트 검색 라이브러리로, Rust/WASM 기반에 BM25 랭킹을 사용한다.
+Next.js로 빌드하는 nuartz의 검색 엔진을 FlexSearch에서 Pagefind로 바꿨다. FlexSearch도 동작은 했지만, Nextra 등 다른 문서 사이트 프레임워크를 리서치하던 중 발견한 Pagefind를 직접 테스트해 보니 검색 품질 차이가 확연했다. Pagefind는 CloudCannon에서 만든 정적 사이트 검색 라이브러리로, Rust/WASM 기반에 BM25 랭킹을 사용한다.
 
-직접 테스트해 보니 검색 품질 차이가 확연했다. FlexSearch는 단순 토큰 매칭이라 의도와 다른 결과가 상위에 올라오는 경우가 많았고, Pagefind의 BM25 기반 랭킹은 사용자의 검색 의도에 훨씬 가까운 결과를 보여줬다.
+FlexSearch는 단순 토큰 매칭이라 의도와 다른 결과가 상위에 올라오는 경우가 많았고, Pagefind의 BM25 기반 랭킹은 사용자의 검색 의도에 훨씬 가까운 결과를 보여줬다.
 
 ## FlexSearch vs Pagefind 비교
 

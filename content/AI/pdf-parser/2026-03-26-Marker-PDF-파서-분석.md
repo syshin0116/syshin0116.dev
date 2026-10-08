@@ -11,7 +11,7 @@ tags:
 draft: false
 enableToc: true
 description: Marker v1.10.1의 내부 구조를 분석하고 READoc 벤치마크로 성능을 평가한다. Surya OCR 기반의 ML 파서로, 성공한 문서에서 80.6% Edit Similarity(5개 파서 중 최고)를 달성하지만, 63%의 문서에서 에러가 발생하여 안정성에 문제가 있다.
-summary: "Marker는 Vik Paruchuri(Datalab)가 개발한 GPL-3.0 PDF 파서로, Surya OCR 기반이다. READoc 벤치마크에서 성공한 문서의 **80.6% Edit Similarity(5개 파서 중 최고)**를 기록했지만, 63%의 문서에서 에러가 발생하여 **안정성이 최대 약점**이다."
+summary: "Marker는 Vik Paruchuri(Datalab)가 개발한 GPL-3.0 PDF 파서로, Surya OCR 기반이다. READoc 벤치마크에서 성공한 문서의 80.6% Edit Similarity(5개 파서 중 최고)를 기록했지만, 63%의 문서에서 에러가 발생하여 안정성이 최대 약점이다."
 published: 2026-03-26
 modified: 2026-03-26
 ---

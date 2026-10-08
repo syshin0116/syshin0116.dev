@@ -16,6 +16,8 @@ published: 2026-07-16
 modified: 2026-07-16
 ---
 
+AKS 위에서 ARC로 운영하던 GitHub Actions 셀프호스티드 러너에서, 어느 날 오후 PR CI가 30~40분씩 큐에 머물고 테스트 job이 줄줄이 `cancelled`로 실패했다. 러너, 오토스케일, 노드 상태는 모두 정상이었지만, 원인은 러너 노드풀에 쓴 Azure B시리즈(burstable) VM의 CPU 크레딧 고갈이었다. 이 글은 원인을 추적한 진단 과정, B시리즈 크레딧의 작동 원리, non-burstable VM으로 바꿀 때의 실제 가격 차이를 정리한다.
+
 ## 배경: 셀프호스티드 러너 구성
 
 먼저 이 장애를 이해하는 데 필요한 만큼만 CI 인프라 구성을 설명한다. GitHub Actions의 기본 hosted runner 대신, AKS 클러스터 위에 [ARC(actions-runner-controller)](https://github.com/actions/actions-runner-controller)의 gha-runner-scale-set으로 셀프호스티드 러너를 직접 운영하는 구성이다.

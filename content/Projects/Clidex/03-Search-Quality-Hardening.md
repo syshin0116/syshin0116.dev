@@ -13,10 +13,7 @@ tags:
 draft: false
 enableToc: true
 description: "Clidex의 검색 알고리즘 버그 수정(fuzzy anchor, synonym gate, edit distance), 테스트를 adversarial fixture + 실제 인덱스 기반으로 강화하고, crates.io/PyPI 데이터 소스를 확장한 과정."
-summary: |
-  [이전 글](/projects/clidex/02-search-improvement)에서 데이터 파이프라인을 확장해 커버리지 91%, 정확도 82%를 달성했다. 하지만 코드 리뷰를 통해 검색 알고리즘의 **구조적 문제 3가지**가 드러났고, 20개 도구 fixture(고정 테스트 데이터)에서 100% 통과하던 테스트가 실제 품질을 충분히 검증하지 못한다는 점도 확인됐다. 이 글은 알고리즘 버그 수정, 테스트 정교화, 데이터 소스 확장을 기록한다.
-  
-  모든 수치는 로컬 인덱스(`~/.clidex/index.yaml`, 2026-04-02 빌드, 5,277개 도구) 기준이다.
+summary: "커버리지 91%, 정확도 82%까지 올린 CLI 도구 검색기 Clidex에서 코드 리뷰로 검색 알고리즘의 구조적 문제 3가지가 드러났고, 20개 도구 fixture(고정 테스트 데이터)에서 100% 통과하던 테스트가 실제 품질을 충분히 검증하지 못한다는 점도 확인됐다. 이 글은 알고리즘 버그 수정, 테스트 정교화, 데이터 소스 확장을 기록한다. 모든 수치는 로컬 인덱스(`~/.clidex/index.yaml`, 2026-04-02 빌드, 5,277개 도구) 기준이다."
 published: 2026-04-04
 ---
 
