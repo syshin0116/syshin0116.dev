@@ -15,8 +15,8 @@ and query-set identity must all agree on the same full Git tree SHA.
 ## Query sets
 
 - `querysets/known-item-alias-v1.json` is generated from the published
-  `wikilinks.json` artifact. The source has 164 aliased-link occurrences: 140 included
-  occurrences collapse to 90 unique, single-target known-item qrels and 24 occurrences
+  `wikilinks.json` artifact. The source has 163 aliased-link occurrences: 139 included
+  occurrences collapse to 89 unique, single-target known-item qrels and 24 occurrences
   are retained as explicit exclusions (conflicting alias targets, ambiguous targets,
   self-links, or unresolved targets). Its label status is
   `generated-owner-authored`, not `owner-reviewed`; it is useful for comparisons but
@@ -240,7 +240,7 @@ Promotion into the retrieval-method catalogue requires all of these external che
    identity, and every regenerated result projection.
 4. Only after that command succeeds may its result digest be copied into the catalogue.
 
-The currently committed 90-query set intentionally fails step 3 until its qrels receive
+The currently committed 89-query set intentionally fails step 3 until its qrels receive
 an explicit owner review. `topic-smoke-v1` cannot reach the workflow at all until its
 owner review is sealed and finalized. No evaluation result is claimed as published gold.
 
