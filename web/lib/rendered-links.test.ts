@@ -45,7 +45,7 @@ describe("rewriteRenderedLinks", () => {
 
   test("a hash in link text stays in the link", async () => {
     const { html, inlineTags } = await render("[Spotify's Failed #SquadGoals (Jeremiah Lee)](https://example.com/a)")
-    expect(html).toContain('<a href="https://example.com/a">Spotify\'s Failed #SquadGoals</a> (Jeremiah Lee)')
+    expect(html).toBe('<p><a href="https://example.com/a">Spotify\'s Failed #SquadGoals (Jeremiah Lee)</a></p>')
     expect(inlineTags).toEqual([])
   })
 
@@ -54,6 +54,17 @@ describe("rewriteRenderedLinks", () => {
     expect(html).toContain('Plan: <a href="/blog/tags/E1" class="tag" data-tag="E1">#E1</a> 작업')
     expect(html).toContain("변수(#E1, 등)")
     expect(inlineTags).toEqual(["E1"])
+  })
+
+  test("an escaped hash is text even when the same tag is real elsewhere", async () => {
+    const { html, inlineTags } = await render("진짜 #python 태그와 이스케이프한 \\#python")
+    expect(html).toBe('<p>진짜 <a href="/blog/tags/python" class="tag" data-tag="python">#python</a> 태그와 이스케이프한 #python</p>')
+    expect(inlineTags).toEqual(["python"])
+  })
+
+  test("hashes inside code are not counted against later prose tags", async () => {
+    const { inlineTags } = await render("```\nx = 1  # \\#skip\n```\n\n`a\\#python` 다음 #python")
+    expect(inlineTags).toEqual(["python"])
   })
 
   test("escaped and mid-word hashes are text, as in Obsidian", async () => {
