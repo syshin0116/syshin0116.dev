@@ -35,6 +35,11 @@ describe("rewriteRenderedLinks", () => {
     expect(inlineTags).toEqual(["RMSE", "nested/child", "adsp중요"])
   })
 
+  test("tags keep combining marks of the continuing script", async () => {
+    const { inlineTags } = await render("본문 #aनमस्ते 끝")
+    expect(inlineTags).toEqual(["aनमस्ते"])
+  })
+
   test("a URL fragment stays inside its autolink and is not a tag", async () => {
     const url = "https://cloud.google.com/compute/docs/instances/ssh#third-party-tools"
     const { html, inlineTags } = await render(`${url}\n\nhttps://x.com/a#b/c 접속`)
