@@ -66,6 +66,11 @@ describe("rewriteRenderedLinks", () => {
     expect(inlineTags).toEqual(["tag"])
   })
 
+  test("hashes in indented code and table cells keep later tags aligned", async () => {
+    const { inlineTags } = await render("    value#tag\n\n| a | #cell |\n|---|---|\n| b#tag | c |\n\n다음 #tag")
+    expect(inlineTags).toEqual(["cell", "tag"])
+  })
+
   test("a hash right after a link that does not contain it stays outside the link", async () => {
     const { html } = await render("[foo](https://example.com)#bar")
     expect(html).toBe('<p><a href="https://example.com">foo</a>#bar</p>')

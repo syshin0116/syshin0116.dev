@@ -1,4 +1,5 @@
 import path from "node:path"
+import { marked, type Token } from "marked"
 import { tagPath } from "./tag"
 
 export interface RenderedLinkContext {
@@ -93,10 +94,39 @@ function safeDecode(value: string): string {
 
 // What nuartz turns into a tag anchor (ASCII start) plus the continuation it misses.
 const MARKDOWN_HASH = /#[a-zA-Z][a-zA-Z0-9_-]*(?:[\p{L}\p{N}_-]|\/(?=[\p{L}\p{N}_-]))*/gu
-// Markdown nuartz never scans for tags: frontmatter, code, comments, link destinations,
-// HTML tags, and wikilink targets (only an alias is displayed).
-const NOT_SCANNED = /^---\n[\s\S]*?\n---|```[\s\S]*?```|~~~[\s\S]*?~~~|(`+)[\s\S]*?[^`]\1(?!`)|%%[\s\S]*?%%|\]\([^)]*\)|<[^>\n]*>|\[\[[^\]|]*\|?/g
+// Source nuartz never renders as text: frontmatter and Obsidian comments.
+const NOT_RENDERED = /^---\n[\s\S]*?\n---|%%[\s\S]*?%%/g
+// A wikilink displays only its alias, so the target never reaches the tag plugin.
+const WIKILINK_TARGET = /\[\[[^\]|]*\|?/g
 const MARKDOWN_LINK = /\[((?:[^[\]]|\[[^\]]*\])*)\]\(\s*<?([^)\s>]*)/g
+// Stand-ins that are neither whitespace nor tag characters.
+const ESCAPED_HASH = "\u0001#"
+const NOT_TEXT = "\u0002"
+const BLOCK_TOKENS = new Set(["paragraph", "heading", "blockquote", "list_item", "br"])
+
+/** The text nodes nuartz scans for tags, in document order, with block boundaries as newlines. */
+function renderedText(tokens: Token[], out: string[] = []): string[] {
+  for (const token of tokens) {
+    if (token.type === "code" || token.type === "codespan" || token.type === "html" || token.type === "image") {
+      out.push(NOT_TEXT)
+    } else if (token.type === "escape") {
+      out.push(token.text === "#" ? ESCAPED_HASH : token.text)
+    } else if (token.type === "table") {
+      for (const cell of [...token.header, ...token.rows.flat()]) renderedText(cell.tokens, out).push("\n")
+    } else if (token.type === "list") {
+      for (const item of token.items) renderedText(item.tokens, out).push("\n")
+    } else if ("tokens" in token && token.tokens) {
+      if (BLOCK_TOKENS.has(token.type)) out.push("\n")
+      renderedText(token.tokens, out)
+      if (BLOCK_TOKENS.has(token.type)) out.push("\n")
+    } else if (token.type === "text") {
+      out.push(token.text)
+    } else if (BLOCK_TOKENS.has(token.type) || token.type === "space") {
+      out.push("\n")
+    }
+  }
+  return out
+}
 
 /**
  * Whether each `#tag` occurrence nuartz will link, in document order, is a tag by
@@ -104,11 +134,12 @@ const MARKDOWN_LINK = /\[((?:[^[\]]|\[[^\]]*\])*)\]\(\s*<?([^)\s>]*)/g
  * So `ssh#x`, `(#E1` and `\#python` stay text even if the same tag appears elsewhere.
  */
 function tagOccurrences(markdown: string): Map<string, boolean[]> {
-  const scanned = markdown.replace(NOT_SCANNED, match => " ".repeat(match.length))
+  const source = markdown.replace(NOT_RENDERED, "")
+  const text = renderedText(marked.lexer(source, { gfm: true })).join("").replace(WIKILINK_TARGET, NOT_TEXT)
   const occurrences = new Map<string, boolean[]>()
-  for (const match of scanned.matchAll(MARKDOWN_HASH)) {
+  for (const match of text.matchAll(MARKDOWN_HASH)) {
     const tag = match[0].slice(1)
-    const valid = match.index === 0 || /\s/.test(scanned[match.index - 1])
+    const valid = match.index === 0 || /\s/.test(text[match.index - 1])
     occurrences.set(tag, [...(occurrences.get(tag) ?? []), valid])
   }
   return occurrences
