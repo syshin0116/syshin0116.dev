@@ -15,11 +15,19 @@ const tagIndex = tagsData as Record<string, TagEntry[]>
 
 export const revalidate = false
 
-// Segments arrive percent-encoded, so a Hangul or spaced tag would never match its
-// tags.json key, and `dynamicParams = false` turned that miss into a 404 before
-// this page ran. Unknown tags still end in notFound() below.
-function tagNameOf(tag: string[]): string {
-  return tag.map(segment => decodeURIComponent(segment)).join("/")
+// Segments arrive percent-encoded here, so a Hangul or spaced tag never matched
+// its tags.json key and `dynamicParams = false` 404'd it before this page ran.
+// Malformed escapes and Object.prototype names must still end in 404, not 500.
+function tagNameOf(tag: string[]): string | undefined {
+  try {
+    return tag.map(segment => decodeURIComponent(segment)).join("/")
+  } catch {
+    return undefined
+  }
+}
+
+function entriesFor(tagName: string | undefined): TagEntry[] | undefined {
+  return tagName !== undefined && Object.hasOwn(tagIndex, tagName) ? tagIndex[tagName] : undefined
 }
 
 export function generateStaticParams() {
@@ -33,7 +41,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { tag } = await params
   const tagName = tagNameOf(tag)
-  if (!tagIndex[tagName]) return {}
+  if (!entriesFor(tagName)) return {}
 
   return {
     title: `#${tagName}`,
@@ -49,7 +57,7 @@ export default async function TagPage({
 }) {
   const { tag } = await params
   const tagName = tagNameOf(tag)
-  const entries = tagIndex[tagName]
+  const entries = entriesFor(tagName)
   if (!entries) notFound()
 
   return (

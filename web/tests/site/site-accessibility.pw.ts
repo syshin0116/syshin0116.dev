@@ -522,6 +522,7 @@ test("tag pages resolve Hangul and spaced tags and reject unknown ones", async (
     expect(response.status(), tag).toBe(200)
     expect(await response.text()).toContain(`#${tag}`)
   }
-  const unknown = await request.get(`/blog/tags/${encodeURIComponent("없는-태그-zz")}`)
-  expect(unknown.status()).toBe(404)
+  for (const target of [`/blog/tags/${encodeURIComponent("없는-태그-zz")}`, "/blog/tags/toString", "/blog/tags/constructor"]) {
+    expect((await request.get(target)).status(), target).toBe(404)
+  }
 })
