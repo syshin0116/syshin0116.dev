@@ -135,4 +135,4 @@ modified: 2022-07-25
 
 객체 탐지와 세그멘테이션은 컴퓨터 비전의 핵심 기술로, 2012년 이후 딥러닝의 발전과 함께 급속도로 발전해왔다. 현재는 One-stage detector와 Two-stage detector의 장점을 결합하거나 새로운 접근 방식을 탐색하는 연구가 활발히 진행되고 있다.
 
-다음 글 [[Tensowflow Deep-Learning Computer-Vision Guide Notes 2|Part 2]]에서는 더 심화된 모델 아키텍처와 실제 구현 방법에 대해 다룰 예정이다. 또한 [[Anomaly Detection|이상 탐지]]와 객체 탐지를 결합한 응용 사례도 살펴볼 것이다.
+다음 글 [[Tensorflow Deep-Learning Computer-Vision Guide Notes 2|Part 2]]에서는 더 심화된 모델 아키텍처와 실제 구현 방법에 대해 다룰 예정이다. 또한 [[Anomaly Detection|이상 탐지]]와 객체 탐지를 결합한 응용 사례도 살펴볼 것이다.

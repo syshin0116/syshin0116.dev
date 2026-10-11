@@ -29,7 +29,7 @@ modified: 2026-03-26
 | **GPU 필요** | X (CPU만으로 동작, GPU 가속 선택) |
 | **모델 크기** | ~500MB (Heron + TableFormer) |
 
-Docling은 GitHub 스타 수 기준으로 가장 인기 있는 PDF 파서다. MIT 라이선스라 상용 프로젝트에 자유롭게 사용할 수 있고, [[MinerU - PDF Parser|MinerU]](AGPL)나 Marker(GPL)와 차별화된다.
+Docling은 GitHub 스타 수 기준으로 가장 인기 있는 PDF 파서다. MIT 라이선스라 상용 프로젝트에 자유롭게 사용할 수 있고, [[MinerU - PDF Parser|MinerU]]\(AGPL)나 Marker(GPL)와 차별화된다.
 
 ---
 
