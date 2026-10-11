@@ -49,6 +49,13 @@ describe("rewriteRenderedLinks", () => {
     expect(inlineTags).toEqual([])
   })
 
+  test("a hash after punctuation is text even when the same tag appears elsewhere", async () => {
+    const { html, inlineTags } = await render("Plan: #E1 작업\n\n변수(#E1, 등)")
+    expect(html).toContain('Plan: <a href="/blog/tags/E1" class="tag" data-tag="E1">#E1</a> 작업')
+    expect(html).toContain("변수(#E1, 등)")
+    expect(inlineTags).toEqual(["E1"])
+  })
+
   test("escaped and mid-word hashes are text, as in Obsidian", async () => {
     const { html, inlineTags } = await render("인스타 \\#python 변수(#E1, C#")
     expect(html).toBe("<p>인스타 #python 변수(#E1, C#</p>")
@@ -74,6 +81,11 @@ describe("rewriteRenderedLinks", () => {
   test("relative links to published media go to the content API", async () => {
     const { html } = await render("![diagram](assets/diagram.png)", "AI/post")
     expect(html).toContain('src="/blog/api/content/AI/assets/diagram.png"')
+  })
+
+  test("media links keep their query and fragment", async () => {
+    const { html } = await render("[diagram](assets/diagram.png#zoom)", "AI/post")
+    expect(html).toContain('href="/blog/api/content/AI/assets/diagram.png#zoom"')
   })
 
   test("site routes, external URLs and unknown paths are left alone", async () => {

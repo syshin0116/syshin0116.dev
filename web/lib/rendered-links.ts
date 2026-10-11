@@ -80,7 +80,7 @@ function rewriteContentUrl(url: string, context: RenderedLinkContext, kind: "a" 
     if (note) return context.notePath(note) + suffix
   }
   if (context.isPublishedMedia(contentPath)) {
-    return `/blog/api/content/${contentPath.split("/").map(encodeURIComponent).join("/")}`
+    return `/blog/api/content/${contentPath.split("/").map(encodeURIComponent).join("/")}${suffix}`
   }
   return url
 }
@@ -133,7 +133,10 @@ export function rewriteRenderedLinks(html: string, context: RenderedLinkContext)
         output.push(text + restored, justClosed.close)
         continue
       }
-      if (!isTagInMarkdown(tag, context.markdown)) {
+      // Per occurrence: the rendered text right before the hash must end a word boundary.
+      // The markdown check then rules out `\#tag`, which renders the same as a real tag.
+      const before = output.at(-1) ?? ""
+      if (!/(?:^|\s|>)$/.test(before) || !isTagInMarkdown(tag, context.markdown)) {
         output.push(text)
         continue
       }
