@@ -48,7 +48,7 @@ modified: 2022-08-11
 
 - **Region Proposal**: 객체가 있을 만한 위치를 제안하는 기법
 
-객체 탐지는 [[Tensorflow Deep-Learning Computer-Vision Guide Notes1|이전 글]]에서 설명한 기본 개념을 확장하여, 실제 응용 분야에서 활용된다. 특히 [[Anomaly Detection|이상 탐지]]와 결합될 때 산업 현장의 결함 감지 등에 유용하게 사용된다.
+객체 탐지는 [[Tensorflow Deep-Learning Computer-Vision Guide Notes 1|이전 글]]에서 설명한 기본 개념을 확장하여, 실제 응용 분야에서 활용된다. 특히 [[Anomaly Detection|이상 탐지]]와 결합될 때 산업 현장의 결함 감지 등에 유용하게 사용된다.
 
 ---
 

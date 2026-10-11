@@ -69,7 +69,7 @@ Nonaka가 말한 *Ba*(지식이 창조되는 공유 맥락/공간)는 여기서 
 
 그런데 사다리를 올리는 *사회적* 구조는 깨지기 쉽다. 이 시리즈를 정직하게 지키려면 가장 유명한 실패를 봐야 한다. **Spotify 모델**이다.
 
-2012년 백서의 길드(guild, 관심 기반 자발적 모임)와 챕터(chapter, 직능 기반)는 "팀을 가로지르는 수평 지식 공유"의 교과서적 형태였고, 수많은 회사가 베꼈다. 그런데 정작 Spotify에서 이건 *스냅샷이지 청사진이 아니었다.* Jeremiah Lee의 "Spotify's Failed #SquadGoals"가 보여주듯, 길드·챕터의 지식 공유는 늘 스쿼드의 딜리버리에 밀렸다. **"자율성은 팀을 효과적으로 만들었지만, 자율적인 팀들의 *집합*은 종종 효과적이지 못했다."**[^spotify]
+2012년 백서의 길드(guild, 관심 기반 자발적 모임)와 챕터(chapter, 직능 기반)는 "팀을 가로지르는 수평 지식 공유"의 교과서적 형태였고, 수많은 회사가 베꼈다. 그런데 정작 Spotify에서 이건 *스냅샷이지 청사진이 아니었다.* Jeremiah Lee의 "Spotify's Failed \#SquadGoals"가 보여주듯, 길드·챕터의 지식 공유는 늘 스쿼드의 딜리버리에 밀렸다. **"자율성은 팀을 효과적으로 만들었지만, 자율적인 팀들의 *집합*은 종종 효과적이지 못했다."**[^spotify]
 
 교훈은 분명하다. **사람이 자발적으로 모이기를 기대하는 지식 집계 층은 딜리버리 압력에 진다.** Communities of Practice도 마찬가지다. 진짜 커뮤니티가 없으면 그 산출물(공유 레퍼토리)은 썩는다.[^cop] 그래서 집계는 "월간 지식공유 회의"가 아니라 *워크플로우 자체*에 배선해야 한다. 이게 이 시리즈가 ADR feed-forward(6편)에 집착한 이유다.
 
@@ -161,6 +161,6 @@ Tanzu의 균형 팀이 관점을 한 명에게 몰아넣지 않고 "먼저 다 �
 [^teamtopo]: Matthew Skelton & Manuel Pais, *Team Topologies*(IT Revolution, 2019). 4개 팀 유형(stream-aligned/enabling/complicated-subsystem/platform)과 3개 상호작용 모드(Collaboration/X-as-a-Service/Facilitating)로 인지 부하를 관리하며 팀 간 지식 흐름을 규율한다. [teamtopologies.com](https://teamtopologies.com/key-concepts).
 [^innersource]: InnerSource(용어: Tim O'Reilly, 2000)는 오픈소스 협업 방식을 사내에 적용한다. Trusted Committer(InnerSource Commons 패턴)는 외부 팀 기여를 검토하고 전문성을 옮기는 cross-team 스튜어드로, 기여(PR)를 공유의 단위로 삼는다. [InnerSource Commons](https://patterns.innersourcecommons.org/p/trusted-committer).
 [^aar]: After-Action Review는 미 육군이 1970년대에 개발한 구조화된 사후 검토(무엇을 하려 했나/실제 무엇이/왜 차이/무엇을 유지·개선)로, 중앙 lessons-learned DB로 흘러든다. 애자일 회고·포스트모템의 원형. [Wikipedia](https://en.wikipedia.org/wiki/After-action_review).
-[^spotify]: Spotify 모델(Kniberg & Ivarsson, 2012 백서)은 청사진이 아니라 스냅샷이었다. Jeremiah Lee, "Spotify's Failed #SquadGoals": 길드·챕터의 지식 공유는 스쿼드 딜리버리에 밀렸고, "자율성은 팀을 효과적으로 만들었지만 자율적 팀들의 집합은 종종 효과적이지 못했다." [jeremiahlee.com](https://www.jeremiahlee.com/posts/failed-squad-goals/).
+[^spotify]: Spotify 모델(Kniberg & Ivarsson, 2012 백서)은 청사진이 아니라 스냅샷이었다. Jeremiah Lee, "Spotify's Failed \#SquadGoals": 길드·챕터의 지식 공유는 스쿼드 딜리버리에 밀렸고, "자율성은 팀을 효과적으로 만들었지만 자율적 팀들의 집합은 종종 효과적이지 못했다." [jeremiahlee.com](https://www.jeremiahlee.com/posts/failed-squad-goals/).
 [^mem0]: Mem0, "State of AI Agent Memory 2026". 멀티 스코프 메모리는 모든 쓰기를 user_id/agent_id/run_id/org_id로 태깅하고, org_id 스코프가 "공유 조직 맥락"이 되어 검색 시점에 종합된다(사람의 개인→팀→조직 사다리와 동형). 실무 블로그 자료로 medium 신뢰. [Mem0](https://mem0.ai/blog/state-of-ai-agent-memory-2026).
 [^datacamp]: DataCamp / YouGov, "The State of Data & AI Literacy 2026"(미국·영국 기업 리더 500명+). 72%가 AI 리터러시를 필수라 답하고 59%가 조직의 AI 역량 격차를 보고. 벤더(교육 기업) 조사라는 점에 유의. federation은 리터러시가 팀 간 평준화돼야 작동한다.

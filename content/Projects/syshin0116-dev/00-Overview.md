@@ -106,7 +106,7 @@ portfolio-ai를 그냥 rename하는 게 아니라 아키텍처를 완전히 재�
 
 ## 개발 방법론: SPEC-First 도입
 
-이번 작업을 시작하면서 [BMAD Method, MoAI-ADK, GitHub Spec Kit 세 가지 AI 개발 방법론을 비교](../../../AI/2026-02-26-AI-개발-방법론-비교-BMAD-MoAI-ADK-Spec-Kit)했다.
+이번 작업을 시작하면서 [BMAD Method, MoAI-ADK, GitHub Spec Kit 세 가지 AI 개발 방법론을 비교](../../AI/2026-02-26-AI-개발-방법론-비교-BMAD-MoAI-ADK-Spec-Kit)했다.
 
 결론은 이렇다: **도구는 Claude Code 그대로, 방법론은 MoAI-ADK의 SPEC-First 아이디어를 가져온다.**
 

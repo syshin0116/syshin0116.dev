@@ -17,10 +17,6 @@ modified: 2025-05-04
 ---
 # Host it!
 
-<p align="center">
-  <img src="./src/app/assets/hostit.png" alt="Host it! Logo" width="150" />
-</p>
-
 ## English
 
 Host it! is a platform that allows you to easily host and use MCP (Model Context Protocol) tools. Even non-developers can interact with AI through a chat interface and utilize various tools without any technical knowledge.
