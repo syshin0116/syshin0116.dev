@@ -41,6 +41,10 @@ function encodeAttribute(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;")
 }
 
+function escapeText(value: string): string {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;")
+}
+
 function safeDecode(value: string): string {
   try {
     return decodeURIComponent(value)
@@ -49,13 +53,37 @@ function safeDecode(value: string): string {
   }
 }
 
+// What nuartz turns into a tag anchor (ASCII start) plus the continuation it misses.
+const MARKDOWN_HASH = /#[a-zA-Z][a-zA-Z0-9_-]*(?:[\p{L}\p{N}_-]|\/(?=[\p{L}\p{N}_-]))*/gu
+// Markdown nuartz never scans for tags: frontmatter, code, comments, link destinations,
+// HTML tags, and wikilink targets (only an alias is displayed).
+const NOT_SCANNED = /^---\n[\s\S]*?\n---|```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]*`|%%[\s\S]*?%%|\]\([^)]*\)|<[^>\n]*>|\[\[[^\]|]*\|?/g
+const MARKDOWN_LINK = /\[((?:[^[\]]|\[[^\]]*\])*)\]\(\s*<?([^)\s>]*)/g
+
 /**
- * Obsidian reads `#tag` as a tag only after whitespace or at a line start, so `ssh#x`,
- * `(#E1` and the escaped `\#tag` are not tags even though nuartz links them.
+ * Whether each `#tag` occurrence nuartz will link, in document order, is a tag by
+ * Obsidian's rules: after whitespace or at a line start, and not escaped as `\#tag`.
+ * So `ssh#x`, `(#E1` and `\#python` stay text even if the same tag appears elsewhere.
  */
-function isTagInMarkdown(tag: string, markdown: string): boolean {
-  const escaped = tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-  return new RegExp(`(?:^|\\s)#${escaped}(?![\\p{L}\\p{N}_/-])`, "u").test(markdown)
+function tagOccurrences(markdown: string): Map<string, boolean[]> {
+  const scanned = markdown.replace(NOT_SCANNED, match => " ".repeat(match.length))
+  const occurrences = new Map<string, boolean[]>()
+  for (const match of scanned.matchAll(MARKDOWN_HASH)) {
+    const tag = match[0].slice(1)
+    const valid = match.index === 0 || /\s/.test(scanned[match.index - 1])
+    occurrences.set(tag, [...(occurrences.get(tag) ?? []), valid])
+  }
+  return occurrences
+}
+
+/** Labels written for each markdown link destination, to restore text nuartz split off. */
+function linkLabels(markdown: string): Map<string, string[]> {
+  const labels = new Map<string, string[]>()
+  for (const [, label, destination] of markdown.matchAll(MARKDOWN_LINK)) {
+    const key = safeDecode(destination)
+    labels.set(key, [...(labels.get(key) ?? []), label])
+  }
+  return labels
 }
 
 /**
@@ -95,6 +123,8 @@ function rewriteContentUrl(url: string, context: RenderedLinkContext, kind: "a" 
  */
 export function rewriteRenderedLinks(html: string, context: RenderedLinkContext): RewrittenLinks {
   const inlineTags: string[] = []
+  const occurrences = tagOccurrences(context.markdown)
+  const labels = linkLabels(context.markdown)
   const output: string[] = []
   const open: OpenLink[] = []
   // The link whose closing markup is the last thing in `output`.
@@ -122,21 +152,24 @@ export function rewriteRenderedLinks(html: string, context: RenderedLinkContext)
       const tag = decodeAttribute(nuartzTag[1]) + continuation
       const text = `#${tag}`
 
+      const occurrence = occurrences.get(tag)?.shift()
+
       if (justClosed) {
-        // The hash was part of the previous link's text: put it back inside, along with
-        // the rest of an autolinked URL that nuartz pushed out after the tag.
+        // The hash was part of the previous link's text: put it back inside, with the rest
+        // of that text (an autolinked URL or the markdown label) nuartz pushed out after it.
         output.pop()
-        const fragmentAt = justClosed.href.indexOf(text)
-        const rest = fragmentAt < 0 ? "" : justClosed.href.slice(fragmentAt + text.length)
-        const restored = rest && html.startsWith(rest, cursor) ? rest : ""
+        const linkText = [justClosed.href, ...(labels.get(safeDecode(justClosed.href)) ?? [])]
+        const restored = linkText.flatMap(candidate => {
+          const at = candidate.indexOf(text)
+          const rest = at < 0 ? "" : escapeText(candidate.slice(at + text.length))
+          return rest && html.startsWith(rest, cursor) ? [rest] : []
+        })[0] ?? ""
         cursor += restored.length
         output.push(text + restored, justClosed.close)
         continue
       }
-      // Per occurrence: the rendered text right before the hash must end a word boundary.
-      // The markdown check then rules out `\#tag`, which renders the same as a real tag.
-      const before = output.at(-1) ?? ""
-      if (!/(?:^|\s|>)$/.test(before) || !isTagInMarkdown(tag, context.markdown)) {
+      const atWordStart = /(?:^|\s|>)$/.test(output.at(-1) ?? "")
+      if (!atWordStart || occurrence === false) {
         output.push(text)
         continue
       }
