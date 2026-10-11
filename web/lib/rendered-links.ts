@@ -41,8 +41,46 @@ function encodeAttribute(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;")
 }
 
-function escapeText(value: string): string {
-  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;")
+const NAMED_ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: "\u00a0" }
+
+function decodeEntity(entity: string): string {
+  const name = entity.slice(1, -1)
+  if (name.startsWith("#x") || name.startsWith("#X")) return String.fromCodePoint(parseInt(name.slice(2), 16))
+  if (name.startsWith("#")) return String.fromCodePoint(Number(name.slice(1)))
+  return NAMED_ENTITIES[name] ?? entity
+}
+
+/**
+ * End index of the HTML starting at `start` whose visible text is `markdown` with its
+ * inline formatting markers removed, including the closing tags of elements it opened,
+ * or -1 when the HTML does not continue with that text.
+ */
+function renderedTextEnd(html: string, start: number, markdown: string): number {
+  const expected = markdown.replace(/[*_~`]|==/g, "")
+  if (!expected) return -1
+  let index = start
+  let matched = 0
+  let depth = 0
+  while (matched < expected.length && index < html.length) {
+    if (html[index] === "<") {
+      const end = html.indexOf(">", index)
+      if (end < 0) return -1
+      depth += html[index + 1] === "/" ? -1 : 1
+      if (depth < 0) return -1
+      index = end + 1
+      continue
+    }
+    const entity = /^&(?:#x[0-9a-f]+|#\d+|[a-z]+);/i.exec(html.slice(index, index + 12))?.[0]
+    const character = entity ? decodeEntity(entity) : html[index]
+    if (character !== expected[matched]) return -1
+    matched += 1
+    index += entity?.length ?? 1
+  }
+  while (depth > 0 && html.startsWith("</", index)) {
+    index = html.indexOf(">", index) + 1
+    depth -= 1
+  }
+  return matched === expected.length && depth === 0 ? index : -1
 }
 
 function safeDecode(value: string): string {
@@ -57,7 +95,7 @@ function safeDecode(value: string): string {
 const MARKDOWN_HASH = /#[a-zA-Z][a-zA-Z0-9_-]*(?:[\p{L}\p{N}_-]|\/(?=[\p{L}\p{N}_-]))*/gu
 // Markdown nuartz never scans for tags: frontmatter, code, comments, link destinations,
 // HTML tags, and wikilink targets (only an alias is displayed).
-const NOT_SCANNED = /^---\n[\s\S]*?\n---|```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]*`|%%[\s\S]*?%%|\]\([^)]*\)|<[^>\n]*>|\[\[[^\]|]*\|?/g
+const NOT_SCANNED = /^---\n[\s\S]*?\n---|```[\s\S]*?```|~~~[\s\S]*?~~~|(`+)[\s\S]*?[^`]\1(?!`)|%%[\s\S]*?%%|\]\([^)]*\)|<[^>\n]*>|\[\[[^\]|]*\|?/g
 const MARKDOWN_LINK = /\[((?:[^[\]]|\[[^\]]*\])*)\]\(\s*<?([^)\s>]*)/g
 
 /**
@@ -162,8 +200,8 @@ export function rewriteRenderedLinks(html: string, context: RenderedLinkContext)
       if (justClosed && linkText.length) {
         output.pop()
         const restored = linkText.flatMap(candidate => {
-          const rest = escapeText(candidate.slice(candidate.indexOf(text) + text.length))
-          return rest && html.startsWith(rest, cursor) ? [rest] : []
+          const end = renderedTextEnd(html, cursor, candidate.slice(candidate.indexOf(text) + text.length))
+          return end > cursor ? [html.slice(cursor, end)] : []
         })[0] ?? ""
         cursor += restored.length
         output.push(text + restored, justClosed.close)
