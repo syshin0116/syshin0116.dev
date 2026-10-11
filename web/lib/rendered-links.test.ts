@@ -56,6 +56,16 @@ describe("rewriteRenderedLinks", () => {
     expect(inlineTags).toEqual(["E1"])
   })
 
+  test("formatting after a hash in a link label stays inside the link", async () => {
+    const { html } = await render("[foo #tag **bar** & baz](https://example.com)")
+    expect(html).toBe('<p><a href="https://example.com">foo #tag <strong>bar</strong> &#x26; baz</a></p>')
+  })
+
+  test("a hash inside a multi-backtick code span does not shift later tags", async () => {
+    const { inlineTags } = await render("``a#tag`` 다음 #tag")
+    expect(inlineTags).toEqual(["tag"])
+  })
+
   test("a hash right after a link that does not contain it stays outside the link", async () => {
     const { html } = await render("[foo](https://example.com)#bar")
     expect(html).toBe('<p><a href="https://example.com">foo</a>#bar</p>')
