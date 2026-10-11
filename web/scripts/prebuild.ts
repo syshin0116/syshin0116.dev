@@ -1,4 +1,4 @@
-import { permalinks } from "../lib/blog-permalinks"
+import { blogPath, permalinks } from "../lib/blog-permalinks"
 /**
  * Prebuild script - generates all static data at build time.
  *
@@ -19,7 +19,7 @@ import { permalinks } from "../lib/blog-permalinks"
 
 import path from "node:path"
 import fs from "node:fs/promises"
-import type { Dirent } from "node:fs"
+import { existsSync, type Dirent } from "node:fs"
 import {
   getAllMarkdownFiles,
   buildFileTree,
@@ -35,6 +35,8 @@ import { makeGeneratedCodeBlocksFocusable } from "../lib/focusable-code-blocks"
 import { renderMermaidDiagrams } from "../lib/mermaid-diagrams"
 import type { Frontmatter, TocEntry } from "nuartz"
 import { isAllowedMediaPath } from "../lib/media"
+import { createLinkResolver } from "../lib/note-resolver"
+import { rewriteRenderedLinks } from "../lib/rendered-links"
 
 const ROOT = path.join(import.meta.dir, "..")
 const CONTENT_DIR = path.join(ROOT, "..", "content")
@@ -154,7 +156,8 @@ async function main() {
   permalinks.validateSources(files.map(file => file.slug), aliases)
 
   const filesBySlug = new Map(files.map(file => [file.slug, file]))
-  const resolveNote = createNoteResolver(files)
+  const linkResolver = createLinkResolver(files)
+  const resolveNote = linkResolver.resolve
   // Wikilink hrefs now carry the public slug, so dead-link detection has to compare
   // against public slugs too. Source slugs would mark every resolved link broken.
   const knownSlugs = new Set(
@@ -177,7 +180,17 @@ async function main() {
           return source ? { content: source.raw, filePath: source.slug + ".md" } : undefined
         },
       })
-      return { file, result }
+      const rewritten = rewriteRenderedLinks(result.html.replaceAll("/api/content/", "/blog/api/content/"), {
+        from: file.slug,
+        markdown: file.raw,
+        resolveNotePath: linkResolver.resolvePath,
+        notePath: blogPath,
+        isPublishedMedia: contentPath =>
+          isAllowedMediaPath(contentPath) && existsSync(path.join(CONTENT_DIR, contentPath)),
+      })
+      const declaredTags = (result.frontmatter.tags as string[] | undefined) ?? []
+      const tags = [...new Set([...declaredTags, ...rewritten.inlineTags])]
+      return { file, result: { ...result, html: rewritten.html, tags } }
     })
   )
   const resultsBySlug = new Map(rendered.map(({ file, result }) => [file.slug, result]))
@@ -186,6 +199,24 @@ async function main() {
   console.log("prebuild: building backlink index...")
   const backlinkIndex = buildBacklinkIndex(new Map(rendered.map(({ file, result }) =>
     [file.slug, { result, raw: file.raw }])))
+  // nuartz files backlinks it cannot resolve under the normalized target; move the ones
+  // the fallback resolver found (undated filenames, titles) to the note they point at.
+  const nuartzResolve = createNoteResolver(files)
+  for (const { file, result } of rendered) {
+    for (const target of result.links) {
+      const resolved = resolveNote(target, file.slug)
+      if (!resolved || resolved === file.slug || nuartzResolve(target, file.slug)) continue
+      const unresolvedKey = normalizeNotePath(target)
+      const entries = backlinkIndex.get(unresolvedKey) ?? []
+      const entry = entries.find(candidate => candidate.slug === file.slug)
+      if (!entry) continue
+      const remaining = entries.filter(candidate => candidate !== entry)
+      if (remaining.length) backlinkIndex.set(unresolvedKey, remaining)
+      else backlinkIndex.delete(unresolvedKey)
+      const existing = backlinkIndex.get(resolved) ?? []
+      if (!existing.some(candidate => candidate.slug === file.slug)) backlinkIndex.set(resolved, [...existing, entry])
+    }
+  }
 
   // 5. Build prev/next nav
   const filesByFolder = new Map<string, typeof files>()
@@ -408,9 +439,7 @@ async function main() {
     // Rewrite generated and retired content URLs without modifying source posts.
     const html = makeGeneratedCodeBlocksFocusable(
       renderMermaidDiagrams(
-        applyContentImageOverrides(
-          result.html.replaceAll("/api/content/", "/blog/api/content/")
-        )
+        applyContentImageOverrides(result.html)
       )
     )
 

@@ -1,0 +1,86 @@
+import { describe, expect, test } from "bun:test"
+import { renderMarkdown } from "nuartz/markdown"
+import { rewriteRenderedLinks, type RenderedLinkContext } from "./rendered-links"
+
+const notes = new Map([
+  ["ai/2026-05-18-tech-intelligence-radar", "AI/2026-05-18-Tech-Intelligence-Radar"],
+  ["dev/2026-07-16-azure-b시리즈-cpu-크레딧", "Dev/2026-07-16-Azure B시리즈 CPU 크레딧"],
+])
+const media = new Set(["AI/assets/diagram.png"])
+
+const context: RenderedLinkContext = {
+  from: "wiki/radar",
+  markdown: "",
+  resolveNotePath: contentPath => notes.get(contentPath.toLowerCase().replace(/\s+/g, "-")),
+  notePath: source => `/blog/${source.split("/").map(encodeURIComponent).join("/")}`,
+  isPublishedMedia: contentPath => media.has(contentPath),
+}
+
+async function render(markdown: string, from = context.from) {
+  const { html } = await renderMarkdown(markdown, {
+    baseUrl: "/blog/",
+    knownSlugs: new Set(["AI/known"]),
+    resolveLink: target => `/blog/${target === "known" ? "AI/known" : target}`,
+  })
+  return rewriteRenderedLinks(html, { ...context, from, markdown })
+}
+
+describe("rewriteRenderedLinks", () => {
+  test("inline tags link once under /blog/tags with each path segment encoded", async () => {
+    const { html, inlineTags } = await render("본문 #RMSE 와 #nested/child 그리고 #adsp중요")
+    expect(html).toContain('<a href="/blog/tags/RMSE" class="tag" data-tag="RMSE">#RMSE</a>')
+    expect(html).toContain('href="/blog/tags/nested/child"')
+    expect(html).toContain(`<a href="/blog/tags/adsp${encodeURIComponent("중요")}" class="tag" data-tag="adsp중요">#adsp중요</a>`)
+    expect(html.match(/class="tag"/g)).toHaveLength(3)
+    expect(inlineTags).toEqual(["RMSE", "nested/child", "adsp중요"])
+  })
+
+  test("a URL fragment stays inside its autolink and is not a tag", async () => {
+    const url = "https://cloud.google.com/compute/docs/instances/ssh#third-party-tools"
+    const { html, inlineTags } = await render(`${url}\n\nhttps://x.com/a#b/c 접속`)
+    expect(html).toContain(`<a href="${url}">${url}</a>`)
+    expect(html).toContain('<a href="https://x.com/a#b/c">https://x.com/a#b/c</a> 접속')
+    expect(inlineTags).toEqual([])
+  })
+
+  test("a hash in link text stays in the link", async () => {
+    const { html, inlineTags } = await render("[Spotify's Failed #SquadGoals (Jeremiah Lee)](https://example.com/a)")
+    expect(html).toContain('<a href="https://example.com/a">Spotify\'s Failed #SquadGoals</a> (Jeremiah Lee)')
+    expect(inlineTags).toEqual([])
+  })
+
+  test("escaped and mid-word hashes are text, as in Obsidian", async () => {
+    const { html, inlineTags } = await render("인스타 \\#python 변수(#E1, C#")
+    expect(html).toBe("<p>인스타 #python 변수(#E1, C#</p>")
+    expect(inlineTags).toEqual([])
+  })
+
+  test("unresolved wikilinks render as text instead of a 404 link", async () => {
+    const { html } = await render("[[Never Written|그 글]] and [[known]]")
+    expect(html).toContain('<span class="wikilink broken" data-target="Never Written">그 글</span>')
+    expect(html).toContain('<a href="/blog/AI/known" class="wikilink" data-target="known">known</a>')
+  })
+
+  test("relative .md links resolve to the note permalink and keep the anchor", async () => {
+    const { html } = await render("[radar](../AI/2026-05-18-Tech-Intelligence-Radar.md#scoring)")
+    expect(html).toContain('href="/blog/AI/2026-05-18-Tech-Intelligence-Radar#scoring"')
+  })
+
+  test("root-relative content paths without /blog resolve to the note", async () => {
+    const { html } = await render("[지난 글](/Dev/2026-07-16-Azure-B시리즈-CPU-크레딧)", "Dev/later")
+    expect(html).toContain(`href="/blog/Dev/2026-07-16-Azure%20B${encodeURIComponent("시리즈")}%20CPU%20${encodeURIComponent("크레딧")}"`)
+  })
+
+  test("relative links to published media go to the content API", async () => {
+    const { html } = await render("![diagram](assets/diagram.png)", "AI/post")
+    expect(html).toContain('src="/blog/api/content/AI/assets/diagram.png"')
+  })
+
+  test("site routes, external URLs and unknown paths are left alone", async () => {
+    const markdown = "[a](/projects) [b](https://example.com/x.md) [c](#local) [d](missing.md) [e](../../../outside.md)"
+    const { html } = await render(markdown, "AI/post")
+    for (const href of ["/projects", "https://example.com/x.md", "#local", "missing.md", "../../../outside.md"]) {
+      expect(html).toContain(`href="${href}"`)
+    }
+  })
+})
