@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Noto_Sans_KR } from "next/font/google";
+// Geist has no Hangul, so Korean fell through to whatever the OS supplied and every
+// visitor saw a different page. Noto Sans KR follows Geist in --font-sans (globals.css)
+// so Latin keeps Geist's shapes. Both are vendored from Google Fonts by
+// scripts/vendor-google-fonts.ts, so the build never downloads them.
+import "./fonts"
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -7,20 +11,6 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { WebMCP } from "@/components/webmcp";
 import { SITE_URL } from "@/lib/site"
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-// Geist has no Hangul, so Korean fell through to whatever the OS supplied and every
-// visitor saw a different page. Declared after Geist so Latin keeps Geist's shapes.
-const notoSansKr = Noto_Sans_KR({
-  variable: "--font-noto-sans-kr",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: {
@@ -121,7 +111,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
         />
       </head>
-      <body className={`${geistSans.variable} ${notoSansKr.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             {children}
