@@ -1,8 +1,8 @@
 {
   "corpus": {
     "document_count": 338,
-    "fingerprint": "sha256:a1e178c591eae535163c4ba39a947d4d7804843c73c1f626e1475868d4359960",
-    "git_tree_sha": "6dd1710efeb11f0f2dbed58b74adbc887610ce7d"
+    "fingerprint": "sha256:0c99823f708e6ff57be28c2a56da70a657b902b236ed449e3e5264b870987738",
+    "git_tree_sha": "7e2c77e65e2e225bac5280d5c8905fa18dd2100d"
   },
   "dataset_id": "known-item-alias-v1",
   "dataset_kind": "known-item",
@@ -136,13 +136,6 @@
       "target": "2026-03-23-MinerU-2x-파이프라인-분석"
     },
     {
-      "candidate_doc_ids": [],
-      "query": "Part 2",
-      "reason": "unresolved-target",
-      "source_doc_id": "AI/Tensorflow Deep-Learning Computer-Vision Guide Notes 1.md",
-      "target": "Tensowflow Deep-Learning Computer-Vision Guide Notes 2"
-    },
-    {
       "candidate_doc_ids": [
         "Tools/2024-08-02-Second-Brain-RAG.md",
         "wiki/second-brain-rag.md"
@@ -188,6 +181,18 @@
     },
     {
       "candidate_doc_ids": [
+        "AI/Tensorflow Deep-Learning Computer-Vision Guide Notes 1.md",
+        "Projects/Nuartz/03-Vercel-Deployment.md",
+        "Projects/Nuartz/04-Headless-and-Ecosystem.md"
+      ],
+      "query": "이전 글",
+      "reason": "conflicting-alias-target",
+      "source_doc_id": "AI/Tensorflow Deep-Learning Computer-Vision Guide Notes 2.md",
+      "target": "Tensorflow Deep-Learning Computer-Vision Guide Notes 1"
+    },
+    {
+      "candidate_doc_ids": [
+        "AI/Tensorflow Deep-Learning Computer-Vision Guide Notes 1.md",
         "Projects/Nuartz/03-Vercel-Deployment.md",
         "Projects/Nuartz/04-Headless-and-Ecosystem.md"
       ],
@@ -198,6 +203,7 @@
     },
     {
       "candidate_doc_ids": [
+        "AI/Tensorflow Deep-Learning Computer-Vision Guide Notes 1.md",
         "Projects/Nuartz/03-Vercel-Deployment.md",
         "Projects/Nuartz/04-Headless-and-Ecosystem.md"
       ],
@@ -205,13 +211,6 @@
       "reason": "conflicting-alias-target",
       "source_doc_id": "Projects/Nuartz/05-Publishing.md",
       "target": "04-Headless-and-Ecosystem"
-    },
-    {
-      "candidate_doc_ids": [],
-      "query": "이전 글",
-      "reason": "unresolved-target",
-      "source_doc_id": "AI/Tensorflow Deep-Learning Computer-Vision Guide Notes 2.md",
-      "target": "Tensorflow Deep-Learning Computer-Vision Guide Notes1"
     },
     {
       "candidate_doc_ids": [
@@ -240,7 +239,7 @@
   "provenance": {
     "generator": "blogeval.wikilink-aliases",
     "generator_version": 1,
-    "included_occurrence_count": 139,
+    "included_occurrence_count": 140,
     "source_artifacts": [
       {
         "derived_from": [
@@ -248,7 +247,7 @@
         ],
         "path": "wikilinks.json",
         "schema": "published-wikilinks-v2",
-        "sha256": "sha256:0e73a7189d7a2265e89adc0311cfa0c2135fab41c0bb38c85f107554efcf208e"
+        "sha256": "sha256:f60801097d988321b0aa0420efd8d931e7cb516803a75b15455aedd81da4f9c8"
       }
     ],
     "source_occurrence_count": 163
@@ -855,6 +854,21 @@
       "query_id": "alias-02ce4f977c94b19e",
       "relevant_doc_ids": [
         "AI/pdf-parser/2026-03-26-PDF-파서-5종-비교-분석.md"
+      ]
+    },
+    {
+      "evidence": [
+        {
+          "kind": "wikilink-alias",
+          "occurrences": 1,
+          "source_doc_id": "AI/Tensorflow Deep-Learning Computer-Vision Guide Notes 1.md",
+          "target": "Tensorflow Deep-Learning Computer-Vision Guide Notes 2"
+        }
+      ],
+      "query": "Part 2",
+      "query_id": "alias-5e9b00ff6f836175",
+      "relevant_doc_ids": [
+        "AI/Tensorflow Deep-Learning Computer-Vision Guide Notes 2.md"
       ]
     },
     {

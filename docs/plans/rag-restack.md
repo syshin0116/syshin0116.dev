@@ -9,7 +9,7 @@ when_to_read: >
   or when deciding what comes next.
 tags: [plan, aegra, assistant-ui, deepagents, retrieval, evaluation, deploy]
 status: draft
-updated: "2026-08-15"
+updated: "2026-10-11"
 owners: ["@syshin0116"]
 refs:
   - ../adr/0008-chatbot-is-a-rag-evaluation-testbed.md
@@ -792,7 +792,7 @@ The actual deliverable. Forks off P1's Protocol and can proceed alongside P2 and
 
 **Implemented evidence (2026-08-01):** `eval/` is a root uv-workspace member and the
 default CLI sweep runs `bm25`, `bm25-field-weighted`, `char-ngram`, and
-`rrf-bm25-char-ngram`. CI generates and validates the 89-qrel known-item dataset, executes
+`rrf-bm25-char-ngram`. CI generates and validates the 90-qrel known-item dataset, executes
 the four-method sweep twice on its frozen Linux runner, verifies each run, and
 byte-compares its JSON, Markdown, SVG, and manifest projections. The opt-in
 `dense-multilingual-e5-small` and `rrf-bm25-dense-multilingual-e5-small` methods make the
