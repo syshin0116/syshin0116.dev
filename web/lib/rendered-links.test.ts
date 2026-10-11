@@ -71,6 +71,16 @@ describe("rewriteRenderedLinks", () => {
     expect(inlineTags).toEqual(["cell", "tag"])
   })
 
+  test("links sharing a destination each keep their whole label", async () => {
+    const { html } = await render("[first #tag x](https://example.com) [second #tag xyz](https://example.com)")
+    expect(html).toBe('<p><a href="https://example.com">first #tag x</a> <a href="https://example.com">second #tag xyz</a></p>')
+  })
+
+  test("footnote definitions are matched after the body, where they render", async () => {
+    const { inlineTags } = await render("[^n]: value#tag\n\n본문 #tag[^n]")
+    expect(inlineTags).toEqual(["tag"])
+  })
+
   test("a hash right after a link that does not contain it stays outside the link", async () => {
     const { html } = await render("[foo](https://example.com)#bar")
     expect(html).toBe('<p><a href="https://example.com">foo</a>#bar</p>')

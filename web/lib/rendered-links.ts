@@ -96,6 +96,7 @@ function safeDecode(value: string): string {
 const MARKDOWN_HASH = /#[a-zA-Z][a-zA-Z0-9_-]*(?:[\p{L}\p{N}_-]|\/(?=[\p{L}\p{N}_-]))*/gu
 // Source nuartz never renders as text: frontmatter and Obsidian comments.
 const NOT_RENDERED = /^---\n[\s\S]*?\n---|%%[\s\S]*?%%/g
+const FOOTNOTE_DEFINITION = /^\[\^[^\]]+\]:.*(?:\n(?: {4}|\t).*)*/gm
 // A wikilink displays only its alias, so the target never reaches the tag plugin.
 const WIKILINK_TARGET = /\[\[[^\]|]*\|?/g
 const MARKDOWN_LINK = /\[((?:[^[\]]|\[[^\]]*\])*)\]\(\s*<?([^)\s>]*)/g
@@ -134,7 +135,10 @@ function renderedText(tokens: Token[], out: string[] = []): string[] {
  * So `ssh#x`, `(#E1` and `\#python` stay text even if the same tag appears elsewhere.
  */
 function tagOccurrences(markdown: string): Map<string, boolean[]> {
+  // Footnote definitions render in a section after the body.
+  const footnotes: string[] = []
   const source = markdown.replace(NOT_RENDERED, "")
+    .replace(FOOTNOTE_DEFINITION, definition => (footnotes.push(definition), "")) + "\n\n" + footnotes.join("\n\n")
   const text = renderedText(marked.lexer(source, { gfm: true })).join("").replace(WIKILINK_TARGET, NOT_TEXT)
   const occurrences = new Map<string, boolean[]>()
   for (const match of text.matchAll(MARKDOWN_HASH)) {
@@ -230,10 +234,11 @@ export function rewriteRenderedLinks(html: string, context: RenderedLinkContext)
         : []
       if (justClosed && linkText.length) {
         output.pop()
+        // Links sharing a destination share candidates; the longest matching rest wins.
         const restored = linkText.flatMap(candidate => {
           const end = renderedTextEnd(html, cursor, candidate.slice(candidate.indexOf(text) + text.length))
           return end > cursor ? [html.slice(cursor, end)] : []
-        })[0] ?? ""
+        }).sort((a, b) => b.length - a.length)[0] ?? ""
         cursor += restored.length
         output.push(text + restored, justClosed.close)
         continue
