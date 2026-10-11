@@ -154,21 +154,22 @@ export function rewriteRenderedLinks(html: string, context: RenderedLinkContext)
 
       const occurrence = occurrences.get(tag)?.shift()
 
-      if (justClosed) {
-        // The hash was part of the previous link's text: put it back inside, with the rest
-        // of that text (an autolinked URL or the markdown label) nuartz pushed out after it.
+      // A hash right after a link whose URL or label contains it was part of that link's
+      // text: put it back inside, with the rest of the text nuartz pushed out after it.
+      const linkText = justClosed
+        ? [justClosed.href, ...(labels.get(safeDecode(justClosed.href)) ?? [])].filter(candidate => candidate.includes(text))
+        : []
+      if (justClosed && linkText.length) {
         output.pop()
-        const linkText = [justClosed.href, ...(labels.get(safeDecode(justClosed.href)) ?? [])]
         const restored = linkText.flatMap(candidate => {
-          const at = candidate.indexOf(text)
-          const rest = at < 0 ? "" : escapeText(candidate.slice(at + text.length))
+          const rest = escapeText(candidate.slice(candidate.indexOf(text) + text.length))
           return rest && html.startsWith(rest, cursor) ? [rest] : []
         })[0] ?? ""
         cursor += restored.length
         output.push(text + restored, justClosed.close)
         continue
       }
-      const atWordStart = /(?:^|\s|>)$/.test(output.at(-1) ?? "")
+      const atWordStart = !justClosed && /(?:^|\s|>)$/.test(output.at(-1) ?? "")
       if (!atWordStart || occurrence === false) {
         output.push(text)
         continue

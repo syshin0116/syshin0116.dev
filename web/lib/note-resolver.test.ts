@@ -6,6 +6,9 @@ const { resolve, resolvePath } = createLinkResolver([
   { slug: "AI/MCP(Model Context Protocal)", frontmatter: { title: "MCP(Model Context Protocol)" } },
   { slug: "AI/2025-01-01-Shared", frontmatter: { title: "Same Title" } },
   { slug: "Dev/2025-02-02-Shared", frontmatter: { title: "Same Title" } },
+  { slug: "AI/2025-03-03-Twin", frontmatter: {} },
+  { slug: "Dev/2025-04-04-Twin", frontmatter: {} },
+  { slug: "Tools/Elsewhere", frontmatter: { title: "Twin" } },
   { slug: "Dev/about", frontmatter: {} },
 ])
 
@@ -25,6 +28,7 @@ describe("createLinkResolver", () => {
   test("leaves ambiguous and missing targets unresolved", () => {
     expect(resolve("Shared")).toBeUndefined()
     expect(resolve("Same Title")).toBeUndefined()
+    expect(resolve("Twin")).toBeUndefined()
     expect(resolve("Never Written")).toBeUndefined()
   })
 

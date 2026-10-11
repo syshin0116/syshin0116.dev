@@ -56,6 +56,11 @@ describe("rewriteRenderedLinks", () => {
     expect(inlineTags).toEqual(["E1"])
   })
 
+  test("a hash right after a link that does not contain it stays outside the link", async () => {
+    const { html } = await render("[foo](https://example.com)#bar")
+    expect(html).toBe('<p><a href="https://example.com">foo</a>#bar</p>')
+  })
+
   test("an escaped hash is text even when the same tag is real elsewhere", async () => {
     const { html, inlineTags } = await render("진짜 #python 태그와 이스케이프한 \\#python")
     expect(html).toBe('<p>진짜 <a href="/blog/tags/python" class="tag" data-tag="python">#python</a> 태그와 이스케이프한 #python</p>')
