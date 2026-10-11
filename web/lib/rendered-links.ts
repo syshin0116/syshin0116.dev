@@ -30,7 +30,7 @@ const TOKEN = /<(\/?)(a|img)\b((?:[^>"']|"[^"]*"|'[^']*')*)>/gi
 // nuartz 0.3.0 renders each inline tag as an empty duplicate anchor followed by the real one.
 const NUARTZ_TAG = /<a href="\/tags\/[^"]*" class="tag" data-tag="([^"]*)">(#[^<]*)?<\/a>/y
 // nuartz stops a tag at a non-ASCII letter or `/`; Obsidian keeps going (`#adsp중요`, `#a/b`).
-const TAG_CONTINUATION = /^(?:[\p{L}\p{N}_-]|\/(?=[\p{L}\p{N}_-]))+/u
+const TAG_CONTINUATION = /^(?:[\p{L}\p{M}\p{N}_-]|\/(?=[\p{L}\p{M}\p{N}_-]))+/u
 const ATTRIBUTE = (name: string) => new RegExp(`(\\s${name}=")([^"]*)(")`, "i")
 const EXTERNAL = /^(?:[a-z][a-z0-9+.-]*:|\/\/|#|\/blog\/|\/api\/|\/_next\/)/i
 
@@ -93,7 +93,7 @@ function safeDecode(value: string): string {
 }
 
 // What nuartz turns into a tag anchor (ASCII start) plus the continuation it misses.
-const MARKDOWN_HASH = /#[a-zA-Z][a-zA-Z0-9_-]*(?:[\p{L}\p{N}_-]|\/(?=[\p{L}\p{N}_-]))*/gu
+const MARKDOWN_HASH = /#[a-zA-Z][a-zA-Z0-9_-]*(?:[\p{L}\p{M}\p{N}_-]|\/(?=[\p{L}\p{M}\p{N}_-]))*/gu
 // Source nuartz never renders as text: frontmatter and Obsidian comments.
 const NOT_RENDERED = /^---\n[\s\S]*?\n---|%%[\s\S]*?%%/g
 const FOOTNOTE_DEFINITION = /^\[\^[^\]]+\]:.*(?:\n(?: {4}|\t).*)*/gm
