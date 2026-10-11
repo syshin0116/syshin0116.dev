@@ -38,7 +38,7 @@ export function createLinkResolver(files: ResolvableNote[]) {
     const direct = resolveNote(target, from)
     if (direct || !target || target.startsWith(".")) return direct
     const key = normalizeNotePath(target.split("#")[0])
-    return undated.get(key) ?? titles.get(key)
+    return undated.has(key) ? undated.get(key) : titles.get(key)
   }
 
   /** Content-root path lookup with no basename, alias, or title fallback. */
