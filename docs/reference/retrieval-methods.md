@@ -8,7 +8,7 @@ when_to_read: >
   or when looking for what has already been tried and what it scored.
 tags: [reference, retrieval, rag, evaluation, registry]
 status: draft
-updated: "2026-08-20"
+updated: "2026-10-11"
 owners: ["@syshin0116"]
 refs: [../adr/0008-chatbot-is-a-rag-evaluation-testbed.md, ../plans/rag-restack.md]
 template: reference
@@ -181,7 +181,7 @@ seed set for the qrels *and* a retrieval signal in its own right.
 
 | Method | Status | Meant to teach |
 |---|---|---|
-| Alias-derived known-item query set | `implemented` | 163 owner-authored occurrences resolve to 89 single-target qrels; 24 conflicting, ambiguous, self-link, or unresolved occurrences remain recorded exclusions |
+| Alias-derived known-item query set | `implemented` | 163 owner-authored occurrences resolve to 90 single-target qrels; 23 conflicting, ambiguous, self-link, or unresolved occurrences remain recorded exclusions |
 | Alias text as an indexed field | `planned` | Whether the author's own paraphrases beat title and body text as a match target |
 
 ### Chunking (an axis, not a method)
