@@ -22,6 +22,7 @@ import { ImageZoom } from "@/components/blog/image-zoom"
 import { GiscusComments } from "@/components/blog/giscus-comments"
 import allSlugsData from "@/.generated/all-slugs.json"
 import { tagPath } from "@/lib/tag"
+import { pageDescription } from "@/lib/page-description"
 import { SITE_URL } from "@/lib/site"
 
 export const revalidate = false
@@ -103,7 +104,7 @@ export async function generateMetadata({
   }
 
   const title = pageData.frontmatter.title ?? slug[slug.length - 1]
-  const description = pageData.frontmatter.description ?? ""
+  const description = pageDescription(pageData.frontmatter, pageData.html)
   const ogImage = `/api/og?title=${encodeURIComponent(String(title))}`
   return {
     title,
