@@ -515,3 +515,13 @@ test("a blog slug cannot read generated files outside the pages directory", asyn
     }
   }
 })
+
+test("tag pages resolve Hangul and spaced tags and reject unknown ones", async ({ request }) => {
+  for (const tag of ["교육", "검색 노출", "RAG"]) {
+    const response = await request.get(`/blog/tags/${encodeURIComponent(tag)}`)
+    expect(response.status(), tag).toBe(200)
+    expect(await response.text()).toContain(`#${tag}`)
+  }
+  const unknown = await request.get(`/blog/tags/${encodeURIComponent("없는-태그-zz")}`)
+  expect(unknown.status()).toBe(404)
+})
