@@ -11,8 +11,10 @@ export function NotesBrowser({ notes }: { notes: NoteEntry[] }) {
   const totalPages = Math.max(1, Math.ceil(filtered.length / NOTES_PER_PAGE))
   const page = Math.max(1, Math.min(totalPages, Math.floor(Number(params.get("page"))) || 1))
   const tags = [...new Set(notes.flatMap(note => note.tags))].sort()
-  const href = (updates: Record<string, string>) => {
-    const query = new URLSearchParams(params)
+  // Rendered links read the hook; change handlers read the live URL, because
+  // useSearchParams lags behind a pushState made earlier in the same interaction.
+  const href = (updates: Record<string, string>, current: URLSearchParams = params) => {
+    const query = new URLSearchParams(current)
     for (const [key, value] of Object.entries(updates)) {
       if (!value || (key === "page" && value === "1")) query.delete(key)
       else query.set(key, value)
@@ -20,6 +22,8 @@ export function NotesBrowser({ notes }: { notes: NoteEntry[] }) {
     return `/blog${query.size ? `?${query}` : ""}`
   }
   const navigate = (url: string) => window.history.pushState(null, "", url)
+  const update = (updates: Record<string, string>) =>
+    navigate(href(updates, new URLSearchParams(location.search)))
   return <div onClickCapture={event => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
     const link = (event.target as HTMLElement).closest("a")
@@ -30,18 +34,18 @@ export function NotesBrowser({ notes }: { notes: NoteEntry[] }) {
   }}><BlogList notes={filtered.slice((page - 1) * NOTES_PER_PAGE, page * NOTES_PER_PAGE)} totalCount={filtered.length} currentPage={page} totalPages={totalPages} pageHref={page => href({ page: String(page) })} controls={
     <div className="mb-6 flex flex-wrap items-end gap-3">
       <label className="flex min-w-36 flex-1 flex-col gap-1.5 text-xs text-muted-foreground">태그
-        <select value={tag} onChange={event => navigate(href({ tag: event.target.value, page: "1" }))} className="h-10 rounded-md border bg-background px-3 text-sm text-foreground">
+        <select value={tag} onChange={event => update({ tag: event.target.value, page: "1" })} className="h-10 rounded-md border bg-background px-3 text-sm text-foreground">
           <option value="">전체 태그</option>
           {tag && !tags.includes(tag) && <option value={tag}>{tag}</option>}
           {tags.map(tag => <option key={tag} value={tag}>#{tag}</option>)}
         </select>
       </label>
       <label className="flex flex-col gap-1.5 text-xs text-muted-foreground">정렬
-        <select value={sort} onChange={event => navigate(href({ sort: event.target.value, page: "1" }))} className="h-10 rounded-md border bg-background px-3 text-sm text-foreground">
+        <select value={sort} onChange={event => update({ sort: event.target.value, page: "1" })} className="h-10 rounded-md border bg-background px-3 text-sm text-foreground">
           <option value="recent">최신순</option><option value="title">제목순</option>
         </select>
       </label>
-      {tag && <button className="h-10 px-2 text-sm underline underline-offset-4" onClick={() => navigate(href({ tag: "", page: "1" }))}>필터 초기화</button>}
+      {tag && <button className="h-10 px-2 text-sm underline underline-offset-4" onClick={() => update({ tag: "", page: "1" })}>필터 초기화</button>}
     </div>
   } /></div>
 }
