@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 import { NoteList } from "@/lib/blog"
-import { notFound } from "next/navigation"
+import { notFound, permanentRedirect } from "next/navigation"
 import { Separator } from "@/components/ui/separator"
+import { mergedTagTarget, tagPath } from "@/lib/tag"
 import tagsData from "@/.generated/tags.json"
 
 interface TagEntry {
@@ -58,7 +59,11 @@ export default async function TagPage({
   const { tag } = await params
   const tagName = tagNameOf(tag)
   const entries = entriesFor(tagName)
-  if (!entries) notFound()
+  if (!entries) {
+    const target = tagName === undefined ? undefined : mergedTagTarget(tagName, Object.keys(tagIndex))
+    if (target) permanentRedirect(`/blog/tags/${tagPath(target)}`)
+    notFound()
+  }
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-10">
