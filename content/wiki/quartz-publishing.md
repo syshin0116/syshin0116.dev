@@ -3,7 +3,7 @@ title: "Quartz로 Obsidian 노트 배포하기"
 type: pattern
 tags:
   - obsidian
-  - quartz
+  - Quartz
   - github-pages
   - blog
   - publishing
@@ -13,7 +13,7 @@ summary: "Quartz는 Obsidian 마크다운 노트를 정적 웹사이트로 변�
 sources:
   - content/Tools/Obsidian/Quartz, GitHub Pages 사용하여 Obsidian 노트 배포.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

@@ -3,16 +3,16 @@ title: "Git / GitHub 기초"
 type: reference
 tags:
   - git
-  - github
+  - GitHub
   - version-control
   - devops
-  - cli
-  - backend
+  - CLI
+  - Backend
 summary: "Git은 Linus Torvalds가 2005년 개발한 분산형 버전 관리 시스템(DVCS)이다. GitHub는 Git 저장소를 클라우드에서 호스팅하는 서비스다. 핵심 명령어(add, commit, push, branch, merge, rebase)와 브랜치 전략을 정리한다."
 sources:
   - content/Tools/Git/2022-09-08-_Github_Github정리.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

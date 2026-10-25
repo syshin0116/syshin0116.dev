@@ -2,7 +2,7 @@
 title: "Moonlight AI 논문 리더"
 type: tool
 tags:
-  - ai
+  - AI
   - research
   - paper-reading
   - chrome-extension
@@ -13,7 +13,7 @@ summary: "Moonlight는 학술 논문 PDF에 AI를 붙여주는 크롬 확장 프
 sources:
   - content/Tools/2026-03-03-Moonlight-AI-논문-리더-활용법.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

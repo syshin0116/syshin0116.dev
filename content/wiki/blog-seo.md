@@ -2,18 +2,18 @@
 title: "블로그 검색 노출 및 SEO 설정"
 type: reference
 tags:
-  - seo
-  - google-search-console
+  - SEO
+  - "Google Search Console"
   - sitemap
   - blog
-  - quartz
+  - Quartz
   - frontend
-  - search
+  - Search
 summary: "블로그를 검색 엔진에 노출시키기 위한 단계별 가이드다. Google Search Console 등록(HTML 파일/메타 태그/Google Analytics 세 가지 소유권 확인 방법), sitemap 제출, robots.txt 설정을 다루며, Quartz 기반 블로그에서의 구체적인 설정 방법을 포함한다."
 sources:
   - content/Tools/Obsidian/검색 노출 시키는 방법.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

@@ -4,7 +4,7 @@ type: reference
 tags:
   - mac
   - setup
-  - homebrew
+  - Homebrew
   - devtools
   - productivity
   - python
@@ -14,7 +14,7 @@ summary: "새 맥북을 받을 때 설치할 필수 도구 목록이다. Homebre
 sources:
   - content/Tools/Mac/2025-04-18-맥북 초기 세팅.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

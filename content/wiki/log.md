@@ -43,3 +43,9 @@
 - Updated backlinks: content/wiki/index.md (rebuilt), content/AI/2026-05-18-Tech-Intelligence-Radar.md
 - Updated frontmatter title/summary and in-body self-name labels (Repo radar → Tech radar) to align with the broadened scope and the source article's "Technical Intelligence Radar" terminology. Claims unchanged.
 ## [2026-07-12 16:37 UTC] migrate | normalized source provenance, repaired mandatory headings/footnotes, and rebuilt index
+## [2026-10-25 14:44 UTC] migrate | aligned 26 lowercase tag variants with post canonical spellings on 28 pages, rebuilt index
+- Tags: adr→ADR, ai→AI, api-design→API-Design, backend→Backend, bm25→BM25, cli→CLI, cursor→Cursor, data-analysis→Data-Analysis, data-science→Data-Science, experiment→Experiment, github→GitHub, google-search-console→Google Search Console, homebrew→Homebrew, hybrid-search→Hybrid-Search, infrastructure→Infrastructure, pattern→Pattern, pipeline→Pipeline, pkm→PKM, postgresql→PostgreSQL, quartz→Quartz, rust→Rust, search→Search, seo→SEO, statistics→Statistics, testing→Testing, ubuntu→Ubuntu
+- Reason: post tags use one spelling per case/punctuation group (PR #319); the lowercase wiki spellings still produced separate tag pages.
+## [2026-10-25 14:44 UTC] update | wiki verification now runs in ci/repo
+- Updated: content/wiki/llm-wiki.md
+- Superseded: .github/workflows/wiki-verify.yml from the 2026-05-17 entry no longer exists; the `ci/repo` job in .github/workflows/ci.yml runs .agents/skills/wiki-curator/scripts/verify.ts and scripts/verify-wiki.py when content/, .agents/skills/wiki-curator/, or scripts/verify-wiki.py change.

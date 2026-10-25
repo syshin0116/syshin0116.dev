@@ -3,7 +3,7 @@ title: "Zettelkasten 노트 방법론"
 type: concept
 tags:
   - zettelkasten
-  - pkm
+  - PKM
   - note-taking
   - second-brain
   - obsidian
@@ -12,7 +12,7 @@ summary: "Zettelkasten은 Niklas Luhmann이 개발한 개인 지식 관리 시�
 sources:
   - content/Tools/2024-07-29-Zettelkasten.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

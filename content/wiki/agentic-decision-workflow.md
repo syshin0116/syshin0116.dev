@@ -2,10 +2,10 @@
 title: "Agentic decision workflow"
 type: pattern
 tags:
-  - ai
+  - AI
   - agent
-  - github
-  - adr
+  - GitHub
+  - ADR
   - decision-making
   - knowledge-base
   - automation
@@ -25,7 +25,7 @@ sources:
   - https://fortelabs.com/blog/para/
   - https://learn.microsoft.com/en-us/azure/search/search-document-level-access-overview
 created: 2026-05-17
-updated: 2026-07-12
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

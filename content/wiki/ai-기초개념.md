@@ -2,20 +2,20 @@
 title: "AI 기초 개념: 기호주의 vs 연결주의"
 type: concept
 tags:
-  - ai
+  - AI
   - machine-learning
   - deep-learning
   - symbolism
   - connectionism
   - neural-network
   - crisp-dm
-  - data-science
+  - Data-Science
 summary: "AI 접근 방식은 규칙 기반 기호주의(Symbolism)와 뉴럴 네트워크 기반 연결주의(Connectionism)로 나뉜다. 기호주의는 1980년대 쇠락했고, 연결주의(퍼셉트론 → 딥러닝)가 현재 주류다. 데이터 분석 프로세스 표준인 CRISP-DM도 함께 정리한다."
 sources:
   - content/Study/SeSAC/data-analysis/2023-07-28-SeSAC-인공지능.md
   - content/Study/SeSAC/data-analysis/2023-07-18-SeSAC-데이터 분석 기초-1일차.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

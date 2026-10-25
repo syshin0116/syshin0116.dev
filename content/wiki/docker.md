@@ -6,16 +6,16 @@ tags:
   - container
   - devops
   - virtualization
-  - backend
+  - Backend
   - docker-compose
-  - infrastructure
+  - Infrastructure
 summary: "Docker는 OS 커널을 공유하는 앱 수준 가상화 기술이다. VM(수 GB, 하이퍼바이저)과 달리 컨테이너는 수십 MB로 가볍고 빠르다. Docker Compose로 멀티 컨테이너를 오케스트레이션하며, 컨테이너 간 통신 시 localhost 대신 컨테이너 이름을 호스트로 사용한다."
 sources:
   - content/Tools/Docker/2023-05-08-Docker와 VM 차이.md
   - content/Tools/Docker/2023-11-09-Docker-실습.md
   - content/Tools/Docker/2024-03-27-Docker Compose에서 Flask와 MySQL 연결 문제.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---
