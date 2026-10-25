@@ -65,10 +65,12 @@ invocations and are ignored. This position-aware parsing applies equally to
 flow mappings and quoted or explicit keys.
 
 The manifest binds the one stable context, `ci/check`, to one exact top-level
-workflow and job. Every other check, including the wiki contract (`ci/wiki`) and
-the Agent Protocol contract (`ci/protocol`), is a path-gated job inside
-Application CI that `ci/check` aggregates, so it never needs its own required
-context.
+workflow and job. Application CI shows four other rows: `ci/repo`, `ci/web`,
+`ci/agent`, and `ci/eval`. `ci/check` aggregates them, so none needs its own
+required context. `ci/repo` runs the repository contracts on every change and,
+gated by path, the infrastructure, wiki, and Agent Protocol contracts; `ci/agent`
+also runs the JavaScript SDK to Aegra integration when the auth or chat runtime
+changes.
 
 The emitter workflow must have exactly `pull_request`, `push` restricted to
 `main`, `merge_group` restricted to `checks_requested`, and
@@ -83,11 +85,13 @@ composite action and reusable workflow, including nested local calls.
 This keeps a required check from remaining permanently pending after an
 upstream failure or merge-queue run.
 
-The Application CI `changes` bootstrap job has an exact 10-minute ceiling for
-dependency-free component tests, classification, and the repository governance
-verifier. The verifier runs on every PR with only its pinned PyYAML dependency,
+The Application CI `changes` job (shown as `ci/repo`) has an exact 10-minute
+ceiling for dependency-free component tests, classification, the repository
+governance verifier, and its path-gated infrastructure, wiki, and protocol steps.
+Downstream jobs wait for the whole job, so those steps stay limited to static and
+contract checks that finish in about a minute. The verifier runs on every PR with only its pinned PyYAML dependency,
 so protected files remain checked even when no component suite is selected. The full repository
-script suite runs in `ci/agent` when affected, or in `ci/infra` for
+script suite runs in `ci/agent` when affected, or in `ci/repo` for
 infrastructure-only changes, after the frozen dependency install. Changes under
 `.github/`, `web/vercel.json`, `DECISIONS.md`, and the Cloud Run delivery and
 GCP/Neon foundation runbooks select infrastructure verification too, because

@@ -279,14 +279,14 @@ workflow files and reusable-workflow boundaries are also reviewed delivery input
   `python -m agent.migrate` against the same database, boots the image, verifies `/live`
   and `/ready`, and requires an unauthenticated AP v2 command to return 401. This bounded
   container smoke never sends a provider or model request.
-- `ci/native-apv2`: the official JavaScript SDK talks to the real Aegra
+- `ci/agent` JavaScript SDK steps (when the auth or chat runtime changes): the official JavaScript SDK talks to the real Aegra
   application/runtime and isolated PostgreSQL 17, covering the locked event/command
   dialect, persistence, HITL, inspection, reconnect, and the
   `rawPrivateStateObserved=false` sentinel.
 - `ci/eval`: dataset-schema validation, deterministic metric fixtures, registry/fingerprint
   contract, then two byte-compared no-provider sweeps over the four default methods. Full
   paid sweeps are never a PR requirement.
-- `ci/protocol` (runs when `protocol/**`, the protocol scripts, or the Python lock change): fetch the Agent Protocol CDDL/OpenAPI revision recorded in
+- `ci/repo` protocol steps (run when `protocol/**`, the protocol scripts, or the Python lock change): fetch the Agent Protocol CDDL/OpenAPI revision recorded in
   `protocol/agent-protocol.lock.json`, regenerate bindings in a temporary directory, and
   fail on a diff. Replay committed content-block, tool, nested namespace, replay, error,
   and HITL fixtures through both Python and TypeScript consumers.
@@ -303,8 +303,8 @@ workflow files and reusable-workflow boundaries are also reviewed delivery input
 - Path filters include root `pyproject.toml`, `uv.lock`, `aegra.json`, `Dockerfile`,
   `protocol/**`, `scripts/**`, `content/**`, `agent/**`, `eval/**`, and `web/**`. A
   `content/**` change must rebuild both the web artifacts and the agent mirror.
-- `ci/wiki` runs the wiki contract when `content/**`, the wiki-curator skill, or
-  `scripts/verify-wiki.py` change. Content-only changes skip `ci/native-apv2` and the
+- `ci/repo` runs the wiki contract when `content/**`, the wiki-curator skill, or
+  `scripts/verify-wiki.py` change. Content-only changes skip the JavaScript SDK steps and the
   web auth/chat runtime steps, which posts cannot affect.
 - The only required check is `ci/check`, which aggregates every job above. Component
   work remains path-aware behind it. Never merge on red CI or let a path filter
