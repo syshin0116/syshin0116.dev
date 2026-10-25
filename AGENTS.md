@@ -52,10 +52,10 @@ Use the existing commands and workflows; do not copy another project's Make targ
 | Changed area | Verification source |
 | --- | --- |
 | `web/` | `web/package.json` and `ci/web` in `.github/workflows/ci.yml`: prebuild, tests, lint, typecheck, build, and browser journeys for the affected UI |
-| `agent/` | `ci/agent` and `ci/native-apv2` in `.github/workflows/ci.yml`; include database and protocol checks when their contracts change |
+| `agent/` | `ci/agent` in `.github/workflows/ci.yml` (it also runs the JavaScript SDK to Aegra integration when the auth or chat runtime changes); protocol checks run in `ci/repo` when their contracts change |
 | `eval/` | `ci/eval` in `.github/workflows/ci.yml`; preserve retrieval-method breadth and reproducibility |
-| Infrastructure and delivery | `ci/infra`, the relevant delivery workflow, and its runbook; static checks do not authorize deployment |
-| `content/wiki/` | The wiki skill and `ci/wiki` |
+| Infrastructure and delivery | The infrastructure steps of `ci/repo`, the relevant delivery workflow, and its runbook; static checks do not authorize deployment |
+| `content/wiki/` | The wiki skill and the wiki contract steps of `ci/repo` |
 | Instructions and docs | Check links and commands against the repository, run `git diff --check`, and keep `CLAUDE.md` as a relative symlink to `AGENTS.md` |
 
 For UI changes, use `bc-ui-verification` when it is available in the session skill catalog. Otherwise use the existing `web/package.json` browser commands (`bun run test:browser` for chat and `bun run test:site-browser` for site routes, from `web/`) and their Playwright configuration. Retain evidence for affected desktop/mobile states. A local quick check is not a production or merge verification. New behavior needs meaningful regression coverage; prose and styling-only changes do not need tests that merely repeat their implementation.
@@ -76,5 +76,5 @@ For UI changes, use `bc-ui-verification` when it is available in the session ski
 - Update affected system documentation in the same PR, following this repository's existing frontmatter conventions.
 - Read review comments and address or explicitly explain each finding before merge. If automated review is running, wait for its result; a reaction alone does not prove all checks passed.
 - Fetch the latest `origin/main` before final integration, resolve any conflicts, and rerun affected checks after changes. Never rewrite another contributor's branch history or merge with required checks failing or pending.
-- Before merging, require `ci/check` on the candidate revision; it aggregates every path-gated job, including `ci/wiki` and `ci/protocol`. Use the repository's configured merge method; do not import another project's rebase-only policy.
+- Before merging, require `ci/check` on the candidate revision; it aggregates `ci/repo` (repository, infrastructure, wiki, and protocol contracts), `ci/web`, `ci/agent`, and `ci/eval`. Use the repository's configured merge method; do not import another project's rebase-only policy.
 - After merge, verify the covered Kaneo task states. Do not assume automatic completion. Never add AI attribution or session links to commits, PRs, or documentation.

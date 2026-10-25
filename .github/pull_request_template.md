@@ -23,7 +23,7 @@
 
 - [ ] This PR has one coherent scope and does not include generated/build artifacts or secrets.
 - [ ] Source posts (`content/**/*.md` outside `content/wiki/`) are unchanged, or this is an owner-requested `post:` PR.
-- [ ] Any `content/wiki/` change was made through the wiki skill and passes `ci/wiki`.
+- [ ] Any `content/wiki/` change was made through the wiki skill and passes the wiki contract in `ci/repo`.
 - [ ] Changes under `web/`, `agent/`, or build/deploy config are on this branch only and will land through this PR.
 - [ ] New or changed behavior has regression coverage, or the validation table explains why a test is not applicable.
 - [ ] User-visible UI changes include browser evidence for affected desktop/mobile journeys, or explain why UI verification is not applicable.
