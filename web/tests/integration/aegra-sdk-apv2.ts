@@ -111,7 +111,17 @@ const CHANNELS = [
   "custom",
 ] as const
 
-async function openPhase() {
+// Each phase sends its run command before it subscribes. The fixture shortens
+// the server's idle grace to 50 ms, so a stream opened on an idle thread closes
+// unless the run starts within that window; on a slow runner it did not, the
+// subscription paused, and with reconnects disabled the script never finished.
+// A subscription replays the thread's history, so subscribing after the
+// command still observes every event of the run.
+async function openPhase(
+  sendRunCommand: (
+    thread: ReturnType<typeof client.threads.stream>
+  ) => Promise<void>
+) {
   const thread = client.threads.stream(threadId, {
     assistantId: "fixture",
     transport: "sse",
@@ -135,6 +145,7 @@ async function openPhase() {
       acceptNestedInputEvent(event)
     }
   })
+  await sendRunCommand(thread)
   const subscription = await thread.subscribe(CHANNELS, {
     namespaces: [[]],
     depth: 0,
@@ -340,6 +351,27 @@ async function closePhase(
   await phase.thread.close().catch(() => undefined)
 }
 
+// Well under the Python harness's 30 s budget, so a stalled stream reports its
+// own failure instead of a bare timeout.
+const RESUME_WAIT_MS = 10_000
+
+async function resumesWithin(
+  subscription: { waitForResume(): Promise<void> },
+  milliseconds: number
+): Promise<boolean> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    return await Promise.race([
+      subscription.waitForResume().then(() => true),
+      new Promise<false>((resolve) => {
+        timer = setTimeout(() => resolve(false), milliseconds)
+      }),
+    ])
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 async function waitForCorrelatedRun(
   phase: string,
   nonce: string
@@ -362,29 +394,31 @@ async function waitForCorrelatedRun(
 }
 
 try {
-  const initial = await openPhase()
-  phases.push(initial)
   const initialNonce = crypto.randomUUID()
-  const started = await initial.thread.submitRun({
-    input: {
-      messages: [
-        {
-          type: "human",
-          content: "Official JavaScript SDK APv2 persistence proof",
-        },
-      ],
-    },
-    metadata: {
-      integration_phase: "initial",
-      [SUBMIT_NONCE_METADATA_KEY]: initialNonce,
-    },
-    config: {
+  let started: { run_id?: unknown } = {}
+  const initial = await openPhase(async (thread) => {
+    started = await thread.submitRun({
+      input: {
+        messages: [
+          {
+            type: "human",
+            content: "Official JavaScript SDK APv2 persistence proof",
+          },
+        ],
+      },
       metadata: {
         integration_phase: "initial",
         [SUBMIT_NONCE_METADATA_KEY]: initialNonce,
       },
-    },
+      config: {
+        metadata: {
+          integration_phase: "initial",
+          [SUBMIT_NONCE_METADATA_KEY]: initialNonce,
+        },
+      },
+    })
   })
+  phases.push(initial)
   invariant(
     typeof started.run_id === "string" && started.run_id.length > 0,
     "submitRun did not return a run id"
@@ -401,24 +435,26 @@ try {
   invariant(interruptTarget !== undefined, "input.requested was not observed")
   await closePhase(initial)
 
-  const resumed = await openPhase()
-  phases.push(resumed)
   const resumedNonce = crypto.randomUUID()
-  await resumed.thread.respondInput({
-    namespace: interruptTarget.namespace,
-    interrupt_id: interruptTarget.interruptId,
-    response: "approved-via-js-sdk",
-    config: {
+  const target = interruptTarget
+  const resumed = await openPhase(async (thread) => {
+    await thread.respondInput({
+      namespace: target.namespace,
+      interrupt_id: target.interruptId,
+      response: "approved-via-js-sdk",
+      config: {
+        metadata: {
+          integration_phase: "resumed",
+          [SUBMIT_NONCE_METADATA_KEY]: resumedNonce,
+        },
+      },
       metadata: {
         integration_phase: "resumed",
         [SUBMIT_NONCE_METADATA_KEY]: resumedNonce,
       },
-    },
-    metadata: {
-      integration_phase: "resumed",
-      [SUBMIT_NONCE_METADATA_KEY]: resumedNonce,
-    },
+    })
   })
+  phases.push(resumed)
   const resumedRun = await waitForCorrelatedRun("resumed", resumedNonce)
   const appliedThrough = resumed.thread.ordering.lastAppliedThroughSeq
   invariant(
@@ -438,6 +474,10 @@ try {
   let lastObservedSequence: number | undefined
   let sawCorrelatedRootLifecycle = false
   let droppedReplayEvents = 0
+  // The SDK pauses content subscriptions after each replayed root terminal
+  // (the initial run's interrupt) and resumes them when later events arrive.
+  // If the stream ends instead, nothing resumes it, so bound the wait and fail
+  // with the observed lifecycle rather than hanging until the harness timeout.
   while (!resumedTerminal) {
     for await (const event of resumed.subscription) {
       invariant(
@@ -447,8 +487,7 @@ try {
         "fresh-client APv2 event omitted a valid sequence"
       )
       invariant(
-        lastObservedSequence === undefined ||
-          event.seq > lastObservedSequence,
+        lastObservedSequence === undefined || event.seq > lastObservedSequence,
         "fresh-client APv2 sequence was not strictly monotonic"
       )
       lastObservedSequence = event.seq
@@ -463,10 +502,7 @@ try {
         droppedReplayEvents += 1
         continue
       }
-      if (
-        event.method === "lifecycle" &&
-        event.params.namespace.length === 0
-      ) {
+      if (event.method === "lifecycle" && event.params.namespace.length === 0) {
         sawCorrelatedRootLifecycle = true
       }
       invariant(
@@ -480,7 +516,7 @@ try {
       }
     }
     if (resumedTerminal || !resumed.subscription.isPaused) break
-    await resumed.subscription.waitForResume()
+    if (!(await resumesWithin(resumed.subscription, RESUME_WAIT_MS))) break
   }
   invariant(
     resumedTerminal === "completed",
