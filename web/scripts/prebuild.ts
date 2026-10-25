@@ -37,6 +37,7 @@ import type { Frontmatter, TocEntry } from "nuartz"
 import { isAllowedMediaPath } from "../lib/media"
 import { createLinkResolver } from "../lib/note-resolver"
 import { rewriteRenderedLinks } from "../lib/rendered-links"
+import { tagPath } from "../lib/tag"
 
 const ROOT = path.join(import.meta.dir, "..")
 const CONTENT_DIR = path.join(ROOT, "..", "content")
@@ -175,22 +176,22 @@ async function main() {
         resolveLink,
         knownSlugs,
         filePath: file.slug + ".md",
+        resolveTag: tag => `/blog/tags/${tagPath(tag)}`,
         resolveEmbed: (target, from) => {
           const source = filesBySlug.get(resolveNote(target, from) ?? "")
           return source ? { content: source.raw, filePath: source.slug + ".md" } : undefined
         },
       })
-      const rewritten = rewriteRenderedLinks(result.html.replaceAll("/api/content/", "/blog/api/content/"), {
+      const html = rewriteRenderedLinks(result.html.replaceAll("/api/content/", "/blog/api/content/"), {
         from: file.slug,
-        markdown: file.raw,
         resolveNotePath: linkResolver.resolvePath,
         notePath: blogPath,
         isPublishedMedia: contentPath =>
           isAllowedMediaPath(contentPath) && existsSync(path.join(CONTENT_DIR, contentPath)),
       })
       const declaredTags = (result.frontmatter.tags as string[] | undefined) ?? []
-      const tags = [...new Set([...declaredTags, ...rewritten.inlineTags])]
-      return { file, result: { ...result, html: rewritten.html, tags } }
+      const tags = [...new Set([...declaredTags, ...result.inlineTags])]
+      return { file, result: { ...result, html, tags } }
     })
   )
   const resultsBySlug = new Map(rendered.map(({ file, result }) => [file.slug, result]))
