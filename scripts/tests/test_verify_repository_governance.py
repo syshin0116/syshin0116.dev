@@ -891,7 +891,7 @@ class LocalGovernanceTests(unittest.TestCase):
             mutated = original
             if workflow_name == "ci.yml":
                 eval_start = original.index("  eval:\n")
-                eval_end = original.index("\n  infra:\n", eval_start)
+                eval_end = original.index("\n  check:\n", eval_start)
                 prefix = original[:eval_start]
                 mutated = original[eval_start:eval_end]
                 suffix = original[eval_end:]
@@ -1039,7 +1039,7 @@ class LocalGovernanceTests(unittest.TestCase):
         postgres_image = (
             "    services:\n"
             "      postgres:\n"
-            "        image: ${{ needs.changes.outputs.agent == 'true' && 'postgres:17@sha256:"
+            "        image: ${{ (needs.changes.outputs.agent == 'true' || needs.changes.outputs.runtime == 'true') && 'postgres:17@sha256:"
             "7958605b474b3d264a969cb3a123d6aa00ad1e1fe9da8a69984dabb704d93317' || '' }}\n"
         )
         mutations = {
@@ -1103,7 +1103,7 @@ class LocalGovernanceTests(unittest.TestCase):
             ),
             "database-version": (
                 (
-                    "        image: ${{ needs.changes.outputs.agent == 'true' && 'postgres:17@sha256:"
+                    "        image: ${{ (needs.changes.outputs.agent == 'true' || needs.changes.outputs.runtime == 'true') && 'postgres:17@sha256:"
                     "7958605b474b3d264a969cb3a123d6aa00ad1e1fe9da8a69984dabb704d93317' || '' }}\n",
                     "        image: postgres:16\n",
                 ),
@@ -1411,15 +1411,15 @@ runs:
     def test_agent_ci_rejects_non_frozen_or_misplaced_uv_run_flag(self) -> None:
         mutations = {
             "missing": (
-                "uv run --frozen --package syshin0116-dev-agent ruff check",
-                "uv run --package syshin0116-dev-agent ruff check",
+                "uv run --frozen --package syshin0116-dev-agent ruff check\n          agent/src",
+                "uv run --package syshin0116-dev-agent ruff check\n          agent/src",
             ),
             "passed-to-child-command": (
-                "uv run --frozen --package syshin0116-dev-agent ruff check",
-                "uv run --package syshin0116-dev-agent ruff --frozen check",
+                "uv run --frozen --package syshin0116-dev-agent ruff check\n          agent/src",
+                "uv run --package syshin0116-dev-agent ruff --frozen check\n          agent/src",
             ),
             "quoted-shell": (
-                "uv run --frozen --package syshin0116-dev-agent ruff check",
+                "uv run --frozen --package syshin0116-dev-agent ruff check\n          agent/src",
                 'bash -c "uv run ruff check"',
             ),
         }
@@ -1467,8 +1467,8 @@ runs:
                 "",
             ),
             "renamed-child-command": (
-                "uv run --frozen --package syshin0116-dev-agent ruff check",
-                "uv run --frozen --package syshin0116-dev-agent ruff lint",
+                "uv run --frozen --package syshin0116-dev-agent ruff check\n          agent/src",
+                "uv run --frozen --package syshin0116-dev-agent ruff lint\n          agent/src",
             ),
             "extra-run": (
                 "      - if: needs.changes.outputs.agent == 'true'\n"
@@ -3160,8 +3160,8 @@ jobs:
             ),
             (
                 "dependency-job",
-                "  changes:\n    name: ci/changes\n",
-                "  changes:\n    name: ci/changes\n    continue-on-error: true\n",
+                "  changes:\n    name: ci/repo\n",
+                "  changes:\n    name: ci/repo\n    continue-on-error: true\n",
                 "job 'changes'",
             ),
             (
