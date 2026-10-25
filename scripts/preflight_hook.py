@@ -10,6 +10,7 @@ worktree that `git -C <dir>` or the command's working directory names.
 from __future__ import annotations
 
 import json
+import os
 import shlex
 import subprocess
 import sys
@@ -28,6 +29,11 @@ def ends_command(word: str) -> bool:
     return bool(word) and all(char in SEPARATOR_CHARS for char in word)
 
 
+def expand(path: str) -> str:
+    # shlex keeps `$VAR` and `~` literally; Bash expands them first.
+    return os.path.expanduser(os.path.expandvars(path))
+
+
 def push_directory(command: str, cwd: str) -> Path | None:
     """Return the directory a `git push` in `command` runs in, else None."""
     try:
@@ -44,7 +50,7 @@ def push_directory(command: str, cwd: str) -> Path | None:
     while index < len(words):
         word = words[index]
         if word == "cd" and index + 1 < len(words):
-            directory = directory / words[index + 1]
+            directory = directory / expand(words[index + 1])
             index += 2
             continue
         if word == "git" and (index == 0 or ends_command(words[index - 1])):
@@ -54,7 +60,7 @@ def push_directory(command: str, cwd: str) -> Path | None:
                 option = words[cursor]
                 if option in {"-C", "-c"} and cursor + 1 < len(words):
                     if option == "-C":
-                        git_directory = git_directory / words[cursor + 1]
+                        git_directory = git_directory / expand(words[cursor + 1])
                     cursor += 2
                     continue
                 cursor += 1
@@ -62,6 +68,18 @@ def push_directory(command: str, cwd: str) -> Path | None:
                 return git_directory
         index += 1
     return None
+
+
+def repository_root(directory: Path) -> str | None:
+    try:
+        return subprocess.run(
+            ["git", "-C", str(directory), "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
 
 
 def main() -> int:
@@ -73,14 +91,13 @@ def main() -> int:
     directory = push_directory(command, payload.get("cwd") or ".")
     if directory is None:
         return 0
-    try:
-        root = subprocess.run(
-            ["git", "-C", str(directory), "rev-parse", "--show-toplevel"],
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout.strip()
-    except (OSError, subprocess.CalledProcessError):
+    # A directory the hook cannot resolve (an unset variable, a command
+    # substitution) must not skip preflight, so fall back to the session's
+    # working tree before giving up.
+    root = repository_root(directory) or repository_root(
+        Path(payload.get("cwd") or ".")
+    )
+    if root is None:
         return 0  # Not a repository; git itself will report the push failure.
     result = subprocess.run(
         [str(Path(root) / "scripts" / "preflight.sh")],
