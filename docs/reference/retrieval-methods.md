@@ -8,7 +8,7 @@ when_to_read: >
   or when looking for what has already been tried and what it scored.
 tags: [reference, retrieval, rag, evaluation, registry]
 status: draft
-updated: "2026-10-11"
+updated: "2026-10-25"
 owners: ["@syshin0116"]
 refs: [../adr/0008-chatbot-is-a-rag-evaluation-testbed.md, ../plans/rag-restack.md]
 template: reference
@@ -66,7 +66,7 @@ and a `[[wikilink]]` graph between posts.
 Three things make this corpus worth evaluating on, in the order measurement says they
 matter:
 
-1. **163 aliased `[[target|alias]]` occurrences in the published corpus.** The alias is
+1. **Aliased `[[target|alias]]` occurrences in the published corpus.** The alias is
    the author's own Korean surface form for a target document - free known-item evidence
    that no public benchmark corpus has. See
    [below](#aliased-wikilinks---free-known-item-ground-truth).
@@ -169,7 +169,7 @@ publication-qualified result digest exists yet.
 
 ### Aliased wikilinks - free known-item ground truth
 
-The published corpus contains **163 aliased-link occurrences** of the form
+The published corpus contains **aliased-link occurrences** of the form
 `[[target|alias]]`, where the alias is often the author's own Korean surface form for a
 target document. Each resolved, unambiguous occurrence is a candidate labelled
 query-to-document pair written by the person who knows the corpus best. Extraction must
@@ -181,7 +181,7 @@ seed set for the qrels *and* a retrieval signal in its own right.
 
 | Method | Status | Meant to teach |
 |---|---|---|
-| Alias-derived known-item query set | `implemented` | 163 owner-authored occurrences resolve to 90 single-target qrels; 23 conflicting, ambiguous, self-link, or unresolved occurrences remain recorded exclusions |
+| Alias-derived known-item query set | `implemented` | Owner-authored occurrences resolve to single-target qrels; conflicting, ambiguous, self-link, or unresolved occurrences remain recorded exclusions (counts in the queryset `provenance`) |
 | Alias text as an indexed field | `planned` | Whether the author's own paraphrases beat title and body text as a match target |
 
 ### Chunking (an axis, not a method)
