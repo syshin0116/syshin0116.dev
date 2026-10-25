@@ -19,6 +19,7 @@ class PushDirectoryTests(unittest.TestCase):
             "git log --oneline -1",
             "echo git push",
             "git commit -m 'git push later'",
+            "git commit -m 'first line\ngit push'",
         ):
             with self.subTest(command=command):
                 self.assertIsNone(preflight_hook.push_directory(command, "/repo"))
@@ -30,6 +31,8 @@ class PushDirectoryTests(unittest.TestCase):
             "git -c core.hooksPath=x push": "/repo",
             "cd web && git push": "/repo/web",
             "uv run pytest && git push --force-with-lease": "/repo",
+            "git status\ngit push": "/repo",
+            "cd web\n\ngit push origin HEAD": "/repo/web",
         }
         for command, expected in cases.items():
             with self.subTest(command=command):
