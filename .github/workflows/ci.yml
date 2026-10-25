@@ -299,6 +299,9 @@ jobs:
         run: bun run test:auth-postgres
       - if: needs.changes.outputs.web == 'true'
         run: bun run prebuild
+      - name: Reject broken body links and missing page descriptions
+        if: needs.changes.outputs.web == 'true'
+        run: bun run verify:pages
       - if: needs.changes.outputs.web == 'true'
         run: bun run test
       - if: needs.changes.outputs.web == 'true'

@@ -1,5 +1,8 @@
 import AxeBuilder from "@axe-core/playwright"
 import { expect, test, type Page, type TestInfo } from "@playwright/test"
+import fs from "node:fs"
+import path from "node:path"
+import { blogPath } from "../../lib/blog-permalinks"
 
 const REPRESENTATIVE_HREF =
   "/blog/Dev/2026-07-16-Azure B시리즈 CPU 크레딧과 CI 러너 장애"
@@ -79,6 +82,9 @@ test.beforeEach(async ({ page }) => {
   page.on("console", (message) => {
     // Chromium readback warnings are emitted by screenshots of WebGL canvases.
     if (message.type() === "warning" && /^\[.WebGL-[^\]]+\]GL Driver Message .*GPU stall due to ReadPixels/.test(message.text())) return
+    // YouTube's copy-paste embed code lists `web-share` in the iframe `allow`
+    // attribute, which this Chromium build does not recognize; it is harmless.
+    if (message.type() === "warning" && message.text() === "Unrecognized feature: 'web-share'.") return
     // Next.js preloads route CSS when links enter the viewport, before navigation.
     if (message.type() === "warning" && message.text().startsWith(`The resource ${SITE_ORIGIN}/_next/static/`) && message.text().includes(".css was preloaded using link preload but not used")) return
     if (message.type() === "error" || message.type() === "warning") {
@@ -257,6 +263,68 @@ test("representative post does not overflow a mobile viewport", async ({
   await expectNoHorizontalOverflow(page)
   await expectA11yClean(page)
   await attachScreenshot(page, testInfo, "representative-post-mobile")
+})
+
+// Display math, video embeds, wide tables, long code, diagrams, and long
+// summaries are what pushed posts past a 390px viewport before; check the post
+// with the most of each so new content cannot quietly reintroduce it.
+const OVERFLOW_PRONE_FEATURES: Record<string, (page: GeneratedPage) => number> = {
+  "display math": page => page.html.split('class="katex-display"').length - 1,
+  "video embed": page => page.html.split("youtube.com/embed").length - 1,
+  "wide table": page => Math.max(0, ...[...page.html.matchAll(/<tr>([\s\S]*?)<\/tr>/g)].map(row => row[1].split("<td").length - 1)),
+  "code block": page => page.html.split("<pre").length - 1,
+  diagram: page => page.html.split("<svg").length - 1,
+  "long summary": page => (typeof page.frontmatter.summary === "string" ? page.frontmatter.summary.length : 0),
+}
+
+interface GeneratedPage {
+  slug: string
+  html: string
+  frontmatter: Record<string, unknown>
+}
+
+function generatedPages(): GeneratedPage[] {
+  const root = path.join(process.cwd(), ".generated", "pages")
+  return fs
+    .readdirSync(root, { recursive: true, encoding: "utf-8" })
+    .filter(file => file.endsWith(".json"))
+    .sort()
+    .map(file => {
+      const data = JSON.parse(fs.readFileSync(path.join(root, file), "utf-8"))
+      return { slug: file.replace(/\.json$/, "").split(path.sep).join("/"), html: data.html, frontmatter: data.frontmatter }
+    })
+    .filter(page => page.frontmatter.draft !== true && page.frontmatter.published !== false)
+}
+
+test("posts with overflow-prone content stay within a mobile viewport", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "site-mobile", "mobile journey")
+  test.setTimeout(180_000)
+  // Keep the check hermetic: image hosts such as imgur refuse a localhost
+  // referrer, and embedded players only add console noise. Third-party images
+  // become a 2000px-wide placeholder, so the check also proves images are
+  // constrained by the page CSS.
+  await page.route(url => url.origin !== SITE_ORIGIN, route => {
+    const kind = route.request().resourceType()
+    if (kind === "image") {
+      return route.fulfill({
+        contentType: "image/svg+xml",
+        body: '<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="200"/>',
+      })
+    }
+    const contentType = { document: "text/html", script: "application/javascript", stylesheet: "text/css" }[kind] ?? "text/plain"
+    return route.fulfill({ contentType, body: "" })
+  })
+  const pages = generatedPages()
+  for (const [feature, score] of Object.entries(OVERFLOW_PRONE_FEATURES)) {
+    const ranked = pages.map(candidate => ({ candidate, value: score(candidate) })).filter(entry => entry.value > 0)
+    expect(ranked.length, `no post has ${feature}`).toBeGreaterThan(0)
+    const { candidate } = ranked.reduce((best, entry) => (entry.value > best.value ? entry : best))
+    await test.step(`${feature}: ${candidate.slug}`, async () => {
+      await page.goto(blogPath(candidate.slug))
+      await expect(page.locator("article.prose")).toBeVisible()
+      await expectNoHorizontalOverflow(page)
+    })
+  }
 })
 
 test("mobile menu traps focus, closes with Escape, and restores focus", async ({

@@ -11,6 +11,7 @@
     "auth:migrate": "bun scripts/migrate-auth.ts",
     "auth:verify": "bun scripts/verify-auth-schema.ts",
     "prebuild": "bun scripts/prebuild.ts",
+    "verify:pages": "bun scripts/verify-rendered-pages.ts",
     "dev": "bun run prebuild && next dev --turbopack",
     "build": "next build && bun scripts/build-search-index.ts",
     "start": "next start",
