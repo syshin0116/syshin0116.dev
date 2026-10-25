@@ -202,7 +202,7 @@ UV_REQUIRED_VERSION = f"=={UV_VERSION}"
 UV_CHECKSUM = "f68d291c75783122dad58ab77def0e13f3233f358731db5d6d7e8715603b928f"
 SETUP_UV_ACTION = "astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7"
 EXPECTED_SETUP_UV_WORKFLOW_COUNTS = {
-    ".github/workflows/ci.yml": 6,
+    ".github/workflows/ci.yml": 4,
     ".github/workflows/dependency-audit.yml": 2,
 }
 AGENT_DOCKER_UV_IMAGE = (
