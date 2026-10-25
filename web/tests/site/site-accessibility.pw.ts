@@ -95,7 +95,9 @@ test.beforeEach(async ({ page }) => {
   })
   page.on("requestfailed", (request) => {
     const url = new URL(request.url())
-    if (url.origin === SITE_ORIGIN) {
+    // Next.js cancels an in-flight RSC fetch when a newer navigation supersedes it.
+    const supersededRsc = request.headers()["rsc"] === "1" && request.failure()?.errorText === "net::ERR_ABORTED"
+    if (url.origin === SITE_ORIGIN && !supersededRsc) {
       diagnostics.requestFailures.push(
         `${request.method()} ${url.pathname}: ${request.failure()?.errorText ?? "unknown"}`
       )
