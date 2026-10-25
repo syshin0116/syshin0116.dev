@@ -7,13 +7,13 @@ tags:
   - relational-db
   - mysql
   - data
-  - backend
-  - data-science
+  - Backend
+  - Data-Science
 summary: "관계형 DB는 1970년 Edgar Codd가 제안한 테이블 기반 데이터 모델로 현재 가장 널리 사용된다. 계층형 DB와 달리 복잡한 관계를 지원하며 데이터 독립성을 보장한다. MySQL 설치 및 기본 사용법도 포함한다."
 sources:
   - content/Study/SeSAC/data-analysis/2023-07-20-SeSAC-SQL로 데이터베이스 다루기-1일차.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

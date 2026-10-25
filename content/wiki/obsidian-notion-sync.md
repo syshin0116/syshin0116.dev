@@ -5,7 +5,7 @@ tags:
   - obsidian
   - notion
   - automation
-  - pkm
+  - PKM
   - markdown
   - workflow
   - productivity
@@ -13,7 +13,7 @@ summary: "Obsidian은 개인 지식 관리에, Notion은 협업에 각각 강점
 sources:
   - content/Tools/2024-03-09-Obsidian to Notion 자동화.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

@@ -2,15 +2,15 @@
 title: "Tech intelligence radar"
 type: pattern
 tags:
-  - github
+  - GitHub
   - open-source
   - changelog
   - research
   - automation
   - monitoring
-  - pkm
+  - PKM
   - workflow
-  - ai
+  - AI
   - trend-tracking
 summary: "Tech intelligence radar는 지식 위키 그 자체가 아니라 사용자에게 제공할 외부 정보 소스/인텔리전스 피드다. 새로 뜨는 레포와 기존 watchlist 레포의 release note, changelog, commit, issue/PR, 문서 변화를 추적해 digest와 action queue로 제공하고, 필요할 때만 검증된 insight를 지식 위키로 승격한다."
 sources:
@@ -25,7 +25,7 @@ sources:
   - https://info.arxiv.org/help/api/user-manual.html
   - https://huggingface.co/papers/trending
 created: 2026-05-18
-updated: 2026-07-12
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

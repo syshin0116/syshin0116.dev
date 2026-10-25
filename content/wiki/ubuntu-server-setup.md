@@ -2,19 +2,19 @@
 title: "Ubuntu 서버 초기 설정"
 type: reference
 tags:
-  - ubuntu
+  - Ubuntu
   - server
   - devops
   - docker
   - bash
-  - infrastructure
+  - Infrastructure
   - setup
   - python
 summary: "Ubuntu 서버를 새로 받을 때 필수 패키지를 한 번에 설치하는 bash 스크립트다. build-essential, git, curl, tmux 등 기본 도구와 함께 Python용 uv, Docker CE(공식 레포지토리 경유)를 설치하고 사용자를 docker 그룹에 추가한다."
 sources:
   - content/Tools/Ubuntu-Server-Setup.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

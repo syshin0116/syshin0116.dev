@@ -3,9 +3,9 @@ title: "LLM Wiki 패턴"
 type: pattern
 tags:
   - llm
-  - ai
+  - AI
   - knowledge-base
-  - pkm
+  - PKM
   - markdown
   - agent
   - rag
@@ -20,7 +20,7 @@ sources:
   - https://github.com/prodbartist/cmds-vault
   - https://github.com/prodbartist/cmds-vault/blob/main/90.%20Settings/91.%20Skills/cmds-llm-wiki/SKILL.md
 created: 2026-05-17
-updated: 2026-05-18
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---
@@ -84,7 +84,7 @@ draft: false
 | 자동화 | 역할 | 상태 |
 |--------|------|------|
 | `scripts/verify-wiki.py` | wiki frontmatter, wikilink, 금지어, index 누락 검사 | 추가 |
-| GitHub Actions `wiki-verify.yml` | PR에서 content/wiki 또는 관련 스크립트가 바뀌면 검증 실행 | 추가 |
+| GitHub Actions `ci.yml`의 `ci/repo` job | PR에서 `content/`, `.agents/skills/wiki-curator/`, `scripts/verify-wiki.py`가 바뀌면 `verify.ts`와 `scripts/verify-wiki.py` 검증 실행 | 추가 |
 | PR 기반 wiki 갱신 | agent가 만든 wiki 변경을 사람이 diff로 검토 | 현재 운영 방식 |
 
 자동 ingest까지 바로 켜기보다는, 먼저 검증 게이트를 붙이고 wiki 변경이 안전하게 리뷰되는 상태를 만드는 편이 낫다.

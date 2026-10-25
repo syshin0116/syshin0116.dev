@@ -2,7 +2,7 @@
 title: "LangFlow - 시각적 AI 워크플로우 빌더"
 type: tool
 tags:
-  - ai
+  - AI
   - llm
   - workflow
   - no-code
@@ -11,12 +11,12 @@ tags:
   - python
   - rag
   - agent
-  - pipeline
+  - Pipeline
 summary: "LangFlow는 드래그 앤 드롭으로 AI 워크플로우를 구성하는 MIT 라이선스 오픈소스 도구다(68.5k GitHub stars). LangChain 기반으로 RAG, 에이전트, 멀티에이전트 시스템을 시각적으로 설계하고 API로 배포할 수 있으나, 실제로는 low-code 수준의 학습 곡선이 존재한다."
 sources:
   - content/Tools/LangFlow.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

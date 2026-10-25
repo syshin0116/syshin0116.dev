@@ -5,7 +5,7 @@ tags:
   - object-detection
   - deep-learning
   - computer-vision
-  - ai
+  - AI
   - cnn
   - rcnn
   - yolo
@@ -18,7 +18,7 @@ sources:
   - content/Study/SeSAC/2023-11-22-딥러닝 영상처리3.md
   - content/Study/SeSAC/2023-11-23-딥러닝 영상처리4.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

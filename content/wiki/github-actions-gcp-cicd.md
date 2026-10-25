@@ -9,13 +9,13 @@ tags:
   - devops
   - automation
   - cloud
-  - backend
+  - Backend
 summary: "GitHub Actions로 코드 push 시 Docker 이미지를 빌드해 Docker Hub에 올리고, SSH로 GCP Compute Engine에 접속해 컨테이너를 재배포하는 CI/CD 파이프라인 패턴이다. GitHub Secrets로 민감 정보를 관리하며, 비용 없이 소규모 프로젝트에 적용 가능하다."
 sources:
   - content/Tools/Git/2024-11-09-정리-Github CI CD - GCP.md
   - content/Tools/Git/2024-11-17-방법-Github CI CD - GCP.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

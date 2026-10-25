@@ -5,15 +5,15 @@ tags:
   - second-brain
   - rag
   - llm
-  - pkm
-  - ai
+  - PKM
+  - AI
   - agent
   - retrieval
 summary: "Second Brain(개인 지식 데이터베이스)에 RAG를 적용하면 컨텍스트 기반 정보 검색과 AI 응답 품질이 동시에 향상된다. 지식이 충분히 축적되면 개인 경험을 가진 Multi-Agent 구현도 가능하다는 아이디어다."
 sources:
   - content/Tools/2024-08-02-Second-Brain-RAG.md
 created: 2026-04-26
-updated: 2026-05-17
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---

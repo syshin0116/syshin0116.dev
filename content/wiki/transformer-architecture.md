@@ -6,7 +6,7 @@ tags:
   - attention
   - nlp
   - deep-learning
-  - ai
+  - AI
   - seq2seq
   - python
   - tensorflow
@@ -15,7 +15,7 @@ sources:
   - content/Study/SeSAC/2023-11-29-Transformers 강의 정리.md
   - content/Study/SeSAC/2023-11-30-Transformers 실습.md
 created: 2026-04-26
-updated: 2026-04-26
+updated: 2026-10-25
 author: wiki-curator
 draft: false
 ---
