@@ -131,23 +131,27 @@ See [ingest.md](./ingest.md#filing-back-query-answers-type-synthesis) for the fi
 
 ## Tags
 
-Lowercase, hyphenated, no prefixes. 5–10 per page, sampled from multiple dimensions:
+No prefixes. 5–10 per page, sampled from multiple dimensions:
 
 | Dimension | Examples |
 |-----------|----------|
-| Domain | `ai`, `backend`, `frontend`, `infra`, `data`, `devops`, `mobile` |
-| Language/framework | `python`, `rust`, `typescript`, `react`, `nextjs` |
-| Technique | `bm25`, `edit-distance`, `prompt-engineering`, `caching`, `vector-search` |
-| Concept | `knowledge-graph`, `zettelkasten`, `retrieval`, `agent-loop` |
-| Meta | `cli`, `library`, `pattern`, `experiment`, `comparison` |
+| Domain | `AI`, `Backend`, `frontend`, `data`, `devops` |
+| Language/framework | `python`, `Rust`, `typescript`, `Nextjs` |
+| Technique | `BM25`, `edit-distance`, `prompt-engineering`, `Caching`, `vector-search` |
+| Concept | `knowledge-graph`, `zettelkasten`, `retrieval` |
+| Meta | `CLI`, `library`, `Pattern`, `Experiment`, `comparison` |
 
-Reuse existing vocabulary first:
+Wiki pages and source posts share one set of tag pages, so a tag that differs from a post tag only in case or in spaces, `-`, `_`, `.` splits that page (`web/lib/tag.ts` compares tags this way). Reuse the post's exact spelling, then the wiki's; write a brand-new tag lowercase and hyphenated.
 
 ```bash
-# See current tags + frequency
-grep -h "^  - " content/wiki/**/*.md \
-  | grep -v "^  - content/" \
-  | sed 's/^  - //' | sort | uniq -c | sort -rn
+# See current tags + frequency across posts and wiki (block-style lists only;
+# about 16 posts use inline `tags: [a, b]` and are not counted)
+find content -name '*.md' -exec awk '
+  FNR==1 {fm=0; t=0}
+  /^---$/ {fm++; next}
+  fm==1 && /^tags:/ {t=1; next}
+  fm==1 && t && /^ +- / {sub(/^ +- /, ""); print; next}
+  {t=0}' {} + | sort | uniq -c | sort -rn
 ```
 
 Tag drift (parallel synonyms like `note-taking` vs `notes`) is the [migrate](./migrate.md) operation's problem to consolidate. Day-to-day, prefer the most common existing form.
