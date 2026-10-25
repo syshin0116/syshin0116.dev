@@ -516,11 +516,16 @@ test("a blog slug cannot read generated files outside the pages directory", asyn
   }
 })
 
-test("tag pages resolve Hangul and spaced tags and reject unknown ones", async ({ request }) => {
-  for (const tag of ["교육", "검색 노출", "RAG"]) {
+test("tag pages resolve Hangul and spaced tags, redirect merged spellings, and reject unknown ones", async ({ request }) => {
+  for (const tag of ["교육", "검색 노출", "rag"]) {
     const response = await request.get(`/blog/tags/${encodeURIComponent(tag)}`)
     expect(response.status(), tag).toBe(200)
     expect(await response.text()).toContain(`#${tag}`)
+  }
+  for (const [merged, target] of [["RAG", "/blog/tags/rag"], ["Machine Learning", "/blog/tags/machine-learning"]]) {
+    const response = await request.get(`/blog/tags/${encodeURIComponent(merged)}`, { maxRedirects: 0 })
+    expect(response.status(), merged).toBe(308)
+    expect(response.headers().location, merged).toBe(target)
   }
   for (const target of [`/blog/tags/${encodeURIComponent("없는-태그-zz")}`, "/blog/tags/toString", "/blog/tags/constructor"]) {
     expect((await request.get(target)).status(), target).toBe(404)
