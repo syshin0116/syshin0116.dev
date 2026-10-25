@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shlex
 import subprocess
 import sys
@@ -34,8 +35,11 @@ def expand(path: str) -> str:
     return os.path.expanduser(os.path.expandvars(path))
 
 
-def push_directory(command: str, cwd: str) -> Path | None:
-    """Return the directory a `git push` in `command` runs in, else None."""
+ASSIGNMENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*=")
+
+
+def push_directories(command: str, cwd: str) -> list[Path]:
+    """Return the directory of every `git push` in `command`, in order."""
     try:
         # An unquoted newline ends a command like `;` does, so it must stay a
         # token instead of being skipped as whitespace.
@@ -44,10 +48,12 @@ def push_directory(command: str, cwd: str) -> Path | None:
         lexer.whitespace_split = True
         words = list(lexer)
     except ValueError:
-        return None
+        return []
+    directories: list[Path] = []
     directory = Path(cwd)
     # A `cd` inside `( ... )` ends with the subshell.
     subshell_directories: list[Path] = []
+    at_command_start = True
     index = 0
     while index < len(words):
         word = words[index]
@@ -57,11 +63,19 @@ def push_directory(command: str, cwd: str) -> Path | None:
                     subshell_directories.append(directory)
                 elif char == ")" and subshell_directories:
                     directory = subshell_directories.pop()
-        if word == "cd" and index + 1 < len(words):
+            at_command_start = True
+            index += 1
+            continue
+        if at_command_start and ASSIGNMENT.match(word):
+            # `NAME=value git push` still runs git as the command.
+            index += 1
+            continue
+        if at_command_start and word == "cd" and index + 1 < len(words):
             directory = directory / expand(words[index + 1])
             index += 2
+            at_command_start = False
             continue
-        if word == "git" and (index == 0 or ends_command(words[index - 1])):
+        if at_command_start and word == "git":
             git_directory = directory
             cursor = index + 1
             while cursor < len(words) and words[cursor].startswith("-"):
@@ -73,9 +87,10 @@ def push_directory(command: str, cwd: str) -> Path | None:
                     continue
                 cursor += 1
             if cursor < len(words) and words[cursor] == "push":
-                return git_directory
+                directories.append(git_directory)
+        at_command_start = False
         index += 1
-    return None
+    return directories
 
 
 def repository_root(directory: Path) -> str | None:
@@ -96,24 +111,25 @@ def main() -> int:
     except json.JSONDecodeError:
         return 0
     command = payload.get("tool_input", {}).get("command", "")
-    directory = push_directory(command, payload.get("cwd") or ".")
-    if directory is None:
-        return 0
-    # A directory the hook cannot resolve (an unset variable, a command
-    # substitution) must not skip preflight, so fall back to the session's
-    # working tree before giving up.
-    root = repository_root(directory) or repository_root(
-        Path(payload.get("cwd") or ".")
-    )
-    if root is None:
-        return 0  # Not a repository; git itself will report the push failure.
-    result = subprocess.run(
-        [str(Path(root) / "scripts" / "preflight.sh")],
-        cwd=root,
-        stdout=sys.stderr,
-        check=False,
-    )
-    if result.returncode != 0:
+    cwd = payload.get("cwd") or "."
+    roots: list[str] = []
+    for directory in push_directories(command, cwd):
+        # A directory the hook cannot resolve (an unset variable, a command
+        # substitution) must not skip preflight, so fall back to the session's
+        # working tree. Outside any repository, git reports the push itself.
+        root = repository_root(directory) or repository_root(Path(cwd))
+        if root is not None and root not in roots:
+            roots.append(root)
+    failed = False
+    for root in roots:
+        result = subprocess.run(
+            [str(Path(root) / "scripts" / "preflight.sh")],
+            cwd=root,
+            stdout=sys.stderr,
+            check=False,
+        )
+        failed = failed or result.returncode != 0
+    if failed:
         print(
             json.dumps(
                 {
