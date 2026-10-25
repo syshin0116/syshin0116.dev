@@ -3,8 +3,8 @@ title: 문서(pdf 등) 내 시각 자료와 텍스트의 추출 및 활용
 date: 2024-07-23
 tags:
 - AI
-- RAG
-- MultiModal
+- rag
+- multimodal
 - PDF
 - pdf-parser
 draft: false

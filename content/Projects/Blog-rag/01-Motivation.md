@@ -4,10 +4,10 @@ date: 2026-03-06
 tags:
   - Projects
   - blog-rag
-  - RAG
-  - Modular-RAG
+  - rag
+  - modular-rag
   - AI
-  - Obsidian
+  - obsidian
 draft: false
 enableToc: true
 description: 블로그를 RAG 지식 베이스로 쓰기로 결정한 이유, 그리고 검색 모듈을 조합 가능하게 만들어야 하는 이유.

@@ -2,8 +2,8 @@
 title: Cursor Project Rules로 AI 코딩 어시스턴트 맞춤화하기
 date: 2025-04-07
 tags:
-- cursor
-- ai
+- Cursor
+- AI
 - coding-assistant
 - project-rules
 - cursor-ai

@@ -6,7 +6,7 @@ tags:
 - llm
 - rag
 - deep-learning
-- document-processing
+- Document-Processing
 - indexing
 draft: false
 enableToc: true

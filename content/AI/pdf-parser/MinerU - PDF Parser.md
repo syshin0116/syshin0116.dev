@@ -7,7 +7,7 @@ tags:
 - data-extraction
 - markdown
 - ocr
-- ai
+- AI
 - PDF
 - rag
 - document-ai

@@ -10,7 +10,7 @@ tags:
   - PKM
   - ADR
   - organization-knowledge
-  - search
+  - Search
   - access-control
 draft: false
 enableToc: true

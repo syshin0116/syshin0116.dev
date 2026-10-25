@@ -5,7 +5,7 @@ tags:
 - langchain
 - open-tutorial
 - peer-review
-- graph-rag
+- graphrag
 - academic-search
 - code-review
 draft: false

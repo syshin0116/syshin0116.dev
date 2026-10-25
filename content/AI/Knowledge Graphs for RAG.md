@@ -2,7 +2,7 @@
 title: Knowledge Graphs for RAG
 date: 2024-08-15
 tags:
-- ai
+- AI
 - deep-learning
 - knowledge-graph
 - rag

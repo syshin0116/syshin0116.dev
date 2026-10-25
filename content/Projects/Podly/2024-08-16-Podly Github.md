@@ -7,7 +7,7 @@ tags:
 - submodule
 - version-control
 - project-structure
-- github
+- GitHub
 draft: false
 enableToc: true
 description: Podly 프로젝트에서 Git 서브모듈을 활용한 효과적인 컴포넌트 관리 방법

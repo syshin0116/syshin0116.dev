@@ -2,7 +2,7 @@
 title: NextJS 선택 전 알아야 할 것들
 date: 2025-04-18
 tags:
-- NextJS
+- Nextjs
 - 웹개발
 - 프레임워크
 - 1일1아티클

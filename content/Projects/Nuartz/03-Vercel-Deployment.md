@@ -7,7 +7,7 @@ tags:
   - Vercel
   - Nextjs
   - Deployment
-  - Debugging
+  - debugging
 draft: false
 enableToc: true
 description: Phase 1 구현 내용 정리, 그리고 Vercel 배포 과정에서 만난 workspace 프로토콜, Turbopack, 각종 버그들을 기록한다.

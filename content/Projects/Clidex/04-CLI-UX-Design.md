@@ -7,7 +7,7 @@ tags:
   - Rust
   - CLI
   - AI-Agent
-  - UX
+  - ux
   - API-Design
 draft: false
 enableToc: true

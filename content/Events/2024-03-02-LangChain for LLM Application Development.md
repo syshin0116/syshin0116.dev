@@ -8,7 +8,7 @@ tags:
 - rag
 - agents
 - prompt-engineering
-- vector-database
+- Vector-Database
 draft: false
 enableToc: true
 description: LangChain을 활용한 LLM 애플리케이션 개발 강의 전체 내용 정리

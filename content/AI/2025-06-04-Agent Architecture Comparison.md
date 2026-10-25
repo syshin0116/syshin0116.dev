@@ -3,13 +3,13 @@ title: LLM 에이전트 아키텍처 비교 - ReAct, Plan-and-Execute, Superviso
 date: 2025-06-04
 tags:
 - AI
-- LLM
+- llm
 - agent
 - ReAct
 - Plan-and-Execute
 - Supervisor
 - architecture
-- LangChain
+- langchain
 - workflow
 - Agentic-AI
 - multi-agent

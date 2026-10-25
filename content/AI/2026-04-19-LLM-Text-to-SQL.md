@@ -5,7 +5,7 @@ tags:
   - text-to-sql
   - llm
   - agent
-  - postgresql
+  - PostgreSQL
   - prompt-engineering
   - evaluation
   - langsmith

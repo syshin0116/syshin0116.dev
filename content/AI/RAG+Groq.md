@@ -2,7 +2,7 @@
 title: RAG+Groq
 date: 2024-04-29
 tags:
-- ai
+- AI
 - deep-learning
 - langchain
 - rag

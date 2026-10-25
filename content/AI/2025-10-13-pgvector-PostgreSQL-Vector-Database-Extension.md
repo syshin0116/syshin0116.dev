@@ -9,7 +9,7 @@ tags:
 - Embedding
 - ANN
 - HNSW
-- RAG
+- rag
 - Semantic-Search
 draft: false
 enableToc: true

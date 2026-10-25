@@ -5,7 +5,7 @@ tags:
 - AWS
 - Architect-Associate
 - SAA-C03
-- Cloud
+- cloud
 draft: false
 enableToc: true
 summary: "Services covered in this course: Question: If you need to launch a new application, where should you do it?"

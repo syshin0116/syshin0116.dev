@@ -3,9 +3,9 @@ title: Supabase-NextJS
 date: 2025-05-24
 tags:
 - Supabase
-- NextJS
+- Nextjs
 - project
-- Hostit
+- HostIt
 - project-starter
 draft: false
 enableToc: true

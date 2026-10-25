@@ -2,7 +2,7 @@
 title: PPV and PARA
 date: 2023-06-25
 tags:
-- study
+- Study
 - second-brain
 - ppv
 - para

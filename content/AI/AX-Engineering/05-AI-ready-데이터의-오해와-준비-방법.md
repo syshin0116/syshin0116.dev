@@ -9,7 +9,7 @@ tags:
   - context-engineering
   - data-contract
   - semantic-layer
-  - RAG
+  - rag
   - MLOps
 draft: false
 enableToc: true

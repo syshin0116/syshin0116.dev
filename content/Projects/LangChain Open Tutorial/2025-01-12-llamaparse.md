@@ -5,9 +5,9 @@ tags:
 - langchain
 - llamaparse
 - document-parsing
-- pdf
+- PDF
 - tutorial
-- llama-index
+- llamaindex
 draft: false
 enableToc: true
 description: LlamaParse를 활용한 문서 파싱 튜토리얼 - PDF 및 다양한 문서 형식 처리

@@ -4,14 +4,14 @@ date: 2026-05-18
 tags:
   - AI
   - GitHub
-  - Open-Source
-  - Research
+  - open-source
+  - research
   - News
-  - Automation
-  - Knowledge-Management
-  - Workflow
+  - automation
+  - knowledge-management
+  - workflow
   - Events
-  - Hackathon
+  - hackathon
 draft: false
 enableToc: true
 description: 레포, 논문, 뉴스, 블로그, 소셜 신호와 공모전/해커톤/설명회 같은 기회 정보를 자동으로 수집하고 계속 업데이트되는 지식으로 관리하기 위한 기술 정보 레이더 설계안.

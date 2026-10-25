@@ -3,10 +3,10 @@ title: Azure B시리즈 CPU 크레딧 고갈로 CI가 무너진 날
 date: 2026-07-16
 tags:
   - dev
-  - azure
+  - Azure
   - aks
   - github-actions
-  - ci-cd
+  - cicd
   - troubleshooting
 draft: false
 enableToc: true

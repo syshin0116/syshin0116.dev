@@ -7,7 +7,7 @@ tags:
 - visualization
 - machine-learning
 - deep-learning
-- data-science
+- Data-Science
 draft: false
 enableToc: true
 description: 고차원 데이터를 효과적으로 시각화하는 비선형 차원 축소 기법인 t-SNE의 원리와 활용법을 설명한 글이다.

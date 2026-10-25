@@ -7,7 +7,7 @@ tags:
 - llm
 - langgraph
 - agentic-rag
-- semantic-search
+- Semantic-Search
 - teddynote
 draft: false
 enableToc: true
