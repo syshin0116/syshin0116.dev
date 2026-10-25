@@ -1,6 +1,6 @@
 ARG PYTHON_IMAGE="python:3.12-slim-trixie@sha256:229a2c5bfa27522db7815ea81f9bed70af17ccb9de9fc7ad142b1877b5830d36"
-ARG UV_VERSION="0.12.3"
-ARG UV_IMAGE="ghcr.io/astral-sh/uv:${UV_VERSION}@sha256:2d890623d310b57771ce840f0da5eed5fc6d657da05ffaa45d82797b53fa3abc"
+ARG UV_VERSION="0.13.5"
+ARG UV_IMAGE="ghcr.io/astral-sh/uv:${UV_VERSION}@sha256:32a7bb39b496babbd997b0a39a4d66c126bdaf5661b302bf6f06abda8deca6ff"
 
 FROM ${UV_IMAGE} AS uv
 FROM ${PYTHON_IMAGE} AS builder
