@@ -4,12 +4,12 @@ description: >
   The read-only scheduled check that compares exact agent, protocol, and native chat
   pins with stable releases from allowlisted official registries.
 when_to_read: >
-  When the dependency/upstream-versions job fails, before changing its targets or
+  When the dependency/upstream-versions job warns or fails, before changing its targets or
   release semantics, or when adding a pinned framework such as QuickJS.
 tags:
   [operations, dependencies, github-actions, aegra, agent-protocol, langgraph, quickjs]
 status: stable
-updated: "2026-09-26"
+updated: "2026-10-25"
 owners: ["@syshin0116"]
 refs:
   - ../../.github/workflows/dependency-audit.yml
@@ -26,8 +26,8 @@ template: spec
 
 [`upstream_version_audit.py`](../../scripts/upstream_version_audit.py) is a read-only
 compatibility alert. It never resolves, installs, or updates a package. The scheduled and
-manual [Dependency audit workflow](../../.github/workflows/dependency-audit.yml) fails
-visibly when an allowlisted exact pin is behind a newer stable release or when the answer
+manual [Dependency audit workflow](../../.github/workflows/dependency-audit.yml) warns
+when an allowlisted exact pin is behind a newer stable release and fails when the answer
 cannot be established safely.
 
 The required targets are:
