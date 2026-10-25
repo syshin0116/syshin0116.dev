@@ -8,7 +8,7 @@ when_to_read: >
   workflows or image, rotating agent database credentials, or rolling back a revision.
 tags: [operations, gcp, cloud-run, aegra, github-actions, neon, rollback]
 status: stable
-updated: "2026-09-26"
+updated: "2026-10-25"
 owners: ["@syshin0116"]
 refs:
   - ../../infra/gcp/README.md
@@ -21,6 +21,11 @@ template: spec
 ---
 
 # Native Aegra Cloud Run delivery runbook
+
+> **Paused since 2026-10-25.** GCP billing is off, so the repository variable
+> `AGENT_CLOUD_RUN_ENABLED` is `false` and `Deploy agent` skips its build and release.
+> The workflows, `infra/gcp/`, and this runbook stay as they are until the home-server
+> delivery path is designed; see [`DECISIONS.md`](../../DECISIONS.md) (2026-10-25).
 
 The web application remains on Vercel. This delivery surface owns the Production Aegra
 service and four Production jobs. Preview registry, identities, and secret containers are

@@ -1221,9 +1221,9 @@ class LocalGovernanceTests(unittest.TestCase):
             "# v10.2.0\n"
             "        if: needs.changes.outputs.agent == 'true'\n"
             "        with:\n"
-            '          version: "0.12.3"\n'
+            '          version: "0.13.5"\n'
             "          checksum: "
-            "600cf9a742aca00d292673b16b5acffaa7b8c269a364ad0c2e79498dcb1fe101\n"
+            "f68d291c75783122dad58ab77def0e13f3233f358731db5d6d7e8715603b928f\n"
             "          enable-cache: true\n"
             "          cache-dependency-glob: uv.lock\n"
         )
@@ -2393,12 +2393,12 @@ runs:
         mutations = (
             (
                 "checksum",
-                "600cf9a742aca00d292673b16b5acffaa7b8c269a364ad0c2e79498dcb1fe101",
+                "f68d291c75783122dad58ab77def0e13f3233f358731db5d6d7e8715603b928f",
                 "0" * 64,
             ),
             (
                 "uv-version",
-                'version: "0.12.3"',
+                'version: "0.13.5"',
                 'version: "0.11.28"',
             ),
             (
@@ -2435,12 +2435,12 @@ runs:
         mutations = (
             (
                 "checksum",
-                "600cf9a742aca00d292673b16b5acffaa7b8c269a364ad0c2e79498dcb1fe101",
+                "f68d291c75783122dad58ab77def0e13f3233f358731db5d6d7e8715603b928f",
                 "0" * 64,
             ),
             (
                 "uv-version",
-                'version: "0.12.3"',
+                'version: "0.13.5"',
                 'version: "0.11.28"',
             ),
             (
@@ -2651,21 +2651,21 @@ runs:
             (
                 "root-required-version",
                 "pyproject.toml",
-                'required-version = "==0.12.3"',
-                'required-version = ">=0.12.3"',
+                'required-version = "==0.13.5"',
+                'required-version = ">=0.13.5"',
                 "tool.uv.required-version must equal",
             ),
             (
                 "docker-version",
                 "Dockerfile",
-                'ARG UV_VERSION="0.12.3"',
+                'ARG UV_VERSION="0.13.5"',
                 'ARG UV_VERSION="0.11.28"',
                 "UV_VERSION ARG must remain exact",
             ),
             (
                 "ci-unpinned-version",
                 ".github/workflows/ci.yml",
-                '          version: "0.12.3"\n',
+                '          version: "0.13.5"\n',
                 "",
                 "version must equal",
             ),
