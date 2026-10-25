@@ -1156,7 +1156,7 @@ def test_real_corpus_build_matches_the_nuartz_publication_policy(
         for occurrence in graph["excluded_links"]
         if occurrence["reason"] == "ambiguous-target"
     ]
-    assert len(ambiguous) == 7
+    assert ambiguous
     assert all(len(occurrence["candidates"]) > 1 for occurrence in ambiguous)
     assert all("target_doc_id" not in occurrence for occurrence in ambiguous)
     alias_occurrences = [
@@ -1165,4 +1165,7 @@ def test_real_corpus_build_matches_the_nuartz_publication_policy(
         for occurrence in graph[field]
         if occurrence["alias"] is not None
     ]
-    assert len(alias_occurrences) == 163
+    # The committed known-item set must be regenerated whenever content changes
+    # the alias occurrences it was built from.
+    known_item = _read_json(REPO_ROOT / "eval/querysets/known-item-alias-v1.json")
+    assert len(alias_occurrences) == known_item["provenance"]["source_occurrence_count"]

@@ -366,10 +366,14 @@ def test_committed_known_item_queryset_accounts_for_all_alias_occurrences() -> N
     )
     assert dataset.kind is DatasetKind.KNOWN_ITEM
     assert dataset.labels.status is LabelStatus.GENERATED_OWNER_AUTHORED
-    assert len(dataset.qrels) == 90
-    assert len(dataset.exclusions) == 23
-    assert dataset.provenance.source_occurrence_count == 163
-    assert dataset.provenance.included_occurrence_count == 140
+    # Counts follow the content tree; ci/eval regenerates the set and checks the
+    # committed file byte-for-byte, so only their internal accounting is fixed here.
+    provenance = dataset.provenance
+    assert 0 < len(dataset.qrels) <= provenance.included_occurrence_count
+    assert (
+        provenance.included_occurrence_count + len(dataset.exclusions)
+        == provenance.source_occurrence_count
+    )
 
 
 def test_topic_contract_fixture_is_multi_document_and_not_claimed_as_gold() -> None:

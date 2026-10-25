@@ -9,7 +9,7 @@ when_to_read: >
   or when deciding what comes next.
 tags: [plan, aegra, assistant-ui, deepagents, retrieval, evaluation, deploy]
 status: draft
-updated: "2026-10-11"
+updated: "2026-10-25"
 owners: ["@syshin0116"]
 refs:
   - ../adr/0008-chatbot-is-a-rag-evaluation-testbed.md
@@ -762,7 +762,7 @@ The actual deliverable. Forks off P1's Protocol and can proceed alongside P2 and
   imports `eval/`. Promoting a lab method means moving its implementation and registering
   the same method ID/fingerprint in the servable registry. This keeps the image slim
   without forking the interface.
-- **Bootstrap qrel candidates from the 163 aliased `[[target|alias]]` occurrences in the
+- **Bootstrap qrel candidates from the aliased `[[target|alias]]` occurrences in the
   published corpus.** The alias is the author's own Korean surface form for a target
   document - free known-item evidence that no public corpus has. Resolve, deduplicate, and
   record exclusions before calling them gold; use them before spending anything on
@@ -792,7 +792,7 @@ The actual deliverable. Forks off P1's Protocol and can proceed alongside P2 and
 
 **Implemented evidence (2026-08-01):** `eval/` is a root uv-workspace member and the
 default CLI sweep runs `bm25`, `bm25-field-weighted`, `char-ngram`, and
-`rrf-bm25-char-ngram`. CI generates and validates the 90-qrel known-item dataset, executes
+`rrf-bm25-char-ngram`. CI generates and validates the alias-derived known-item dataset, executes
 the four-method sweep twice on its frozen Linux runner, verifies each run, and
 byte-compares its JSON, Markdown, SVG, and manifest projections. The opt-in
 `dense-multilingual-e5-small` and `rrf-bm25-dense-multilingual-e5-small` methods make the
