@@ -20,6 +20,28 @@ export interface AuditPolicyEvidence {
   bunLock: string
 }
 
+export interface AuditException {
+  package: string
+  advisory: string
+  reason: string
+  /** Last day (UTC, YYYY-MM-DD) the exception applies; re-review before then. */
+  expires: string
+}
+
+// Only advisories with no upstream-compatible fix belong here. An entry fails the
+// policy once it expires or once the advisory no longer appears in either audit.
+export const AUDIT_EXCEPTIONS: readonly AuditException[] = [
+  {
+    package: "katex",
+    advisory: "GHSA-238p-pmpm-9mq7",
+    reason:
+      "Low severity and needs an existing prototype pollution. The fix is 0.18.2, " +
+      "but mermaid 12.1.0, rehype-katex 7.0.1 and micromark-extension-math 3.1.0 " +
+      "all require ^0.16; KaTeX only renders owner-authored posts at build time.",
+    expires: "2027-01-23",
+  },
+]
+
 function fail(message: string): never {
   throw new Error(`dependency audit policy failed: ${message}`)
 }
@@ -46,27 +68,66 @@ function parseAuditJson(result: AuditCommandResult, label: string) {
   }
 }
 
-function requireEmptySuccessfulAudit(
+function advisoryId(advisory: unknown): string | undefined {
+  if (!isRecord(advisory) || typeof advisory.url !== "string") {
+    return undefined
+  }
+  return /GHSA-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}/u.exec(advisory.url)?.[0]
+}
+
+function requireAuditWithinExceptions(
   result: AuditCommandResult,
   label: string,
+  exceptions: readonly AuditException[],
+  matched: Set<AuditException>,
 ): void {
   // bun audit reports advisories on stdout and exits non-zero, so the exit code
   // alone names neither the package nor the advisory. Parse first, and only fall
   // back to the raw streams when stdout is not the documented JSON.
   const findings = parseAuditJson(result, label)
-  const advisories = Object.keys(findings)
-  if (advisories.length !== 0) {
+  const unexcepted: Record<string, unknown[]> = {}
+  for (const [name, advisories] of Object.entries(findings)) {
+    for (const advisory of Array.isArray(advisories) ? advisories : [advisories]) {
+      const exception = exceptions.find(entry =>
+        entry.package === name && entry.advisory === advisoryId(advisory))
+      if (exception) {
+        matched.add(exception)
+      } else {
+        unexcepted[name] = [...(unexcepted[name] ?? []), advisory]
+      }
+    }
+  }
+  const packages = Object.keys(unexcepted)
+  if (packages.length !== 0) {
     fail(
-      `${label} audit found ${advisories.length} advisories: ` +
-        `${advisories.join(", ")}\n${JSON.stringify(findings, null, 2)}`,
+      `${label} audit found ${packages.length} advisories: ` +
+        `${packages.join(", ")}\n${JSON.stringify(unexcepted, null, 2)}`,
     )
   }
-  if (result.exitCode !== 0) {
+  if (result.exitCode !== 0 && Object.keys(findings).length === 0) {
     fail(
       `${label} audit exited ${result.exitCode} with no findings in stdout; ` +
         `stderr=${result.stderr.trim()}`,
     )
   }
+}
+
+function activeExceptions(
+  exceptions: readonly AuditException[],
+  today: string,
+): readonly AuditException[] {
+  for (const entry of exceptions) {
+    if (!/^\d{4}-\d{2}-\d{2}$/u.test(entry.expires)) {
+      fail(`audit exception ${entry.package} ${entry.advisory} needs a YYYY-MM-DD expiry`)
+    }
+    if (entry.expires < today) {
+      fail(
+        `audit exception ${entry.package} ${entry.advisory} expired on ` +
+          `${entry.expires}; fix the dependency or re-review and extend it`,
+      )
+    }
+  }
+  return exceptions
 }
 
 function packageRecords(lock: string) {
@@ -117,9 +178,23 @@ function requireDependencyBaseline(packageJson: string, bunLock: string): void {
   }
 }
 
-export function validateAuditPolicy(evidence: AuditPolicyEvidence): void {
-  requireEmptySuccessfulAudit(evidence.production, "production")
-  requireEmptySuccessfulAudit(evidence.complete, "complete")
+export function validateAuditPolicy(
+  evidence: AuditPolicyEvidence,
+  exceptions: readonly AuditException[] = AUDIT_EXCEPTIONS,
+  today: string = new Date().toISOString().slice(0, 10),
+): void {
+  const active = activeExceptions(exceptions, today)
+  const matched = new Set<AuditException>()
+  requireAuditWithinExceptions(evidence.production, "production", active, matched)
+  requireAuditWithinExceptions(evidence.complete, "complete", active, matched)
+  for (const entry of active) {
+    if (!matched.has(entry)) {
+      fail(
+        `audit exception ${entry.package} ${entry.advisory} no longer matches ` +
+          "any advisory; remove the stale entry",
+      )
+    }
+  }
   requireDependencyBaseline(
     evidence.packageJson,
     evidence.bunLock,
@@ -152,7 +227,8 @@ async function main(): Promise<void> {
   validateAuditPolicy(evidence)
   console.log(
     "dependency audit policy passed: production and complete " +
-      "high/critical=0; native package resolutions match the manifest",
+      `high/critical=0 outside ${AUDIT_EXCEPTIONS.length} dated exceptions; ` +
+      "native package resolutions match the manifest",
   )
 }
 
