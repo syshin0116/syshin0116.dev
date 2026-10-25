@@ -40,6 +40,13 @@ class PushDirectoryTests(unittest.TestCase):
                     Path(expected), preflight_hook.push_directory(command, "/repo")
                 )
 
+    def test_expands_variables_like_bash(self) -> None:
+        with mock.patch.dict(preflight_hook.os.environ, {"WORKTREE": "/work/tree"}):
+            self.assertEqual(
+                Path("/work/tree"),
+                preflight_hook.push_directory('cd "$WORKTREE" && git push', "/repo"),
+            )
+
 
 class MainTests(unittest.TestCase):
     def run_hook(self, payload: dict) -> tuple[int, str, mock.MagicMock]:
@@ -74,6 +81,26 @@ class MainTests(unittest.TestCase):
         preflight_call = run.call_args_list[1]
         self.assertEqual(["/work/tree/scripts/preflight.sh"], preflight_call.args[0])
         self.assertEqual("/work/tree", preflight_call.kwargs["cwd"])
+
+    def test_unresolvable_directory_falls_back_to_the_session_worktree(self) -> None:
+        stdout = io.StringIO()
+        payload = {
+            "tool_input": {"command": 'cd "$(pick)" && git push'},
+            "cwd": "/repo",
+        }
+        with (
+            mock.patch.object(sys, "stdin", io.StringIO(json.dumps(payload))),
+            mock.patch.object(sys, "stdout", stdout),
+            mock.patch.object(preflight_hook.subprocess, "run") as run,
+        ):
+            run.side_effect = [
+                preflight_hook.subprocess.CalledProcessError(128, "git"),
+                mock.Mock(stdout="/repo\n", returncode=0),
+                mock.Mock(returncode=1),
+            ]
+            self.assertEqual(0, preflight_hook.main())
+        self.assertEqual(["/repo/scripts/preflight.sh"], run.call_args_list[2].args[0])
+        self.assertIn("deny", stdout.getvalue())
 
 
 if __name__ == "__main__":
