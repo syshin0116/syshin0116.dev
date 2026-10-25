@@ -19,14 +19,22 @@ DENY_REASON = (
     "preflight failed. Run scripts/preflight.sh from the pushed worktree to see "
     "the output, then fix it before pushing."
 )
-# Words that end one shell command and start the next.
-SEPARATORS = {"&&", "||", ";", "|", "&", "(", ")"}
+# shlex groups adjacent punctuation (`;\n`, `\n\n`), so a word made only of
+# these characters ends one shell command and starts the next.
+SEPARATOR_CHARS = "();|&\n"
+
+
+def ends_command(word: str) -> bool:
+    return bool(word) and all(char in SEPARATOR_CHARS for char in word)
 
 
 def push_directory(command: str, cwd: str) -> Path | None:
     """Return the directory a `git push` in `command` runs in, else None."""
     try:
-        lexer = shlex.shlex(command, posix=True, punctuation_chars=True)
+        # An unquoted newline ends a command like `;` does, so it must stay a
+        # token instead of being skipped as whitespace.
+        lexer = shlex.shlex(command, posix=True, punctuation_chars="();<>|&\n")
+        lexer.whitespace = " \t\r"
         lexer.whitespace_split = True
         words = list(lexer)
     except ValueError:
@@ -39,7 +47,7 @@ def push_directory(command: str, cwd: str) -> Path | None:
             directory = directory / words[index + 1]
             index += 2
             continue
-        if word == "git" and (index == 0 or words[index - 1] in SEPARATORS):
+        if word == "git" and (index == 0 or ends_command(words[index - 1])):
             git_directory = directory
             cursor = index + 1
             while cursor < len(words) and words[cursor].startswith("-"):
