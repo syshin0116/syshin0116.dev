@@ -117,7 +117,7 @@ and `Production` environments:
 
 Disable admin bypass on both environments. Production carries no reviewer gate. What
 stops a bad release is the release job itself, which refuses to ship unless the source
-SHA is still `main`'s tip and `ci/check`, `protocol/compat`, and `wiki/verify` all passed
+SHA is still `main`'s tip and `ci/check` passed
 on it, plus the no-traffic smoke step below; the branch policy keeps every other ref out.
 The builder runs first without a GitHub environment, then the separate release job
 references the exact target environment once. The builder can write only to its isolated registry
@@ -140,7 +140,7 @@ key in GitHub. The current release smoke is intentionally unauthenticated and pr
 that APv2 rejects a missing credential with 401.
 
 The canonical active WIF provider requires the exact caller workflow
-(`preview-agent.yml` or `deploy-agent.yml`) and the exact called reusable workflow
+(`deploy-agent.yml`, or the deleted `preview-agent.yml`) and the exact called reusable workflow
 (`agent-image-build.yml` for builders or `agent-release.yml` for deployers) at the same
 reviewed ref. Preview additionally accepts only the `pull_request` event. Production
 accepts only `push` or `workflow_dispatch` at `refs/heads/main`. Only deployer claims
@@ -397,14 +397,15 @@ sequence completed.
 When the repository variable `AGENT_CLOUD_RUN_ENABLED=true`, `deploy-agent.yml` handles
 matching `main` pushes and manual dispatches for Production.
 
-`preview-agent.yml` is dormant. It requires both `AGENT_CLOUD_RUN_ENABLED=true` and
-`AGENT_CLOUD_RUN_PREVIEW_ENABLED=true`, but Terraform currently creates no Preview Cloud
-Run service or job and requires `agent_preview_bootstrap_image=null`. Do not enable the
-Preview flag until those resources and their delivery contract are restored in a reviewed
-change. The current Preview release path does not recheck the pull-request head or
-required CI after environment approval, so that gap must be closed as part of restoration.
-Production and Preview callers have separate global concurrency groups, with
-`cancel-in-progress=false`; the reusable workflows have no nested concurrency group.
+Preview has no caller: `preview-agent.yml` was deleted on 2026-10-25 because it never
+ran (Terraform creates no Preview Cloud Run service or job and requires
+`agent_preview_bootstrap_image=null`). The `Agent Preview` environment, the reusable
+workflows' `preview` target, and the preview branch of the WIF mapping remain, so
+restoring the file from version history re-enables it once those resources return in a
+reviewed change. That restoration must also make the Preview release recheck the
+pull-request head and required CI after environment approval. The Production caller
+uses a global concurrency group with `cancel-in-progress=false`; the reusable workflows
+have no nested concurrency group.
 
 `agent-image-build.yml` authenticates the target's dedicated builder through WIF, builds
 the exact source SHA for Linux amd64, and pushes a fresh run-attempt tag with
@@ -413,7 +414,7 @@ passes only the digest to the release workflow.
 
 `agent-release.yml` starts the Production release job as soon as the build succeeds. It
 first requires the source SHA to remain the current `main` commit
-and requires the exact `ci/check`, `protocol/compat`, and `wiki/verify` check runs to pass.
+and requires the exact `ci/check` check run to pass.
 It then authenticates the dedicated deployer through WIF and:
 
 1. deploys the digest to a no-traffic revision with the temporary `smoke` tag;

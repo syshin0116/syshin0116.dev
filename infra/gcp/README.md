@@ -240,7 +240,7 @@ as required pre-merge evidence. Preview delivery is dormant: its caller also req
 and requires a null Preview image. Do not enable it until those resources are restored.
 The current Preview release does not recheck the pull-request head or CI after approval,
 so restoration must close that gap. Production deploy requires the current
-`main` SHA's exact `ci/check`, `protocol/compat`, and `wiki/verify` check-runs after
+`main` SHA's exact `ci/check` check-run after
 approval. It deploys the immutable digest to a no-traffic revision, checks `/live`,
 `/ready`, and unauthenticated APv2 `401`, then promotes 100% traffic. It does not run the
 Terraform jobs or an authenticated two-turn provider smoke. Rollback is a separately

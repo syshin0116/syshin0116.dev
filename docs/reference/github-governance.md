@@ -9,14 +9,12 @@ when_to_read: >
   dependency and upstream-version audit.
 tags: [github, governance, ci, dependabot, runbook]
 status: stable
-updated: "2026-08-15"
+updated: "2026-10-25"
 owners: ["@syshin0116"]
 refs:
   - ../../.github/repository-governance.json
   - ../../.github/workflows/ci.yml
-  - ../../.github/workflows/protocol-compat.yml
   - ../../.github/workflows/vercel-production.yml
-  - ../../.github/workflows/wiki-verify.yml
   - ../runbooks/upstream-version-audit.md
   - ../adr/0003-agent-code-changes-via-pr.md
 template: spec
@@ -66,13 +64,13 @@ Keys named `uses` in ordinary input, environment, or metadata mappings are not
 invocations and are ignored. This position-aware parsing applies equally to
 flow mappings and quoted or explicit keys.
 
-The manifest binds each stable context to one exact top-level workflow and job:
+The manifest binds the one stable context, `ci/check`, to one exact top-level
+workflow and job. Every other check, including the wiki contract (`ci/wiki`) and
+the Agent Protocol contract (`ci/protocol`), is a path-gated job inside
+Application CI that `ci/check` aggregates, so it never needs its own required
+context.
 
-- `ci/check`
-- `protocol/compat`
-- `wiki/verify`
-
-Each emitter workflow must have exactly `pull_request`, `push` restricted to
+The emitter workflow must have exactly `pull_request`, `push` restricted to
 `main`, `merge_group` restricted to `checks_requested`, and
 `workflow_dispatch`. Workflow-level `paths` filters, schedule-only emission,
 extra triggers, or a renamed/missing emitter fail. The emitter's complete
@@ -221,7 +219,7 @@ In **Settings → Rules → Rulesets**, create one active branch ruleset named
    repository ruleset API omits `dismissal_restriction` from the returned
    parameter object when that optional restriction is disabled; the reviewed
    manifest therefore expects the field to be absent.
-6. Require `ci/check`, `protocol/compat`, and `wiki/verify`, with the branch
+6. Require `ci/check` only, with the branch
    required to be up to date and `do_not_enforce_on_create: false`.
 7. Block force pushes.
 8. Leave the bypass list empty.
@@ -354,7 +352,7 @@ CI after `Agent Preview` approval. That check must land before this becomes a su
 deployment path.
 
 After the reviewer releases `agent-release.yml`, Production rechecks current `main` and
-the exact successful `ci/check`, `protocol/compat`, and `wiki/verify` check runs before
+the exact successful `ci/check` check run before
 GCP authentication. The release deploys the immutable digest to a no-traffic revision,
 verifies `/live`, `/ready`, and an unauthenticated APv2 `401`, then promotes 100% traffic.
 It does not execute migration, grant-probe, or maintenance jobs, run an authenticated

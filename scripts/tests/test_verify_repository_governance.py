@@ -106,14 +106,6 @@ def desired_live_responses() -> dict[str, object]:
                         "strict_required_status_checks_policy": True,
                         "required_status_checks": [
                             {"context": "ci/check", "integration_id": 15368},
-                            {
-                                "context": "protocol/compat",
-                                "integration_id": 15368,
-                            },
-                            {
-                                "context": "wiki/verify",
-                                "integration_id": 15368,
-                            },
                         ],
                     },
                 },
@@ -726,18 +718,6 @@ class LocalGovernanceTests(unittest.TestCase):
     def test_reusable_delivery_callers_cannot_request_fewer_permissions(self) -> None:
         mutations = (
             (
-                ".github/workflows/preview-agent.yml",
-                "    if: needs.build.result == 'success'\n"
-                "    permissions:\n"
-                "      checks: read\n"
-                "      contents: read\n"
-                "      id-token: write\n",
-                "    if: needs.build.result == 'success'\n"
-                "    permissions:\n"
-                "      checks: read\n"
-                "      contents: read\n",
-            ),
-            (
                 ".github/workflows/deploy-agent.yml",
                 "    if: needs.build.result == 'success'\n"
                 "    permissions:\n"
@@ -820,7 +800,7 @@ class LocalGovernanceTests(unittest.TestCase):
             ),
             (
                 "deploy-order",
-                ".github/workflows/preview-agent.yml",
+                ".github/workflows/deploy-agent.yml",
                 "    needs:\n      - build",
                 "    needs:\n      - unrelated",
             ),
@@ -2690,8 +2670,8 @@ runs:
                 "version must equal",
             ),
             (
-                "protocol-wrong-checksum",
-                ".github/workflows/protocol-compat.yml",
+                "ci-wrong-checksum",
+                ".github/workflows/ci.yml",
                 governance.UV_CHECKSUM,
                 "0" * 64,
                 "checksum must equal",
@@ -3048,11 +3028,11 @@ jobs:
     def test_required_context_in_wrong_job_id_fails_emitter_binding(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = copy_local_governance_fixture(directory)
-            workflow = root / ".github/workflows/protocol-compat.yml"
+            workflow = root / ".github/workflows/ci.yml"
             original = workflow.read_text(encoding="utf-8")
             mutated = original.replace(
-                "  protocol-compat:\n",
-                "  renamed-protocol-job:\n",
+                "\n  check:\n",
+                "\n  renamed-check-job:\n",
                 1,
             )
             self.assertNotEqual(original, mutated)
@@ -3061,16 +3041,16 @@ jobs:
             errors = governance.validate_local(root, governance.load_policy())
 
         self.assertIn(
-            "local: required check 'protocol/compat' emitter job "
-            "'protocol-compat' is missing from "
-            ".github/workflows/protocol-compat.yml",
+            "local: required check 'ci/check' emitter job "
+            "'check' is missing from "
+            ".github/workflows/ci.yml",
             errors,
         )
 
     def test_schedule_only_required_workflow_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = copy_local_governance_fixture(directory)
-            workflow = root / ".github/workflows/wiki-verify.yml"
+            workflow = root / ".github/workflows/ci.yml"
             original = workflow.read_text(encoding="utf-8")
             mutated = re.sub(
                 r"(?ms)^on:\n.*?^permissions:",
@@ -3091,7 +3071,7 @@ jobs:
 
         self.assertTrue(
             any(
-                "required check 'wiki/verify' triggers are" in error
+                "required check 'ci/check' triggers are" in error
                 and "'schedule'" in error
                 for error in errors
             )
@@ -3100,7 +3080,7 @@ jobs:
     def test_pull_request_paths_filter_on_required_workflow_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = copy_local_governance_fixture(directory)
-            workflow = root / ".github/workflows/protocol-compat.yml"
+            workflow = root / ".github/workflows/ci.yml"
             original = workflow.read_text(encoding="utf-8")
             mutated = original.replace(
                 "  pull_request:\n",
@@ -3114,7 +3094,7 @@ jobs:
 
         self.assertTrue(
             any(
-                "required check 'protocol/compat' triggers are" in error
+                "required check 'ci/check' triggers are" in error
                 and "'paths': ['protocol/**']" in error
                 for error in errors
             )
@@ -4165,7 +4145,7 @@ class LiveGovernanceTests(unittest.TestCase):
             for error in errors
             if "required check bindings differ exactly" in error
         )
-        self.assertIn("wiki/verify", mismatch)
+        self.assertIn("protocol/compat", mismatch)
         self.assertIn("unexpected/check", mismatch)
         self.assertIn("999", mismatch)
         self.assertIn("duplicates=[('ci/check', 15368)]", mismatch)

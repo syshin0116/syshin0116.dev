@@ -252,17 +252,14 @@ cleanup. `content/` remains an immutable build input and is never moved under `a
 ## CI/CD and release contract
 
 The repository implements the following application, protocol, delivery, and dependency
-workflows. The three stable required-check contexts are a separate branch contract below;
+workflows. The single required-check context is a separate branch contract below;
 workflow files and reusable-workflow boundaries are also reviewed delivery inputs.
 
 ```text
 .github/workflows/
-├── ci.yml                    # web + agent + native AP v2 + eval + infra aggregate
-├── protocol-compat.yml       # AP v2 schema/codegen/fixture drift
-├── wiki-verify.yml           # immutable source/wiki contract
+├── ci.yml                    # web + agent + native AP v2 + eval + infra + wiki + protocol aggregate
 ├── agent-image-build.yml     # reusable secretless isolated image builder
 ├── agent-release.yml         # reusable owner-gated release + bounded pre-traffic smoke
-├── preview-agent.yml         # gated same-repository PR caller; currently dormant
 ├── deploy-agent.yml          # reviewed main caller -> production
 ├── eval-publication.yml      # manual main-only attested evaluation candidate
 ├── vercel-production.yml     # canonical Vercel production observer/guard
@@ -289,7 +286,7 @@ workflow files and reusable-workflow boundaries are also reviewed delivery input
 - `ci/eval`: dataset-schema validation, deterministic metric fixtures, registry/fingerprint
   contract, then two byte-compared no-provider sweeps over the four default methods. Full
   paid sweeps are never a PR requirement.
-- `protocol-compat`: fetch the Agent Protocol CDDL/OpenAPI revision recorded in
+- `ci/protocol` (runs when `protocol/**`, the protocol scripts, or the Python lock change): fetch the Agent Protocol CDDL/OpenAPI revision recorded in
   `protocol/agent-protocol.lock.json`, regenerate bindings in a temporary directory, and
   fail on a diff. Replay committed content-block, tool, nested namespace, replay, error,
   and HITL fixtures through both Python and TypeScript consumers.
@@ -306,17 +303,19 @@ workflow files and reusable-workflow boundaries are also reviewed delivery input
 - Path filters include root `pyproject.toml`, `uv.lock`, `aegra.json`, `Dockerfile`,
   `protocol/**`, `scripts/**`, `content/**`, `agent/**`, `eval/**`, and `web/**`. A
   `content/**` change must rebuild both the web artifacts and the agent mirror.
-- Required checks are exactly `ci/check`, `protocol/compat`, and `wiki/verify`. Component
-  work remains path-aware behind the stable aggregate contexts. Never merge on red CI or
-  let a path filter suppress one of those three contexts.
+- `ci/wiki` runs the wiki contract when `content/**`, the wiki-curator skill, or
+  `scripts/verify-wiki.py` change. Content-only changes skip `ci/native-apv2` and the
+  web auth/chat runtime steps, which posts cannot affect.
+- The only required check is `ci/check`, which aggregates every job above. Component
+  work remains path-aware behind it. Never merge on red CI or let a path filter
+  suppress it.
 
 ### Preview and production
 
-- Vercel continues to create the web preview. The Cloud Run preview caller requires both
-  `AGENT_CLOUD_RUN_ENABLED=true` and `AGENT_CLOUD_RUN_PREVIEW_ENABLED=true`. The repository
-  has only the first flag; the Preview flag is absent, and Terraform creates no Preview
-  Cloud Run service or jobs. The caller is therefore dormant until a separate reviewed
-  change restores those resources and enables the flag. The current release workflow also
+- Vercel continues to create the web preview. The Cloud Run preview caller
+  (`preview-agent.yml`) was deleted on 2026-10-25 because Terraform creates no Preview
+  Cloud Run service or jobs and the caller never ran; restoring it from version history
+  is part of the separate reviewed change that restores those resources. The current release workflow also
   does not revalidate the PR head or required CI after the `Agent Preview` approval, so
   that check must land before the caller can become a supported deployment path.
 - GitHub authenticates to GCP through Workload Identity Federation; no long-lived service
@@ -326,7 +325,7 @@ workflow files and reusable-workflow boundaries are also reviewed delivery input
   disables provenance and SBOM generation. Never trust a pre-existing tag or rebuild between
   build, smoke, and promotion.
 - `deploy-agent.yml` releases only the current reviewed `main` candidate whose exact
-  `ci/check`, `protocol/compat`, and `wiki/verify` check-runs succeeded. The same
+  `ci/check` check-run succeeded. The same
   digest-bound path now deploys the public Production revision.
 - `agent-release.yml` deploys that digest to a no-traffic revision with a temporary
   `smoke` tag, verifies the deployed digest, `/live`, `/ready`, and an unauthenticated
