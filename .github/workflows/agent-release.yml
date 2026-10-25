@@ -53,7 +53,7 @@ jobs:
           for attempt in {1..90}; do
             checks="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${SOURCE_SHA}/check-runs?filter=latest&per_page=100")"
             pending=false
-            for name in ci/check protocol/compat wiki/verify; do
+            for name in ci/check; do
               state="$(jq -r --arg name "$name" '
                 [.check_runs[] | select(.name == $name and .app.id == 15368)]
                 | if length == 0 or .[0].status != "completed" then "pending"

@@ -69,9 +69,59 @@ class RuntimeClassificationTests(unittest.TestCase):
                 ),
             )
             self.assertIn("runtime=true\n", output.read_text())
+            self.assertIn("wiki=true\n", output.read_text())
+            self.assertIn("protocol=true\n", output.read_text())
 
     def test_docs_do_not_require_runtime(self) -> None:
         self.assertFalse(changes.runtime_affected(["docs/reference/example.md"]))
+
+    def test_content_only_changes_do_not_require_runtime(self) -> None:
+        self.assertFalse(
+            changes.runtime_affected(["content/AI/example.md", "content/wiki/rag.md"])
+        )
+        self.assertTrue(
+            changes.runtime_affected(
+                ["content/AI/example.md", "agent/src/agent/graph.py"]
+            )
+        )
+
+
+class BoundaryClassificationTests(unittest.TestCase):
+    def test_wiki_contract_follows_wiki_and_cited_sources(self) -> None:
+        for path in (
+            "content/wiki/rag.md",
+            "content/AI/example.md",
+            ".agents/skills/wiki-curator/scripts/verify.ts",
+            "scripts/verify-wiki.py",
+            ".github/workflows/ci.yml",
+            "scripts/ci_changed_components.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(changes.wiki_affected([path]))
+        for path in ("web/app/page.tsx", "agent/src/agent/graph.py", "docs/x.md"):
+            with self.subTest(path=path):
+                self.assertFalse(changes.wiki_affected([path]))
+
+    def test_protocol_contract_follows_schemas_scripts_and_lock(self) -> None:
+        for path in (
+            "protocol/fixtures/content-tool-run.json",
+            "protocol/generated/typescript/protocol.ts",
+            "scripts/protocol_contract.py",
+            "scripts/smoke.py",
+            "scripts/verify_protocol_codegen.py",
+            "uv.lock",
+            "agent/pyproject.toml",
+            ".github/workflows/ci.yml",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(changes.protocol_affected([path]))
+        for path in (
+            "content/AI/example.md",
+            "web/app/page.tsx",
+            "agent/src/agent/graph.py",
+        ):
+            with self.subTest(path=path):
+                self.assertFalse(changes.protocol_affected([path]))
 
 
 class PathClassificationTests(unittest.TestCase):
@@ -161,8 +211,6 @@ class PathClassificationTests(unittest.TestCase):
 
     def test_all_workflows_run_every_component(self) -> None:
         for path in (
-            ".github/workflows/protocol-compat.yml",
-            ".github/workflows/preview-agent.yml",
             ".github/workflows/deploy-agent.yml",
             ".github/workflows/smoke-production.yml",
             ".github/workflows/dependency-audit.yml",

@@ -108,20 +108,6 @@ EXPECTED_REQUIRED_CHECKS = [
         "job": "check",
         "triggers": REQUIRED_CHECK_TRIGGERS,
     },
-    {
-        "context": "protocol/compat",
-        "integration_id": 15368,
-        "workflow": ".github/workflows/protocol-compat.yml",
-        "job": "protocol-compat",
-        "triggers": REQUIRED_CHECK_TRIGGERS,
-    },
-    {
-        "context": "wiki/verify",
-        "integration_id": 15368,
-        "workflow": ".github/workflows/wiki-verify.yml",
-        "job": "verify-wiki",
-        "triggers": REQUIRED_CHECK_TRIGGERS,
-    },
 ]
 EXPECTED_ACTIONS = {
     "enabled": True,
@@ -167,8 +153,8 @@ EXPECTED_ENVIRONMENTS = {
         # No reviewer gate: a merge to main deploys. The gate held every agent
         # release for days and let three runs expire unapproved, so production ran
         # three weeks behind main. The release job still refuses to ship unless the
-        # source SHA is main's tip and ci/check, protocol/compat and wiki/verify
-        # passed on it, and the branch policy keeps non-main refs out.
+        # source SHA is main's tip and ci/check passed on it, and the branch
+        # policy keeps non-main refs out.
         "protection_rules": [
             {"type": "branch_policy"},
         ],
@@ -216,9 +202,8 @@ UV_REQUIRED_VERSION = f"=={UV_VERSION}"
 UV_CHECKSUM = "600cf9a742aca00d292673b16b5acffaa7b8c269a364ad0c2e79498dcb1fe101"
 SETUP_UV_ACTION = "astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7"
 EXPECTED_SETUP_UV_WORKFLOW_COUNTS = {
-    ".github/workflows/ci.yml": 5,
+    ".github/workflows/ci.yml": 6,
     ".github/workflows/dependency-audit.yml": 2,
-    ".github/workflows/protocol-compat.yml": 1,
 }
 AGENT_DOCKER_UV_IMAGE = (
     "ghcr.io/astral-sh/uv:${UV_VERSION}@"
@@ -239,10 +224,7 @@ AGENT_DELIVERY_WORKFLOW_AST_SHA256 = {
         "07f2ca0a49b11ec3c67fb3c415f14f1cd3a486c70986980c746545c04ba9f119"
     ),
     ".github/workflows/agent-release.yml": (
-        "7cb0f945db8fbf2d100bc6ac1f9f8c1f52e694e870282e3f280a3cfd68fa8460"
-    ),
-    ".github/workflows/preview-agent.yml": (
-        "2d42339a073f8b5c40f3a9b9573554d4f2d8b070f3cbdd93a19655e060f526e8"
+        "3c99576c9d7af9ebd479e5f93c736f15dd0daa3ecb06b0f731cc67861fb5a3fd"
     ),
     ".github/workflows/deploy-agent.yml": (
         "191bcae1f9db80a5951fda7ce446a22c957c12b509a42bd02b5cbed3a6073feb"
@@ -1217,18 +1199,6 @@ def validate_agent_delivery_permission_chain(
             )
 
     permission_chains = (
-        (
-            ".github/workflows/preview-agent.yml",
-            "build",
-            ".github/workflows/agent-image-build.yml",
-            "build",
-        ),
-        (
-            ".github/workflows/preview-agent.yml",
-            "release",
-            ".github/workflows/agent-release.yml",
-            "release",
-        ),
         (
             ".github/workflows/deploy-agent.yml",
             "build",

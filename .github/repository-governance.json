@@ -41,46 +41,6 @@
           },
           "workflow_dispatch": {}
         }
-      },
-      {
-        "context": "protocol/compat",
-        "integration_id": 15368,
-        "workflow": ".github/workflows/protocol-compat.yml",
-        "job": "protocol-compat",
-        "triggers": {
-          "pull_request": {},
-          "push": {
-            "branches": [
-              "main"
-            ]
-          },
-          "merge_group": {
-            "types": [
-              "checks_requested"
-            ]
-          },
-          "workflow_dispatch": {}
-        }
-      },
-      {
-        "context": "wiki/verify",
-        "integration_id": 15368,
-        "workflow": ".github/workflows/wiki-verify.yml",
-        "job": "verify-wiki",
-        "triggers": {
-          "pull_request": {},
-          "push": {
-            "branches": [
-              "main"
-            ]
-          },
-          "merge_group": {
-            "types": [
-              "checks_requested"
-            ]
-          },
-          "workflow_dispatch": {}
-        }
       }
     ],
     "rule_types": [

@@ -11,6 +11,8 @@ from collections.abc import Iterable
 from pathlib import Path
 
 COMPONENTS = ("web", "agent", "eval", "infra")
+# Narrower gates reported beside the components; each has its own predicate.
+BOUNDARIES = ("runtime", "wiki", "protocol")
 SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 ALL_ZERO_SHA = "0" * 40
 ROOT_AGENT_PATHS = frozenset(
@@ -52,6 +54,29 @@ OPS_FOUNDATION_PATHS = frozenset(
         "scripts/validate_agent_delivery_identity.sh",
         "scripts/verify_gcp_project_readiness.py",
         "scripts/verify_ops_foundation.sh",
+    }
+)
+WIKI_CONTRACT_PATHS = frozenset(
+    {
+        "scripts/verify-wiki.py",
+    }
+)
+WIKI_CONTRACT_PREFIXES = (
+    # Wiki pages cite source posts by repository path, so any content change can
+    # break a citation.
+    "content/",
+    ".agents/skills/wiki-curator/",
+)
+PROTOCOL_CONTRACT_PATHS = frozenset(
+    {
+        "pyproject.toml",
+        "uv.lock",
+        "agent/pyproject.toml",
+        "scripts/protocol_contract.py",
+        "scripts/protocol_typescript_contract.py",
+        "scripts/smoke.py",
+        "scripts/verify_protocol_codegen.py",
+        "scripts/verify_protocol_upstream.py",
     }
 )
 CHANGE_DETECTION_PATHS = frozenset(
@@ -116,9 +141,37 @@ def classify_paths(paths: Iterable[str]) -> dict[str, bool]:
     return affected
 
 
+def _forces_every_job(path: str) -> bool:
+    return path.startswith(".github/workflows/") or path in CHANGE_DETECTION_PATHS
+
+
+def wiki_affected(paths: Iterable[str]) -> bool:
+    """The wiki contract reads wiki pages and the source files they cite."""
+    return any(
+        _forces_every_job(path)
+        or path in WIKI_CONTRACT_PATHS
+        or path.startswith(WIKI_CONTRACT_PREFIXES)
+        for path in (raw.removeprefix("./") for raw in paths)
+    )
+
+
+def protocol_affected(paths: Iterable[str]) -> bool:
+    """The protocol contract covers locked schemas, bindings, and fixtures."""
+    return any(
+        _forces_every_job(path)
+        or path in PROTOCOL_CONTRACT_PATHS
+        or path.startswith("protocol/")
+        for path in (raw.removeprefix("./") for raw in paths)
+    )
+
+
 def runtime_affected(paths: Iterable[str]) -> bool:
     """Only known presentation paths may bypass auth and chat integration."""
-    paths = list(paths)
+    # Posts reach the runtime only as corpus data, which ci/agent and ci/eval
+    # already rebuild; they never change auth or chat code.
+    paths = [
+        path for path in paths if not path.removeprefix("./").startswith("content/")
+    ]
     if classify_paths(paths)["agent"]:
         return True
     presentation_prefixes = (
@@ -208,16 +261,21 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     try:
         affected = detect(args.event, args.base, args.head)
-        runtime = (
-            True
-            if args.event == "workflow_dispatch"
+        if (
+            args.event == "workflow_dispatch"
             or not args.base
             or args.base == ALL_ZERO_SHA
-            else runtime_affected(changed_paths(args.base, args.head))
-        )
-        affected["runtime"] = runtime
+        ):
+            affected.update(runtime=True, wiki=True, protocol=True)
+        else:
+            paths = changed_paths(args.base, args.head)
+            affected.update(
+                runtime=runtime_affected(paths),
+                wiki=wiki_affected(paths),
+                protocol=protocol_affected(paths),
+            )
         with args.output.open("a", encoding="utf-8") as output:
-            for component in (*COMPONENTS, "runtime"):
+            for component in (*COMPONENTS, *BOUNDARIES):
                 value = str(affected[component]).lower()
                 output.write(f"{component}={value}\n")
                 print(f"{component}={value}")

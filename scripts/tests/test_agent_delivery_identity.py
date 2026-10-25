@@ -74,28 +74,7 @@ class AgentDeliveryIdentityTests(unittest.TestCase):
         self.assertLess(setup, auth)
         self.assertLess(auth, build)
 
-    def test_preview_has_an_independent_fail_closed_gate(self) -> None:
-        preview = (REPO_ROOT / ".github/workflows/preview-agent.yml").read_text(
-            encoding="utf-8"
-        )
-        production = (REPO_ROOT / ".github/workflows/deploy-agent.yml").read_text(
-            encoding="utf-8"
-        )
-
-        self.assertEqual(
-            1,
-            preview.count("vars.AGENT_CLOUD_RUN_PREVIEW_ENABLED == 'true'"),
-        )
-        self.assertIn("vars.AGENT_CLOUD_RUN_ENABLED == 'true'", preview)
-        self.assertNotIn("AGENT_CLOUD_RUN_PREVIEW_ENABLED", production)
-        self.assertEqual(1, production.count("vars.AGENT_CLOUD_RUN_ENABLED == 'true'"))
-
-    def test_preview_build_and_release_pin_pr_head_not_synthetic_merge_sha(
-        self,
-    ) -> None:
-        preview = (REPO_ROOT / ".github/workflows/preview-agent.yml").read_text(
-            encoding="utf-8"
-        )
+    def test_build_and_release_pin_the_requested_source_sha(self) -> None:
         builder = (REPO_ROOT / ".github/workflows/agent-image-build.yml").read_text(
             encoding="utf-8"
         )
@@ -103,11 +82,6 @@ class AgentDeliveryIdentityTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertEqual(
-            2,
-            preview.count("source_sha: ${{ github.event.pull_request.head.sha }}"),
-        )
-        self.assertNotIn("source_sha: ${{ github.sha }}", preview)
         self.assertIn("ref: ${{ inputs.source_sha }}", builder)
         self.assertIn("SOURCE_SHA: ${{ inputs.source_sha }}", builder)
         self.assertIn("ref: ${{ inputs.source_sha }}", release)
@@ -115,9 +89,6 @@ class AgentDeliveryIdentityTests(unittest.TestCase):
         self.assertNotIn("gcloud run jobs", release)
 
     def test_caller_only_concurrency_never_cancels_an_approved_release(self) -> None:
-        preview = (REPO_ROOT / ".github/workflows/preview-agent.yml").read_text(
-            encoding="utf-8"
-        )
         production = (REPO_ROOT / ".github/workflows/deploy-agent.yml").read_text(
             encoding="utf-8"
         )
@@ -125,10 +96,6 @@ class AgentDeliveryIdentityTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-        self.assertIn(
-            "concurrency:\n  group: agent-preview\n  cancel-in-progress: false",
-            preview,
-        )
         self.assertIn(
             "concurrency:\n  group: agent-production\n  cancel-in-progress: false",
             production,
@@ -148,7 +115,7 @@ class AgentDeliveryIdentityTests(unittest.TestCase):
         self.assertLess(gate, auth)
         self.assertLess(deploy, smoke)
         self.assertLess(smoke, promote)
-        self.assertIn("ci/check protocol/compat wiki/verify", release)
+        self.assertIn("for name in ci/check; do", release)
         self.assertIn(".app.id == 15368", release)
         self.assertIn('select(.tag == "smoke") | .url', release)
         self.assertIn("trap cleanup_smoke_tag EXIT", release)

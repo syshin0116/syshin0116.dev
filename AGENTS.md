@@ -30,7 +30,7 @@ web/      Next.js + Nuartz frontend, incl. the chat UI (branch + PR, see rule 2)
 
 ## Hard rules
 
-1. **Never modify source posts.** Source-post `.md` files under `content/`, outside `content/wiki/`, are read-only. Repository instructions and system documentation under `docs/` may be updated through PRs. If something looks wrong in a post, surface it to the user - do not edit.
+1. **Never modify source posts.** Source-post `.md` files under `content/`, outside `content/wiki/`, are read-only. Repository instructions and system documentation under `docs/` may be updated through PRs. If something looks wrong in a post, surface it to the user - do not edit. Exception: when the owner explicitly asks for it, frontmatter cleanup and broken link or embed fixes in posts go through a `post:` PR; reviewers should not flag those edits.
 2. **Changes to `web/`, `agent/`, and build/deploy config go through a branch and a PR** - never a direct commit to `main`, and never merge on red CI. See [`docs/adr/0003`](docs/adr/0003-agent-code-changes-via-pr.md).
 3. **All `content/wiki/` work goes through skills.** Don't write to `content/wiki/` ad-hoc - use the relevant skill, which carries the full contract.
 4. **Never commit build artifacts.** `.next/`, `node_modules/`, `.generated/`, etc.
@@ -55,7 +55,7 @@ Use the existing commands and workflows; do not copy another project's Make targ
 | `agent/` | `ci/agent` and `ci/native-apv2` in `.github/workflows/ci.yml`; include database and protocol checks when their contracts change |
 | `eval/` | `ci/eval` in `.github/workflows/ci.yml`; preserve retrieval-method breadth and reproducibility |
 | Infrastructure and delivery | `ci/infra`, the relevant delivery workflow, and its runbook; static checks do not authorize deployment |
-| `content/wiki/` | The wiki skill and `wiki/verify` |
+| `content/wiki/` | The wiki skill and `ci/wiki` |
 | Instructions and docs | Check links and commands against the repository, run `git diff --check`, and keep `CLAUDE.md` as a relative symlink to `AGENTS.md` |
 
 For UI changes, use `bc-ui-verification` when it is available in the session skill catalog. Otherwise use the existing `web/package.json` browser commands (`bun run test:browser` for chat and `bun run test:site-browser` for site routes, from `web/`) and their Playwright configuration. Retain evidence for affected desktop/mobile states. A local quick check is not a production or merge verification. New behavior needs meaningful regression coverage; prose and styling-only changes do not need tests that merely repeat their implementation.
@@ -76,5 +76,5 @@ For UI changes, use `bc-ui-verification` when it is available in the session ski
 - Update affected system documentation in the same PR, following this repository's existing frontmatter conventions.
 - Read review comments and address or explicitly explain each finding before merge. If automated review is running, wait for its result; a reaction alone does not prove all checks passed.
 - Fetch the latest `origin/main` before final integration, resolve any conflicts, and rerun affected checks after changes. Never rewrite another contributor's branch history or merge with required checks failing or pending.
-- Before merging, require `ci/check`, `protocol/compat`, and `wiki/verify` on the candidate revision. Use the repository's configured merge method; do not import another project's rebase-only policy.
+- Before merging, require `ci/check` on the candidate revision; it aggregates every path-gated job, including `ci/wiki` and `ci/protocol`. Use the repository's configured merge method; do not import another project's rebase-only policy.
 - After merge, verify the covered Kaneo task states. Do not assume automatic completion. Never add AI attribution or session links to commits, PRs, or documentation.
