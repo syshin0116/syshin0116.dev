@@ -32,6 +32,8 @@ class PushDirectoryTests(unittest.TestCase):
             "cd web && git push": "/repo/web",
             "uv run pytest && git push --force-with-lease": "/repo",
             "git status\ngit push": "/repo",
+            "(cd /other && git status); git push": "/repo",
+            "(cd /other && git push)": "/other",
             "cd web\n\ngit push origin HEAD": "/repo/web",
         }
         for command, expected in cases.items():
