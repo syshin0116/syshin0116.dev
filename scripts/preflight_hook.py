@@ -46,9 +46,17 @@ def push_directory(command: str, cwd: str) -> Path | None:
     except ValueError:
         return None
     directory = Path(cwd)
+    # A `cd` inside `( ... )` ends with the subshell.
+    subshell_directories: list[Path] = []
     index = 0
     while index < len(words):
         word = words[index]
+        if ends_command(word):
+            for char in word:
+                if char == "(":
+                    subshell_directories.append(directory)
+                elif char == ")" and subshell_directories:
+                    directory = subshell_directories.pop()
         if word == "cd" and index + 1 < len(words):
             directory = directory / expand(words[index + 1])
             index += 2
