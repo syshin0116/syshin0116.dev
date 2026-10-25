@@ -14,22 +14,29 @@ cd "$(git rev-parse --show-toplevel)" || exit 1
 log() { printf '\n\033[1m== %s\033[0m\n' "$1" >&2; }
 fail() { printf '\033[31mpreflight: %s\033[0m\n' "$1" >&2; exit 1; }
 
-# The browser suite binds a fixed fixture port, so two concurrent runs - a manual
-# one and the pre-push hook, typically - would fail each other on the port rather
-# than on the code.
-# A killed run must not lock every later push out, so the holder's PID decides
+# The browser suite binds a fixed fixture port, so two concurrent runs in different
+# worktrees would fail each other on the port rather than on the code. Only that
+# suite takes the machine-wide lock, and a second run waits for it instead of
+# failing. A killed run must not lock later pushes out, so the holder's PID decides
 # whether the lock is live or leftover.
-lock="${TMPDIR:-/tmp}/syshin0116-preflight.lock"
-if ! mkdir "$lock" 2>/dev/null; then
-  holder="$(cat "$lock/pid" 2>/dev/null || true)"
-  if [[ -n "$holder" ]] && kill -0 "$holder" 2>/dev/null; then
-    fail "another preflight run is in progress (pid $holder)"
-  fi
-  rm -rf "$lock"
-  mkdir "$lock" 2>/dev/null || fail "cannot acquire the preflight lock ($lock)"
-fi
-echo "$$" >"$lock/pid"
-trap 'rm -rf "$lock"' EXIT
+lock="${TMPDIR:-/tmp}/syshin0116-preflight-browser.lock"
+lock_wait_seconds=600
+acquire_browser_lock() {
+  local waited=0 holder
+  until mkdir "$lock" 2>/dev/null; do
+    holder="$(cat "$lock/pid" 2>/dev/null || true)"
+    if [[ -z "$holder" ]] || ! kill -0 "$holder" 2>/dev/null; then
+      rm -rf "$lock"
+      continue
+    fi
+    (( waited == 0 )) && echo "preflight: waiting for the browser-suite lock (pid $holder)" >&2
+    (( waited >= lock_wait_seconds )) && fail "browser-suite lock still held after ${lock_wait_seconds}s (pid $holder)"
+    sleep 2
+    (( waited += 2 ))
+  done
+  echo "$$" >"$lock/pid"
+}
+release_browser_lock() { rm -rf "$lock"; }
 
 # What is about to be pushed. An unpushed branch is compared against main.
 head="$(git rev-parse HEAD)"
@@ -64,7 +71,11 @@ if [[ "$web" == true ]]; then
   ( cd web && bun run test ) || fail "web unit tests failed"
   ( cd web && bun run lint ) || fail "web lint failed"
   ( cd web && bunx tsc --noEmit --incremental false ) || fail "web type check failed"
+  acquire_browser_lock
+  trap release_browser_lock EXIT
   ( cd web && bun run test:browser ) || fail "web browser tests failed"
+  release_browser_lock
+  trap - EXIT
 fi
 
 if [[ "$agent" == true ]]; then
@@ -78,7 +89,7 @@ if [[ "$agent" == true ]]; then
     || fail "ruff format check failed"
 
   pytest_log="$(mktemp)"
-  trap 'rm -rf "$lock"; rm -f "$pytest_log"' EXIT
+  trap 'rm -f "$pytest_log"' EXIT
   uv run --frozen --package syshin0116-dev-agent --all-extras \
     pytest -q agent/tests/unit_tests 2>&1 | tee "$pytest_log"
   status="${PIPESTATUS[0]}"

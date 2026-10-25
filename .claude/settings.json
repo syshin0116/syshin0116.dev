@@ -6,10 +6,9 @@
         "hooks": [
           {
             "type": "command",
-            "if": "Bash(git push*)",
-            "command": "\"$(git rev-parse --show-toplevel)/scripts/preflight.sh\" >&2 || { echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"preflight failed. Run scripts/preflight.sh from the repository root to see the output, then fix it before pushing.\"}}'; exit 0; }",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/preflight_hook.py\" || true",
             "timeout": 900,
-            "statusMessage": "Running preflight checks before push"
+            "statusMessage": "Running preflight if this is a git push"
           }
         ]
       }
