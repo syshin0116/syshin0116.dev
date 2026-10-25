@@ -22,7 +22,7 @@ class PushDirectoryTests(unittest.TestCase):
             "git commit -m 'first line\ngit push'",
         ):
             with self.subTest(command=command):
-                self.assertIsNone(preflight_hook.push_directory(command, "/repo"))
+                self.assertEqual([], preflight_hook.push_directories(command, "/repo"))
 
     def test_finds_the_pushed_worktree(self) -> None:
         cases = {
@@ -35,18 +35,27 @@ class PushDirectoryTests(unittest.TestCase):
             "(cd /other && git status); git push": "/repo",
             "(cd /other && git push)": "/other",
             "cd web\n\ngit push origin HEAD": "/repo/web",
+            'GIT_SSH_COMMAND="ssh -i ~/.ssh/work" git push': "/repo",
         }
         for command, expected in cases.items():
             with self.subTest(command=command):
                 self.assertEqual(
-                    Path(expected), preflight_hook.push_directory(command, "/repo")
+                    [Path(expected)], preflight_hook.push_directories(command, "/repo")
                 )
+
+    def test_reports_every_push_of_a_compound_command(self) -> None:
+        self.assertEqual(
+            [Path("/work/clean"), Path("/work/changed")],
+            preflight_hook.push_directories(
+                "cd /work/clean && git push; cd /work/changed && git push", "/repo"
+            ),
+        )
 
     def test_expands_variables_like_bash(self) -> None:
         with mock.patch.dict(preflight_hook.os.environ, {"WORKTREE": "/work/tree"}):
             self.assertEqual(
-                Path("/work/tree"),
-                preflight_hook.push_directory('cd "$WORKTREE" && git push', "/repo"),
+                [Path("/work/tree")],
+                preflight_hook.push_directories('cd "$WORKTREE" && git push', "/repo"),
             )
 
 
@@ -102,6 +111,30 @@ class MainTests(unittest.TestCase):
             ]
             self.assertEqual(0, preflight_hook.main())
         self.assertEqual(["/repo/scripts/preflight.sh"], run.call_args_list[2].args[0])
+        self.assertIn("deny", stdout.getvalue())
+
+    def test_any_failing_worktree_denies_a_multi_worktree_push(self) -> None:
+        stdout = io.StringIO()
+        payload = {
+            "tool_input": {"command": "git -C /a push; git -C /b push"},
+            "cwd": "/repo",
+        }
+        with (
+            mock.patch.object(sys, "stdin", io.StringIO(json.dumps(payload))),
+            mock.patch.object(sys, "stdout", stdout),
+            mock.patch.object(preflight_hook.subprocess, "run") as run,
+        ):
+            run.side_effect = [
+                mock.Mock(stdout="/a\n", returncode=0),
+                mock.Mock(stdout="/b\n", returncode=0),
+                mock.Mock(returncode=0),
+                mock.Mock(returncode=1),
+            ]
+            self.assertEqual(0, preflight_hook.main())
+        self.assertEqual(
+            [["/a/scripts/preflight.sh"], ["/b/scripts/preflight.sh"]],
+            [call.args[0] for call in run.call_args_list[2:]],
+        )
         self.assertIn("deny", stdout.getvalue())
 
 
