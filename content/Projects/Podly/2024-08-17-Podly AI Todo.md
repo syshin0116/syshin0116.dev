@@ -3,7 +3,7 @@ title: Podly AI 개발 계획
 date: 2024-08-17
 tags:
 - podly
-- ai
+- AI
 - project-planning
 - todo
 - langchain

@@ -4,10 +4,10 @@ date: 2026-03-06
 tags:
   - Projects
   - blog-rag
-  - RAG
-  - Modular-RAG
-  - LangGraph
-  - Python
+  - rag
+  - modular-rag
+  - langgraph
+  - python
   - AI
 draft: false
 enableToc: true

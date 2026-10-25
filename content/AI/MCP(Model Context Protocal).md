@@ -2,9 +2,9 @@
 title: MCP(Model Context Protocol)
 date: 2025-03-31
 tags:
-- ai
-- anthropic
-- mcp
+- AI
+- Anthropic
+- MCP
 - claude
 - langchain
 - langgraph

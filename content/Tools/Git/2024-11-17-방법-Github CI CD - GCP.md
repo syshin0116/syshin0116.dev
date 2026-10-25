@@ -6,7 +6,7 @@ tags:
 - cicd
 - gcp
 - docker
-- deployment
+- Deployment
 - devops
 draft: false
 enableToc: true

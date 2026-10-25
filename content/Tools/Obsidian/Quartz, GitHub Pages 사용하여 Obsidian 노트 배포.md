@@ -3,7 +3,7 @@ title: Quartz, GitHub Pages 사용하여 Obsidian 노트 배포
 date: 2025-03-06
 tags:
 - obsidian
-- quartz
+- Quartz
 - github-pages
 - blog
 draft: false

@@ -2,7 +2,7 @@
 title: Chainlit
 date: 2024-08-13
 tags:
-- ai
+- AI
 - ui
 - langchain
 - chatbot

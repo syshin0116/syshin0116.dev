@@ -2,7 +2,7 @@
 title: LangGraph
 date: 2024-03-06
 tags:
-- ai
+- AI
 - deep-learning
 - langchain
 - langgraph

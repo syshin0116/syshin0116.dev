@@ -9,7 +9,7 @@ tags:
 - AI
 - no-code
 - low-code
-- LLM
+- llm
 - workflow
 - open-source
 draft: false

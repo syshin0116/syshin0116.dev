@@ -8,8 +8,8 @@ tags:
 - Milvus
 - Vector-Database
 - Performance
-- Benchmark
-- RAG
+- benchmark
+- rag
 - Hybrid-Search
 draft: false
 enableToc: true

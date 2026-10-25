@@ -2,7 +2,7 @@
 title: '[Github]Github 정리'
 date: 2022-09-08 02:35:29 +0900
 tags:
-- github
+- GitHub
 draft: false
 enableToc: true
 summary: "Git과 Github의 개념, Github을 쓰는 이유와 기본 사용법을 정리한다."

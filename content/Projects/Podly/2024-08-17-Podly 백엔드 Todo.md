@@ -3,7 +3,7 @@ title: Podly 백엔드 개발 계획
 date: 2024-08-17
 tags:
 - podly
-- backend
+- Backend
 - project-planning
 - todo
 - development

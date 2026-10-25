@@ -7,7 +7,7 @@ tags:
 - llm
 - knowledge-management
 - multi-agent
-- ai
+- AI
 draft: false
 enableToc: true
 description: Second Brain 개념을 RAG 시스템에 적용하여 개인화된 AI 에이전트 구축하기

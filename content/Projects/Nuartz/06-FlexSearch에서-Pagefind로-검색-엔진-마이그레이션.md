@@ -2,11 +2,11 @@
 title: "FlexSearch에서 Pagefind로: nuartz 검색 엔진 마이그레이션"
 date: 2026-03-26
 tags:
-  - nuartz
+  - Nuartz
   - pagefind
   - flexsearch
-  - search
-  - nextjs
+  - Search
+  - Nextjs
 description: "nuartz의 검색 엔진을 FlexSearch에서 Pagefind로 마이그레이션한 과정과 비교 분석"
 ---
 

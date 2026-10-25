@@ -8,7 +8,7 @@ tags:
 - tavily
 - llm
 - pdf-search
-- information-retrieval
+- Information-Retrieval
 draft: false
 enableToc: true
 description: LangChain Agent와 Tavily 검색 엔진을 활용한 고급 RAG 시스템 구현 방법과 활용 사례 분석

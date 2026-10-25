@@ -2,9 +2,9 @@
 title: Azure ML Classic
 date: 2023-11-21 14:58 +0900
 tags:
-- Cloud
+- cloud
 - Azure
-- Machine-Learning
+- machine-learning
 - Data-Science
 draft: false
 enableToc: true

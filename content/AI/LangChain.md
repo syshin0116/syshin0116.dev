@@ -2,11 +2,11 @@
 title: LangChain
 date: 2024-02-02
 tags:
-- ai
+- AI
 - deep-learning
 - langchain
 - llm
-- openai
+- OpenAI
 - llama2
 - gemini-pro
 - streamlit

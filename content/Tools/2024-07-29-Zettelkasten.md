@@ -6,7 +6,7 @@ tags:
 - second-brain
 - note-taking
 - knowledge-management
-- pkm
+- PKM
 draft: false
 enableToc: true
 description: Zettelkasten 노트 작성 시스템의 원리와 Second Brain 구축 방법

@@ -3,9 +3,9 @@ title: 멀티에이전트 아키텍처와 대규모 구현 전략
 date: 2025-06-23
 tags:
 - AI
-- Multi-Agent
-- Architecture
-- Scalability
+- multi-agent
+- architecture
+- scalability
 - MCP
 - A2A
 - FIPA

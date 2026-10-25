@@ -3,7 +3,7 @@ title: "LLM Wiki와 ADR로 블로그를 누적 지식베이스로 키우기"
 date: 2026-05-17
 tags:
   - AI
-  - LLM
+  - llm
   - knowledge-base
   - PKM
   - LLM-Wiki
@@ -13,7 +13,7 @@ tags:
   - markdown
   - agent-memory
   - obsidian
-  - RAG
+  - rag
   - second-brain
 draft: false
 enableToc: true

@@ -3,7 +3,7 @@ title: Monkey Patching
 date: 2024-03-17
 tags:
 - python
-- programming
+- Programming
 - monkey-patching
 - code-modification
 - runtime

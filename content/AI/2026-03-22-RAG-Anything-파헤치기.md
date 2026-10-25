@@ -11,7 +11,7 @@ tags:
   - pdf-parser
   - document-ai
   - llm
-  - embedding
+  - Embedding
 draft: false
 enableToc: true
 description: RAG-Anything의 내부 구조를 파헤쳐본다. MinerU 파서, LightRAG 기반 지식 그래프 구축, 멀티모달 처리, VLM 강화 쿼리까지 전체 파이프라인을 상세히 분석한다.

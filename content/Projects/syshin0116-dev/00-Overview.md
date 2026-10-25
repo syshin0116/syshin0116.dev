@@ -7,7 +7,7 @@ tags:
   - blog-rag
   - Nuartz
   - Refactoring
-  - Architecture
+  - architecture
   - MoAI-ADK
 draft: false
 enableToc: true

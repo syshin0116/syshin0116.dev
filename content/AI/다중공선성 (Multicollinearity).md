@@ -3,9 +3,9 @@ title: 다중공선성 (Multicollinearity)
 date: 2025-04-22
 tags:
 - AI
-- Machine Learning
+- machine-learning
 - Statistics
-- Regression
+- regression
 - Feature Engineering
 draft: false
 enableToc: true

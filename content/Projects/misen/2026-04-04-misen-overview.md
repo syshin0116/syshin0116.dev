@@ -2,11 +2,11 @@
 title: "misen: 재사용 가능한 AI 워크플로우 블록 라이브러리"
 date: 2026-04-04
 tags:
-  - Python
+  - python
   - AI
   - Pipeline
-  - Workflow
-  - Open Source
+  - workflow
+  - open-source
 draft: false
 enableToc: true
 description: AI 파이프라인의 반복되는 작업을 블록 단위로 정의하고, 조합하고, 어디서든 재사용할 수 있게 하는 Python 라이브러리

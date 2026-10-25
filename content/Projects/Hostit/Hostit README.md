@@ -5,7 +5,7 @@ tags:
 - project
 - HostIt
 - MCP
-- Next.js
+- Nextjs
 - AI
 - documentation
 draft: false

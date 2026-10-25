@@ -2,7 +2,7 @@
 title: MLOps Now - LLM in Production 세미나
 date: 2024-07-24
 tags:
-- mlops
+- MLOps
 - llmops
 - production
 - vessl

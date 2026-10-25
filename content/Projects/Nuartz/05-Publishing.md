@@ -5,8 +5,8 @@ tags:
   - Projects
   - Nuartz
   - npm
-  - CI-CD
-  - GitHub-Actions
+  - cicd
+  - github-actions
 draft: false
 enableToc: true
 description: Nuartz를 npm에 배포하고, 버전 관리와 CHANGELOG를 정착시키고, GitHub Actions로 publish를 자동화한 과정을 기록한다.

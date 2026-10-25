@@ -4,9 +4,9 @@ date: 2025-01-26
 tags:
 - AI
 - PaperReview
-- LLM
+- llm
 - ToolCalling
-- Optimization
+- optimization
 - ParallelProcessing
 - Plan-and-Execute
 draft: false

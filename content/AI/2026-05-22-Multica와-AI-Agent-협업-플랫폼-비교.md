@@ -14,7 +14,7 @@ tags:
   - Claude-Squad
   - Conductor
   - GitHub
-  - Automation
+  - automation
 draft: false
 enableToc: true
 description: Multica의 커뮤니티 반응, 기능, 멀티 디바이스/팀 협업 활용법을 정리하고 OpenHands, Devin, Claude Code GitHub Actions, Cline, Cursor Cloud Agents, Codex, Aider, SWE-agent와 비교한다.

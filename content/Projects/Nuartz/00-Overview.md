@@ -8,7 +8,7 @@ tags:
   - Nextjs
   - Quartz
   - Digital-Garden
-  - Obsidian
+  - obsidian
 draft: false
 enableToc: true
 description: Obsidian 노트를 Next.js로 서빙하는 오픈소스 라이브러리. Quartz를 headless 데이터 레이어로 재해석한다.
