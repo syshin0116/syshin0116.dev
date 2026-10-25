@@ -439,7 +439,8 @@ hardcoded in the local governance verifier so removing a target, removing the au
 The script reads exact manifest and lock pins but never changes them. It emits
 deterministic JSON and a GitHub step summary; exit `1`
 means a newer stable release exists, while transport, redirect, response-size, schema,
-pin, and canonical-repository failures exit `2`. Both fail the scheduled/manual run.
+pin, and canonical-repository failures exit `2`. Exit `1` is a workflow warning, so
+the weekly run stays green while a compatibility PR is pending; exit `2` fails the run.
 The full target, stable-release, triage, and extension contract is in the
 [upstream version audit runbook](../runbooks/upstream-version-audit.md).
 
