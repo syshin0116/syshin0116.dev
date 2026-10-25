@@ -363,11 +363,11 @@ test("mobile menu traps focus, closes with Escape, and restores focus", async ({
 
 test("note filters survive reload and search opens a matching blog note", async ({ page }, testInfo) => {
   await page.goto("/blog")
-  await page.getByRole("combobox", { name: "태그", exact: true }).selectOption("ai")
+  await page.getByRole("combobox", { name: "태그", exact: true }).selectOption("AI")
   await page.getByRole("combobox", { name: "정렬", exact: true }).selectOption("title")
-  await expect(page).toHaveURL(/tag=ai&sort=title/)
+  await expect(page).toHaveURL(/tag=AI&sort=title/)
   await page.reload()
-  await expect(page.getByRole("combobox", { name: "태그", exact: true })).toHaveValue("ai")
+  await expect(page.getByRole("combobox", { name: "태그", exact: true })).toHaveValue("AI")
   await expect(page.getByRole("combobox", { name: "정렬", exact: true })).toHaveValue("title")
   await expectA11yClean(page)
   await attachScreenshot(page, testInfo, "filtered-notes")
