@@ -7,10 +7,18 @@ import asyncio
 import json
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 from agent.retrieval.corpus import PublishedCorpus
 
+from blogeval.committed_content import (
+    KNOWN_ITEM_QUERYSET_PATH,
+    KNOWN_ITEM_REFRESH_COMMAND,
+    build_head_corpus,
+    content_status,
+    discover_workspace_root,
+)
 from blogeval.datasets import (
     DatasetError,
     generate_known_item_alias_queryset,
@@ -53,10 +61,23 @@ def _parser() -> argparse.ArgumentParser:
     generate = subparsers.add_parser(
         "generate-known-item",
         help="generate or check alias-derived known-item qrels",
+        description=(
+            "Without --index-root, build the corpus from the committed HEAD:content "
+            "tree in a scratch directory, then write and validate the committed "
+            "query-set."
+        ),
     )
-    generate.add_argument("--index-root", type=Path, required=True)
-    generate.add_argument("--content-tree-sha", required=True)
-    generate.add_argument("--output", type=Path, required=True)
+    generate.add_argument(
+        "--index-root",
+        type=Path,
+        help="prebuilt corpus mirror; requires --content-tree-sha",
+    )
+    generate.add_argument("--content-tree-sha")
+    generate.add_argument(
+        "--output",
+        type=Path,
+        help=f"defaults to <repository root>/{KNOWN_ITEM_QUERYSET_PATH}",
+    )
     generate.add_argument(
         "--check",
         action="store_true",
@@ -199,28 +220,82 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def _generate(args: argparse.Namespace) -> int:
-    corpus = PublishedCorpus(args.index_root)
+    if (args.index_root is None) != (args.content_tree_sha is None):
+        raise ValueError("--index-root and --content-tree-sha must be given together")
+    output = args.output
+    if args.index_root is not None:
+        if output is None:
+            output = discover_workspace_root(Path.cwd()) / KNOWN_ITEM_QUERYSET_PATH
+        return _generate_known_item(
+            PublishedCorpus(args.index_root),
+            content_tree_sha=args.content_tree_sha,
+            output=output,
+            check=args.check,
+        )
+
+    root = discover_workspace_root(Path.cwd())
+    if output is None:
+        output = root / KNOWN_ITEM_QUERYSET_PATH
+    tracked, untracked = content_status(root)
+    if tracked and not args.check:
+        # The set is pinned to HEAD:content, so writing it now would be stale again
+        # as soon as these edits are committed.
+        raise DatasetError(
+            f"{len(tracked)} uncommitted change(s) under content/ "
+            f"(first: {tracked[0]}); commit them, then rerun"
+        )
+    if untracked:
+        print(
+            f"note: ignoring {len(untracked)} untracked file(s) under content/; "
+            "the query-set is built from committed HEAD:content",
+            file=sys.stderr,
+        )
+    with tempfile.TemporaryDirectory(prefix="blogeval-known-item-") as scratch:
+        index_root, content_tree_sha = build_head_corpus(root, Path(scratch))
+        corpus = PublishedCorpus(index_root)
+        status = _generate_known_item(
+            corpus,
+            content_tree_sha=content_tree_sha,
+            output=output,
+            check=args.check,
+        )
+        if status == 0:
+            validate_queryset_corpus(
+                load_queryset(output),
+                corpus,
+                content_tree_sha=content_tree_sha,
+            )
+    return status
+
+
+def _generate_known_item(
+    corpus: PublishedCorpus,
+    *,
+    content_tree_sha: str,
+    output: Path,
+    check: bool,
+) -> int:
     dataset = generate_known_item_alias_queryset(
         corpus,
-        content_tree_sha=args.content_tree_sha,
+        content_tree_sha=content_tree_sha,
     )
     expected = canonical_json_bytes(dataset.as_dict())
-    if args.check:
+    if check:
         try:
-            actual = args.output.read_bytes()
+            actual = output.read_bytes()
         except OSError as exc:
-            print(
-                f"cannot read committed query-set {args.output}: {exc}", file=sys.stderr
-            )
+            print(f"cannot read committed query-set {output}: {exc}", file=sys.stderr)
             return 1
         if actual != expected:
             print(
-                "committed known-item query-set differs from deterministic generation",
+                "committed known-item query-set differs from deterministic "
+                "generation; regenerate it and commit "
+                f"the result:\n  {KNOWN_ITEM_REFRESH_COMMAND}",
                 file=sys.stderr,
             )
             return 1
     else:
-        write_queryset(args.output, dataset)
+        write_queryset(output, dataset)
     print(
         json.dumps(
             {
