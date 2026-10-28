@@ -141,7 +141,7 @@ No prefixes. 5–10 per page, sampled from multiple dimensions:
 | Concept | `knowledge-graph`, `zettelkasten`, `retrieval` |
 | Meta | `CLI`, `library`, `Pattern`, `Experiment`, `comparison` |
 
-Wiki pages and source posts share one set of tag pages, so a tag that differs from a post tag only in case or in spaces, `-`, `_`, `.` splits that page (`web/lib/tag.ts` compares tags this way). Reuse the post's exact spelling, then the wiki's; write a brand-new tag lowercase and hyphenated.
+Wiki pages and source posts share one set of tag pages, so a tag that differs from a post tag only in case or in spaces, `-`, `_`, `.` splits that page (`web/lib/tag.ts` compares tags this way). Reuse the post's exact spelling, then the wiki's; write a brand-new tag lowercase and hyphenated. `bun run prebuild` (in `web/`, run by `ci/web` for any `content/` change) fails on such a split and lists each spelling with its files; spellings that name different things, such as `ReAct` and `react`, are listed in `web/lib/tag.ts`.
 
 ```bash
 # See current tags + frequency across posts and wiki (block-style lists only;
