@@ -18,10 +18,10 @@ and query-set identity must all agree on the same full Git tree SHA.
   `wikilinks.json` artifact. Included aliased-link occurrences collapse to unique,
   single-target known-item qrels, and the rest are retained as explicit exclusions
   (conflicting alias targets, ambiguous targets, self-links, or unresolved targets). The
-  current counts are recorded in the file's `provenance`; regenerate it after content
-  changes, since `ci/eval` byte-compares it against a fresh generation. Its label status is
+  current counts are recorded in the file's `provenance`. Its label status is
   `generated-owner-authored`, not `owner-reviewed`; it is useful for comparisons but
-  cannot be published as relevance gold.
+  cannot be published as relevance gold. Content changes make it stale; see
+  [Regenerate the known-item set](#regenerate-the-known-item-set).
 - `querysets/topic-smoke-v1.seed.json` contains six versioned topic and cross-lingual
   queries transcribed from the owner's published experiment plan and pins the exact
   sparse, dense, and fusion candidate methods plus per-method limit, but contains no
@@ -47,6 +47,31 @@ a clean holdout after finalization.
 
 Known-item reports headline Hit@k, MRR@k, and coverage. Topic reports headline recall@k
 and coverage. The report generator does not calculate a headline nDCG score.
+
+## Regenerate the known-item set
+
+The set pins the `content/` tree SHA, so every post or wiki commit makes it stale.
+`ci/eval`, and `scripts/preflight.sh` on a push that touches `content/`, byte-compare it
+against a fresh generation and print the fix on failure. After committing the content
+change, run this from anywhere in the checkout and commit the result:
+
+```bash
+uv run --frozen --package syshin0116-dev-eval blogeval generate-known-item
+```
+
+Without `--index-root`, the command exports the committed `HEAD:content` tree into a
+scratch directory, builds the corpus there, and writes and validates
+`eval/querysets/known-item-alias-v1.json`. `--check` compares without writing.
+
+- It reads `HEAD`, not the working tree. Untracked files under `content/` (the
+  Obsidian vault's `.obsidian/` and `.DS_Store`, drafts) are skipped with a note, while
+  uncommitted edits to tracked content refuse to write: the result would be stale again
+  as soon as they are committed. For the same reason it refuses mid-rebase.
+- Two open content PRs always conflict on this file. `.gitattributes` merges it with
+  Git's built-in binary driver, which needs no local configuration and leaves one side in
+  place as valid JSON instead of conflict markers. Keep either side (`git add` the file
+  as left, or `git checkout --theirs` it first), finish the rebase or merge, then rerun
+  the command and commit.
 
 ## Reproduce the offline sweep
 
