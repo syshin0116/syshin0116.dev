@@ -8,3 +8,10 @@ DECISIONS.md merge=union
 # Generated upstream bindings are vendored byte-for-byte. Preserve upstream
 # trailing whitespace so their locked hashes remain independently verifiable.
 protocol/generated/** whitespace=-blank-at-eof
+
+# Regenerated from HEAD:content, never hand-merged. The built-in binary driver
+# leaves one side in place as valid JSON instead of conflict markers; resolve by
+# keeping either side, finishing the merge or rebase, then rerunning
+# `blogeval generate-known-item` (see eval/README.md). linguist-generated only
+# collapses the diff in GitHub review.
+eval/querysets/known-item-alias-v1.json merge=binary linguist-generated=true
