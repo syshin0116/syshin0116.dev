@@ -56,6 +56,7 @@ Use the existing commands and workflows; do not copy another project's Make targ
 | `eval/` | `ci/eval` in `.github/workflows/ci.yml`; preserve retrieval-method breadth and reproducibility |
 | Infrastructure and delivery | The infrastructure steps of `ci/repo`, the relevant delivery workflow, and its runbook; static checks do not authorize deployment |
 | `content/wiki/` | The wiki skill and the wiki contract steps of `ci/repo` |
+| Any `content/` commit | The known-item query-set goes stale: run `uv run --frozen --package syshin0116-dev-eval blogeval generate-known-item` and commit the result; on a conflict in that file keep either side and rerun ([`eval/README.md`](eval/README.md#regenerate-the-known-item-set)) |
 | Instructions and docs | Check links and commands against the repository, run `git diff --check`, and keep `CLAUDE.md` as a relative symlink to `AGENTS.md` |
 
 For UI changes, use `bc-ui-verification` when it is available in the session skill catalog. Otherwise use the existing `web/package.json` browser commands (`bun run test:browser` for chat and `bun run test:site-browser` for site routes, from `web/`) and their Playwright configuration. Retain evidence for affected desktop/mobile states. A local quick check is not a production or merge verification. New behavior needs meaningful regression coverage; prose and styling-only changes do not need tests that merely repeat their implementation.
