@@ -1168,4 +1168,10 @@ def test_real_corpus_build_matches_the_nuartz_publication_policy(
     # The committed known-item set must be regenerated whenever content changes
     # the alias occurrences it was built from.
     known_item = _read_json(REPO_ROOT / "eval/querysets/known-item-alias-v1.json")
-    assert len(alias_occurrences) == known_item["provenance"]["source_occurrence_count"]
+    assert (
+        len(alias_occurrences) == known_item["provenance"]["source_occurrence_count"]
+    ), (
+        "eval/querysets/known-item-alias-v1.json is stale; regenerate it and commit "
+        "the result:\n  uv run --frozen --package syshin0116-dev-eval blogeval "
+        "generate-known-item"
+    )

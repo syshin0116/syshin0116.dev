@@ -58,11 +58,15 @@ touches() { grep -qE "$1" <<<"$changed"; }
 
 web=false
 agent=false
+queryset=false
 touches '^web/' && web=true
 touches '^(agent/|eval/|scripts/|Dockerfile|aegra\.json|pyproject\.toml|uv\.lock)' && agent=true
+# The known-item query-set is pinned to the content tree, so a content-only push
+# goes stale there; ci/eval would be the first to say so otherwise.
+touches '^(content/|agent/|eval/|scripts/build_index\.py|uv\.lock)' && queryset=true
 
-if [[ "$web" == false && "$agent" == false ]]; then
-  echo "preflight: no web or agent paths changed" >&2
+if [[ "$web" == false && "$agent" == false && "$queryset" == false ]]; then
+  echo "preflight: no web, agent, or content paths changed" >&2
   exit 0
 fi
 
@@ -111,6 +115,13 @@ if [[ "$agent" == true ]]; then
       fail "agent tests failed"
     fi
   fi
+fi
+
+if [[ "$queryset" == true ]]; then
+  log "eval: known-item query-set matches HEAD:content"
+  # It builds from the committed tree, so untracked vault files do not matter here.
+  uv run --frozen --package syshin0116-dev-eval blogeval generate-known-item --check >/dev/null \
+    || fail "known-item query-set is stale; run the command printed above and commit it"
 fi
 
 log "preflight passed"
