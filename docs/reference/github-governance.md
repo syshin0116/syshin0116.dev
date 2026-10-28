@@ -9,7 +9,7 @@ when_to_read: >
   dependency and upstream-version audit.
 tags: [github, governance, ci, dependabot, runbook]
 status: stable
-updated: "2026-10-25"
+updated: "2026-10-28"
 owners: ["@syshin0116"]
 refs:
   - ../../.github/repository-governance.json
@@ -140,7 +140,7 @@ deployment gates.
 
 That contract binds the complete `agent` job AST, not only its `run` strings.
 The only job keys are the reviewed name, `always()` condition, `changes`
-dependency, Ubuntu runner, 30-minute timeout, exact CI environment, exact PostgreSQL
+dependency, pinned `ubuntu-24.04` runner, 30-minute timeout, exact CI environment, exact PostgreSQL
 service, and ordered steps. `defaults`, `container`, `strategy`, `environment`, a
 self-hosted runner, any additional service, or any other extra or changed job key fails;
 changing any field of the one reviewed PostgreSQL service also fails. Steps remain exact and ordered: checkout is pinned to its
@@ -278,6 +278,20 @@ exactly, including its key set.
 GitHub documents a full commit SHA as the only immutable release reference for
 an action. The checked-in verifier fails before an unpinned action can make this
 external setting disable a workflow.
+
+## Runner image
+
+Every job that does not call a reusable workflow must use `runs-on: ubuntu-24.04`
+(`WORKFLOW_RUNNER` in the verifier), including jobs in local reusable workflows.
+`ubuntu-latest`, a label list, a self-hosted label, or a missing `runs-on` fails
+the local verifier. GitHub moves `ubuntu-latest` to a new image on its own
+schedule, and an earlier image change broke every `bun install` through
+`better-sqlite3` prebuilds without any repository change.
+
+Move to a newer image in a dedicated PR: change every `runs-on`, `WORKFLOW_RUNNER`,
+the job and workflow AST digests that include the runner, and the test fixtures
+together, and let the full CI run on the new image before merging. Do that before
+GitHub announces the retirement of the pinned image, not after it starts failing.
 
 ## Deployment environment branches
 
