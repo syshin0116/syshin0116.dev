@@ -19,3 +19,28 @@ export function mergedTagTarget(tag: string, existingTags: Iterable<string>): st
   }
   return target
 }
+
+export interface TagSpelling {
+  tag: string
+  files: string[]
+}
+
+// Spellings that share a key but name different things, so each keeps its page.
+const DISTINCT_TAG_SPELLINGS: readonly (readonly string[])[] = [
+  ["ReAct", "react"], // the agent pattern and the React library
+]
+
+// Each tag becomes its own tag page, so two spellings that `mergedTagTarget`
+// treats as one tag would split it. Returns every group of such spellings.
+export function findTagSpellingVariants(filesByTag: Map<string, string[]>): TagSpelling[][] {
+  const groups = new Map<string, TagSpelling[]>()
+  for (const [tag, files] of filesByTag) {
+    const key = tagSpellingKey(tag)
+    groups.set(key, [...(groups.get(key) ?? []), { tag, files }])
+  }
+  return [...groups.values()].filter(
+    group =>
+      group.length > 1 &&
+      !DISTINCT_TAG_SPELLINGS.some(distinct => group.every(({ tag }) => distinct.includes(tag))),
+  )
+}
