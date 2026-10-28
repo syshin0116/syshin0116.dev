@@ -232,6 +232,11 @@ class PathClassificationTests(unittest.TestCase):
                     changes.classify_paths([path]),
                 )
 
+    def test_post_and_wiki_tags_reach_the_web_prebuild_tag_check(self) -> None:
+        for path in ("content/AI/example.md", "content/wiki/rag.md", "web/lib/tag.ts"):
+            with self.subTest(path=path):
+                self.assertTrue(changes.classify_paths([path])["web"])
+
     def test_multiple_paths_union_component_work(self) -> None:
         self.assertEqual(
             {"web": True, "agent": True, "eval": True, "infra": True},
