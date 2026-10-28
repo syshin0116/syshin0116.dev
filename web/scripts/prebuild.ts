@@ -37,7 +37,7 @@ import type { Frontmatter, TocEntry } from "nuartz"
 import { isAllowedMediaPath } from "../lib/media"
 import { createLinkResolver } from "../lib/note-resolver"
 import { rewriteRenderedLinks } from "../lib/rendered-links"
-import { tagPath } from "../lib/tag"
+import { findTagSpellingVariants, tagPath } from "../lib/tag"
 
 const ROOT = path.join(import.meta.dir, "..")
 const CONTENT_DIR = path.join(ROOT, "..", "content")
@@ -322,10 +322,12 @@ async function main() {
     string,
     { slug: string; title: string; description: string | null; date: string | null }[]
   > = {}
+  const filesByTag = new Map<string, string[]>()
   for (const file of files) {
     if (file.frontmatter.draft || file.frontmatter.published === false) continue
     const fileTags = resultsBySlug.get(file.slug)?.tags ?? []
     for (const tag of fileTags) {
+      filesByTag.set(tag, [...(filesByTag.get(tag) ?? []), path.relative(path.dirname(CONTENT_DIR), path.resolve(CONTENT_DIR, file.filePath))])
       if (!tagIndex[tag]) tagIndex[tag] = []
       tagIndex[tag].push({
         slug: file.slug,
@@ -342,6 +344,15 @@ async function main() {
           : null,
       })
     }
+  }
+  const tagVariants = findTagSpellingVariants(filesByTag)
+  if (tagVariants.length > 0) {
+    const report = tagVariants
+      .map(group => group.map(({ tag, files }) => `  "${tag}": ${files.join(", ")}`).join("\n"))
+      .join("\n\n")
+    throw new Error(
+      `Tag spellings that differ only in case, spaces, "-", "_" or "." split one tag page; reuse one spelling:\n${report}`
+    )
   }
   for (const entries of Object.values(tagIndex)) {
     entries.sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))
