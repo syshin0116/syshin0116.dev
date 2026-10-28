@@ -197,6 +197,9 @@ EXPECTED_AUTOMATED_SECURITY_FIXES = {
     "paused": False,
 }
 EXPECTED_DEPENDABOT_SECURITY_UPDATES_STATUS = "enabled"
+# `ubuntu-latest` moves to a new image on GitHub's schedule; a runner change
+# once broke every bun install through better-sqlite3 prebuilds.
+WORKFLOW_RUNNER = "ubuntu-24.04"
 UV_VERSION = "0.13.5"
 UV_REQUIRED_VERSION = f"=={UV_VERSION}"
 UV_CHECKSUM = "f68d291c75783122dad58ab77def0e13f3233f358731db5d6d7e8715603b928f"
@@ -221,10 +224,10 @@ EVAL_CI_JOB = "eval"
 EVAL_PUBLICATION_WORKFLOW = ".github/workflows/eval-publication.yml"
 AGENT_DELIVERY_WORKFLOW_AST_SHA256 = {
     ".github/workflows/agent-image-build.yml": (
-        "07f2ca0a49b11ec3c67fb3c415f14f1cd3a486c70986980c746545c04ba9f119"
+        "76df6b538a5c55049798459c5cc16757d5735c483bf9ddd2d3e8246a8ca44f03"
     ),
     ".github/workflows/agent-release.yml": (
-        "3c99576c9d7af9ebd479e5f93c736f15dd0daa3ecb06b0f731cc67861fb5a3fd"
+        "30da88e4a75c9aa62fc97bea4cee6bc73942f8107518bb9efeea08ba9e22d0e4"
     ),
     ".github/workflows/deploy-agent.yml": (
         "191bcae1f9db80a5951fda7ce446a22c957c12b509a42bd02b5cbed3a6073feb"
@@ -240,7 +243,7 @@ EXPECTED_VERCEL_AUTODEPLOY_CONFIG = {
 }
 VERCEL_PRODUCTION_WORKFLOW = ".github/workflows/vercel-production.yml"
 VERCEL_PRODUCTION_WORKFLOW_AST_SHA256 = (
-    "bd6a476e618c7afb08d7b4461741b3298476da164ea170b8045c3373ad2ce525"
+    "dc1edc4a81300d1cd04417ea6f0f846aa5a9ba53d0fa47f766032091a5319594"
 )
 VERCEL_PRODUCTION_OBSERVER_FILES_SHA256 = {
     "scripts/verify_vercel_production.py": (
@@ -259,9 +262,9 @@ UPSTREAM_VERSION_AUDIT_SCRIPT_SHA256 = (
     "87d25d4ba6d9e4657926364d51c91c0d1c03b7cfdfe2a9cc84dbd640e367d7ca"
 )
 EXPECTED_DEPENDENCY_AUDIT_JOB_AST_SHA256 = {
-    "eval": "302e165918ced01ecdaf836536055e94465fb15b134d7fa1327533d769b412dd",
-    "upstream": "fc1ca8e6ff0134f831980993688ebfb439df52138a011f5cd84fca6c6cf88fb2",
-    "check": "ccebb8e1c855a2f3fd87a3156b6de7335cfb252f5c16899d9132743b359cf117",
+    "eval": "4b7aadedbbdbcf8002f4c25a63c30bdea4327160fc07ecaa5bfb88ff5e188f64",
+    "upstream": "bb7f46d68a8d75410d63218e0359a698b4225c584aacd2a4d863a2b160e53268",
+    "check": "11b04948e8d8482311d093664fe3a68eb519f8f6e5d2b59892e2b753fc7a31d4",
 }
 EXPECTED_DEPENDENCY_AUDIT_PYTHON_SETUP = [
     {
@@ -1578,6 +1581,36 @@ def validate_dependency_audit_job_contract(document: YamlDocument) -> list[str]:
     return errors
 
 
+def validate_workflow_runner_contract(
+    root: Path,
+    documents: dict[Path, YamlDocument],
+) -> list[str]:
+    """Pin every hosted job to one runner image so it changes only through a PR."""
+    errors: list[str] = []
+    repository_root = root.resolve()
+    workflow_directory = repository_root / ".github/workflows"
+    for path, document in sorted(documents.items()):
+        if path.parent != workflow_directory:
+            continue
+        jobs = _mapping_value(document.root, "jobs")
+        if not isinstance(jobs, MappingNode):
+            continue
+        display = _display_path(path, repository_root)
+        for job_name, job, _ in _mapping_items(jobs):
+            if not isinstance(job, MappingNode):
+                continue
+            runs_on = _mapping_value(job, "runs-on")
+            if runs_on is None and _mapping_value(job, "uses") is not None:
+                continue
+            if not isinstance(runs_on, ScalarNode) or runs_on.value != WORKFLOW_RUNNER:
+                actual = None if runs_on is None else _node_to_data(runs_on)
+                errors.append(
+                    f"{display}: job {job_name!r} runs-on must be "
+                    f"{WORKFLOW_RUNNER!r}, got {actual!r}"
+                )
+    return errors
+
+
 def validate_uv_toolchain_contract(
     root: Path,
     documents: dict[Path, YamlDocument],
@@ -2690,6 +2723,10 @@ def validate_local(root: Path, policy: JsonObject) -> list[str]:
     errors.extend(reference_errors)
     errors.extend(
         f"local: {error}" for error in validate_uv_toolchain_contract(root, documents)
+    )
+    errors.extend(
+        f"local: {error}"
+        for error in validate_workflow_runner_contract(root, documents)
     )
     workflow_paths = {path.resolve() for path in workflows}
 

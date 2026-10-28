@@ -1,5 +1,5 @@
 {
-  "agent_ci_job": "b6673e59da28cea958b991b78be4ca555f21c0a0c86c2743bb2181da3b223c99",
-  "eval_ci_job": "bf2290706f9ddce49ff7d3a6a2f81b60d1f25864de1707a66a1964fef3b37e88",
-  "eval_publication_workflow": "4c85712a63664f9b2caeb11e7fa26684da9dbef675992927f72498061e2116b8"
+  "agent_ci_job": "b20845ebbca86d6e1984d4809e3b5d712b9b306b7ff4353cfcb1a212685628c2",
+  "eval_ci_job": "8bf2fb3236abbaa511d3524e10ac292b8acf46ae576dcf8e49c22bd0b0140d5e",
+  "eval_publication_workflow": "99ad3f089431566b8ecf94f41c7808bcec36c05083506341ce978afc2fdf29c8"
 }

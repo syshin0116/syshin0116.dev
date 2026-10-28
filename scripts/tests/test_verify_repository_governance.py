@@ -1027,7 +1027,7 @@ class LocalGovernanceTests(unittest.TestCase):
             "    if: always()\n"
             "    needs:\n"
             "      - changes\n"
-            "    runs-on: ubuntu-latest\n"
+            "    runs-on: ubuntu-24.04\n"
             "    timeout-minutes: 30\n"
         )
         env = (
@@ -1049,7 +1049,7 @@ class LocalGovernanceTests(unittest.TestCase):
             "runner": (
                 (
                     header,
-                    header.replace("runs-on: ubuntu-latest", "runs-on: self-hosted"),
+                    header.replace("runs-on: ubuntu-24.04", "runs-on: self-hosted"),
                 ),
             ),
             "timeout": (
@@ -1544,7 +1544,7 @@ runs:
                 "    if: always()\n"
                 "    needs:\n"
                 "      - changes\n"
-                "    runs-on: ubuntu-latest\n"
+                "    runs-on: ubuntu-24.04\n"
                 "    timeout-minutes: 30\n"
                 "    services:\n",
                 "  agent:\n"
@@ -1552,7 +1552,7 @@ runs:
                 "    if: always()\n"
                 "    needs:\n"
                 "      - changes\n"
-                "    runs-on: ubuntu-latest\n"
+                "    runs-on: ubuntu-24.04\n"
                 "    timeout-minutes: 30\n"
                 "    defaults:\n"
                 "      run:\n"
@@ -2694,6 +2694,59 @@ runs:
 
             self.assertTrue(any(expected in error for error in errors), errors)
 
+    def test_workflow_runner_contract_accepts_the_repository(self) -> None:
+        documents, reference_errors = governance.validate_repository_yaml_references(
+            REPO_ROOT
+        )
+        self.assertEqual([], reference_errors)
+
+        self.assertEqual(
+            [], governance.validate_workflow_runner_contract(REPO_ROOT, documents)
+        )
+
+    def test_workflow_runner_contract_rejects_floating_and_missing_runners(
+        self,
+    ) -> None:
+        mutations = (
+            (
+                "floating-label",
+                ".github/workflows/dependency-audit.yml",
+                "runs-on: ubuntu-24.04",
+                "runs-on: ubuntu-latest",
+                "got 'ubuntu-latest'",
+            ),
+            (
+                "runner-list",
+                ".github/workflows/ci.yml",
+                "runs-on: ubuntu-24.04",
+                "runs-on: [ubuntu-24.04, self-hosted]",
+                "got ['ubuntu-24.04', 'self-hosted']",
+            ),
+            (
+                "missing-runner",
+                ".github/workflows/vercel-production.yml",
+                "    runs-on: ubuntu-24.04\n",
+                "",
+                "got None",
+            ),
+        )
+        for label, relative, old, new, expected in mutations:
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as directory:
+                root = copy_local_governance_fixture(directory)
+                path = root / relative
+                original = path.read_text(encoding="utf-8")
+                mutated = original.replace(old, new, 1)
+                self.assertNotEqual(original, mutated)
+                path.write_text(mutated, encoding="utf-8")
+                documents, _ = governance.validate_repository_yaml_references(root)
+
+                errors = governance.validate_workflow_runner_contract(root, documents)
+
+            self.assertTrue(
+                any(relative in error and expected in error for error in errors),
+                errors,
+            )
+
     def test_dependabot_groups_match_the_exact_policy(self) -> None:
         policy = governance.load_policy()
 
@@ -3237,7 +3290,7 @@ on:
 jobs:
   skipped:
     if: github.actor == 'nobody'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - run: echo skipped
 """.lstrip(),
@@ -3396,7 +3449,7 @@ on:
 jobs:
   delegated:
     continue-on-error: false
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - run: echo delegated
 """,
@@ -3410,7 +3463,7 @@ on:
   workflow_call:
 jobs:
   delegated:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - run: echo delegated
         continue-on-error: true
@@ -3444,7 +3497,7 @@ on:
   workflow_call:
 jobs:
   nested:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - run: echo nested
         continue-on-error: false
