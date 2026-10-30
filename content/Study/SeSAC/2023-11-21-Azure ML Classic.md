@@ -8,6 +8,7 @@ tags:
 - Data-Science
 draft: false
 enableToc: true
+description: "Azure ML Classic으로 데이터 불러오기부터 결측치 처리, 모델 학습과 평가까지 진행한 실습 기록"
 summary: "Azure ML Classic에서 빈 Experiment를 만들고 데이터 불러오기, 열 선택, 메타데이터 편집, 결측치 처리, 데이터 분할, 모델 학습과 점수 매기기까지 진행한 실습 기록이다."
 published: 2023-11-21 14:58 +0900
 modified: 2023-11-21 14:58 +0900

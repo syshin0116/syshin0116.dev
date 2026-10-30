@@ -8,6 +8,7 @@ tags:
 - Summer/Winter-Coding
 draft: false
 enableToc: true
+description: "프로그래머스 lvl2 Summer/Winter Coding 영어 끝말잇기 문제의 Python 풀이와 우수 답안 비교"
 summary: "1부터 n까지 번호가 붙어있는 n명의 사람이 영어 끝말잇기를 하고 있습니다. 영어 끝말잇기는 다음과 같은 규칙으로 진행됩니다."
 published: 2023-05-01 10:31:29 +0900
 modified: 2023-05-01 10:31:29 +0900

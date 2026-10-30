@@ -8,6 +8,7 @@ tags:
 - cloud
 draft: false
 enableToc: true
+description: "AWS Solutions Architect Associate(SAA-C03) 강의 노트: 리전과 가용 영역, IAM과 AWS CLI 등 주요 서비스 정리"
 summary: "Services covered in this course: Question: If you need to launch a new application, where should you do it?"
 published: 2022-12-07 16:50:23 +0900
 modified: 2022-12-07 16:50:23 +0900

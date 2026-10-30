@@ -9,6 +9,7 @@ tags:
 - 교육
 draft: false
 enableToc: true
+description: "SeSAC 딥러닝 영상처리 수업: Roboflow 사용법, 이미지 분류와 객체 탐지의 차이, AI 프로젝트 사이클"
 summary: "Image Classification과 Object Detection의 차이: ImageNet - 1000만장이 넘는 이미지에 1000개 class"
 published: 2023-08-25 09:09 +0900
 modified: 2023-08-25 09:09 +0900
