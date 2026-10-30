@@ -5,6 +5,7 @@ tags:
 - GitHub
 draft: false
 enableToc: true
+description: "Git과 GitHub의 개념과 장점, 자주 쓰는 명령어와 clone, 저장소 생성 등 사용 팁 정리"
 summary: "Git과 Github의 개념, Github을 쓰는 이유와 기본 사용법을 정리한다."
 published: 2022-09-08 02:35:29 +0900
 modified: 2022-09-08 02:35:29 +0900

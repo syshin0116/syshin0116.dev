@@ -10,6 +10,7 @@ tags:
 - Pattern
 draft: false
 enableToc: true
+description: "구조 디자인 패턴 Adapter의 개념과 Bridge 패턴과의 차이, 예제 코드 정리"
 summary: "Structural Patterns에 대한 내용을 다룬다."
 published: 2024-08-11 17:47 +0900
 modified: 2024-08-11 17:47 +0900

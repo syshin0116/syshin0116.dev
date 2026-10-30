@@ -10,6 +10,7 @@ tags:
 - Pattern
 draft: false
 enableToc: true
+description: "행위 디자인 패턴 중 Iterator 패턴의 개념, 장점, 예제 코드 정리"
 summary: "Behavior Patterns에 대한 내용을 다룬다."
 published: 2024-08-11 17:50 +0900
 modified: 2024-08-11 17:50 +0900

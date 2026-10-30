@@ -10,6 +10,7 @@ tags:
 - Pattern
 draft: false
 enableToc: true
+description: "생성 디자인 패턴 Abstract Factory와 Singleton의 개념, 장점, 예제 코드와 Factory Method 비교"
 summary: "Creational Patterns에 대한 내용을 다룬다."
 published: 2024-08-11 15:51 +0900
 modified: 2024-08-11 15:51 +0900

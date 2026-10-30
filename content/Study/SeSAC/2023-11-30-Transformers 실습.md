@@ -9,6 +9,7 @@ tags:
 - 교육
 draft: false
 enableToc: true
+description: "Transformer 모델로 챗봇을 구현한 실습 기록"
 summary: "<table border=\"1\" class=\"dataframe\"> <tr style=\"text-align: right;\">"
 published: 2023-11-30 16:09 +0900
 modified: 2023-11-30 16:09 +0900
