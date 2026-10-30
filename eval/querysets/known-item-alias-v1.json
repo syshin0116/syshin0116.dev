@@ -1,8 +1,8 @@
 {
   "corpus": {
     "document_count": 338,
-    "fingerprint": "sha256:37d6b7a3927e213482dad62acf976625fc5e4099a9cf9b8edca87cf7bbdfc810",
-    "git_tree_sha": "465317f278ec2078d0af7d90b56ef000210d5298"
+    "fingerprint": "sha256:18f8b52db324798c528b55e078701a2eed8503c41a666e21286a042d688e82d3",
+    "git_tree_sha": "e9d32d7573cbf7ed25153ca2c7296b7625823ab4"
   },
   "dataset_id": "known-item-alias-v1",
   "dataset_kind": "known-item",
@@ -239,7 +239,7 @@
   "provenance": {
     "generator": "blogeval.wikilink-aliases",
     "generator_version": 1,
-    "included_occurrence_count": 140,
+    "included_occurrence_count": 142,
     "source_artifacts": [
       {
         "derived_from": [
@@ -247,10 +247,10 @@
         ],
         "path": "wikilinks.json",
         "schema": "published-wikilinks-v2",
-        "sha256": "sha256:3117de287d9f8d737aa08dea75cacb2ee2f1b3b76252de4ec3b2a4218b3f5b16"
+        "sha256": "sha256:cd7c435f608c17c6e323427bfcdcd57bafe7ad1e91cf40a23dfe2d42f7512e72"
       }
     ],
-    "source_occurrence_count": 163
+    "source_occurrence_count": 165
   },
   "qrels": [
     {
@@ -488,7 +488,7 @@
       "evidence": [
         {
           "kind": "wikilink-alias",
-          "occurrences": 1,
+          "occurrences": 2,
           "source_doc_id": "Dev/2025-05-24-Supabase-NextJS.md",
           "target": "Hostit 개요"
         }
@@ -899,6 +899,21 @@
       "query_id": "alias-e5ed2fc04e0c8c89",
       "relevant_doc_ids": [
         "AI/pdf-parser/2026-03-25-PyMuPDF4LLM-PDF-파서-분석.md"
+      ]
+    },
+    {
+      "evidence": [
+        {
+          "kind": "wikilink-alias",
+          "occurrences": 1,
+          "source_doc_id": "Tools/Obsidian/검색 노출 시키는 방법.md",
+          "target": "Quartz, GitHub Pages 사용하여 Obsidian 노트 배포"
+        }
+      ],
+      "query": "Quartz 블로그 설정 가이드",
+      "query_id": "alias-138fb34c6234eda0",
+      "relevant_doc_ids": [
+        "Tools/Obsidian/Quartz, GitHub Pages 사용하여 Obsidian 노트 배포.md"
       ]
     },
     {
