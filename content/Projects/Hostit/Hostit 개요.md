@@ -1,4 +1,3 @@
-
 ---
 title: Hostit 개요
 date: 2025-05-04
@@ -6,7 +5,7 @@ tags:
   - project
   - HostIt
   - MCP
-  - LangChain
+  - langchain
   - AI
 draft: false
 enableToc: true
