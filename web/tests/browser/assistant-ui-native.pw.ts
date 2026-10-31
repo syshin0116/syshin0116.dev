@@ -543,7 +543,7 @@ test.describe.serial("native assistant-ui production journey", () => {
     ).toBeEnabled()
 
     await attachEvidence(page, testInfo, "chat-empty")
-    await page.getByRole("button", { name: "LangGraph 관련 글을 찾아줘", exact: true }).click()
+    await page.getByRole("button", { name: "LangGraph 글 찾기", exact: true }).click()
     await expect(page.getByRole("textbox", { name: "AI에게 보낼 메시지" })).toHaveValue("LangGraph 관련 글을 찾아줘")
     expect((await fixtureState(page)).commands).toHaveLength(0)
     await page.getByRole("button", { name: "대화 목록 열기" }).click()
@@ -1175,7 +1175,7 @@ test("keeps the welcome input and suggestions readable on mobile and in dark mod
     const inputBox = await composer.boundingBox()
     const modelBox = await page.getByRole("button", { name: "모델 선택" }).boundingBox()
     expect(modelBox!.y).toBeGreaterThan(inputBox!.y)
-    await expect(page.getByRole("button", { name: "LangGraph 관련 글을 찾아줘", exact: true })).toBeVisible()
+    await expect(page.getByRole("button", { name: "LangGraph 글 찾기", exact: true })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
     await expectA11yClean(page)
     await attachEvidence(page, testInfo, `welcome-${width}-${height}-${dark ? "dark" : "light"}`)
@@ -1198,7 +1198,7 @@ test("has no horizontal overflow at supported widths and honors reduced motion",
     await expect(
       page.getByTestId("production-native-runtime-fixture")
     ).toBeVisible()
-    expect(await page.getByRole("button", { name: "LangGraph 관련 글을 찾아줘", exact: true })
+    expect(await page.getByRole("button", { name: "LangGraph 글 찾기", exact: true })
       .evaluate((element) => getComputedStyle(element).animationName)).toBe("none")
     await selectFixtureThread(page)
     const composer = page.getByRole("textbox", {
@@ -1247,7 +1247,7 @@ for (const width of [390, 1280, 2560]) {
     const initialBox = (await composer.boundingBox())!
     const headingBox = (await page.getByRole("heading", { name: "무엇이 궁금하세요?" }).boundingBox())!
     expect(initialBox.y).toBeLessThan(height * 0.65)
-    const suggestion = page.getByRole("button", { name: "LangGraph 관련 글을 찾아줘", exact: true })
+    const suggestion = page.getByRole("button", { name: "LangGraph 글 찾기", exact: true })
     const suggestionBox = (await suggestion.boundingBox())!
     if (width < 640) {
       // The on-screen keyboard covers everything under the composer, so suggestions
