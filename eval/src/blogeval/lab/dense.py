@@ -17,7 +17,7 @@ DENSE_IMPLEMENTATION_ID = "blogeval.lab.dense:create@1"
 DENSE_MODEL_ID = "intfloat/multilingual-e5-small"
 DENSE_MODEL_REVISION = "d1d99a1efae6779390caba937d92c54b5bc70e51"
 EXPECTED_RUNTIME_PACKAGE_VERSIONS = {
-    "numpy": ("2.4.4",),
+    "numpy": ("2.5.4",),
     "sentence-transformers": ("5.6.0",),
     "torch": ("2.13.0", "2.13.0+cpu"),
     "transformers": ("5.14.1",),
