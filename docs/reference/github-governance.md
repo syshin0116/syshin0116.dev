@@ -144,8 +144,8 @@ dependency, pinned `ubuntu-24.04` runner, 30-minute timeout, exact CI environmen
 service, and ordered steps. `defaults`, `container`, `strategy`, `environment`, a
 self-hosted runner, any additional service, or any other extra or changed job key fails;
 changing any field of the one reviewed PostgreSQL service also fails. Steps remain exact and ordered: checkout is pinned to its
-reviewed SHA with only `persist-credentials: false`; setup-python v7.0.0 is
-pinned with Python 3.12; setup-uv v9.0.0 is pinned with uv 0.13.5, its reviewed
+reviewed SHA with only `persist-credentials: false`; setup-python v7.1.0 is
+pinned with Python 3.12; setup-uv v10.3.2 is pinned with uv 0.13.5, its reviewed
 checksum, and the reviewed cache inputs; the ordinary run steps retain their exact
 names, conditions, commands, and allowed keys; the repository script suite runs after dependency setup; and the final step builds, inspects,
 migrates, boots, probes, logs, and removes the real delivery image.
