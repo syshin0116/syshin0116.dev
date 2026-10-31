@@ -82,7 +82,7 @@ OPENAI_CAPABILITY_POLICY = RunBudgetPolicy(
 _EXPECTED_DISTRIBUTIONS = {
     "deepagents": "0.7.13",
     "langchain-openai": "1.6.0",
-    "openai": "3.8.0",
+    "openai": "3.37.0",
 }
 _MAX_FINAL_JSON_BYTES = 64 * 1024
 _SAFETY_IDENTIFIER = (
