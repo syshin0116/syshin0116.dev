@@ -256,7 +256,7 @@ def test_e5_backend_rejects_runtime_version_drift(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     installed = {
-        "numpy": "2.4.4",
+        "numpy": "2.5.4",
         "sentence-transformers": "5.6.0",
         "torch": "9.0.0",
         "transformers": "5.14.1",
@@ -318,7 +318,7 @@ def test_dense_extra_locks_cpu_only_torch_and_exact_inference_stack() -> None:
         }
     ]
     assert DENSE_CONFIG["embedding"]["packages"] == {
-        "numpy": ["2.4.4"],
+        "numpy": ["2.5.4"],
         "sentence-transformers": ["5.6.0"],
         "torch": ["2.13.0", "2.13.0+cpu"],
         "transformers": ["5.14.1"],
