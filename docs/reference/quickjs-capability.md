@@ -27,7 +27,7 @@ out of the retrieval leaderboard.
 
 - `langchain-quickjs==0.3.5` is pinned directly and verified through the frozen lock and
   runtime package contract.
-- `quickjs-rs==0.2.5` is also a direct exact dependency, not merely a
+- `quickjs-rs==0.2.6` is also a direct exact dependency, not merely a
   transitive resolution. Runtime contract tests verify both installed package
   metadata versions and the concrete native `Runtime`/`ThreadWorker` classes.
 - `BoundedQuickJSMiddleware` subclasses the native
@@ -99,7 +99,7 @@ stacks, and host exception details are never returned.
 | Resource | Per run/call |
 |---|---:|
 | Guest heap | 16 MiB per native runtime |
-| Guest stack | 1 MiB (`quickjs-rs==0.2.5` runtime default) |
+| Guest stack | 1 MiB (`quickjs-rs==0.2.6` runtime default) |
 | Native execution deadline | 1.0 s per execution |
 | Outer async timeout | 1.5 s |
 | Source | 16 KiB UTF-8 |

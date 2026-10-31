@@ -22,7 +22,7 @@ from agent.capabilities.budget import CapabilityDeniedError
 QUICKJS_TOOL_NAME = "eval"
 QUICKJS_PERMISSIONS = frozenset({"admin", "eval"})
 QUICKJS_MEMORY_LIMIT_BYTES = 16 * 1024 * 1024
-# quickjs-rs 0.2.5 applies this default to every Runtime constructed by
+# quickjs-rs 0.2.6 applies this default to every Runtime constructed by
 # langchain-quickjs 0.3.4. The upstream middleware does not expose the setting.
 QUICKJS_STACK_LIMIT_BYTES = 1 * 1024 * 1024
 QUICKJS_TIMEOUT_SECONDS = 1.0
