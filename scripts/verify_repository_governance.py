@@ -203,7 +203,7 @@ WORKFLOW_RUNNER = "ubuntu-24.04"
 UV_VERSION = "0.13.5"
 UV_REQUIRED_VERSION = f"=={UV_VERSION}"
 UV_CHECKSUM = "f68d291c75783122dad58ab77def0e13f3233f358731db5d6d7e8715603b928f"
-SETUP_UV_ACTION = "astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7"
+SETUP_UV_ACTION = "astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e"
 EXPECTED_SETUP_UV_WORKFLOW_COUNTS = {
     ".github/workflows/ci.yml": 4,
     ".github/workflows/dependency-audit.yml": 2,
@@ -262,13 +262,13 @@ UPSTREAM_VERSION_AUDIT_SCRIPT_SHA256 = (
     "87d25d4ba6d9e4657926364d51c91c0d1c03b7cfdfe2a9cc84dbd640e367d7ca"
 )
 EXPECTED_DEPENDENCY_AUDIT_JOB_AST_SHA256 = {
-    "eval": "4b7aadedbbdbcf8002f4c25a63c30bdea4327160fc07ecaa5bfb88ff5e188f64",
-    "upstream": "bb7f46d68a8d75410d63218e0359a698b4225c584aacd2a4d863a2b160e53268",
+    "eval": "b03a9882d571a3e6b3feb5629fc1514762e185e4a0d5fa4c63ab2ea7a2bbdb5a",
+    "upstream": "3dec69054c53b6f6c14a8a6c46f800d5efcd51f30e16b83a046476111a8b50ec",
     "check": "11b04948e8d8482311d093664fe3a68eb519f8f6e5d2b59892e2b753fc7a31d4",
 }
 EXPECTED_DEPENDENCY_AUDIT_PYTHON_SETUP = [
     {
-        "uses": "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+        "uses": "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
         "with": {
             "python-version": "3.12",
         },

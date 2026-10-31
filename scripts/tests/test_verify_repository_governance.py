@@ -990,7 +990,7 @@ class LocalGovernanceTests(unittest.TestCase):
             "attestation": (
                 (
                     "actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6",
-                    "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                    "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
                 ),
             ),
             "free-form-dataset": (
@@ -1209,16 +1209,16 @@ class LocalGovernanceTests(unittest.TestCase):
         )
         setup_python = (
             "      - uses: "
-            "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 "
-            "# v7.0.0\n"
+            "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 "
+            "# v7.1.0\n"
             "        if: needs.changes.outputs.agent == 'true'\n"
             "        with:\n"
             '          python-version: "3.12"\n'
         )
         setup_uv = (
             "      - uses: "
-            "astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 "
-            "# v10.2.0\n"
+            "astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e "
+            "# v10.3.2\n"
             "        if: needs.changes.outputs.agent == 'true'\n"
             "        with:\n"
             '          version: "0.13.5"\n'
@@ -1260,7 +1260,7 @@ class LocalGovernanceTests(unittest.TestCase):
                 (
                     setup_python,
                     setup_python.replace(
-                        "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+                        "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
                         "actions/cache@" + "a" * 40,
                     ),
                 ),
@@ -2403,12 +2403,12 @@ runs:
             ),
             (
                 "setup-python",
-                "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+                "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
                 "actions/setup-python@" + "a" * 40,
             ),
             (
                 "setup-uv",
-                "astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7",
+                "astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e",
                 "astral-sh/setup-uv@" + "b" * 40,
             ),
         )
@@ -2445,12 +2445,12 @@ runs:
             ),
             (
                 "setup-python",
-                "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+                "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0",
                 "actions/setup-python@" + "a" * 40,
             ),
             (
                 "setup-uv",
-                "astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7",
+                "astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e",
                 "astral-sh/setup-uv@" + "b" * 40,
             ),
         )
