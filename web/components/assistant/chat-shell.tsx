@@ -822,7 +822,6 @@ function Composer({ interrupted }: { interrupted: boolean }) {
               <ThreadPrimitive.Suggestion
                 key={prompt}
                 prompt={prompt}
-                aria-label={prompt}
                 className="flex items-center gap-2 rounded-full border border-border/70 bg-background px-3.5 py-2.5 text-xs text-muted-foreground transition-[background-color,color,transform] hover:-translate-y-0.5 hover:bg-muted/60 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring motion-reduce:transform-none motion-reduce:transition-none"
               >
                 <Icon aria-hidden="true" className="size-3.5" />
@@ -1317,7 +1316,7 @@ function ModelSelector() {
         <Button
           variant="ghost"
           size="sm"
-          aria-label="모델 선택"
+          aria-label={`모델 선택: ${MODEL_LABELS[selectedModel]}`}
           disabled={running}
           className="h-8 max-w-28 gap-1.5 rounded-lg px-2 text-xs text-muted-foreground hover:text-foreground"
         >
