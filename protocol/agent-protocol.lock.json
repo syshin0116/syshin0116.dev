@@ -1,12 +1,12 @@
 {
   "lockVersion": 1,
-  "lockedAt": "2026-09-07",
+  "lockedAt": "2026-11-02",
   "protocol": {
     "repository": "https://github.com/langchain-ai/agent-protocol",
-    "tag": "langchain-protocol==0.0.19",
-    "commit": "59c02be488eb7adb98ae3450983fff293294e67a",
-    "commitDate": "2026-08-26T21:11:11Z",
-    "releaseVersion": "0.0.19",
+    "tag": "langchain-protocol==0.0.20",
+    "commit": "1061307cfc978139f40d648241d54aa5c65ddda5",
+    "commitDate": "2026-10-20T10:58:40Z",
+    "releaseVersion": "0.0.20",
     "schemaStatus": "DRAFT",
     "cddlHeaderVersion": "0.0.13",
     "sourceOfTruth": "streaming/protocol.cddl",
@@ -17,11 +17,11 @@
       },
       "cddl": {
         "upstreamPath": "streaming/protocol.cddl",
-        "sha256": "affad6c604c8b98b0eb13c833ef2a77f25be429a38037519d1a93b8594385ff1"
+        "sha256": "54ee02c71076dc7ae0b12ca381984c1dd0f433091ee9f8f209d42f24ae056a1a"
       },
       "packageManifest": {
         "upstreamPath": "streaming/package.json",
-        "sha256": "dfe1d12bf41ebcbde7a4704b818b580b574b035d09a041c9aaf9a0c5b92faa7a"
+        "sha256": "db7e5859eeade276779b6f80d791bacb9b72cf3b1850c5f20bfae51aa5551149"
       },
       "pnpmLock": {
         "upstreamPath": "streaming/pnpm-lock.yaml",
@@ -38,14 +38,14 @@
       "pythonBinding": {
         "upstreamPath": "streaming/py/langchain_protocol/protocol.py",
         "vendoredPath": "protocol/generated/python/protocol.py",
-        "package": "langchain-protocol==0.0.19",
-        "sha256": "878b6b35dda3c3993741bee6946d92af3e433459b6edf37f6423daa2ec015c49"
+        "package": "langchain-protocol==0.0.20",
+        "sha256": "67fd0377d87e52532b6c54fe45b72abaa6a04a7c1769e2a7d0d94a78e1340bcc"
       },
       "typescriptBinding": {
         "upstreamPath": "streaming/js/protocol.ts",
         "vendoredPath": "protocol/generated/typescript/protocol.ts",
-        "package": "@langchain/protocol@0.0.19",
-        "sha256": "2a82de4ede732a71aceb372700ddf92b07e92ead9730452bd0a66cdc29973fa9"
+        "package": "@langchain/protocol@0.0.20",
+        "sha256": "a997e74ace63c02d1959513af94cb9f99dee3ab72acb3883e73a995d73523c58"
       }
     },
     "codegen": {
@@ -137,7 +137,7 @@
       {
         "capability": "input.respond update and goto",
         "status": "ignored",
-        "required": "Agent Protocol 0.0.19 InputRespondOne/InputRespondMany update and goto fields",
+        "required": "Agent Protocol 0.0.20 InputRespondOne/InputRespondMany update and goto fields",
         "actual": "Aegra 0.10.4 builds only Command(resume=...) and does not forward update or goto.",
         "consequence": "Do not advertise atomic resume+update or directed resume until an Aegra version passes a live fixture for both fields."
       },

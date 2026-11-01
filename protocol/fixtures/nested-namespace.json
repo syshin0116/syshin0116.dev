@@ -2,7 +2,7 @@
   "fixture_version": 1,
   "name": "nested agent namespace lifecycle",
   "description": "A root run spawns a retrieval researcher and streams its answer.",
-  "protocol_commit": "59c02be488eb7adb98ae3450983fff293294e67a",
+  "protocol_commit": "1061307cfc978139f40d648241d54aa5c65ddda5",
   "wire_profile": "official-generated-snake-case",
   "records": [
     {

@@ -51,7 +51,7 @@ UPSTREAM_PACKAGE_CONTRACT = {
         "cddl": "^0.20.1",
     },
     "scripts": {
-        "validate:cddl": "cddl validate protocol.cddl",
+        "validate:cddl": "cddl validate protocol.cddl && pnpm run test",
         "compile:py": (
             "cddl2py protocol.cddl | python3 scripts/fixup.py "
             "> ./py/langchain_protocol/protocol.py"
