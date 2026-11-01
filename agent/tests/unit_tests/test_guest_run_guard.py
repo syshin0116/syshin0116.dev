@@ -2302,6 +2302,93 @@ async def test_guest_sse_redacts_reasoning_tool_and_unsafe_input_payloads():
     assert input_data["value"] == interrupt_payload
 
 
+async def test_guest_sse_drops_append_only_tool_call_deltas():
+    secret = "TOOL-ARGS-SLICE-SENTINEL"
+    frames = b"".join(
+        [
+            _event_frame(
+                "messages",
+                {"event": "message-start", "role": "ai", "id": "assistant-1"},
+                seq=1,
+            ),
+            _event_frame(
+                "messages",
+                {
+                    "event": "content-block-start",
+                    "index": 0,
+                    "content": {
+                        "type": "tool_call_chunk",
+                        "id": "tool-call-1",
+                        "name": "search_blog",
+                        "args": "",
+                    },
+                },
+                seq=2,
+            ),
+            _event_frame(
+                "messages",
+                {
+                    "event": "content-block-delta",
+                    "index": 0,
+                    "delta": {"type": "tool-call-delta", "args": secret},
+                },
+                seq=3,
+            ),
+            _event_frame(
+                "messages",
+                {
+                    "event": "content-block-finish",
+                    "index": 0,
+                    "content": {
+                        "type": "tool_call",
+                        "id": "tool-call-1",
+                        "name": "search_blog",
+                        "args": {"private": secret},
+                    },
+                },
+                seq=4,
+            ),
+            _event_frame("messages", {"event": "message-finish"}, seq=5),
+        ]
+    )
+
+    async def downstream(scope, receive, send):
+        await _request_body(receive)
+        await send(
+            {
+                "type": "http.response.start",
+                "status": 200,
+                "headers": [(b"content-type", b"text/event-stream")],
+            }
+        )
+        await send({"type": "http.response.body", "body": frames, "more_body": False})
+
+    app = GuestRunGuard(downstream)
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app),
+        base_url="http://test",
+    ) as client:
+        response = await client.post(
+            "/threads/guest-thread/stream/events",
+            headers=_guest_headers(),
+            json={"channels": ["messages"]},
+        )
+
+    assert response.status_code == 200
+    assert secret.encode() not in response.content
+    events = [
+        json.loads(line.removeprefix("data: "))["params"]["data"]["event"]
+        for line in response.text.splitlines()
+        if line.startswith("data: ")
+    ]
+    assert events == [
+        "message-start",
+        "content-block-start",
+        "content-block-finish",
+        "message-finish",
+    ]
+
+
 async def test_guest_sse_drops_nested_input_before_unsafe_body_bytes_are_sent():
     secret = "NESTED-STREAM-SECRET"
     frame = _event_frame(

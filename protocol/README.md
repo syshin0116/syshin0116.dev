@@ -7,10 +7,10 @@ bindings are byte-for-byte copies of that release.
 ## Provenance
 
 - Agent Protocol: `langchain-ai/agent-protocol`
-  `langchain-protocol==0.0.18`,
-  commit `0ff7cd3962e8b4b3e347b76203be7dfeba003928`
-- Aegra runtime: `ibbybuilds/aegra` `v0.9.25`,
-  commit `1f0076a69bc7cdf5f61b5487bc17d112ee64eb0c`
+  `langchain-protocol==0.0.20`,
+  commit `1061307cfc978139f40d648241d54aa5c65ddda5`
+- Aegra runtime: `ibbybuilds/aegra` `v0.10.4`,
+  commit `392a5457b25754cdc828f14b0053abdefe8b6766`
 - Canonical schema: upstream `streaming/protocol.cddl`
 - Fixture wire profile: the official generated snake_case bindings
 
@@ -98,7 +98,7 @@ Process restart, trusted identity injection, and store namespace isolation need
 runtime orchestration and credentials; they belong to the Aegra runtime/security
 PR rather than this transport-only contract.
 
-## Aegra 0.9.25 gaps
+## Aegra 0.10.4 gaps
 
 Aegra's SSE endpoint is
 `POST /threads/{thread_id}/stream/events`; the locked upstream OpenAPI endpoint

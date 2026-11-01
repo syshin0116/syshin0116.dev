@@ -1131,6 +1131,10 @@ class GuestEventProjector:
                     ),
                 }
             else:
+                # Tool arguments are never public, so append-only slices have
+                # nothing to project.
+                if delta.get("type") == "tool-call-delta":
+                    return None
                 if delta.get("type") != "block-delta":
                     raise GuestWireProjectionError("tool delta type is invalid")
                 fields = _record(
