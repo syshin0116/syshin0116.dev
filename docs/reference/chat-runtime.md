@@ -28,6 +28,14 @@ Exact framework pins live in [agent/pyproject.toml](../../agent/pyproject.toml),
 schemas and generated bindings live in
 [agent-protocol.lock.json](../../protocol/agent-protocol.lock.json).
 
+`@langchain/langgraph-sdk` stays at 1.12.6 and `@langchain/react` at 1.2.6. From SDK
+1.12.7, a command that reports `applied_through_seq: 0` holds unknown interrupts until it
+sees the root `running` event of its run, and it reads that run id only from LangGraph
+Agent Server `synth:<run_id>:` event ids. Aegra (through 0.11.0) always reports 0 and
+emits `<run_id>:running:0`, so a live HITL prompt never appears. The browser journey
+`uses exact APv2 filters and survives nested HITL rejection/retry` fails on that
+upgrade.
+
 ## Public boundary
 
 The authenticated SDK client retains identity validation, one bounded token refresh,

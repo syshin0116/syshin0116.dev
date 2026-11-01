@@ -54,7 +54,7 @@ function assembledText(
   assembler: MessageAssembler
 ): string | undefined {
   const update = assembler.consume(event)
-  if (update.kind !== "message-finish") return undefined
+  if (update?.kind !== "message-finish") return undefined
   return update.message.blocks
     .flatMap((block) =>
       block.type === "text" && typeof block.text === "string"
