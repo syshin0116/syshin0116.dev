@@ -14,7 +14,7 @@ dependencies = [
     "langchain-core==1.6.2",
     "langchain-quickjs==0.3.7",
     "langsmith==0.14.12",
-    "langgraph==1.2.12",
+    "langgraph==1.2.14",
     "langgraph-sdk==0.4.10",
     "PyJWT==2.15.0",
     "httpx==0.28.1",
