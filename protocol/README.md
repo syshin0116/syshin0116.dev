@@ -115,3 +115,11 @@ translation boundary and rewrites only that verified field before official
 binding validation. The raw/normalized fixture pair fails if the translation
 expands or drifts. A live HITL run remains a compatibility gate, not an assumed
 success.
+
+The JavaScript SDK has a second, browser-side gap. Aegra answers commands with
+`applied_through_seq: 0`, so `@langchain/langgraph-sdk` 1.12.7 and later place the
+interrupt replay cutoff from root `lifecycle` events, which they expect to be named
+`synth:<run_id>:...`. Aegra names them `<run_id>:running:<n>`,
+`<run_id>_event_<n>:<i>`, and `<run_id>:status-end:<i>`. `withAegraRunBoundaries()`
+in `web/components/assistant/runtime/aegra-run-boundary.ts` renames only those root
+events. Remove it once Aegra emits a name the SDK reads.

@@ -36,6 +36,7 @@ import {
   reduceAgentError,
   type AgentErrorRoutingState,
 } from "./runtime/error-state"
+import { withAegraRunBoundaries } from "./runtime/aegra-run-boundary"
 import { trackRunStartRejections } from "./runtime/run-start-rejections"
 import { AegraThreadAdapter } from "./runtime/thread-adapter"
 
@@ -121,7 +122,10 @@ function ConfiguredAgentRuntimeProvider({
     onAuthenticationExpired: handleAuthenticationExpired,
     tokenIntent,
   }), [apiUrl, identity, initialToken, handleAuthenticationExpired, tokenIntent])
-  const runStartRejections = useMemo(() => trackRunStartRejections(tokenBroker.fetchWithAuthRetry), [tokenBroker])
+  const runStartRejections = useMemo(
+    () => trackRunStartRejections(withAegraRunBoundaries(tokenBroker.fetchWithAuthRetry)),
+    [tokenBroker]
+  )
   const client = useMemo(() => new Client({
     apiUrl,
     apiKey: null,
