@@ -2200,6 +2200,8 @@ async def test_exact_counter_sees_the_token_affecting_payload_delivered_to_model
         if block["type"] == "text"
     )
     assert WRITE_TODOS_SYSTEM_PROMPT in owner_system_text
+    assert owner_system_text.count("## Skills System") == 1
+    assert "blog-retrieval" in owner_system_text
     task_tools = [
         tool
         for tool in counted.tools

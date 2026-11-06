@@ -406,15 +406,6 @@ class CreateOnlyStoreBackend(StoreBackend):
             _PERSISTENT_MEMORY_WRITE_LOCK.release()
 
 
-class BudgetCountedSkillsMiddleware(SkillsMiddleware):
-    """Keep the skills prompt ahead of RunBudgetMiddleware's input token count.
-
-    deepagents moves anything named `SkillsMiddleware` behind user middleware, which
-    would leave the skills section out of the counted request. The distinct class
-    name keeps this instance where the caller puts it.
-    """
-
-
 def _build_backend(*, persistent_memory: bool = True) -> CompositeBackend:
     """Build the instance backend used by every Aegra graph copy.
 
@@ -812,7 +803,7 @@ def create_graph(
     )
 
     backend = _build_backend(persistent_memory=not is_guest)
-    skills_middleware = BudgetCountedSkillsMiddleware(
+    skills_middleware = SkillsMiddleware(
         backend=backend,
         sources=[] if is_guest else ["/skills/"],
     )
@@ -838,6 +829,7 @@ def create_graph(
                 allow_quickjs=allow_quickjs,
                 root_tool_allowlist=effective_root_tool_allowlist,
                 root_tool_denylist=ROOT_TOOL_DENYLIST,
+                skills=skills_middleware,
             ),
         ],
         subagents=build_subagents(
