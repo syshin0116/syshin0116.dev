@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from threading import Lock
 from typing import Any, Literal
 
+from deepagents.middleware.skills import SkillsMiddleware
 from langchain.agents.middleware import (
     AgentMiddleware,
     ExtendedModelResponse,
@@ -1262,6 +1263,7 @@ class RunBudgetMiddleware(AgentMiddleware[Any, Any, Any]):
         allow_quickjs: bool = False,
         root_tool_allowlist: frozenset[str] | None = None,
         root_tool_denylist: frozenset[str] = frozenset(),
+        skills: SkillsMiddleware | None = None,
     ) -> None:
         super().__init__()
         if quickjs_tool_name is not None and (
@@ -1331,6 +1333,7 @@ class RunBudgetMiddleware(AgentMiddleware[Any, Any, Any]):
         self._allow_quickjs = allow_quickjs
         self._root_tool_allowlist = root_tool_allowlist
         self._root_tool_denylist = root_tool_denylist
+        self._skills = skills
 
     def _remove_unauthorized_subagent_surface(
         self,
@@ -1465,8 +1468,16 @@ class RunBudgetMiddleware(AgentMiddleware[Any, Any, Any]):
         async def count_then_generate(
             final_request: ModelRequest[Any],
         ) -> ModelResponse[Any]:
+            # Deep Agents runs SkillsMiddleware inside this middleware, so the
+            # handler adds the skills prompt itself. Count the same prompt here
+            # without passing it down, or generation would carry it twice.
+            counted_request = (
+                self._skills.modify_request(final_request)
+                if self._skills is not None
+                else final_request
+            )
             prepared = (
-                await self._prepare_input_token_count(final_request)
+                await self._prepare_input_token_count(counted_request)
                 if self._input_token_count_preparer is not None
                 else None
             )
@@ -1482,12 +1493,12 @@ class RunBudgetMiddleware(AgentMiddleware[Any, Any, Any]):
                 input_tokens = (
                     await self._count_prepared_input_tokens(prepared)
                     if prepared is not None
-                    else await self._count_input_tokens(final_request)
+                    else await self._count_input_tokens(counted_request)
                 )
                 if prepared is not None:
                     try:
                         async with asyncio.timeout(self._budget.remaining_seconds()):
-                            await prepared.verify_generation_request(final_request)
+                            await prepared.verify_generation_request(counted_request)
                     except TimeoutError as exc:
                         self._budget.exhaust()
                         raise InputTokenCountError(
