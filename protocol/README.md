@@ -9,7 +9,7 @@ bindings are byte-for-byte copies of that release.
 - Agent Protocol: `langchain-ai/agent-protocol`
   `langchain-protocol==0.0.20`,
   commit `1061307cfc978139f40d648241d54aa5c65ddda5`
-- Aegra runtime: `ibbybuilds/aegra` `v0.10.4`,
+- Aegra runtime: `ibbybuilds/aegra` `v0.11.0`,
   commit `392a5457b25754cdc828f14b0053abdefe8b6766`
 - Canonical schema: upstream `streaming/protocol.cddl`
 - Fixture wire profile: the official generated snake_case bindings
@@ -98,15 +98,15 @@ Process restart, trusted identity injection, and store namespace isolation need
 runtime orchestration and credentials; they belong to the Aegra runtime/security
 PR rather than this transport-only contract.
 
-## Aegra 0.10.4 gaps
+## Aegra 0.11.0 gaps
 
 Aegra's SSE endpoint is
 `POST /threads/{thread_id}/stream/events`; the locked upstream OpenAPI endpoint
 is `POST /threads/{thread_id}/stream`. This is why the smoke profile is explicit.
 Aegra also lacks the upstream WebSocket endpoint and implements only
 `run.start` and `input.respond` from the command catalogue.
-The `input.respond` implementation does not forward the `update` or `goto`
-fields added by Agent Protocol 0.0.18.
+The `input.respond` implementation forwards the `update` and `goto` fields added
+by Agent Protocol 0.0.18, but no live fixture covers them, so they stay unadvertised.
 
 One payload difference is more serious: the generated
 `InputRequestedData` binding requires `payload`, while Aegra emits `value` to

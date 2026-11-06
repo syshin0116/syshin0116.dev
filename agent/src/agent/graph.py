@@ -30,6 +30,7 @@ from deepagents.backends import (
 )
 from deepagents.backends.protocol import WriteResult
 from deepagents.backends.utils import create_file_data
+from deepagents.middleware.skills import SkillsMiddleware
 from langchain.agents.middleware import TodoListMiddleware
 from langchain_core.language_models import BaseChatModel
 from langchain_core.runnables import RunnableConfig
@@ -403,6 +404,15 @@ class CreateOnlyStoreBackend(StoreBackend):
             return self._atomic_guard_unavailable()
         finally:
             _PERSISTENT_MEMORY_WRITE_LOCK.release()
+
+
+class BudgetCountedSkillsMiddleware(SkillsMiddleware):
+    """Keep the skills prompt ahead of RunBudgetMiddleware's input token count.
+
+    deepagents moves anything named `SkillsMiddleware` behind user middleware, which
+    would leave the skills section out of the counted request. The distinct class
+    name keeps this instance where the caller puts it.
+    """
 
 
 def _build_backend(*, persistent_memory: bool = True) -> CompositeBackend:
@@ -801,6 +811,12 @@ def create_graph(
         TodoListMiddleware(system_prompt="") if is_guest else TodoListMiddleware()
     )
 
+    backend = _build_backend(persistent_memory=not is_guest)
+    skills_middleware = BudgetCountedSkillsMiddleware(
+        backend=backend,
+        sources=[] if is_guest else ["/skills/"],
+    )
+
     compiled = create_deep_agent(
         model=selected_model,
         tools=TOOLS,
@@ -808,6 +824,7 @@ def create_graph(
         middleware=[
             todo_middleware,
             quickjs_middleware,
+            skills_middleware,
             RunBudgetMiddleware(
                 run_budget,
                 depth=0,
@@ -832,8 +849,7 @@ def create_graph(
             expected_response_models=usage_response_models,
             allowed_subagents=selected_subagents,
         ),
-        backend=_build_backend(persistent_memory=not is_guest),
-        skills=[] if is_guest else ["/skills/"],
+        backend=backend,
         permissions=_filesystem_permissions(),
     )
     return compiled.copy(

@@ -14,10 +14,10 @@
         "@assistant-ui/react-markdown": "0.14.24",
         "@auth/neon-adapter": "1.11.3",
         "@giscus/react": "^3.1.0",
-        "@langchain/core": "1.3.0",
-        "@langchain/langgraph-sdk": "1.12.6",
+        "@langchain/core": "1.3.4",
+        "@langchain/langgraph-sdk": "1.13.0",
         "@langchain/protocol": "0.0.20",
-        "@langchain/react": "1.2.6",
+        "@langchain/react": "1.2.11",
         "@neondatabase/serverless": "1.2.0",
         "@radix-ui/react-accordion": "^1.3.1",
         "@radix-ui/react-avatar": "^1.3.1",
@@ -95,6 +95,7 @@
     "better-sqlite3": "12.11.1",
     "browserslist": "4.28.9",
     "dompurify": "3.4.17",
+    "follow-redirects": "1.16.2",
     "postcss": "^8.5.32",
     "sharp": "0.35.5",
     "source-map-js": "1.2.2",
@@ -317,13 +318,13 @@
 
     "@keyv/serialize": ["@keyv/serialize@1.1.1", "", {}, "sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA=="],
 
-    "@langchain/core": ["@langchain/core@1.3.0", "", { "dependencies": { "@cfworker/json-schema": "^4.0.2", "@standard-schema/spec": "^1.1.0", "js-tiktoken": "^1.0.12", "langsmith": ">=0.11.0 <1.0.0", "mustache": "^4.2.0", "p-queue": "^6.6.2", "zod": "^3.25.76 || ^4" } }, "sha512-ZiS8USsHdO8ZVFh0m8Rs6v2BvqBEvfFicG66zxdF4rGgXSJjk0d0sLnnFZCx3RXPUvP8ybTJgPlNfkJGs1J7BA=="],
+    "@langchain/core": ["@langchain/core@1.3.4", "", { "dependencies": { "@cfworker/json-schema": "^4.0.2", "@standard-schema/spec": "^1.1.0", "js-tiktoken": "^1.0.12", "langsmith": ">=0.11.0 <1.0.0", "mustache": "^4.2.0", "p-queue": "^6.6.2", "zod": "^3.25.76 || ^4" } }, "sha512-4LnkVpxOzA4BuMPuAQKDDf4SujSzd4WahKk51eyUJzSEsQjyGpbyAgDRWPYr3wzgtAJ59UXewemsyIxRKTXFrA=="],
 
-    "@langchain/langgraph-sdk": ["@langchain/langgraph-sdk@1.12.6", "", { "dependencies": { "@langchain/protocol": "^0.0.20", "@types/json-schema": "^7.0.15", "p-queue": "^9.0.1", "p-retry": "^7.1.1" }, "peerDependencies": { "@langchain/core": "^1.1.48", "react": "^18 || ^19", "react-dom": "^18 || ^19" }, "optionalPeers": ["react", "react-dom"] }, "sha512-YLTf6Z6RMIXdg7LNdceeQubMrQTL7ae+BZChEfE/juJvH3fkPY1Jm8ndJu/augInQNlqXrKEBiskFRzrPT/gsQ=="],
+    "@langchain/langgraph-sdk": ["@langchain/langgraph-sdk@1.13.0", "", { "dependencies": { "@langchain/protocol": "^0.0.20", "@types/json-schema": "^7.0.15", "p-queue": "^9.0.1", "p-retry": "^7.1.1" }, "peerDependencies": { "@langchain/core": "^1.3.2", "react": "^18 || ^19", "react-dom": "^18 || ^19" }, "optionalPeers": ["react", "react-dom"] }, "sha512-/DakXLkn5i9kCxmPzHeqg0lhBcqnjrt2QuySNfSZ25tLQWfEj2ljh66iUvXMhXMasSmLbNULAGgQ/7jWciwxKA=="],
 
     "@langchain/protocol": ["@langchain/protocol@0.0.20", "", {}, "sha512-sxlkDG2/HGyjDFLTJ8B/o3oglRjOv8iLCFgrV0550/Vym3V6RZ0SUjAQFe8jrLQw8ZXjERy3swJp5OODBSrUYA=="],
 
-    "@langchain/react": ["@langchain/react@1.2.6", "", { "dependencies": { "@langchain/langgraph-sdk": "1.12.6" }, "peerDependencies": { "@langchain/core": "^1.1.48", "react": "^18 || ^19" } }, "sha512-cGw8E52vQBBrWAUvZ0CCMYxXY44TViD13CFsyrySUcFSTZ9w5gWyVlqy8k3b4woz2PpFD9w0wyekiboGJQlzdA=="],
+    "@langchain/react": ["@langchain/react@1.2.11", "", { "dependencies": { "@langchain/langgraph-sdk": "1.13.0" }, "peerDependencies": { "@langchain/core": "^1.1.48", "react": "^18 || ^19" } }, "sha512-iDmm8q/FnLjSJH2HIJJBDMqnWxRKY1hLZ/mxvJqbJF9iqaqxMs6O82ZXQl5MbpnR9mxqy3nKrc+vJ4cj3SS+uQ=="],
 
     "@lit-labs/ssr-dom-shim": ["@lit-labs/ssr-dom-shim@1.5.1", "", {}, "sha512-Aou5UdlSpr5whQe8AA/bZG0jMj96CoJIWbGfZ91qieWu5AWUMKw8VR/pAkQkJYvBNhmCcWnZlyyk5oze8JIqYA=="],
 
@@ -1179,7 +1180,7 @@
 
     "float-tooltip": ["float-tooltip@1.7.5", "", { "dependencies": { "d3-selection": "2 - 3", "kapsule": "^1.16", "preact": "10" } }, "sha512-/kXzuDnnBqyyWyhDMH7+PfP8J/oXiAavGzcRxASOMRHFuReDtofizLLJsf7nnDLAfEaMW4pVWaXrAjtnglpEkg=="],
 
-    "follow-redirects": ["follow-redirects@1.16.1", "", {}, "sha512-FNvFGzoMLWmE6Yj9spb/zjd7yiNCHiAW9/Tg9CXrQ8wuu32HtlJOwWO11OJafl5FfY3DxTdQ0vj42zU1kvv5jg=="],
+    "follow-redirects": ["follow-redirects@1.16.2", "", {}, "sha512-/kVP2U8z596Ia0gwFrwyIeo74ta5aVmSeU1FfAUMAmcEP5EP7zydmag3SLiN64NaRKef3lxsq7i/g7ltJQDGow=="],
 
     "for-each": ["for-each@0.3.5", "", { "dependencies": { "is-callable": "^1.2.7" } }, "sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg=="],
 

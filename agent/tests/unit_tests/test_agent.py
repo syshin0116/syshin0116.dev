@@ -1223,8 +1223,12 @@ def test_guest_and_owner_graphs_route_distinct_server_owned_counters(monkeypatch
     assert owner_middleware._root_tool_allowlist is None
     assert guest_middleware._input_token_count_preparer is None
     assert owner_middleware._input_token_count_preparer is None
-    assert captured[0]["skills"] == []
-    assert captured[1]["skills"] == ["/skills/"]
+    guest_skills, owner_skills = (
+        next(m for m in call["middleware"] if isinstance(m, SkillsMiddleware))
+        for call in captured
+    )
+    assert guest_skills.sources == []
+    assert owner_skills.sources == ["/skills/"]
     guest_prompt = captured[0]["system_prompt"]
     assert "semantic_search" in guest_prompt
     assert "keyword_search" in guest_prompt
