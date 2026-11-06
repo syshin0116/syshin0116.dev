@@ -1,6 +1,6 @@
 {
   "lockVersion": 1,
-  "lockedAt": "2026-11-02",
+  "lockedAt": "2026-11-06",
   "protocol": {
     "repository": "https://github.com/langchain-ai/agent-protocol",
     "tag": "langchain-protocol==0.0.20",
@@ -73,18 +73,18 @@
   },
   "aegra": {
     "repository": "https://github.com/ibbybuilds/aegra",
-    "tag": "v0.10.4",
-    "commit": "392a5457b25754cdc828f14b0053abdefe8b6766",
-    "commitDate": "2026-08-22T09:34:27Z",
-    "streamingImplementationCommit": "392a5457b25754cdc828f14b0053abdefe8b6766",
+    "tag": "v0.11.0",
+    "commit": "46055c0b9adffe51fb168974f79dfadaa6edd612",
+    "commitDate": "2026-10-23T11:34:50Z",
+    "streamingImplementationCommit": "46055c0b9adffe51fb168974f79dfadaa6edd612",
     "artifacts": {
       "openapi": {
         "upstreamPath": "docs/openapi.json",
-        "sha256": "b70cde3640e5a2510ae473900d276c16641836ccfe2f7a9b76ef34a266a403fe"
+        "sha256": "bc92967cd44d801294e3932e79868dbf3e1dc9b65806ef6f44711f85cd8060b1"
       },
       "route": {
         "upstreamPath": "libs/aegra-api/src/aegra_api/api/event_streaming.py",
-        "sha256": "472bb9174d6e1e57c4db4868325e9011715694ab3b0285a7e15e86eb8d688118"
+        "sha256": "cf544f2b814806f2e2c40b60d443bdb998c25c9550754a8d410c801047e090cf"
       },
       "wireBuilders": {
         "upstreamPath": "libs/aegra-api/src/aegra_api/services/event_streaming/protocol.py",
@@ -92,7 +92,7 @@
       },
       "commands": {
         "upstreamPath": "libs/aegra-api/src/aegra_api/services/event_streaming/commands.py",
-        "sha256": "2e7811d9d92d5f06fd63fd5f238bdb78a19220ffad1aa2dba5188d4f6453d223"
+        "sha256": "82b3c206d8e61127cf7b33f488edb76bc59bcc547fc3820c564a44b4bc9d1d87"
       }
     },
     "runtimeTransport": {
@@ -136,15 +136,15 @@
       },
       {
         "capability": "input.respond update and goto",
-        "status": "ignored",
+        "status": "forwarded-unverified",
         "required": "Agent Protocol 0.0.20 InputRespondOne/InputRespondMany update and goto fields",
-        "actual": "Aegra 0.10.4 builds only Command(resume=...) and does not forward update or goto.",
+        "actual": "Aegra 0.11.0 folds update and goto into the resume Command, but no live fixture exercises them here.",
         "consequence": "Do not advertise atomic resume+update or directed resume until an Aegra version passes a live fixture for both fields."
       },
       {
         "capability": "input.inject, state.*, agent.getTree, subscription.*",
         "status": "unsupported",
-        "consequence": "Aegra 0.10.4 command dispatch implements only run.start and input.respond."
+        "consequence": "Aegra 0.11.0 command dispatch implements only run.start and input.respond."
       },
       {
         "capability": "Replay after sequence",

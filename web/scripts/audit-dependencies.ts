@@ -40,6 +40,14 @@ export const AUDIT_EXCEPTIONS: readonly AuditException[] = [
       "all require ^0.16; KaTeX only renders owner-authored posts at build time.",
     expires: "2027-01-23",
   },
+  {
+    package: "minimatch",
+    advisory: "GHSA-g3hv-75wg-m249",
+    reason:
+      "The fix is 11.0.1, but eslint 10.14.0 requires ^10.2.6. Only dev linting " +
+      "reaches it, and its glob patterns come from this repository's own config.",
+    expires: "2027-02-04",
+  },
 ]
 
 function fail(message: string): never {

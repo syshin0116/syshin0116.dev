@@ -1231,7 +1231,7 @@ async def test_postgres_migration_factory_static_and_pool_restart_persistence(
             "agent_guest_daily_budget",
             "agent_guest_execution_quarantine",
         } <= tables
-        assert versions == ["b88bb61be638"]
+        assert versions == ["a3f7c1d9e2b4"]
 
         large_assistant_id = f"large-config-{unique}"
         large_config = {
