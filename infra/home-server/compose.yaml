@@ -1,0 +1,53 @@
+# Production agent on the Mac mini home server. See docs/runbooks/home-server-delivery.md.
+# The agent listens on loopback only; Tailscale Funnel publishes it over HTTPS.
+name: syshin0116-agent
+
+x-agent: &agent
+  image: syshin0116-agent:${AGENT_IMAGE_TAG:?set by deploy.sh}
+  # agent.env carries DATABASE_URL for the postgres service below (same password as .env).
+  env_file: ./agent.env
+  depends_on:
+    postgres:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  postgres:
+    image: postgres:17@sha256:7958605b474b3d264a969cb3a123d6aa00ad1e1fe9da8a69984dabb704d93317
+    environment:
+      POSTGRES_USER: agent
+      POSTGRES_DB: agent
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent -d agent"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  migrate:
+    <<: *agent
+    entrypoint: ["python", "-m", "agent.migrate"]
+    restart: "no"
+    profiles: [ops]
+
+  agent:
+    <<: *agent
+    ports:
+      - "127.0.0.1:${AGENT_PORT:-18080}:8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/ready', timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 120s
+      retries: 3
+
+  # Replaces the Cloud Scheduler job: expired guest threads and stale guest runs every 15 minutes.
+  maintenance:
+    <<: *agent
+    entrypoint: ["sh", "-c", "while true; do python -m agent.maintenance || echo 'maintenance failed' >&2; sleep 900; done"]
+
+volumes:
+  postgres-data:
