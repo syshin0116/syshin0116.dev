@@ -9,20 +9,23 @@ when_to_read: >
 tags: [runbook, web, botid, anonymous, assistant-ui, vercel]
 status: stable
 date: "2026-07-28"
-updated: "2026-08-15"
+updated: "2026-11-15"
 owners: ["@syshin0116"]
 refs:
   - ../adr/0005-adopt-assistant-ui.md
   - ../adr/0006-public-anonymous-chat-access.md
   - cloud-run-delivery.md
+  - home-server-delivery.md
 template: runbook
 ---
 
 # Public anonymous chat rollout
 
 As of 2026-08-15, Production at `https://syshin0116.vercel.app` serves public
-anonymous chat with both Vercel public flags set to `true`. Production Cloud Run
-accepts anonymous access with Luna fixed for guests. Preview serves the same anonymous
+anonymous chat with both Vercel public flags set to `true`. Since 2026-11-15 the
+production agent runs on the home server ([home-server-delivery.md](home-server-delivery.md))
+with the same launch tuple; Cloud Run is dormant. It accepts anonymous access with Luna
+fixed for guests. Preview serves the same anonymous
 surface, pointed at the Production agent and therefore sharing its budget - see
 [Vercel variables](#vercel-variables).
 
@@ -235,13 +238,13 @@ is stored.
 
 Set these server-only Production values:
 
-- `AGENT_AUTH_SECRET`: the exact secret used by the production Cloud Run agent.
+- `AGENT_AUTH_SECRET`: the exact secret in the home-server `agent.env`.
 - `AGENT_ANONYMOUS_TOKEN_ENABLED=true`.
 - `ANONYMOUS_SESSION_SECRET`: an independent random value of at least 32 bytes.
 
 Set these browser-visible Production values:
 
-- `NEXT_PUBLIC_AGENT_API_URL`: the production Cloud Run service origin.
+- `NEXT_PUBLIC_AGENT_API_URL`: the home-server Funnel origin, `https://sy-mac-mini.tail8d4638.ts.net:10000`.
 - `NEXT_PUBLIC_AGENT_ASSISTANT_ID=agent`.
 - `NEXT_PUBLIC_AGENT_ANONYMOUS_ENABLED=true`.
 

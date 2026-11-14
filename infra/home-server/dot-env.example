@@ -1,0 +1,3 @@
+# Copy to ~/srv/agent/.env on the home server (chmod 600). Compose interpolation only.
+POSTGRES_PASSWORD=
+AGENT_PORT=18080
