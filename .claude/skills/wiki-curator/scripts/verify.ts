@@ -63,7 +63,8 @@ const FOOTNOTE_REF_RE = /\[\^([^\]]+)\](?!:)/g
 const QUOTE_RE = /"([^"\n]*)"|“([^”\n]*)”/g
 const INLINE_CODE_RE = /`[^`\n]*`/g
 const HEADING_RE = /^(#{1,6})[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$/
-const FENCE_RE = /^[ \t]*(```|~~~)/
+const FENCE_RE = /^[ \t]*(`{3,}|~{3,})(.*)$/
+const LINK_RE = /!?\[([^\]\n]*)\]\([^)\n]*\)/g
 const SPACE_RE = /[ \t\n\r\f\v  -   　]+/g
 
 interface Finding {
@@ -218,16 +219,22 @@ async function validateLocalSource(source: string): Promise<string | null> {
 
 /** Every line with its 1-based number; `prose` is false inside fenced code and on fence lines. */
 function scanLines(text: string): { line: string; number: number; prose: boolean }[] {
+  // A fence closes only on the same character, at least as long as the opener, with nothing after it.
   let fence: string | null = null
   return text.split("\n").map((line, index) => {
     const m = line.match(FENCE_RE)
     if (m) {
       if (fence === null) fence = m[1]
-      else if (m[1] === fence) fence = null
+      else if (m[1][0] === fence[0] && m[1].length >= fence.length && m[2].trim() === "") fence = null
       return { line, number: index + 1, prose: false }
     }
     return { line, number: index + 1, prose: fence === null }
   })
+}
+
+/** The line with inline code spans blanked out, so literal syntax in code is not read as a reference. */
+function maskCode(line: string): string {
+  return line.replace(INLINE_CODE_RE, (m) => " ".repeat(m.length))
 }
 
 function proseLines(text: string): { line: string; number: number }[] {
@@ -243,7 +250,7 @@ function normalizeForMatch(text: string): string {
     .join("\n")
     .replace(/[“”„]/g, '"')
     .replace(/[‘’]/g, "'")
-    .replace(/!?\[([^\]\n]*)\]\([^)\n]*\)/g, "$1")
+    .replace(LINK_RE, "$1")
     .replace(/[*_`]/g, "")
     .replace(SPACE_RE, " ")
     .trim()
@@ -254,7 +261,7 @@ function normalizeQuote(text: string): string {
 }
 
 function headingKey(text: string): string {
-  return Array.from(text.normalize("NFC").toLowerCase())
+  return Array.from(text.replace(LINK_RE, "$1").normalize("NFC").toLowerCase())
     .filter((ch) => /[\p{L}\p{N}]/u.test(ch))
     .join("")
 }
@@ -351,7 +358,7 @@ async function v2Findings(body: string, offset: number): Promise<{ check: string
     if (level === 2 && title === CHANGE_SECTION_TITLE) {
       const cites = all
         .slice(index + 1, end)
-        .some((l) => l.prose && !FOOTNOTE_DEF_RE.test(l.line) && /\[\^[^\]]+\](?!:)/.test(l.line))
+        .some((l) => l.prose && !FOOTNOTE_DEF_RE.test(l.line) && /\[\^[^\]]+\](?!:)/.test(maskCode(l.line)))
       if (!cites) {
         found.push({ check: "section-change-uncited", detail: `\`${heading}\` must cite the sources that show the change` })
       }
@@ -363,7 +370,8 @@ async function v2Findings(body: string, offset: number): Promise<{ check: string
   for (const { line, number } of lines) {
     if (FOOTNOTE_DEF_RE.test(line)) continue
 
-    for (const ref of line.matchAll(FOOTNOTE_REF_RE)) {
+    const masked = maskCode(line)
+    for (const ref of masked.matchAll(FOOTNOTE_REF_RE)) {
       if (!definitions.has(ref[1]) && !undefinedRefs.has(ref[1])) {
         undefinedRefs.add(ref[1])
         found.push({ check: "footnote-undefined", detail: `line ${number}: [^${ref[1]}] has no definition` })
@@ -375,7 +383,7 @@ async function v2Findings(body: string, offset: number): Promise<{ check: string
       const start = q.index!
       if (codeRanges.some(([s, e]) => start >= s && start < e)) continue
       FOOTNOTE_REF_RE.lastIndex = start + q[0].length
-      const ref = FOOTNOTE_REF_RE.exec(line)
+      const ref = FOOTNOTE_REF_RE.exec(masked)
       FOOTNOTE_REF_RE.lastIndex = 0
       if (!ref) continue
 

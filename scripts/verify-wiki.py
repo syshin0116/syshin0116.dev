@@ -61,7 +61,7 @@ FOOTNOTE_REF_RE = re.compile(r"\[\^([^\]]+)\](?!:)")
 QUOTE_RE = re.compile(r'"([^"\n]*)"|“([^”\n]*)”')
 INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
 HEADING_RE = re.compile(r"^(#{1,6})[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$")
-FENCE_RE = re.compile(r"^[ \t]*(```|~~~)")
+FENCE_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})(.*)$")
 SPACE_RE = re.compile(r"[ \t\n\r\f\v  -   　]+")
 LINK_RE = re.compile(r"!?\[([^\]\n]*)\]\([^)\n]*\)")
 DATE_RE = re.compile(r"([0-9]{4})-([0-9]{2})-([0-9]{2})")
@@ -206,18 +206,29 @@ def validate_local_source(source: str) -> str | None:
 def scan_lines(text: str) -> list[tuple[str, int, bool]]:
     """Every line with its 1-based number; prose is False inside fenced code and on fence lines."""
     out: list[tuple[str, int, bool]] = []
+    # A fence closes only on the same character, at least as long as the opener, with nothing after it.
     fence: str | None = None
     for index, line in enumerate(text.split("\n")):
         match = FENCE_RE.match(line)
         if match:
+            marker = match.group(1)
             if fence is None:
-                fence = match.group(1)
-            elif match.group(1) == fence:
+                fence = marker
+            elif (
+                marker[0] == fence[0]
+                and len(marker) >= len(fence)
+                and not match.group(2).strip()
+            ):
                 fence = None
             out.append((line, index + 1, False))
             continue
         out.append((line, index + 1, fence is None))
     return out
+
+
+def mask_code(line: str) -> str:
+    """The line with inline code spans blanked out, so literal syntax in code is not read as a reference."""
+    return INLINE_CODE_RE.sub(lambda match: " " * len(match.group(0)), line)
 
 
 def prose_lines(text: str) -> list[tuple[str, int]]:
@@ -243,9 +254,8 @@ def normalize_quote(text: str) -> str:
 
 
 def heading_key(text: str) -> str:
-    return "".join(
-        ch for ch in unicodedata.normalize("NFC", text).lower() if ch.isalnum()
-    )
+    text = unicodedata.normalize("NFC", LINK_RE.sub(r"\1", text))
+    return "".join(ch for ch in text.lower() if ch.isalnum())
 
 
 def footnote_target(definition: str) -> tuple[str, str | None, str | None]:
@@ -351,7 +361,7 @@ def v2_findings(body: str, offset: int) -> list[tuple[str, str]]:
             cites = any(
                 prose
                 and not FOOTNOTE_DEF_RE.match(line)
-                and re.search(r"\[\^[^\]]+\](?!:)", line)
+                and re.search(r"\[\^[^\]]+\](?!:)", mask_code(line))
                 for line, _, prose in every[index + 1 : end]
             )
             if not cites:
@@ -368,7 +378,8 @@ def v2_findings(body: str, offset: int) -> list[tuple[str, str]]:
         if FOOTNOTE_DEF_RE.match(line):
             continue
 
-        for ref in FOOTNOTE_REF_RE.finditer(line):
+        masked = mask_code(line)
+        for ref in FOOTNOTE_REF_RE.finditer(masked):
             if ref.group(1) not in definitions and ref.group(1) not in undefined_refs:
                 undefined_refs.add(ref.group(1))
                 found.append(
@@ -383,7 +394,7 @@ def v2_findings(body: str, offset: int) -> list[tuple[str, str]]:
             start = quoted.start()
             if any(begin <= start < finish for begin, finish in code_ranges):
                 continue
-            ref = FOOTNOTE_REF_RE.search(line, quoted.end())
+            ref = FOOTNOTE_REF_RE.search(masked, quoted.end())
             if ref is None:
                 continue
 
