@@ -9,10 +9,12 @@ can overshoot by at most the runs it had in flight when it crossed the limit.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
+from collections.abc import Coroutine
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Any, Protocol
 
 from aegra_api.core.orm import get_session_maker
 from sqlalchemy import text
@@ -225,6 +227,24 @@ async def settle_signed_in_run(
         )
 
 
+async def await_signed_in_settlement(settlement: Coroutine[Any, Any, None]) -> None:
+    """Finish recording spend even if the run task is cancelled meanwhile.
+
+    The provider usage already happened, so a cancel must not roll back its ledger
+    write. A pending cancellation is re-raised once the write completes.
+    """
+    task = asyncio.create_task(settlement)
+    interrupted: asyncio.CancelledError | None = None
+    while not task.done():
+        try:
+            await asyncio.shield(task)
+        except asyncio.CancelledError as error:
+            interrupted = error
+    task.result()
+    if interrupted is not None:
+        raise interrupted
+
+
 __all__ = [
     "DEFAULT_SIGNED_IN_DAILY_BUDGET_MICRO_USD",
     "OPENAI_MODEL_RATES",
@@ -235,6 +255,7 @@ __all__ = [
     "SignedInBudgetUnavailableError",
     "SignedInDailyBudgetExhaustedError",
     "SignedInSpendLedger",
+    "await_signed_in_settlement",
     "default_signed_in_ledger",
     "model_rates",
     "run_cost_micro_usd",

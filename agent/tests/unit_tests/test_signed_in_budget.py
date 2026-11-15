@@ -270,3 +270,39 @@ def test_browser_can_read_retry_after_on_cross_origin_rejections():
     )
     assert cors["allow_origins"] == ["*"]
     assert cors["allow_credentials"] is False
+
+
+async def test_cancellation_during_settlement_still_records_the_spend():
+    import asyncio
+
+    from agent.signed_in_budget import await_signed_in_settlement
+
+    started = asyncio.Event()
+    release = asyncio.Event()
+
+    class SlowLedger(_Ledger):
+        async def settle(self, identity, cost_micro_usd):
+            started.set()
+            await release.wait()
+            await super().settle(identity, cost_micro_usd)
+
+    ledger = SlowLedger()
+    snapshot = replace(_EMPTY, model_calls=1, charged_tokens=1_000)
+    run = asyncio.create_task(
+        await_signed_in_settlement(
+            settle_signed_in_run(
+                ledger,
+                identity="account-1",
+                snapshot=snapshot,
+                model_spec="openai:gpt-6-luna",
+            )
+        )
+    )
+    await started.wait()
+    run.cancel()
+    await asyncio.sleep(0)
+    assert not run.done()
+    release.set()
+    with pytest.raises(asyncio.CancelledError):
+        await run
+    assert ledger.settled == [("account-1", 500)]
