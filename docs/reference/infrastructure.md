@@ -103,9 +103,12 @@ trailing newline is stored, then redeploy the web.
 ## Cost
 
 Only the OpenAI API bills per use. Guest runs share a daily cap of 500000 micro-USD
-($0.50); signed-in runs are not capped by the agent, so set a monthly usage limit in the
-OpenAI dashboard. Vercel, Neon, Tailscale Funnel, and GitHub Actions run within free
-tiers.
+($0.50). Each signed-in account has its own daily cap, `SIGNED_IN_DAILY_BUDGET_MICRO_USD`
+(default 5000000, $5): a run starts only while the account's spend for the UTC day is
+below the cap, and each finished run adds its priced provider usage. Runs already in
+flight when an account crosses the cap still finish, so keep a monthly usage limit in the
+OpenAI dashboard as the hard stop. Vercel, Neon, Tailscale Funnel, and GitHub Actions run
+within free tiers.
 
 ## Not yet in place
 

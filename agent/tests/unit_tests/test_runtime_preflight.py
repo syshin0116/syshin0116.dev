@@ -20,6 +20,11 @@ VALID_CONFIG = {
     "http": {
         "app": "agent.http:app",
         "enable_custom_route_auth": False,
+        "cors": {
+            "allow_origins": ["*"],
+            "allow_credentials": False,
+            "expose_headers": ["Content-Location", "Location", "Retry-After"],
+        },
     },
 }
 
