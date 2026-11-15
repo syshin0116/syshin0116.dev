@@ -1,8 +1,8 @@
 {
   "corpus": {
     "document_count": 338,
-    "fingerprint": "sha256:bfbc82444d17e4daac2343267cd7f8f1ec806ba118b765dd4b55b5bd1332477b",
-    "git_tree_sha": "05e533708777b676542115fa855e3b39fdf9dc52"
+    "fingerprint": "sha256:896b2e88c65a26a4930645028594549ab3c8910044bbaaae63504d11639a00a5",
+    "git_tree_sha": "418824b9451721ba8f0c7b76ef5c540a66785d3b"
   },
   "dataset_id": "known-item-alias-v1",
   "dataset_kind": "known-item",
@@ -239,7 +239,7 @@
   "provenance": {
     "generator": "blogeval.wikilink-aliases",
     "generator_version": 1,
-    "included_occurrence_count": 142,
+    "included_occurrence_count": 153,
     "source_artifacts": [
       {
         "derived_from": [
@@ -247,10 +247,10 @@
         ],
         "path": "wikilinks.json",
         "schema": "published-wikilinks-v2",
-        "sha256": "sha256:cc26273bdd8f220c449e91a8351d2cea530f4a8d3d01b7a1e599ede35972d29b"
+        "sha256": "sha256:96538ae73fd0d897c15c73bbad850ab5761dee435909358811605cf7471677a8"
       }
     ],
-    "source_occurrence_count": 165
+    "source_occurrence_count": 176
   },
   "qrels": [
     {
@@ -372,6 +372,21 @@
         {
           "kind": "wikilink-alias",
           "occurrences": 1,
+          "source_doc_id": "wiki/llm-wiki.md",
+          "target": "agentic-decision-workflow"
+        }
+      ],
+      "query": "ADR",
+      "query_id": "alias-d55e69c3d7895762",
+      "relevant_doc_ids": [
+        "wiki/agentic-decision-workflow.md"
+      ]
+    },
+    {
+      "evidence": [
+        {
+          "kind": "wikilink-alias",
+          "occurrences": 1,
           "source_doc_id": "AI/AX-Engineering/06-구현에서-드러나는-요구사항과-ADR-피드포워드.md",
           "target": "agentic-decision-workflow"
         }
@@ -402,6 +417,21 @@
         {
           "kind": "wikilink-alias",
           "occurrences": 1,
+          "source_doc_id": "wiki/vibe-coding.md",
+          "target": "cursor-project-rules"
+        }
+      ],
+      "query": "Cursor",
+      "query_id": "alias-2c014f8f8986f1b2",
+      "relevant_doc_ids": [
+        "wiki/cursor-project-rules.md"
+      ]
+    },
+    {
+      "evidence": [
+        {
+          "kind": "wikilink-alias",
+          "occurrences": 1,
           "source_doc_id": "Events/데블챌 데이터 블로그 챌린지.md",
           "target": "바이브코딩과 커서(Cursor)"
         }
@@ -410,6 +440,27 @@
       "query_id": "alias-c4147a8df7b02d1f",
       "relevant_doc_ids": [
         "Tools/바이브코딩과 커서(Cursor).md"
+      ]
+    },
+    {
+      "evidence": [
+        {
+          "kind": "wikilink-alias",
+          "occurrences": 1,
+          "source_doc_id": "wiki/github-actions-gcp-cicd.md",
+          "target": "docker"
+        },
+        {
+          "kind": "wikilink-alias",
+          "occurrences": 1,
+          "source_doc_id": "wiki/ubuntu-server-setup.md",
+          "target": "docker"
+        }
+      ],
+      "query": "Docker",
+      "query_id": "alias-e6169e958b37ce86",
+      "relevant_doc_ids": [
+        "wiki/docker.md"
       ]
     },
     {
@@ -452,6 +503,21 @@
       "query_id": "alias-6b44d1b9e0060b17",
       "relevant_doc_ids": [
         "AI/pdf-parser/2026-03-26-Docling-PDF-파서-분석.md"
+      ]
+    },
+    {
+      "evidence": [
+        {
+          "kind": "wikilink-alias",
+          "occurrences": 1,
+          "source_doc_id": "wiki/agentic-decision-workflow.md",
+          "target": "github-actions-gcp-cicd"
+        }
+      ],
+      "query": "GitHub Actions",
+      "query_id": "alias-fae83bd48c808f08",
+      "relevant_doc_ids": [
+        "wiki/github-actions-gcp-cicd.md"
       ]
     },
     {
@@ -786,6 +852,21 @@
         {
           "kind": "wikilink-alias",
           "occurrences": 1,
+          "source_doc_id": "wiki/llm-wiki.md",
+          "target": "obsidian-notion-sync"
+        }
+      ],
+      "query": "Obsidian",
+      "query_id": "alias-9db22d416e293660",
+      "relevant_doc_ids": [
+        "wiki/obsidian-notion-sync.md"
+      ]
+    },
+    {
+      "evidence": [
+        {
+          "kind": "wikilink-alias",
+          "occurrences": 1,
           "source_doc_id": "AI/pdf-parser/2026-03-26-PDF-파서-5종-비교-분석.md",
           "target": "2026-03-26-OmniDocBench-파싱-성능-비교"
         }
@@ -906,6 +987,21 @@
         {
           "kind": "wikilink-alias",
           "occurrences": 1,
+          "source_doc_id": "wiki/blog-seo.md",
+          "target": "quartz-publishing"
+        }
+      ],
+      "query": "Quartz",
+      "query_id": "alias-6dbfeeb207b36340",
+      "relevant_doc_ids": [
+        "wiki/quartz-publishing.md"
+      ]
+    },
+    {
+      "evidence": [
+        {
+          "kind": "wikilink-alias",
+          "occurrences": 1,
           "source_doc_id": "Tools/Obsidian/검색 노출 시키는 방법.md",
           "target": "Quartz, GitHub Pages 사용하여 Obsidian 노트 배포"
         }
@@ -1008,6 +1104,51 @@
         {
           "kind": "wikilink-alias",
           "occurrences": 1,
+          "source_doc_id": "wiki/quartz-publishing.md",
+          "target": "static-site-generators"
+        }
+      ],
+      "query": "SSG",
+      "query_id": "alias-18904ad089f79ec4",
+      "relevant_doc_ids": [
+        "wiki/static-site-generators.md"
+      ]
+    },
+    {
+      "evidence": [
+        {
+          "kind": "wikilink-alias",
+          "occurrences": 1,
+          "source_doc_id": "wiki/quartz-publishing.md",
+          "target": "blog-seo"
+        }
+      ],
+      "query": "Search Console",
+      "query_id": "alias-5ec092ae51f8a8fa",
+      "relevant_doc_ids": [
+        "wiki/blog-seo.md"
+      ]
+    },
+    {
+      "evidence": [
+        {
+          "kind": "wikilink-alias",
+          "occurrences": 1,
+          "source_doc_id": "wiki/agentic-decision-workflow.md",
+          "target": "second-brain-rag"
+        }
+      ],
+      "query": "Second Brain",
+      "query_id": "alias-74a0d393cc3c8e76",
+      "relevant_doc_ids": [
+        "wiki/second-brain-rag.md"
+      ]
+    },
+    {
+      "evidence": [
+        {
+          "kind": "wikilink-alias",
+          "occurrences": 1,
           "source_doc_id": "AI/Imbalanced Data Prediction(Anomaly Detection).md",
           "target": "T-SNE"
         }
@@ -1016,6 +1157,21 @@
       "query_id": "alias-761338627dfc6425",
       "relevant_doc_ids": [
         "AI/T-SNE.md"
+      ]
+    },
+    {
+      "evidence": [
+        {
+          "kind": "wikilink-alias",
+          "occurrences": 1,
+          "source_doc_id": "wiki/clidex.md",
+          "target": "cli-ux-design"
+        }
+      ],
+      "query": "UNIX 관례",
+      "query_id": "alias-a1cc1f875c8e91aa",
+      "relevant_doc_ids": [
+        "wiki/cli-ux-design.md"
       ]
     },
     {
