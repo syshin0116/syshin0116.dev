@@ -1,6 +1,24 @@
+import { AGENT_REJECTION_CODES, parseRetryAfter, type AgentRejectionCode } from "./error-state"
 import type { FetchLike } from "./token-broker"
 
-export function trackRunStartRejections(fetchImpl: FetchLike) {
+const MAX_REJECTION_BODY_CHARS = 4_096
+
+/** Reads only an allowlisted `error` code; the rest of the body is dropped. */
+async function rejectionCode(response: Response): Promise<AgentRejectionCode | undefined> {
+  try {
+    const text = await response.text()
+    if (text.length > MAX_REJECTION_BODY_CHARS) return undefined
+    const body: unknown = JSON.parse(text)
+    if (typeof body !== "object" || body === null || !("error" in body)) return undefined
+    return (AGENT_REJECTION_CODES as readonly unknown[]).includes(body.error)
+      ? (body.error as AgentRejectionCode)
+      : undefined
+  } catch {
+    return undefined
+  }
+}
+
+export function trackRunStartRejections(fetchImpl: FetchLike, now: () => number = Date.now) {
   const rejectedRequests = new WeakSet<Error>()
 
   return {
@@ -18,9 +36,15 @@ export function trackRunStartRejections(fetchImpl: FetchLike) {
       }
       const response = await fetchImpl(input, init)
       if (startsRun && !response.ok) {
-        const error = Object.assign(new Error(`Run request rejected: HTTP ${response.status}`), { status: response.status })
+        // Cross-origin, Retry-After is readable only when the agent exposes it.
+        const retryAfterSeconds = parseRetryAfter(response.headers.get("Retry-After"), now())
+        const code = await rejectionCode(response)
+        const error = Object.assign(new Error(`Run request rejected: HTTP ${response.status}`), {
+          status: response.status,
+          ...(code ? { code } : {}),
+          ...(retryAfterSeconds !== undefined ? { retryAfterSeconds } : {}),
+        })
         rejectedRequests.add(error)
-        void response.body?.cancel().catch(() => {})
         throw error
       }
       return response

@@ -4,7 +4,6 @@ import {
   ActionBarPrimitive,
   AuiIf,
   ComposerPrimitive,
-  ErrorPrimitive,
   MessagePrimitive,
   ThreadListItemPrimitive,
   ThreadListPrimitive,
@@ -44,7 +43,6 @@ import {
   RotateCcw,
   ToolCase,
   UserRound,
-  WifiOff,
   X,
 } from "lucide-react"
 import Link from "next/link"
@@ -58,7 +56,7 @@ import {
   type ReactNode,
 } from "react"
 
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
   DropdownMenu,
@@ -85,6 +83,14 @@ import {
 } from "./runtime/tool-arguments"
 
 import { useAgentRuntimeUi } from "./agent-runtime-provider"
+import { ChatNotice, ChatNoticeButton } from "./chat-notice"
+import {
+  AgentLifecycleError,
+  classifyAgentError,
+  describeLocalFailure,
+  selectChatNotice,
+  type AgentErrorPresentation,
+} from "./runtime/error-state"
 import { MarkdownText } from "./markdown-text"
 import { MAX_COMPOSER_CODE_UNITS, MAX_COMPOSER_UTF8_BYTES, useMessageQueue } from "./use-message-queue"
 import { AnswerActivity } from "./answer-activity"
@@ -355,6 +361,47 @@ function MessageActions() {
   )
 }
 
+/**
+ * The latest failed answer carries the turn failure itself, so the composer
+ * does not repeat it. Older failed answers keep a quiet marker only.
+ */
+function MessageFailure() {
+  const runtimeUi = useAgentRuntimeUi()
+  const online = useOnline()
+  const isLast = useAuiState((state) => state.message.isLast)
+  if (!isLast || !online || runtimeUi.connectionStatus !== "ready") {
+    return (
+      <p className="mt-3 text-xs text-muted-foreground">
+        이 답변은 끝까지 완료되지 않았어요.
+      </p>
+    )
+  }
+  const notice = runtimeUi.turnError ?? classifyAgentError(new AgentLifecycleError())
+  return (
+    <ChatNotice
+      notice={notice}
+      className="mt-3"
+      action={(countdown) =>
+        notice.action !== "retry-turn" ? (
+          <ChatNoticeButton label="확인" onClick={runtimeUi.dismissTurnError} />
+        ) : countdown > 0 ? (
+          <ChatNoticeButton countdown={countdown} label="다시 시도" onClick={() => {}} />
+        ) : (
+          <ActionBarPrimitive.Root>
+            <ActionBarPrimitive.Reload
+              onClick={runtimeUi.beginTurn}
+              className={cn(buttonVariants({ size: "sm", variant: "outline" }), "bg-background/80")}
+            >
+              <RotateCcw aria-hidden="true" />
+              다시 시도
+            </ActionBarPrimitive.Reload>
+          </ActionBarPrimitive.Root>
+        )
+      }
+    />
+  )
+}
+
 function ChatMessage() {
   const role = useAuiState((state) => state.message.role)
   const rawSources = useAuiState(
@@ -391,17 +438,7 @@ function ChatMessage() {
           <AnswerSources sources={sources} />
         ) : null}
         <MessagePrimitive.Error>
-          <ErrorPrimitive.Root className="mt-3 rounded-xl border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
-            <ErrorPrimitive.Message>
-              응답을 완료하지 못했습니다.
-            </ErrorPrimitive.Message>
-            <ActionBarPrimitive.Root className="mt-2 flex items-center">
-              <ActionBarPrimitive.Reload className="rounded-md border border-destructive/40 px-2.5 py-1 text-xs font-medium transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50">
-                <RotateCcw className="mr-1 inline size-3" aria-hidden="true" />
-                다시 시도
-              </ActionBarPrimitive.Reload>
-            </ActionBarPrimitive.Root>
-          </ErrorPrimitive.Root>
+          <MessageFailure />
         </MessagePrimitive.Error>
       </div>
       {role === "assistant" ? <MessageActions /> : null}
@@ -611,18 +648,41 @@ function Composer({ interrupted }: { interrupted: boolean }) {
   const queue = useMessageQueue({ ready, model: runtimeUi.modelSelection ? runtimeUi.selectedModel : undefined, onSend: runtimeUi.beginTurn, wasRejected: runtimeUi.wasRunStartRejected })
   const running = useAuiState((state) => state.thread.isRunning)
   const hasText = useAuiState((state) => state.composer.text.trim().length > 0)
-  const connectionError = runtimeUi.connectionError
-  const turnError = ready ? runtimeUi.turnError : undefined
-  const runConnectionAction = () => {
-    if (connectionError?.action === "sign-in") {
-      router.push("/login")
-      return
-    }
-    runtimeUi.retryConnection()
-  }
-  const dismissTurnError = () => {
+  const lastAnswerFailed = useAuiState((state) => {
+    const last = state.thread.messages.at(-1)
+    return last?.role === "assistant" &&
+      last.status?.type === "incomplete" &&
+      last.status.reason === "error"
+  })
+  const notice = selectChatNotice({
+    online,
+    connectionStatus: runtimeUi.connectionStatus,
+    connectionError: runtimeUi.connectionError,
+    turnError: runtimeUi.turnError,
+    turnErrorShownOnMessage: lastAnswerFailed,
+    dispatchError: queue.dispatchError ? describeLocalFailure(queue.dispatchError) : undefined,
+  })
+  const dismissNotice = () => {
     runtimeUi.dismissTurnError()
+    queue.dismissError()
     restoreComposerFocus()
+  }
+  const noticeAction = (current: AgentErrorPresentation, countdown: number): ReactNode => {
+    switch (current.action) {
+      case "sign-in":
+        return <ChatNoticeButton label={current.actionLabel ?? "다시 로그인"} onClick={() => router.push("/login")} />
+      case "reload":
+        return <ChatNoticeButton label={current.actionLabel ?? "새로고침"} onClick={() => window.location.reload()} />
+      case "retry-connection":
+        return <ChatNoticeButton countdown={countdown} label={current.actionLabel ?? "다시 연결"} onClick={runtimeUi.retryConnection} />
+      case "retry-turn":
+        // Retrying a rejected send means sending the restored queue again.
+        return queue.items.length > 0
+          ? <ChatNoticeButton countdown={countdown} label="다시 시도" onClick={() => { dismissNotice(); queue.resume() }} />
+          : <ChatNoticeButton label="확인" onClick={dismissNotice} />
+      case "none":
+        return current.channel === "turn" ? <ChatNoticeButton label="확인" onClick={dismissNotice} /> : null
+    }
   }
   const submit = () => {
     if (!ready || interrupted) return
@@ -641,47 +701,18 @@ function Composer({ interrupted }: { interrupted: boolean }) {
     // covers anything rendered below it.
     <div className="flex flex-col">
       <div className="max-h-[min(12rem,25dvh)] overflow-y-auto overscroll-contain">
-        {!online ? (
-          <p role="status" className="mb-3 flex items-start gap-3 rounded-xl bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
-            <WifiOff className="mt-0.5 size-4 shrink-0" />
-            <span>인터넷 연결이 끊겼습니다.<span className="mt-1 block text-xs opacity-80">작성한 메시지는 연결 후 보낼 수 있어요.</span></span>
-          </p>
-        ) : null}
-        {runtimeUi.connectionStatus === "error" && connectionError ? (
-          <div
-            role="alert"
-            className="mx-auto mb-2 flex max-w-3xl items-center justify-between gap-3 rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive"
-          >
-            <span>{connectionError.message}</span>
-            <button
-              type="button"
-              className="shrink-0 font-medium underline underline-offset-4"
-              onClick={runConnectionAction}
-            >
-              {connectionError.actionLabel}
-            </button>
-          </div>
-        ) : null}
-        {turnError ? (
-          <div
-            role="alert"
-            className="mx-auto mb-2 flex max-w-3xl items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-900 dark:text-amber-200"
-          >
-            <span>{turnError.message}</span>
-            <button
-              type="button"
-              className="shrink-0 font-medium underline underline-offset-4"
-              onClick={dismissTurnError}
-            >
-              확인
-            </button>
-          </div>
+        {notice ? (
+          <ChatNotice
+            notice={notice}
+            className="mb-2"
+            action={(countdown) => noticeAction(notice, countdown)}
+          />
         ) : null}
         {queue.items.length > 0 ? (
           <section aria-label="전송 대기열" className="mb-3 rounded-xl border border-border/60 bg-muted/30 p-3">
             <div className="mb-2 flex items-center justify-between gap-2 text-xs text-muted-foreground">
               <p role="status">{queue.items.length}개 대기 · {queue.paused ? "전송 일시정지" : running ? "응답 후 함께 전송" : "함께 전송 준비 중"}</p>
-              {queue.paused ? <button type="button" disabled={!ready || interrupted} onClick={queue.resume} className="underline underline-offset-4">대기 메시지 보내기</button> : null}
+              {queue.paused && !notice ? <button type="button" disabled={!ready || interrupted} onClick={queue.resume} className="underline underline-offset-4">대기 메시지 보내기</button> : null}
             </div>
             <ul className="max-h-32 overflow-y-auto">
               {queue.items.map((item) => <li key={item.id} className="flex items-center gap-2 text-sm">
@@ -691,7 +722,6 @@ function Composer({ interrupted }: { interrupted: boolean }) {
             </ul>
           </section>
         ) : null}
-        {queue.dispatchError ? <p role="alert" className="mb-2 text-sm text-destructive">{queue.dispatchError}</p> : null}
         {composerError ? (
           <p
             id="composer-size-error"

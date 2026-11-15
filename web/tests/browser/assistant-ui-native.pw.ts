@@ -245,7 +245,7 @@ test.describe.serial("native assistant-ui production journey", () => {
     await expect(page.getByRole("dialog", { name: "연결 상태 안내" })).toBeFocused()
     await page.context().setOffline(true)
     await expect(composer).toBeFocused()
-    await expect(page.getByRole("status")).toContainText("인터넷 연결이 끊겼습니다")
+    await expect(page.getByRole("status")).toContainText("인터넷 연결이 끊겼어요")
     await expect(send).toBeDisabled()
     await composer.press("Enter")
     await expect(composer).toHaveValue("연속 검색 연결 복구")
@@ -383,14 +383,118 @@ test.describe.serial("native assistant-ui production journey", () => {
     await expect(page.getByLabel("전송 대기열")).toContainText("전송 일시정지")
     await expect(page.getByLabel("전송 대기열")).toContainText("연속 검색 실패 복구")
     expect((await fixtureState(page)).commands).toHaveLength(0)
+    // One failure, one recovery control: the queue does not repeat the notice's action.
+    await expect(page.getByRole("region", { name: "RAG 평가 챗봇" }).getByRole("alert")).toHaveCount(1)
+    await expect(page.getByRole("region", { name: "RAG 평가 챗봇" }).getByRole("alert")).toContainText("AI 서버가 잠시 응답하지 않아요.")
+    await expect(page.getByRole("button", { name: "대기 메시지 보내기" })).toHaveCount(0)
     await attachEvidence(page, testInfo, "queue-rejected")
     reject = false
-    await page.getByRole("button", { name: "대기 메시지 보내기" }).click()
+    await page.getByRole("region", { name: "RAG 평가 챗봇" }).getByRole("alert").getByRole("button", { name: "다시 시도" }).click()
+    await expect(page.getByRole("region", { name: "RAG 평가 챗봇" }).getByRole("alert")).toHaveCount(0)
     await expect(page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true })).toHaveCount(1)
     await expect(page.getByLabel("전송 대기열")).toBeHidden()
     await expect(page.getByText("연속 검색 실패 복구", { exact: true })).toHaveCount(1)
     expect((await fixtureState(page)).commands).toHaveLength(1)
     await attachEvidence(page, testInfo, "queue-retried")
+  })
+
+  test("explains a spent signed-in daily budget in one inline notice", async ({ page }, testInfo) => {
+    await resetFixture(page)
+    await page.route(`${fixtureOrigin}/threads/*/commands`, async (route) => {
+      if (route.request().postDataJSON().method === "run.start") {
+        await route.fulfill({
+          status: 429,
+          contentType: "application/json",
+          headers: { "access-control-allow-origin": fixtureWebOrigin, "retry-after": "3600" },
+          body: JSON.stringify({ error: "daily_budget_exhausted", message: "Signed-in daily budget is exhausted" }),
+        })
+      } else await route.continue()
+    })
+    await page.goto("/")
+    const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    await expect(page.getByText("연결됨", { exact: true })).toBeVisible()
+    await composer.fill("연속 검색 오늘 한도")
+    await composer.press("Enter")
+    const notice = page.getByRole("region", { name: "RAG 평가 챗봇" }).getByRole("alert")
+    await expect(notice).toHaveCount(1)
+    await expect(notice).toContainText("오늘 사용 한도를 모두 썼어요.")
+    // Retry-After is not exposed cross-origin here, so the reset falls back to the next UTC midnight.
+    await expect(notice).toContainText("(한국 시간 오전 9시) 다시 이용할 수 있어요.")
+    await expect(notice).not.toContainText("로그인")
+    await expect(notice.getByRole("button", { name: "다시 시도" })).toHaveCount(0)
+    await expect(composer).toBeFocused()
+    for (const [width, height, dark] of [[1280, 800, false], [390, 844, false], [390, 844, true]] as const) {
+      await page.setViewportSize({ width, height })
+      await page.evaluate((enabled) => document.documentElement.classList.toggle("dark", enabled), dark)
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      await expectA11yClean(page)
+      await attachEvidence(page, testInfo, `daily-budget-${width}-${dark ? "dark" : "light"}`)
+    }
+    await page.evaluate(() => document.documentElement.classList.remove("dark"))
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await notice.getByRole("button", { name: "확인" }).click()
+    await expect(notice).toHaveCount(0)
+    await expect(page.getByLabel("전송 대기열")).toContainText("연속 검색 오늘 한도")
+  })
+
+  test("counts down a known Retry-After before offering the retry", async ({ page }, testInfo) => {
+    await resetFixture(page)
+    let reject = true
+    await page.route(`${fixtureOrigin}/threads/*/commands`, async (route) => {
+      if (reject && route.request().postDataJSON().method === "run.start") {
+        await route.fulfill({
+          status: 429,
+          contentType: "application/json",
+          headers: {
+            "access-control-allow-origin": fixtureWebOrigin,
+            "access-control-expose-headers": "retry-after",
+            "retry-after": "3",
+          },
+          body: JSON.stringify({ error: "rate_limited", message: "Guest run rate limit exceeded" }),
+        })
+      } else await route.continue()
+    })
+    await page.goto("/")
+    const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    await expect(page.getByText("연결됨", { exact: true })).toBeVisible()
+    await composer.fill("연속 검색 요청 제한")
+    await composer.press("Enter")
+    const notice = page.getByRole("region", { name: "RAG 평가 챗봇" }).getByRole("alert")
+    await expect(notice).toContainText("요청이 잠시 많아요.")
+    const retry = notice.getByRole("button", { name: /다시 시도/ })
+    await expect(retry).toBeDisabled()
+    await expect(retry).toHaveText(/초 후 다시 시도/)
+    await attachEvidence(page, testInfo, "rate-limit-countdown")
+    reject = false
+    await expect(retry).toBeEnabled({ timeout: 5_000 })
+    await expect(retry).toHaveText("다시 시도")
+    await retry.click()
+    await expect(page.getByText("브라우저 fixture 응답이 완료되었습니다.", { exact: true })).toHaveCount(1)
+    await expect(notice).toHaveCount(0)
+  })
+
+  test("shows only the expired session when a queued send fails on auth", async ({ page }, testInfo) => {
+    await resetFixture(page)
+    await page.route(`${fixtureOrigin}/threads/*/commands`, async (route) => {
+      if (route.request().postDataJSON().method === "run.start") {
+        await route.fulfill({ status: 401, contentType: "application/json", body: '{"detail":"expired"}' })
+      } else await route.continue()
+    })
+    await page.goto("/")
+    const composer = page.getByRole("textbox", { name: "AI에게 보낼 메시지" })
+    await expect(page.getByText("연결됨", { exact: true })).toBeVisible()
+    await composer.fill("연속 검색 세션 만료")
+    await composer.press("Enter")
+    const notice = page.getByRole("region", { name: "RAG 평가 챗봇" }).getByRole("alert")
+    await expect(notice).toContainText("로그인 세션이 만료됐어요.")
+    await expect(notice).toHaveCount(1)
+    await expect(notice.getByRole("button", { name: "다시 로그인" })).toBeVisible()
+    await expect(page.getByLabel("전송 대기열")).toContainText("연속 검색 세션 만료")
+    await expect(page.getByRole("button", { name: "대기 메시지 보내기" })).toHaveCount(0)
+    await attachEvidence(page, testInfo, "auth-expired-desktop")
+    await page.setViewportSize({ width: 390, height: 844 })
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await attachEvidence(page, testInfo, "auth-expired-mobile")
   })
 
   test("does not requeue an accepted run that fails before a message echo", async ({ page }, testInfo) => {
@@ -762,7 +866,7 @@ test.describe.serial("native assistant-ui production journey", () => {
     await selectFixtureThread(page)
     await expect(
       page.getByText(
-        "에이전트 실행을 완료하지 못했습니다. 같은 대화에서 다시 시도해 주세요."
+        "응답을 끝까지 만들지 못했어요."
       )
     ).toBeVisible()
     await expect(page.getByText(/fixture_secret/)).toHaveCount(0)
@@ -793,7 +897,7 @@ test.describe.serial("native assistant-ui production journey", () => {
       .toBe(2)
     await expect(
       page.getByText(
-        "로그인 세션이 만료되었습니다. 다시 로그인해 주세요."
+        "로그인 세션이 만료됐어요."
       )
     ).toBeVisible()
     await expect(page.locator("body")).not.toContainText(
@@ -899,7 +1003,7 @@ test.describe.serial("native assistant-ui production journey", () => {
     ).toHaveCount(0)
     await expect(
       page.getByText(
-        "에이전트 실행을 완료하지 못했습니다. 같은 대화에서 다시 시도해 주세요."
+        "응답을 끝까지 만들지 못했어요."
       )
     ).toHaveCount(0)
     await expect(page.locator("body")).not.toContainText(
@@ -1118,7 +1222,7 @@ test("retries the public anonymous bootstrap without a challenge", async ({
   await page.goto("/anonymous")
   await expect(
     page.getByRole("heading", {
-      name: "공개 체험에 연결하지 못했습니다",
+      name: "공개 체험에 연결하지 못했어요",
     })
   ).toBeVisible()
   expect(tokenRequests).toEqual([null, null])

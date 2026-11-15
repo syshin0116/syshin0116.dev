@@ -16,6 +16,7 @@ export function messageFits(text: string): boolean {
 type PendingMessage = { id: string; text: string }
 type Batch = { items: PendingMessage[]; paused: boolean }
 const EMPTY_BATCH: Batch = { items: [], paused: false }
+export type DispatchFailure = "queue-too-long" | "send-failed"
 
 export function useMessageQueue({ ready, model, onSend, wasRejected }: { ready: boolean; model?: AgentModel; onSend: () => void; wasRejected: (error: unknown) => boolean }) {
   const aui = useAui()
@@ -32,7 +33,7 @@ export function useMessageQueue({ ready, model, onSend, wasRejected }: { ready: 
     batchesRef.current = next
     setBatches(next)
   }, [])
-  const [dispatchError, setDispatchError] = useState<{ threadId: string; message: string }>()
+  const [dispatchError, setDispatchError] = useState<{ threadId: string; kind: DispatchFailure }>()
   const dispatching = useRef(new Set<string>())
   const sent = useRef(new Map<string, { items: PendingMessage[] }>())
   const batch = batches[threadId] ?? EMPTY_BATCH
@@ -69,7 +70,7 @@ export function useMessageQueue({ ready, model, onSend, wasRejected }: { ready: 
     const timer = setTimeout(() => {
       if (dispatching.current.has(threadId)) return
       if (!messageFits(batch.items.map((item) => item.text).join("\n\n"))) {
-        setDispatchError({ threadId, message: "대기 메시지가 너무 깁니다. 일부를 삭제한 뒤 다시 보내 주세요." })
+        setDispatchError({ threadId, kind: "queue-too-long" })
         updateBatch(threadId, (current) => ({ ...current, paused: true }))
         return
       }
@@ -87,7 +88,7 @@ export function useMessageQueue({ ready, model, onSend, wasRejected }: { ready: 
       }))
       void aui.threads().item({ id: threadId }).initialize().catch(() => {
         dispatching.current.delete(threadId)
-        setDispatchError({ threadId, message: "메시지를 보내지 못했습니다. 대기열에서 다시 보내 주세요." })
+        setDispatchError({ threadId, kind: "send-failed" })
         sent.current.delete(threadId)
         updateBatch(threadId, (current) => ({ paused: true, items: [...batch.items.filter((item) => !current.items.some((queued) => queued.id === item.id)), ...current.items] }))
       })
@@ -98,7 +99,7 @@ export function useMessageQueue({ ready, model, onSend, wasRejected }: { ready: 
   return {
     items: batch.items,
     paused: batch.paused || blockedByError,
-    dispatchError: dispatchError?.threadId === threadId ? dispatchError.message : undefined,
+    dispatchError: dispatchError?.threadId === threadId ? dispatchError.kind : undefined,
     enqueue(text: string) {
       const normalized = text.trim()
       if (!normalized) return true
@@ -110,6 +111,9 @@ export function useMessageQueue({ ready, model, onSend, wasRejected }: { ready: 
         items: [...current.items, { id: crypto.randomUUID(), text: normalized }],
       }))
       return true
+    },
+    dismissError() {
+      setDispatchError(undefined)
     },
     remove(id: string) {
       updateBatch(threadId, (current) => ({ ...current, items: current.items.filter((item) => item.id !== id) }))

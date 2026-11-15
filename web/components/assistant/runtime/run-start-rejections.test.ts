@@ -43,3 +43,29 @@ test("keeps transport failures ambiguous instead of authorizing a duplicate subm
   })).rejects.toBe(error)
   expect(tracker.wasRejected(error)).toBe(false)
 })
+
+test("keeps only an allowlisted rejection code and Retry-After from a rejected run.start", async () => {
+  const tracker = trackRunStartRejections(
+    async () => new Response(
+      JSON.stringify({ error: "daily_budget_exhausted", message: "Signed-in daily budget is exhausted" }),
+      { status: 429, headers: { "Retry-After": "3600", "Content-Type": "application/json" } }
+    ),
+    () => 0
+  )
+  const error = await tracker.fetch("https://agent.example/threads/one/commands", {
+    method: "POST", body: JSON.stringify({ method: "run.start" }),
+  }).catch((error: unknown) => error)
+  expect(error).toMatchObject({ status: 429, code: "daily_budget_exhausted", retryAfterSeconds: 3600 })
+  expect(JSON.stringify(error)).not.toContain("Signed-in daily budget")
+  expect(tracker.wasRejected(error)).toBe(true)
+})
+
+test("drops unknown codes and unreadable bodies", async () => {
+  const tracker = trackRunStartRejections(async () => new Response('{"error":"db password"}', { status: 503 }))
+  const error = await tracker.fetch("https://agent.example/threads/one/commands", {
+    method: "POST", body: JSON.stringify({ method: "run.start" }),
+  }).catch((error: unknown) => error)
+  expect(error).toMatchObject({ status: 503 })
+  expect(error).not.toHaveProperty("code")
+  expect(error).not.toHaveProperty("retryAfterSeconds")
+})
