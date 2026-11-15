@@ -14,7 +14,8 @@ Reflect runs **after** ingest has already produced isolated wiki pages. Its job:
 ## What reflect does NOT do
 
 - Does not create new pages. Only adds links between existing pages.
-- Does not modify `## Summary`, `## Key Claims`, or any source-derived content. Only edits `## Connections` and inline body links.
+- Does not modify `## Summary`, `## Key Claims`, or any source-derived content. Only adds inline body links.
+- Does not write a related-pages section (`## Connections`, `## See also`). Backlinks are rendered by the web page.
 - Does not delete or rename pages.
 - Does not add `[[X]]` to a page that doesn't exist yet (run ingest if a target is missing).
 
@@ -88,9 +89,7 @@ Don't add weak connections. They're noise.
 
 ### 4. Add strong connections
 
-For each strong candidate, add inline (preferred) or to `## Connections`:
-
-**Inline (preferred)**: if there's a sentence in page A that mentions page B's topic, replace the literal phrase with `[[B]]`:
+For each strong candidate, link inline: if there's a sentence in page A that mentions page B's topic, replace the literal phrase with `[[B]]`:
 
 ```diff
 - The Zettelkasten method emphasizes atomic notes.
@@ -99,16 +98,7 @@ For each strong candidate, add inline (preferred) or to `## Connections`:
 
 Only do this when the surrounding sentence is genuinely discussing the linked concept. Don't transform a passing mention into a link.
 
-**Connections section**: if no natural inline spot exists, add to `## Connections`:
-
-```markdown
-## Connections
-
-- [[zettelkasten]] - note-linking method that inspired this approach
-- [[obsidian-graph-view]] - visual interface for the same idea
-```
-
-Each link gets a one-line explanation. Empty `[[X]]` bullets without context are forbidden.
+If no sentence in page A discusses page B, there is no link to add. Propose it in the step 5 report instead (for example, a sentence the next ingest could add with a source).
 
 ### 5. Propose medium connections to user
 
@@ -162,6 +152,7 @@ Append to `log.md`:
 |--------------|--------------|---------------------|
 | Add `[[See also: ...]]` blocks of 5+ links | Forced links pollute graph | Only add when natural |
 | Auto-add all medium-confidence links | Garbage links accumulate | Propose to user; don't apply |
-| Modify `## Summary` or `## Key Claims` to "weave in" links | Self-corruption - these sections are source-derived | Only edit `## Connections` and inline body |
+| Modify `## Summary` or `## Key Claims` to "weave in" links | Self-corruption - these sections are source-derived | Only link phrases that already discuss the target |
+| Add a `## Connections` list when no inline spot exists | Duplicates the rendered backlinks and goes stale | Propose the link for a future ingest |
 | Add bidirectional links automatically | Sometimes A→B is natural but B→A isn't | Each direction evaluated independently |
 | Re-run reflect on the same page set repeatedly | Drift, link explosion | Run weekly or monthly, not after every ingest |

@@ -5,6 +5,9 @@ Convert source posts into wiki pages. Read [SKILL.md](./SKILL.md) and [conventio
 ## Anti-patterns specific to ingest
 
 - **Forced cross-links.** Zero `[[wikilinks]]` is valid. Don't pad to look thorough.
+- **Related-pages sections.** No `## Connections` or `## See also`. Link inline; backlinks render automatically.
+- **Paraphrase in quote marks.** Double quotes mean verbatim text; the verify gate checks it.
+- **Placeholder sections.** No empty `## 생각의 변천` or other headings waiting for content.
 - **Chat-style preamble.** Wiki pages don't open with "Here's a summary…".
 - **Body `## Summary` section.** summary lives in frontmatter only.
 - **Folder placement.** Always write to `content/wiki/<slug>.md` at root. migrate handles folders.
@@ -83,14 +86,14 @@ For each existing wiki page found, decide: **update** (same topic) or **none** (
 
 ### 4. Plan the page set
 
-A single source typically touches **1 source-summary page + 0–N concept/tool pages**. Don't try to create one giant page that covers everything in the post.
+Ask for each candidate: **is this a concept a reader would look up?** A page is a concept, tool, technique, or pattern someone would search for by name, not a summary of one post. A single source typically updates or creates **0-N concept pages**. Don't create one giant page that covers everything in the post.
 
 Example: a post on "RAG with LangChain" might produce:
-- New: `rag-langchain.md` (the post's main thesis)
-- Update: `rag-pattern.md` (general RAG concept gets one more source)
-- Update: `langchain.md` (tool page picks up one more usage example)
+- Update: `rag-pattern.md` (the RAG concept gets one more source)
+- Update: `langchain.md` (the tool page picks up one more usage example)
+- New: `hybrid-retrieval.md` (a concept the post introduces that has no page yet)
 
-If the source is too thin or too narrow (e.g., a quick tip, a personal note), file a single short page or skip entirely. Log the skip reason to `log.md`.
+One source is enough for a new page; it starts as `status: seedling`. If nothing in the source is a look-up-able concept (a quick tip, a personal note), skip it. Log the skip reason to `log.md`.
 
 ### 5. Write each page
 
@@ -105,11 +108,14 @@ Follow the page structure in [conventions.md](./conventions.md#page-structure).
 - Bump `updated:` field.
 - Append the new source path to `sources:` (don't replace).
 - Update `summary:` if the new source materially changes the takeaway. Otherwise leave it.
+- Revisit `status` and `confidence`: a seedling that now weaves several sources into its own structure may become `budding`; contradicting sources lower `confidence`. Leave `evergreen` and `reviewed` to a human check.
+- If the new source shows the author's position changed (an earlier post recommended X, this one replaces it with Y), add or extend `## 생각의 변천` with one cited line per step. Don't add the section otherwise.
 
 **For new pages:**
 
-- All mandatory frontmatter fields present, including `summary:` (1–3 sentences, single source - do not also write a `## Summary` section in body).
+- All mandatory frontmatter fields present, including `summary:` (1-3 sentences, single source - do not also write a `## Summary` section in body), `status: seedling`, `confidence`, and `reviewed: null`. No `type:` or `author:`.
 - Mandatory body sections: `## Key Claims`, `## Footnotes`. Other sections only if non-empty.
+- Quote only verbatim spans of 15+ characters, each followed by its footnote. Cite a heading anchor (`content/x.md#Heading`) when the span sits under a specific heading of a long source.
 - Filename follows [conventions](./conventions.md#filename-rules).
 - `created` = today (UTC), `updated` = today (UTC).
 
@@ -122,7 +128,7 @@ For each new/updated page, look for **existing wiki pages that should now link t
 grep -rli "$NEW_PAGE_TITLE" content/wiki/
 ```
 
-If you find a natural place to add a `[[wikilink]]`, add it. **Naturalness rule: only if the surrounding sentence already discusses the linked concept.** Never insert a "See also: [[X]]" appendix to satisfy a connection count.
+If you find a natural place to add a `[[wikilink]]`, add it inline. **Naturalness rule: only if the surrounding sentence already discusses the linked concept.** Never insert a "See also: [[X]]" appendix or a `## Connections` list; the web page renders backlinks.
 
 ### 7. Verify gate
 
@@ -134,31 +140,31 @@ bun .claude/skills/wiki-curator/scripts/verify.ts
 
 If exit 1: read the per-check failures, fix in place, re-run. Up to 3 retries. After 3 failures → abort, do not commit.
 
-## Filing back query answers (type: synthesis)
+## Filing back query answers (synthesis pages)
 
-A second ingest input shape: a wiki query and its answer become a `type: synthesis` page.
+A second ingest input shape: a wiki query and its answer become a synthesis page, identified by its `synthesis_query` field.
 
 ### When this applies
 
-A wiki query produced an answer that spans multiple existing pages — a cross-page conclusion that doesn't fit inside any single source post. The answer is worth keeping so future queries find it directly.
+A wiki query produced an answer that spans multiple existing pages: a cross-page conclusion that doesn't fit inside any single source post. The answer is worth keeping so future queries find it directly.
 
 ### Workflow
 
-1. Identify which wiki pages the answer references — these become `sources:` (wiki paths, not source posts).
+1. Identify which wiki pages the answer references. These become `sources:` (wiki paths, not source posts).
 2. Title the page from the query intent, not the answer text.
 3. Write the page following the standard structure (`## Key Claims`, `## Footnotes` mandatory), but:
    - `sources:` lists `content/wiki/*.md` paths
    - Add `synthesis_query:` frontmatter field with the verbatim query
    - Footnotes cite wiki pages (`[^1]: content/wiki/rag.md`)
 4. Place at `content/wiki/<slug>.md` root. Folder decisions are `migrate`'s problem.
-5. Run the verify gate — it accepts wiki-path sources and footnotes unchanged.
+5. Run the verify gate. Wiki-path sources and footnotes pass the same checks as source posts.
 
-See [conventions.md](./conventions.md#type-synthesis-pages) for the full frontmatter contract.
+See [conventions.md](./conventions.md#synthesis-pages) for the full frontmatter contract.
 
 ### What this is NOT
 
 - Not a Q&A archive of every wiki query. Synthesis pages are reserved for cross-page conclusions worth re-reading. One-off lookups don't need filing.
-- Not a place for new claims. If the answer introduces an idea not in any cited wiki page, that idea belongs in a regular ingest from a real source — not a synthesis. Synthesis re-arranges existing wiki content; it doesn't extend it.
+- Not a place for new claims. If the answer introduces an idea not in any cited wiki page, that idea belongs in a regular ingest from a real source, not a synthesis. Synthesis re-arranges existing wiki content; it doesn't extend it.
 
 ## Deletion handling
 

@@ -120,11 +120,11 @@ async function readPage(file: string): Promise<Page | null> {
     slug,
     folder,
     title: getScalar(split.fm, "title") ?? slug,
-    type: getScalar(split.fm, "type") ?? "—",
+    type: getScalar(split.fm, "type") ?? "-",
     tags: getList(split.fm, "tags"),
     sources: getList(split.fm, "sources"),
     summary: getScalar(split.fm, "summary") ?? "",
-    updated: getScalar(split.fm, "updated") ?? "—",
+    updated: getScalar(split.fm, "updated") ?? "-",
   }
 }
 
@@ -178,7 +178,7 @@ async function main() {
 
   const content = renderIndex(pages)
   await fs.writeFile(INDEX_PATH, content)
-  console.log(`OK — rebuilt content/wiki/index.md (${pages.length} pages)`)
+  console.log(`OK - rebuilt content/wiki/index.md (${pages.length} pages)`)
 }
 
 main().catch((e) => {

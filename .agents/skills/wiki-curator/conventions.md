@@ -4,20 +4,27 @@ Frontmatter, tags, naming, organization, and link rules for `content/wiki/`.
 
 These are invariants (what must be present), not taxonomies (how to categorize). Categorization emerges from observing the actual content.
 
+## What earns a page
+
+A page exists for a concept a reader would look up: a tool, technique, pattern, or idea that someone would search for by name. Not a per-post summary, not a date, not an event log. One source is enough to start a page; the page grows as more sources arrive.
+
+Source count is a default, not a gate. A page backed by one or two sources starts as `status: seedling`; nothing blocks it for having few sources.
+
 ## Wiki page frontmatter
 
 ```yaml
 ---
 title: "Page title"
-type: <free-form, see below>
 tags:
   - <free-form, see below>
 sources:
   - content/AI/2026-04-19-LLM-Text-to-SQL.md
-summary: "1–3 sentence rich summary. Single source for callout rendering, search snippets, OG meta, RSS."
+summary: "1-3 sentence rich summary. Single source for callout rendering, search snippets, OG meta, RSS."
+status: seedling
+confidence: medium
+reviewed: null
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
-author: wiki-curator
 draft: false
 ---
 ```
@@ -25,16 +32,41 @@ draft: false
 | Field | Rule |
 |-------|------|
 | `title` | Korean or English. Short and search-friendly. Kebab-case version becomes the filename. |
-| `type` | Free-form. Reuse existing values across the wiki when possible (consistency emerges over time). Don't invent parallel terms (e.g., `tool` vs `tooling` vs `utility`). When in doubt, omit. |
-| `tags` | 5–10 per page, drawn from multiple dimensions (domain, language, technique, concept, meta). Reuse existing vocabulary first; new tags are OK when nothing fits. |
+| `tags` | 5-10 per page, drawn from multiple dimensions (domain, language, technique, concept, meta). Reuse existing vocabulary first; new tags are OK when nothing fits. |
 | `sources` | Required. Every source that contributed to this page. Use an existing repo-relative file path or an absolute HTTPS URL. Append on update; never remove unless the source is deleted. |
-| `summary` | Required. 1–3 sentences. The single canonical summary used for callout rendering, index.md descriptions, search snippets. No `## Summary` section in body. |
+| `summary` | Required. 1-3 sentences. The single canonical summary used for callout rendering, index.md descriptions, search snippets. No `## Summary` section in body. |
+| `status` | Required. Growth stage: `seedling`, `budding`, or `evergreen` (see below). |
+| `confidence` | Required. How well the cited sources back the page's claims: `low`, `medium`, or `high` (see below). |
+| `reviewed` | Optional. `YYYY-MM-DD` of the last time a human compared the page against its sources, or `null`. Agents never set it. Required for `evergreen`. |
 | `created` | First write. Never change. |
 | `updated` | Bump on every edit. |
-| `author` | `wiki-curator` for pages this skill produces. |
 | `draft` | Default `false`. `true` only when content is incomplete or under review. |
 
-`coverage` (high/medium/low based on source count) is **not** stored - it's derived in `index.md` rendering.
+Retired fields: `type` and `author` are no longer part of the contract. Synthesis pages are identified by `synthesis_query`, not `type`. `coverage` stays forbidden; source count is derived in `index.md` rendering.
+
+### Growth stages (`status`)
+
+| Stage | Meaning | Typical shape |
+|-------|---------|---------------|
+| `seedling` | Started from one or two sources. Claims are extracted, structure is provisional. | 1-2 sources, a few Key Claims |
+| `budding` | Several sources woven together; the page has its own structure and inline links. | 3+ sources, or one deep source fully worked |
+| `evergreen` | Stable. A human has checked it against the sources. | `reviewed` date set |
+
+Ingest creates pages as `seedling` and may move a page to `budding` when it adds sources and restructures it. Only a human moves a page to `evergreen`, by setting `reviewed`. The verifier rejects `evergreen` without a `reviewed` date.
+
+### Confidence
+
+| Value | Meaning |
+|-------|---------|
+| `high` | Claims are directly extracted and the sources agree. |
+| `medium` | Some claims rest on a single source or are marked `[inferred]`. |
+| `low` | Sources are thin, outdated, or disagree (see `## Contradictions`). |
+
+Confidence is about evidence, status is about the page's maturity. A seedling can be `high` (one clear source), an evergreen can be `medium`.
+
+### Rollout (contract v2)
+
+A page that declares `status` follows this contract and the verifier enforces all of it. A page without `status` is a legacy page: `type` and `author` are still allowed and the v2-only rules are reported as warnings, not failures. The content migration converts every page and then sets `ALLOW_LEGACY_PAGES` to false in both verifiers, after which a page without `status` fails. Preview that state with `--strict`.
 
 ## Page organization
 
@@ -56,29 +88,29 @@ Folders are **not exclusive partitions**. A page may legitimately belong to seve
 
 ## Page structure
 
-Every wiki page follows this section template. Mandatory sections must be present even if short.
+````markdown
+Opening prose that defines the concept in a sentence or two, linking related
+pages inline where the sentence discusses them: [[zettelkasten]] style notes...
 
-```markdown
 ## Key Claims
 
 - Bullets. Each claim cites its source via footnote.
-- Source: paraphrase the claim faithfully; do not embellish.[^1]
+- Paraphrase faithfully; do not embellish.[^1]
+- A verbatim quote goes in double quotes: "the exact words from the source, 15 characters or more"[^2]
 
 ## Examples / Code
-
-Verbatim quotes from sources. Code blocks must be copy-pasteable.
 
 ```python
 # from content/AI/2026-04-19-LLM-Text-to-SQL.md
 def example(): ...
 ```
 
-## Connections
+## 생각의 변천
 
-Verified `[[wikilinks]]` to other wiki pages. One-line context per link.
+Only when the author's position changed over time. Each step cites its source.
 
-- [[zettelkasten]] - note-linking method that inspired this approach
-- [[obsidian-graph-view]] - visual interface for the same idea
+- 2023: X was the default choice.[^1]
+- 2026: replaced by Y after the migration.[^2]
 
 ## Contradictions
 
@@ -87,47 +119,35 @@ Optional. When sources disagree, list both with attribution. Do not resolve.
 ## Footnotes
 
 [^1]: content/AI/2026-04-19-LLM-Text-to-SQL.md
-[^2]: content/Tools/2024-07-29-Zettelkasten.md
-```
+[^2]: content/Tools/2024-07-29-Zettelkasten.md#Permanent Notes
+````
 
-Mandatory sections: `## Key Claims`, `## Footnotes`. Other sections may be omitted if they would be empty (don't leave empty headings).
+| Section | Rule |
+|---------|------|
+| `## Key Claims` | Mandatory. Every claim carries a footnote. |
+| `## Footnotes` | Mandatory. Every `[^id]` used in the body is defined here. |
+| `## 생각의 변천` | Only when the position actually changed across sources or over time. Must cite the sources that show the change. Never add it empty or as a placeholder. |
+| `## Contradictions`, `## Examples / Code` | Optional. |
+| Related pages | None. Do not write `## Connections`, `## Related`, `## See also`, or `## 관련 페이지`. Link inline in the body; the web page renders backlinks automatically. |
+
+Any section that would be empty is omitted; the verifier rejects empty headings on v2 pages.
+
+`## Key Claims` and `## Footnotes` stay mandatory at every growth stage: a one-source seedling still states its claims and cites them, and the quote check resolves quotes through the footnotes.
 
 The Summary content lives in **frontmatter `summary:`** - the web template renders it as a callout above the body. Don't repeat it as a `## Summary` section.
 
-## type: synthesis pages
+## Quotes and citations
 
-A `type: synthesis` page captures a filed-back query answer — a cross-page meta-conclusion produced by querying the wiki. Use when an answer spans multiple existing wiki pages and doesn't belong inside any single source post.
+Double quotes (`"..."` or `“...”`) in prose mean a verbatim span from a source. A quote followed on the same line by a footnote reference is checked by the verifier against the footnote's target:
 
-Differences from regular pages:
+- The quote must be at least 15 characters (after trimming trailing punctuation) and contain letters. A number alone, such as "2024" or "68.5k", is not a verifiable quote; state numbers as paraphrase with a footnote.
+- For a repo-local footnote (`[^1]: content/Tools/x.md`), the quote must appear in that file. Comparison ignores emphasis (`*`, `_`, backticks), link markup, blockquote markers, and whitespace differences; it does not ignore wording.
+- For a heading anchor (`[^1]: content/Tools/x.md#Heading Text`), the quote must appear inside that heading's section (up to the next heading of the same or higher level). The anchor matches the heading text or its slug, ignoring case and punctuation (`#Permanent Notes` and `#permanent-notes` both work). With nested anchors (`#A#B`), the last heading is used.
+- HTTPS footnotes are not fetched; only the length and letter rules apply.
+- One contiguous span per quote. For an elision, use two quotes.
+- Terms, titles, and short phrases are not quotes: write them plainly, in italics, or in `code`.
 
-| Field | Regular page | Synthesis page |
-|---|---|---|
-| `sources` | source post paths (`content/AI/...md`) | wiki page paths (`content/wiki/...md`) |
-| `synthesis_query` | n/a | required — the query that produced this page |
-| `## Footnotes` | cite source posts | cite wiki pages (`[^1]: content/wiki/rag.md`) |
-
-`verify.ts` checks file existence only, so wiki-path sources and footnotes pass unchanged. All other rules (mandatory sections, summary length, tags, wikilinks resolve) apply.
-
-Example frontmatter:
-
-```yaml
----
-title: "RAG 글들의 합의와 불일치"
-type: synthesis
-tags: [rag, llm, meta]
-sources:
-  - content/wiki/llm-text-to-sql.md
-  - content/wiki/langflow.md
-synthesis_query: "RAG 관련 wiki 페이지들이 공유하는 합의와 불일치는?"
-summary: "..."
-created: 2026-05-12
-updated: 2026-05-12
-author: wiki-curator
-draft: false
----
-```
-
-See [ingest.md](./ingest.md#filing-back-query-answers-type-synthesis) for the filing workflow.
+Quotes inside code spans or fenced code blocks, and quotes with no footnote after them on the line, are not checked.
 
 ## Tags
 
@@ -185,7 +205,7 @@ If folders are introduced, append the folder: `concepts/zettelkasten.md`. The sl
   ```bash
   bun .claude/skills/wiki-curator/scripts/verify.ts
   ```
-- Each link in `## Connections` gets a one-line context.
+- Links go inline, in a sentence that already discusses the linked concept. There is no hand-written related-pages section; backlinks are rendered by the web page.
 - Zero links is valid output. Don't pad.
 
 ## log.md

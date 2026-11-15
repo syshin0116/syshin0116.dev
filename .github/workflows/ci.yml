@@ -159,6 +159,9 @@ jobs:
       - name: Verify dependency-free CI mirror
         if: steps.components.outputs.wiki == 'true'
         run: python scripts/verify-wiki.py
+      - name: Test wiki verifier parity and skill mirror
+        if: steps.components.outputs.wiki == 'true'
+        run: python -m unittest discover -s scripts/tests -p test_verify_wiki.py -v
       - name: Lint protocol consumers
         if: steps.components.outputs.protocol == 'true'
         run: >-
