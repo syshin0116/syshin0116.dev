@@ -131,15 +131,7 @@ for page in content/wiki/*.md; do
 done
 ```
 
-### 11. Contract v2 rollout (severity: yellow while legacy pages remain)
-
-Report the verifier's `WARN` block: legacy pages (no `status`) and the v2 rules they would fail, such as quotes not found in their source and `## Connections` sections.
-
-```bash
-bun .claude/skills/wiki-curator/scripts/verify.ts --strict
-```
-
-### 12. Growth stages and reviews (severity: blue)
+### 11. Growth stages and reviews (severity: blue)
 
 Count pages by `status` and list:
 
@@ -191,9 +183,6 @@ Output a single markdown report:
 ### Stale pages (>18 months)
 - ...
 
-### Legacy pages and v2 warnings
-- ...
-
 ### Evergreen pages changed after review
 - ...
 
@@ -206,7 +195,7 @@ Output a single markdown report:
 - ...
 
 ### Growth stages
-- seedling: N, budding: N, evergreen: N, legacy: N
+- seedling: N, budding: N, evergreen: N
 - Old single-source seedlings: ...
 - Low-confidence pages: ...
 

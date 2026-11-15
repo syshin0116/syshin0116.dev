@@ -1,6 +1,5 @@
 ---
 title: "LLM Text-to-SQL 실전 패턴"
-type: pattern
 tags:
   - text-to-sql
   - llm
@@ -13,15 +12,17 @@ tags:
 sources:
   - content/AI/2026-04-19-LLM-Text-to-SQL.md
 summary: "LLM 기반 Text-to-SQL 시스템을 프로덕션에서 안정적으로 운영하려면 프롬프트 튜닝보다 DB 스키마 품질이 결정적 요소다. 동적 스키마 조회, COMMENT 기반 zero-shot, AST 검증 기반 보안 레이어, 에이전트 위임 방식 self-correction을 조합하면 OLTP 수준 질의에서 높은 정확도를 달성할 수 있다."
+status: seedling
+confidence: medium
+reviewed: null
 created: 2026-04-25
-updated: 2026-10-25
-author: wiki-curator
+updated: 2026-11-15
 draft: false
 ---
 
 ## Key Claims
 
-- DB의 `COMMENT ON TABLE/COLUMN`이 few-shot 예시보다 Text-to-SQL 정확도에 더 큰 영향을 미친다. 특히 "이 컬럼은 어떤 질문에 쓰인다"와 "비슷한 컬럼과 어떻게 다른지"를 명시할 때 효과가 크다.[^1]
+- DB의 `COMMENT ON TABLE/COLUMN`이 few-shot 예시보다 Text-to-SQL 정확도에 더 큰 영향을 미친다. 특히 "이 컬럼은 이런 질문에 쓴다"와 "비슷한 컬럼과 어떻게 다른지"를 명시할 때 효과가 크다.[^1]
 - 스키마를 프롬프트에 하드코딩하면 DB 마이그레이션 때마다 수동 업데이트가 필요하고, 스키마 drift가 런타임 에러로 이어진다. LLM이 `pg_catalog`에서 런타임에 직접 조회하게 만들면 방지할 수 있다.[^1]
 - 복잡한 JOIN 패턴은 View로 미리 만들어두면 few-shot 예시보다 유지보수와 정확도 모두 낫다.[^1]
 - few-shot은 COMMENT 보강과 View 생성으로 해결이 안 될 때의 최후 수단이다. 유지보수 비용, 과적합 위험, 토큰 낭비가 단점이다.[^1]
@@ -87,10 +88,6 @@ async def query_business_db(sql: str) -> str:
 ```
 COMMENT 보강 → View 생성 → few-shot 추가
 ```
-
-## Connections
-
-- [[블로그-검색-실험]] - 같은 AI 시스템 품질 평가 문제를 검색 방법론 측면에서 다룬다
 
 ## Footnotes
 

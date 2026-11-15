@@ -12,7 +12,7 @@
  *   - summary length 1-500 chars, tags non-empty
  *   - `status`, `confidence`, `reviewed` hold allowed values when present
  *
- * Pages that declare `status` follow the v2 contract and must also pass:
+ * Contract v2 rules, applied to every page (status declared or not):
  *   - `confidence` present; `type` and `author` absent
  *   - `evergreen` pages carry a `reviewed` date
  *   - every footnote reference is defined
@@ -21,14 +21,14 @@
  *   - no hand-written related-pages section, no empty section
  *   - `## 생각의 변천` (when present) cites its sources
  *
- * Pages without `status` are legacy: the v2-only rules are reported as
- * warnings until the content migration (PR 2) moves every page to v2 and sets
- * ALLOW_LEGACY_PAGES to false. `--strict` applies that future gate now.
+ * Every page follows the v2 contract since the content migration. A page
+ * without `status` fails; ALLOW_LEGACY_PAGES (now false) once let such pages
+ * pass with warnings during the rollout. `--strict` is kept and is a no-op.
  *
  * Run via:
  *   bun .claude/skills/wiki-curator/scripts/verify.ts [--root <repo>] [--strict]
  *
- * Exit 0 = no failures (warnings allowed). Exit 1 = at least one failure.
+ * Exit 0 = no failures. Exit 1 = at least one failure.
  * scripts/verify-wiki.py must stay behaviorally equivalent (same output).
  */
 import fs from "node:fs/promises"
@@ -39,8 +39,8 @@ const rootArg = args.indexOf("--root")
 const ROOT = rootArg !== -1 && args[rootArg + 1] ? path.resolve(args[rootArg + 1]) : process.cwd()
 const WIKI_ROOT = path.join(ROOT, "content", "wiki")
 
-// Rollout switch: PR 2 (content migration) sets this to false.
-const ALLOW_LEGACY_PAGES = true
+// Rollout switch: false since the content migration; every page must declare `status`.
+const ALLOW_LEGACY_PAGES = false
 const STRICT = args.includes("--strict") || !ALLOW_LEGACY_PAGES
 
 const REQUIRED_FRONTMATTER = ["title", "tags", "sources", "summary", "created", "updated", "draft"]
@@ -62,6 +62,8 @@ const FOOTNOTE_DEF_RE = /^\[\^([^\]]+)\]:[ \t]*(.*)$/
 const FOOTNOTE_REF_RE = /\[\^([^\]]+)\](?!:)/g
 const QUOTE_RE = /"([^"\n]*)"|“([^”\n]*)”/g
 const INLINE_CODE_RE = /`[^`\n]*`/g
+// An inline link's destination and title, `](url "title")`: a title in quotes is not a quotation.
+const LINK_DESTINATION_RE = /\]\((?:[^()\n]|\([^()\n]*\))*\)/g
 const HEADING_RE = /^(#{1,6})[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$/
 const BLOCKQUOTE_RE = /^[ \t]*(?:>[ \t]?)+/
 const FENCE_RE = /^[ \t]*(`{3,}|~{3,})(.*)$/
@@ -394,7 +396,10 @@ async function v2Findings(body: string, offset: number): Promise<{ check: string
       }
     }
 
-    const codeRanges = [...line.matchAll(INLINE_CODE_RE)].map((m) => [m.index!, m.index! + m[0].length])
+    const codeRanges = [...line.matchAll(INLINE_CODE_RE), ...line.matchAll(LINK_DESTINATION_RE)].map((m) => [
+      m.index!,
+      m.index! + m[0].length,
+    ])
     for (const q of line.matchAll(QUOTE_RE)) {
       const start = q.index!
       if (codeRanges.some(([s, e]) => start >= s && start < e)) continue

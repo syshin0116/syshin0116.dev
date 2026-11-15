@@ -1,6 +1,5 @@
 ---
 title: "Tech intelligence radar"
-type: pattern
 tags:
   - GitHub
   - open-source
@@ -24,9 +23,11 @@ sources:
   - https://hn.algolia.com/api
   - https://info.arxiv.org/help/api/user-manual.html
   - https://huggingface.co/papers/trending
+status: budding
+confidence: medium
+reviewed: null
 created: 2026-05-18
-updated: 2026-10-25
-author: wiki-curator
+updated: 2026-11-15
 draft: false
 ---
 
@@ -328,13 +329,6 @@ Tech intelligence radar의 목적은 더 많은 탭을 열게 만드는 것이 �
 4. 버리거나 보류할 것은 무엇인가?
 
 이 네 질문에 답하지 못하는 수집은 정보 수집이 아니라 정보 부채다.
-
-## Related pages
-
-- [[llm-wiki]]
-- [[second-brain-rag]]
-- [[agentic-decision-workflow]]
-- [[blog-seo]]
 
 ## Footnotes
 

@@ -1,6 +1,5 @@
 ---
 title: "Docker 컨테이너 기초"
-type: concept
 tags:
   - docker
   - container
@@ -14,9 +13,11 @@ sources:
   - content/Tools/Docker/2023-05-08-Docker와 VM 차이.md
   - content/Tools/Docker/2023-11-09-Docker-실습.md
   - content/Tools/Docker/2024-03-27-Docker Compose에서 Flask와 MySQL 연결 문제.md
+status: budding
+confidence: high
+reviewed: null
 created: 2026-04-26
-updated: 2026-10-25
-author: wiki-curator
+updated: 2026-11-15
 draft: false
 ---
 
@@ -86,11 +87,6 @@ connection = pymysql.connect(
     database='mydb'
 )
 ```
-
-## Connections
-
-- [[github-actions-gcp-cicd]] - GitHub Actions CI/CD 파이프라인에서 Docker 이미지 빌드와 배포가 핵심 단계
-- [[ubuntu-server-setup]] - 서버 초기화 스크립트에 Docker CE 설치 포함
 
 ## Footnotes
 

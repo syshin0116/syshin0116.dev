@@ -1,6 +1,5 @@
 ---
 title: "Cursor Project Rules"
-type: tool
 tags:
   - Cursor
   - AI
@@ -12,9 +11,11 @@ tags:
 summary: "Cursor의 Project Rules 시스템은 .cursor/rules/ 디렉터리에 YAML+Markdown 파일로 파일 패턴별 AI 동작 규칙을 정의한다. 구버전 .cursorrules 파일보다 유연하고 버전 관리가 가능하며, 팀 코딩 컨벤션 표준화에 효과적이다."
 sources:
   - content/Tools/Cursor-Project-Rules.md
+status: seedling
+confidence: medium
+reviewed: null
 created: 2026-04-26
-updated: 2026-10-25
-author: wiki-curator
+updated: 2026-11-15
 draft: false
 ---
 
@@ -52,10 +53,6 @@ React 컴포넌트를 작성할 때 다음 규칙을 따른다:
 protobuf 파일은 자동 생성되므로 직접 수정하지 말고,
 원본 스키마를 수정한 후 재생성해야 한다.
 ```
-
-## Connections
-
-- [[vibe-coding]] - Project Rules는 vibe coding 워크플로우에서 AI 출력 품질을 높이는 보완 도구
 
 ## Footnotes
 

@@ -21,8 +21,8 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# Rollout switch: PR 2 (content migration) sets this to False.
-ALLOW_LEGACY_PAGES = True
+# Rollout switch: False since the content migration; every page must declare `status`.
+ALLOW_LEGACY_PAGES = False
 
 REQUIRED_FRONTMATTER = [
     "title",
@@ -60,6 +60,8 @@ FOOTNOTE_DEF_RE = re.compile(r"^\[\^([^\]]+)\]:[ \t]*(.*)$")
 FOOTNOTE_REF_RE = re.compile(r"\[\^([^\]]+)\](?!:)")
 QUOTE_RE = re.compile(r'"([^"\n]*)"|“([^”\n]*)”')
 INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
+# An inline link's destination and title, `](url "title")`: a title in quotes is not a quotation.
+LINK_DESTINATION_RE = re.compile(r"\]\((?:[^()\n]|\([^()\n]*\))*\)")
 HEADING_RE = re.compile(r"^(#{1,6})[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$")
 BLOCKQUOTE_RE = re.compile(r"^[ \t]*(?:>[ \t]?)+")
 FENCE_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})(.*)$")
@@ -409,7 +411,11 @@ def v2_findings(body: str, offset: int) -> list[tuple[str, str]]:
                     )
                 )
 
-        code_ranges = [(m.start(), m.end()) for m in INLINE_CODE_RE.finditer(line)]
+        code_ranges = [
+            (m.start(), m.end())
+            for pattern in (INLINE_CODE_RE, LINK_DESTINATION_RE)
+            for m in pattern.finditer(line)
+        ]
         for quoted in QUOTE_RE.finditer(line):
             start = quoted.start()
             if any(begin <= start < finish for begin, finish in code_ranges):

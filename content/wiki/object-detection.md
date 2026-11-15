@@ -1,6 +1,5 @@
 ---
 title: "딥러닝 객체 탐지(Object Detection)"
-type: concept
 tags:
   - object-detection
   - deep-learning
@@ -17,9 +16,11 @@ sources:
   - content/Study/SeSAC/2023-11-20-딥러닝 영상처리2.md
   - content/Study/SeSAC/2023-11-22-딥러닝 영상처리3.md
   - content/Study/SeSAC/2023-11-23-딥러닝 영상처리4.md
+status: budding
+confidence: high
+reviewed: null
 created: 2026-04-26
-updated: 2026-10-25
-author: wiki-curator
+updated: 2026-11-15
 draft: false
 ---
 
@@ -85,10 +86,6 @@ Selective Search 설치 및 사용:
 ```bash
 pip install selectivesearch
 ```
-
-## Connections
-
-- [[transformer-architecture]] - Transformer의 attention 메커니즘은 이후 Vision Transformer(ViT)를 통해 객체 탐지에도 적용됨
 
 ## Footnotes
 
