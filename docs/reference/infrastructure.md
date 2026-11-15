@@ -80,7 +80,7 @@ flowchart LR
 | Agent database | Mac mini (OrbStack) | Local Postgres 17 volume; no off-host backup yet |
 | Guest cleanup | Mac mini (OrbStack) | `maintenance` service, every 15 minutes |
 | Agent deploy | Mac mini (launchd) | `deploy.sh` every 5 minutes, only for `main` commits whose `ci/check` passed ([home-server-delivery.md](../runbooks/home-server-delivery.md)) |
-| Model, tracing | OpenAI, LangSmith | `openai:gpt-5.6-luna` for owner and guest runs |
+| Model, tracing | OpenAI, LangSmith | `openai:gpt-6-luna` for owner and guest runs |
 | Former agent host | GCP Cloud Run | Dormant while GCP billing is off ([cloud-run-delivery.md](../runbooks/cloud-run-delivery.md)) |
 
 Kaneo (`:443`) and the statusboard (`:8443`) share the Mac mini and its Tailscale name
