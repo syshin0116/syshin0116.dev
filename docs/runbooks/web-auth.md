@@ -8,7 +8,7 @@ when_to_read: >
   variables, or the Auth.js Neon branch.
 tags: [operations, authjs, oauth, postgres, neon, vercel]
 status: stable
-updated: "2026-09-27"
+updated: "2026-11-15"
 owners: ["@syshin0116"]
 refs:
   - ../adr/0007-postgres-on-neon-split-projects.md
@@ -164,10 +164,11 @@ preview and production. The custom-domain targets are
 Vercel callbacks until the canonical custom-domain DNS resolves and both HTTPS callback
 paths pass the preview-to-production acceptance gate.
 
-Sign-in accepts any email that the provider proves is verified. `AUTH_ALLOWED_EMAILS`
-is no longer read, even if a legacy value remains in the environment. All signed-in
-users receive `model:select` and the existing signed-in usage budget; `AUTH_ADMIN_EMAILS`
-separately controls the `admin` scope. Google
+Sign-in accepts only emails in `AUTH_ALLOWED_EMAILS` (comma-separated, case-insensitive)
+that the provider also proves verified. Production denies every sign-in while the list is
+empty. `/api/agent-token` re-checks the list, so a session that predates a removal gets
+`403` instead of a token. Allowed users receive `model:select`; `AUTH_ADMIN_EMAILS`
+separately controls the `admin` scope. Everyone else uses the anonymous chat. Google
 must return a matching `email_verified=true` claim. GitHub must return a matching primary,
 verified address from `/user/emails`. Provider API failures deny sign-in. Cross-provider
 account linking keeps Auth.js's safe default; `allowDangerousEmailAccountLinking` remains
@@ -180,8 +181,8 @@ Run all of these on preview with a fresh browser profile before production:
 
 1. GitHub login reaches its callback and creates one user, account, and session.
 2. Google login reaches its callback and applies the default account-linking rule.
-3. A new provider-verified address succeeds without an allowlist. An unverified
-   address is rejected and creates no persisted user or account.
+3. A listed provider-verified address succeeds. An unlisted or unverified address is
+   rejected and creates no persisted user or account.
 4. `/api/auth/session` returns a non-empty string user ID.
 5. `/api/agent-token` returns a JWT whose string `sub` equals that user ID and includes
    `model:select`. Only a user in `AUTH_ADMIN_EMAILS` receives `admin`.

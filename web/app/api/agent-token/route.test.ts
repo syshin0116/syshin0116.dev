@@ -40,6 +40,7 @@ function dependencies(
         ttl,
         scopes
       ),
+    isAllowed: (email) => email !== "outsider@example.com",
     isAdmin: (email) => email === "owner@example.com",
     env: VALID_ENV,
     nowSeconds: () => NOW,
@@ -205,7 +206,7 @@ describe("POST /api/agent-token signed-in precedence", () => {
     expect(payload.sub).toBe("42")
   })
 
-  test("grants a previously unlisted session signed-in access without an anonymous fallback", async () => {
+  test("forbids an unlisted signed-in session without an anonymous fallback", async () => {
     let botChecks = 0
     const session: Session = {
       user: {
@@ -228,11 +229,8 @@ describe("POST /api/agent-token signed-in precedence", () => {
 
     const response = await handler(request())
 
-    expect(response.status).toBe(200)
-    expect(jwtPayload((await responseBody(response)).token as string)).toMatchObject({
-      sub: "outsider-id",
-      scope: "model:select",
-    })
+    expect(response.status).toBe(403)
+    expect(await responseBody(response)).toEqual({ error: "Forbidden" })
     expect(setCookie(response)).toBeNull()
     expect(botChecks).toBe(0)
   })

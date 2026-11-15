@@ -1,6 +1,6 @@
 const AUTH_ERROR_MESSAGES: Readonly<Record<string, string>> = {
   AccessDenied:
-    "이메일 인증을 확인하지 못했습니다. Google 또는 GitHub에서 이메일 인증을 완료했는지 확인한 뒤 다시 시도해 주세요.",
+    "로그인이 허용되지 않은 계정입니다. 로그인 없이도 공개 체험으로 채팅할 수 있어요. 허용된 계정이라면 Google 또는 GitHub 이메일 인증을 완료했는지 확인해 주세요.",
   Configuration:
     "로그인 설정을 확인하는 중 문제가 발생했습니다. 잠시 뒤 다시 시도해 주세요.",
   OAuthAccountNotLinked:

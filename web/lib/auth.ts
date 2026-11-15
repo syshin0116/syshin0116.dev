@@ -15,6 +15,7 @@ import {
   readAuthRuntimeConfig,
 } from "@/lib/auth-config"
 import { canonicalAuthSubject } from "@/lib/auth-subject"
+import { isAllowedEmail } from "@/lib/allowed-email"
 import { hasVerifiedProviderEmail } from "@/lib/oauth-email"
 
 export type AuthPoolFactory = (
@@ -114,6 +115,16 @@ export function createAuthOptions(
     },
     callbacks: {
       async signIn({ user, account, profile }) {
+        const allowed = isAllowedEmail(
+          user.email,
+          typeof environment.AUTH_ALLOWED_EMAILS === "string"
+            ? environment.AUTH_ALLOWED_EMAILS
+            : "",
+          typeof environment.NODE_ENV === "string"
+            ? environment.NODE_ENV
+            : undefined
+        )
+        if (!allowed) return false
         return verifyProviderEmail({
           provider: account?.provider,
           email: user.email,

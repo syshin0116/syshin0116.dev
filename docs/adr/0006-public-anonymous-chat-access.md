@@ -74,6 +74,9 @@ allowlist. Every signed-in user receives model selection and the existing signed
 usage budget. `AUTH_ADMIN_EMAILS` remains the explicit admin boundary. Anonymous
 budgets and per-user resource isolation are unchanged.
 
+As of 2026-11-15, the allowlist is back: `AUTH_ALLOWED_EMAILS` gates both sign-in and
+signed-in token minting, because signed-in runs have no daily spend cap (`DECISIONS.md`).
+
 Capabilities are tiered:
 
 | | Anonymous | Signed-in | Owner (`admin`) |

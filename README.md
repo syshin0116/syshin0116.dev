@@ -94,9 +94,8 @@ Generate one Agent API secret and set the same value in both environments:
 openssl rand -hex 32
 ```
 
-Sign-in is open to verified Google and GitHub accounts. Signed-in users receive model
-selection and the existing signed-in usage budget; only `AUTH_ADMIN_EMAILS` grants admin
-access. Aegra's
+Sign-in is limited to verified Google and GitHub accounts listed in `AUTH_ALLOWED_EMAILS`.
+Signed-in users receive model selection; only `AUTH_ADMIN_EMAILS` grants admin access. Aegra's
 `/info`, `/live`, and `/ready` health surfaces remain public. Agent Protocol routes always
 require a signed, short-lived token. Production can issue one either from an authenticated
 Auth.js session or from the bodyless Vercel BotID Basic anonymous bootstrap. Anonymous

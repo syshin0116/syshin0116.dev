@@ -17,6 +17,7 @@ import {
 
 const VALID_ENV = {
   NODE_ENV: "production",
+  AUTH_ALLOWED_EMAILS: "new@example.com",
   DATABASE_URL:
     "postgresql://auth:secret@db.example.test/auth?sslmode=require",
   AUTH_SECRET: "auth-secret-with-at-least-thirty-two-bytes",
@@ -85,12 +86,16 @@ describe("Auth.js request-scoped Neon pool contract", () => {
     await Promise.all(pools.map(async (pool) => pool.end()))
   })
 
-  test.each([undefined, "owner@example.com"])(
-    "accepts a verified new Google user regardless of legacy allowlist %s",
-    async (legacyAllowlist) => {
+  test.each([
+    { allowlist: "new@example.com", nodeEnv: "production" },
+    { allowlist: "Owner@example.com, NEW@example.com", nodeEnv: "production" },
+    { allowlist: undefined, nodeEnv: "development" },
+  ])(
+    "accepts a verified Google user on the allowlist: %j",
+    async ({ allowlist, nodeEnv }) => {
       const pool = unconnectedNeonPool()
       const options = createAuthOptions(
-        { ...VALID_ENV, AUTH_ALLOWED_EMAILS: legacyAllowlist },
+        { ...VALID_ENV, AUTH_ALLOWED_EMAILS: allowlist, NODE_ENV: nodeEnv },
         () => pool
       )
       try {
@@ -100,6 +105,36 @@ describe("Auth.js request-scoped Neon pool contract", () => {
           profile: { email: "new@example.com", email_verified: true },
         })
         expect(accepted).toBe(true)
+      } finally {
+        await pool.end()
+      }
+    }
+  )
+
+  test.each([
+    { allowlist: "owner@example.com", nodeEnv: "production" },
+    { allowlist: undefined, nodeEnv: "production" },
+  ])(
+    "rejects a verified Google user who is not on the allowlist: %j",
+    async ({ allowlist, nodeEnv }) => {
+      const pool = unconnectedNeonPool()
+      let verified = 0
+      const options = createAuthOptions(
+        { ...VALID_ENV, AUTH_ALLOWED_EMAILS: allowlist, NODE_ENV: nodeEnv },
+        () => pool,
+        async () => {
+          verified += 1
+          return true
+        }
+      )
+      try {
+        const accepted = await options.callbacks!.signIn!({
+          user: { id: "new-user", email: "new@example.com", emailVerified: null },
+          account: { provider: "google", providerAccountId: "new-google-user", type: "oidc" },
+          profile: { email: "new@example.com", email_verified: true },
+        })
+        expect(accepted).toBe(false)
+        expect(verified).toBe(0)
       } finally {
         await pool.end()
       }
