@@ -76,7 +76,7 @@ export const projectsTimeline: ProjectTimeline[] = [
   // 진행 중인 프로젝트 (최신순)
   // --- BrainCrew (테디노트랩 Team RAG), 2026.03 ~ 현재 ---
   {
-    id: "skt-welfare-agent",
+    id: "welfare-agent",
     title: "사내 복지 AI Agent + 레거시 ERP 연동 PoC",
     period: "2026.05 ~ 진행 중",
     year: 2026,
@@ -89,8 +89,8 @@ export const projectsTimeline: ProjectTimeline[] = [
     company: "BrainCrew"
   },
   {
-    id: "skax-aipmo",
-    title: "AI PMO 자동화 - 멀티 에이전트 원가 생성",
+    id: "pm-automation-agent",
+    title: "PM 업무 자동화 - 멀티 에이전트 원가 생성",
     period: "2026.04 ~ 진행 중",
     year: 2026,
     periodType: "H",
@@ -177,7 +177,7 @@ export const projectsTimeline: ProjectTimeline[] = [
     periodType: "H",
     periodNumber: 2,
     isCompleted: true,
-    description: "대형 제약 그룹 MR 약 350명을 위한 RAG 기반 질의응답 시스템",
+    description: "대형 제약 그룹 MR 조직을 위한 RAG 기반 질의응답 시스템",
     tags: ["AI/ML", "LangGraph", "FastAPI", "Azure"],
     category: "company",
     company: "LabQ"
@@ -205,7 +205,7 @@ export const projectsTimeline: ProjectTimeline[] = [
     periodType: "H",
     periodNumber: 1,
     isCompleted: true,
-    description: "ES-20 COOH 변화 예측으로 온도/유량 사전 Action 가능, Polymer 반응성 안정 운전 지원",
+    description: "반응 공정 COOH 변화 예측으로 온도/유량 사전 Action 가능, Polymer 반응성 안정 운전 지원",
     tags: ["AI/ML", "Python", "LightGBM", "XGBoost", "시계열"],
     category: "company",
     company: "LabQ"
@@ -330,10 +330,10 @@ export const projectsTimeline: ProjectTimeline[] = [
 // Detailed project data for individual project pages
 export const projectsDetail: { [key: string]: ProjectDetail } = {
   // ===== BrainCrew (테디노트랩 Team RAG), 2026.03 ~ 현재 =====
-  // 고객 PoC(SK AX / SKT)는 고객사명·내부 시스템명·수치를 제거한 공개용 서술입니다.
-  "skax-aipmo": {
-    id: "skax-aipmo",
-    title: "AI PMO 자동화 - 멀티 에이전트 원가 생성",
+  // 고객 PoC는 고객사명·내부 시스템명·수치를 제거한 공개용 서술입니다.
+  "pm-automation-agent": {
+    id: "pm-automation-agent",
+    title: "PM 업무 자동화 - 멀티 에이전트 원가 생성",
     subtitle: "대기업 SI 고객사 PM 업무 자동화",
     period: "2026.04 ~ 진행 중",
     duration: "기술 PoC 약 1개월(2026.04 완료) 포함, 이후 후속 버전 진행 중",
@@ -355,8 +355,8 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         title: "에이전트 코어 설계",
         details: [
           "deepagents 기반 단일 통합 DeepAgent + tools + subagents 통합",
-          "이후 단일 main agent + audit_output tool 구조로 리팩토링",
-          "Glassbox emit을 LangGraph 표준(astream/subgraphs=True)으로 전면 전환",
+          "이후 단일 main agent + 감사(audit) tool 구조로 리팩토링",
+          "실행 과정 노출 이벤트를 LangGraph 표준(astream/subgraphs=True)으로 전면 전환",
           "uv monorepo(core/api/worker/web) 구조 전환"
         ]
       },
@@ -364,7 +364,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         title: "Self-Correction / Self-Evolving",
         details: [
           "Self-Correction 루프(researcher→generator→auditor) 구현",
-          "Skill overlay + auditor auto-feedback → skill_proposals → HITL → skill_overrides 적용",
+          "Skill overlay + 감사 자동 피드백 → 스킬 개선 제안 → HITL 승인 → 반영",
           "evaluator StateGraph + admin trigger + ARQ task로 평가 파이프라인 구축"
         ]
       },
@@ -383,13 +383,13 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
           "hybrid_search(벡터 + Kiwi BM25 RRF) 검색 도구 및 RAG 파이프라인 구축",
           "Langfuse 트레이스를 단일 root span으로 묶고 user/team/org metadata 자동 주입",
           "Azure AKS에 Langfuse self-host(Helm), Dynamic Sessions, Blob 등 인프라 구성",
-          "React 19 + Vite + Tailwind v4 기반 채팅·Glassbox·Inbox·유사사업 비교 UI 구현"
+          "React 19 + Vite + Tailwind v4 기반 채팅·실행 과정 노출·승인함·유사사업 비교 UI 구현"
         ]
       }
     ],
     achievements: [
       "기술 PoC 기간 단일 레포에 본인 커밋 317개로 데이터 모델·에이전트·인프라·프론트 전반을 구축하며 사실상 기술 리드급으로 기여",
-      "Self-Correction + Self-Evolving + Glass Box를 갖춘 자가진화형 AI PMO 컨셉을 동작 가능한 PoC로 검증",
+      "Self-Correction + Self-Evolving + Glass Box를 갖춘 자가진화형 PM 자동화 컨셉을 동작 가능한 PoC로 검증",
       "Text-to-SQL 안전성을 정규식에서 AST 검증 + RLS read-only TX로 강화하고 멀티모델 회귀 평가로 품질 정량 측정",
       "기술 PoC 종료 후 영업 PoC와 차기 재설계까지 연속 참여하며 production 아키텍처 전환 로드맵 수립"
     ],
@@ -400,8 +400,8 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       "클라우드 운영: Azure AKS 기반 self-host 관찰가능성 스택 구성"
     ]
   },
-  "skt-welfare-agent": {
-    id: "skt-welfare-agent",
+  "welfare-agent": {
+    id: "welfare-agent",
     title: "사내 복지 AI Agent + 레거시 ERP 연동 PoC",
     subtitle: "대기업 사내 복지 플랫폼 사용자향 AI 에이전트",
     period: "2026.05 ~ 진행 중",
@@ -411,7 +411,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     description: "대기업 사내 복지 플랫폼을 위한 사용자향 AI 에이전트 PoC. FastAPI + LangGraph + deepagents 기반 백엔드를 스캐폴딩부터 주도 개발하고, 사내 LLM gateway(OpenAI 호환) 연동, SSE 스트리밍, 사내 API 비동기 클라이언트, 카드형 도구(skill) 설계, 레거시 ERP(SAP RFC) HTTP 래퍼 연동까지 구현했다. Next.js 16/React 19 기반 챗·신청 위저드 프론트엔드도 함께 구축했다.",
     techStack: {
       languages: ["Python 3.12", "TypeScript"],
-      backend: ["FastAPI", "LangGraph", "LangChain", "deepagents", "httpx (async)", "cryptography (AES-128-CBC)"],
+      backend: ["FastAPI", "LangGraph", "LangChain", "deepagents", "httpx (async)", "cryptography"],
       frontend: ["Next.js 16 (App Router)", "React 19", "Tailwind CSS v4", "Framer Motion"],
       llm: ["사내 LLM gateway (OpenAI 호환)", "LangSmith", "Langfuse"],
       integration: ["사내 복지 API", "레거시 ERP(SAP RFC) via HTTP 래퍼", "사내 메일 Gateway"],
@@ -432,14 +432,14 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         title: "사내 게이트웨이 / 메일 연동",
         details: [
           "사내 LLM gateway OpenAI-호환 endpoint로 전환 (SSL 토글, 강제 streaming)",
-          "사내 메일 Gateway 연동: AES-128-CBC + PKCS5Padding 암호화 메일 클라이언트 구현",
+          "사내 메일 Gateway 연동: 암호화 메일 클라이언트 구현",
           "fail-fast 타임아웃 + PII-guard 로깅 토글로 운영 견고성 확보"
         ]
       },
       {
         title: "레거시 ERP(SAP RFC) 연동",
         details: [
-          "SAP RFC를 사내 rfc-wrapper HTTP endpoint 경유로 붙이는 클라이언트 구현",
+          "SAP RFC를 사내 HTTP 래퍼 경유로 붙이는 클라이언트 구현",
           "조회(R) 구현, 신청/취소(W)는 Spec 대기 stub로 분리",
           "read-only Protocol로 쓰기 호출이 새지 않도록 타입 경계 분리"
         ]
@@ -449,7 +449,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         details: [
           "Next.js 16/React 19/Tailwind v4 기반 챗 UI 구현",
           "4단계 신청 위저드 + 마이페이지",
-          "e-HR URL params 자동 폼 채움, 사번 오버라이드"
+          "사내 시스템에서 넘어온 파라미터로 신청 폼 자동 채움"
         ]
       }
     ],
@@ -601,7 +601,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     duration: "약 7개월",
     role: "AI 파트 리드 / 팀 PL",
     team: "팀원 3명 + 글로벌 컨설팅사 RA 5~6명 리딩",
-    description: "대형 제약 그룹의 MR 약 350명을 위한 AI 챗봇. 영업활동 기록, 제품 정보 검색, 고성과자 노하우 공유를 통한 성과 향상 지원. 제약 도메인 특화 RAG 기반 질의응답 시스템.",
+    description: "대형 제약 그룹의 MR 조직을 위한 AI 챗봇. 영업활동 기록, 제품 정보 검색, 고성과자 노하우 공유를 통한 성과 향상 지원. 제약 도메인 특화 RAG 기반 질의응답 시스템.",
     techStack: {
       backend: ["FastAPI", "Python"],
       database: ["MariaDB", "Qdrant (Vector DB)", "AWS Redshift", "Redis"],
@@ -612,7 +612,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     businessGoals: [
       {
         title: "생산성 향상 목표",
-        description: "MR 인당 생산성 11% 향상 (컨설팅사 예상치)"
+        description: "MR 인당 생산성 향상"
       },
       {
         title: "4R 전략",
@@ -640,8 +640,8 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       {
         metric: "답변 품질",
         before: "-",
-        after: "99% 만족도",
-        improvement: "AIX팀 정성 평가"
+        after: "고객 정성 평가 통과",
+        improvement: "반복 개선 후 승인"
       }
     ],
     architectureEvolution: [
@@ -678,7 +678,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         results: [
           "응답 속도 83% 개선 (3분 → 30초)",
           "답변 커버리지 233% 향상 (30% → 100%)",
-          "답변 품질 99% 만족도 달성"
+          "고객 정성 평가에서 답변 품질 승인"
         ]
       }
     ],
@@ -727,7 +727,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       },
       {
         title: "대기업 보안 정책",
-        description: "방화벽 신청 → 승인 → 작업 완료까지 5일 소요. 사전에 모든 담당자 파악, 직접 커뮤니케이션으로 극복"
+        description: "방화벽 신청 → 승인 → 작업 완료까지 시간이 오래 걸림. 사전에 모든 담당자 파악, 직접 커뮤니케이션으로 극복"
       },
       {
         title: "대규모 협업의 어려움",
@@ -736,7 +736,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     ],
     learnings: [
       "아키텍처 설계의 중요성: 개발자들이 이해하고 따라할 수 있는 명확한 구조 제공",
-      "고객 중심 개발: 약 10회 반복 개선 사이클로 99% 만족도 달성",
+      "고객 중심 개발: 약 10회 반복 개선 사이클로 고객 정성 평가 통과",
       "대기업 문화 이해: 변경 최소화 전략, 사전 조율 및 명확한 문서화",
       "성능 최적화 경험: 병목 지점 정확히 파악하고 단계적으로 개선",
       "멀티 팀 협업: 각 분야 최고 전문가들의 일하는 방식을 직접 관찰하고 배움",
@@ -767,7 +767,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         title: "서버 인프라 구축 및 배포",
         details: [
           "Docker Compose 기반 멀티 컨테이너 환경 구축",
-          "HTTPS 적용 및 도메인 설정 (https://agent.bigdata-car.kr/)",
+          "HTTPS 적용 및 고객 도메인 연결",
           "VPN 및 SSH 접속 환경 설정"
         ]
       },
@@ -1605,30 +1605,30 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     period: "2025.04 ~ 2025.07",
     duration: "약 3개월",
     role: "ML 모델 개발",
-    team: "DX Lab",
-    description: "ES-20 COOH 변화에 따라 Polymer 반응성이 변하여 제품 품질 Hunting이 발생하는 문제를 해결. COOH 변화 예측으로 온도/유량 사전 Action이 가능하게 하여 안정 운전 지원.",
+    team: "고객사 데이터 조직과 협업",
+    description: "반응 공정 COOH 변화에 따라 Polymer 반응성이 변하여 제품 품질 Hunting이 발생하는 문제를 해결. COOH 변화 예측으로 온도/유량 사전 Action이 가능하게 하여 안정 운전 지원.",
     techStack: {
       ml: ["scikit-learn", "LightGBM", "XGBoost"],
       dataprocessing: ["Python", "Pandas", "NumPy"],
-      datasource: ["RTIS", "ERP"]
+      datasource: ["공정 실시간 데이터", "ERP"]
     },
     businessGoals: [
       {
         title: "As-is",
-        description: "ES-20 COOH 변화에 따라 Polymer 반응성이 변하여 제품 품질 Hunting 발생"
+        description: "반응 공정 COOH 변화에 따라 Polymer 반응성이 변하여 제품 품질 Hunting 발생"
       },
       {
         title: "To-be",
-        description: "ES-20 COOH 변화 예측으로 온도/유량 사전 Action 가능, 안정 운전"
+        description: "반응 공정 COOH 변화 예측으로 온도/유량 사전 Action 가능, 안정 운전"
       }
     ],
     keyResponsibilities: [
       {
         title: "공정 데이터 분석 및 전처리",
         details: [
-          "ES-10/20 온도, 레벨, 압력, (열매/물) 유량 등 인풋 데이터 분석",
-          "ES-20 COOH 분석값 기반 피처 엔지니어링",
-          "RTIS, ERP 데이터 소스 통합 및 전처리"
+          "반응 설비 온도, 레벨, 압력, (열매/물) 유량 등 인풋 데이터 분석",
+          "반응 공정 COOH 분석값 기반 피처 엔지니어링",
+          "공정 실시간 데이터와 ERP 데이터 통합 및 전처리"
         ]
       },
       {
@@ -1646,7 +1646,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     ],
     learnings: [
       "화학 공정 도메인 지식: Copolyester 반응 메커니즘 이해",
-      "공정 데이터 특성: RTIS/ERP 데이터 전처리 노하우",
+      "공정 데이터 특성: 공정 실시간 데이터·ERP 전처리 노하우",
       "예측 모델의 실제 현장 적용: 모델 결과를 운전자 Action으로 연결"
     ]
   },
@@ -1657,7 +1657,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     period: "2025.02.24 ~ 2025.04.03",
     duration: "약 1개월",
     role: "Computer Vision 모델 개발",
-    team: "풍영환 (QA팀), 전한솔 (DT추진팀)",
+    team: "고객사 QA·DT 담당자와 협업",
     description: "PET Chip 특성상 원통형이고 불투명하여 선별기기의 한계로 오류값 다수 발생. 이미지 분석을 통해 사람이 직접 확인해야 하는 이미지 수를 최소화하는 모델 개발.",
     techStack: {
       ml: ["Python", "Computer Vision"],
@@ -1703,7 +1703,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     ],
     achievements: [
       "사람이 확인해야 하는 이미지 수 대폭 감소",
-      "산터우 공장 등 해외 공장 확대 가능성 확인"
+      "다른 생산 거점으로 확대 가능성 확인"
     ],
     challenges: [
       {
