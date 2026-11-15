@@ -31,6 +31,10 @@ Permanent notes find the meaning of a note in relation to existing knowledge.
 
 Choose keywords by asking in which situation you want to find this note again.
 
+## [Linked Heading](https://example.com/notes)
+
+A heading whose text is a link still anchors its own section.
+
 ```text
 "a quote inside a source code block"
 ```
@@ -372,6 +376,37 @@ class VerifyWikiTests(unittest.TestCase):
         self.assert_fails(
             body, "section-change-uncited", "`## 생각의 변천` must cite the sources"
         )
+
+    def test_footnote_syntax_inside_inline_code_is_not_a_reference(self) -> None:
+        body = VALID_BODY.replace(
+            "- The term",
+            "- The syntax for a citation is `[^example]`.\n"
+            '- An uncited quote: "too short" `[^9]`\n'
+            "- The term",
+        )
+        code, out = self.check({"page": page(body)})
+        self.assertEqual(code, 0, out)
+
+    def test_longer_fence_is_not_closed_by_a_shorter_inner_fence(self) -> None:
+        body = VALID_BODY.replace(
+            "## 생각의 변천",
+            '````markdown\n```text\n"short"[^not-a-reference]\n```\n````\n\n## 생각의 변천',
+        )
+        code, out = self.check({"page": page(body)})
+        self.assertEqual(code, 0, out)
+
+    def test_heading_anchor_matches_the_visible_text_of_a_linked_heading(self) -> None:
+        for anchor in ("Linked Heading", "linked-heading"):
+            with self.subTest(anchor=anchor):
+                body = VALID_BODY.replace(
+                    "- The term",
+                    '- "A heading whose text is a link still anchors its own section"[^3]\n- The term',
+                ).replace(
+                    "[^2]: content/Tools/source.md#keywords",
+                    f"[^2]: content/Tools/source.md#keywords\n[^3]: content/Tools/source.md#{anchor}",
+                )
+                code, out = self.check({"page": page(body)})
+                self.assertEqual(code, 0, out)
 
     def test_reported_lines_are_file_lines(self) -> None:
         text = page(VALID_BODY.replace("## Key Claims", "[[missing]]\n\n## Key Claims"))
