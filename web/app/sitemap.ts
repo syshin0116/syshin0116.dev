@@ -1,6 +1,6 @@
 import { blogPath } from "@/lib/blog-permalinks"
 import { MetadataRoute } from "next";
-import { projectsTimeline } from "@/data/projects";
+import { projects } from "@/data/projects";
 import sitemapData from "@/.generated/sitemap-data.json"
 import { SITE_URL } from "@/lib/site"
 
@@ -34,7 +34,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const projectRoutes: MetadataRoute.Sitemap = projectsTimeline.map((project) => ({
+  const projectRoutes: MetadataRoute.Sitemap = projects.map((project) => ({
     url: `${baseUrl}/projects/${project.id}`,
     lastModified: new Date(),
     changeFrequency: "monthly",

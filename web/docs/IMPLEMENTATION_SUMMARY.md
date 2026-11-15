@@ -1,5 +1,7 @@
 # Project Page 개선 - Implementation Summary
 
+> 초기 구현 기록입니다. 현재 데이터 구조(프로젝트당 레코드 하나)와 상세 페이지 구성은 [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)를 따릅니다.
+
 ## 완료 사항
 
 ### 1. 프로젝트 메인 페이지 (`/projects`)

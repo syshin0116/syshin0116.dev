@@ -1,14 +1,11 @@
 import Link from "next/link";
 import { Building2, ChevronRight, Code } from "lucide-react";
-import type { ProjectTimeline as Project } from "@/data/projects";
+import type { Project } from "@/data/projects";
+import { isOngoing, projectStart as startOf, sortByStart } from "@/lib/projects";
 
 interface ProjectTimelineProps {
-  projects: Project[];
+  projects: readonly Project[];
 }
-
-// "2026.03 ~ 진행 중" -> "2026.03"
-const startOf = (project: Project) => project.period.split(" ~ ")[0];
-const isOngoing = (project: Project) => project.period.includes("진행 중");
 
 function ProjectCard({ project }: { project: Project }) {
   return (
@@ -29,7 +26,7 @@ function ProjectCard({ project }: { project: Project }) {
           {project.company && `${project.company} · `}{project.period}
         </p>
         <p className="mt-2 text-sm leading-6 text-muted-foreground line-clamp-2">
-          {project.description}
+          {project.summary}
         </p>
       </Link>
       <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
@@ -65,7 +62,7 @@ function TimelineNode({ project }: { project: Project }) {
 }
 
 export default function ProjectTimelineView({ projects }: ProjectTimelineProps) {
-  const sorted = [...projects].sort((a, b) => startOf(b).localeCompare(startOf(a)));
+  const sorted = sortByStart(projects);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 md:px-6">

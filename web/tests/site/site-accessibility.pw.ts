@@ -515,8 +515,38 @@ test("project summaries stay visible and cards support keyboard navigation witho
   await attachScreenshot(page, testInfo, "project-keyboard-focus")
   await page.keyboard.press("Enter")
   await expect(page).toHaveURL(new RegExp(`${destination}$`))
-  await expect(page.getByText(title, { exact: true })).toBeVisible()
+  await expect(page.getByRole("heading", { level: 1, name: title, exact: true })).toBeVisible()
   await attachScreenshot(page, testInfo, "project-detail")
+})
+
+test("project detail leads with facts and metrics, keeps content expanded, and links neighbours", async ({ page }, testInfo) => {
+  await page.goto("/projects/sk-pharmaaix")
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("MR Assistant - 제약 영업 지원 AI 챗봇")
+
+  const metrics = page.getByRole("region", { name: "핵심 지표" })
+  await expect(metrics).toBeInViewport()
+  await expect(metrics.getByText("평균 30초", { exact: true })).toBeVisible()
+  await expect(page.getByText("83% 개선", { exact: false })).toHaveCount(1)
+
+  const headings = await page.getByRole("heading", { level: 2 }).allInnerTexts()
+  expect(headings).toEqual(["배경", "한 일", "기술 스택"])
+  await expect(page.getByText("Agent 구조, init, tool까지 직접 제작하여 배포")).toBeVisible()
+  await expect(page.locator('main [aria-expanded="false"]')).toHaveCount(0)
+  await expect(page.getByText("백엔드", { exact: true })).toBeVisible()
+  await expect(page.getByText(/^AIML$|^BACKEND$/)).toHaveCount(0)
+
+  const neighbours = page.getByRole("navigation", { name: "다른 프로젝트" }).getByRole("link")
+  await expect(neighbours).toHaveCount(2)
+  await expectNoHorizontalOverflow(page)
+  await expectA11yClean(page)
+  await attachScreenshot(page, testInfo, "project-detail-metrics")
+
+  await page.goto("/projects/nuartz")
+  const series = page.getByRole("region", { name: "관련 글" })
+  expect(await series.getByRole("link").count()).toBeGreaterThan(1)
+  await expectNoHorizontalOverflow(page)
+  await expectA11yClean(page)
+  await attachScreenshot(page, testInfo, "project-detail-series")
 })
 
 test("blog navigation preserves selection and folder keyboard controls on desktop and mobile", async ({ page }, testInfo) => {
