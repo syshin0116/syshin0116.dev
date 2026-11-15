@@ -10,11 +10,11 @@ import {
 describe("agent model selection", () => {
   test("only accepts the server allowlist and defaults to Luna", () => {
     expect(AGENT_MODELS).toEqual([
-      "gpt-5.6-luna",
-      "gpt-5.6-terra",
-      "gpt-5.6-sol",
+      "gpt-6-luna",
+      "gpt-6.1-terra",
+      "gpt-6.1-sol",
     ])
-    expect(isAgentModel("gpt-5.6-terra")).toBe(true)
+    expect(isAgentModel("gpt-6.1-terra")).toBe(true)
     expect(isAgentModel("gpt-5.6-arbitrary")).toBe(false)
     expect(normalizeAgentModel("gpt-5.6-arbitrary")).toBe(
       DEFAULT_AGENT_MODEL

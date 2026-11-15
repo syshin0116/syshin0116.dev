@@ -157,7 +157,7 @@ environment is rejected.
 The foundation retains four dormant Preview runtime secret containers and five Production
 runtime secret containers. Active delivery selects exactly four numeric Production
 versions: auth, runtime database, migration database, and OpenAI. Only Production uses the exact
-`openai:gpt-5.6-luna / 500000 / 53837` guest tuple and adds the numeric-version-pinned
+`openai:gpt-6-luna / 500000 / 53837` guest tuple and adds the numeric-version-pinned
 `openai-api-key`. The run reservation combines the 21,837 µUSD worst generation
 allocation from 8 calls at 768 output tokens per call and a 64,000-token generation
 ceiling with the separate 128,000-token aggregate count-risk ledger priced at Luna's

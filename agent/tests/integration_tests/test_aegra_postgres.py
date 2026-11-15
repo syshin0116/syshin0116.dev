@@ -202,7 +202,7 @@ def _openai_response(
         tool_calls=tool_calls or [],
         response_metadata={
             "model_provider": "openai",
-            "model_name": "gpt-5.6-luna",
+            "model_name": "gpt-6-luna",
             "status": "completed",
         },
         usage_metadata={
@@ -3106,7 +3106,7 @@ async def test_killed_factory_fence_quarantines_until_durable_owner_drain(
             context=None,
         )
         checkpointer = db_manager.get_checkpointer()
-        monkeypatch.setenv("GUEST_MODEL", "openai:gpt-5.6-luna")
+        monkeypatch.setenv("GUEST_MODEL", "openai:gpt-6-luna")
         monkeypatch.setattr(
             "agent.graph.acquire_guest_execution_fence",
             capture_fence,
@@ -4173,7 +4173,7 @@ async def test_aegra_factory_keeps_the_guest_fence_until_terminal_commit(
         model = ToolCapableFakeModel(
             responses=[AIMessage(content="provider-free guest factory proof")]
         )
-        monkeypatch.setenv("GUEST_MODEL", "openai:gpt-5.6-luna")
+        monkeypatch.setenv("GUEST_MODEL", "openai:gpt-6-luna")
         monkeypatch.setattr(
             "agent.graph._bounded_guest_model",
             lambda _model_spec, _safety_identifier: model,

@@ -106,7 +106,7 @@ and legacy registries and their direct IAM, state-bucket and state-object metada
 accounts and user-managed keys, Secret Manager metadata and direct IAM, WIF, Cloud Run
 Production service/jobs and their direct IAM, and the maintenance Scheduler.
 For anonymous runtime drift, Production must expose exactly
-`openai:gpt-5.6-luna / 500000 / 53837`; Preview has no Cloud Run service or job to inspect.
+`openai:gpt-6-luna / 500000 / 53837`; Preview has no Cloud Run service or job to inspect.
 Its registry, identities, and secret containers remain dormant. This verifies deployed
 direct state only and does not prove a provider-side hard spend stop, Scheduler execution,
 or retained operational evidence.

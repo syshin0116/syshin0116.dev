@@ -44,7 +44,7 @@ service or job is deployed:
 Production alone carries the owner-approved launch tuple:
 
 - `AGENT_ANONYMOUS_ACCESS_ENABLED=true`
-- `GUEST_MODEL=openai:gpt-5.6-luna`
+- `GUEST_MODEL=openai:gpt-6-luna`
 - `GUEST_DAILY_BUDGET_MICRO_USD=500000` ($0.50 per UTC day for the durable
   provider-request accounting ledger)
 - `GUEST_RUN_RESERVATION_MICRO_USD=53837`
@@ -60,7 +60,7 @@ paid model, budget, credential, or access flag unless a separate reviewed public
 contract first provisions its resources. Do not replace the reviewed constants with
 apply-time launch variables or a generic runtime toggle.
 
-The runtime accepts only `openai:gpt-5.6-luna` as the eventual non-empty
+The runtime accepts only `openai:gpt-6-luna` as the eventual non-empty
 `GUEST_MODEL`. It uses the OpenAI Responses API with reasoning disabled,
 `reasoning.context=current_turn` fixed explicitly to preserve the earlier
 stateless behavior, provider-side response storage disabled, and the official
@@ -78,8 +78,8 @@ failure to admit `n` under the generation cap retain `U` and exhaust the run. Th
 margin is a local heuristic, not a provider-documented hidden-token maximum or a
 last-mile wire proof.
 
-Signed-in tokens carry `model:select` and may select only `gpt-5.6-luna`,
-`gpt-5.6-terra`, or `gpt-5.6-sol` through `config.configurable.model`. All three use the
+Signed-in tokens carry `model:select` and may select only `gpt-6-luna`,
+`gpt-6.1-terra`, or `gpt-6.1-sol` through `config.configurable.model`. All three use the
 same server-held OpenAI key and bounded Responses client contract. Unknown values,
 top-level model overrides, and model selection without that permission fail before model
 construction. Guest commands continue to strip `configurable` entirely and always use
@@ -177,7 +177,7 @@ The serialization boundary is pinned to `langchain-openai==1.3.5` and
 `openai==2.53.0`; the dependency audit isolates both and keeps
 `langchain-openai` below the reviewed exclusive 1.4.0 compatibility ceiling
 until `langchain-core` moves beyond 1.4.9. The model's
-[official catalogue entry](https://developers.openai.com/api/docs/models/gpt-5.6-luna)
+[official catalogue entry](https://developers.openai.com/api/docs/models/gpt-6-luna)
 does not support the API Free tier. The owner approved the exact non-zero
 500,000 µUSD UTC-day accounting ceiling above, and the Production template now
 requires `OPENAI_API_KEY` from a reviewed positive numeric Secret Manager version.

@@ -485,7 +485,7 @@ run "foundation_security_contract" {
       production = {
         AGENT_ANONYMOUS_ACCESS_ENABLED  = "true"
         GUEST_DAILY_BUDGET_MICRO_USD    = "500000"
-        GUEST_MODEL                     = "openai:gpt-5.6-luna"
+        GUEST_MODEL                     = "openai:gpt-6-luna"
         GUEST_RUN_RESERVATION_MICRO_USD = "53837"
       }
     }
@@ -517,7 +517,7 @@ run "foundation_security_contract" {
         production = {
           AGENT_ANONYMOUS_ACCESS_ENABLED  = "true"
           GUEST_DAILY_BUDGET_MICRO_USD    = "500000"
-          GUEST_MODEL                     = "openai:gpt-5.6-luna"
+          GUEST_MODEL                     = "openai:gpt-6-luna"
           GUEST_RUN_RESERVATION_MICRO_USD = "53837"
         }
       }
