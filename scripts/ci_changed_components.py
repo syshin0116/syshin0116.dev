@@ -59,6 +59,7 @@ OPS_FOUNDATION_PATHS = frozenset(
 WIKI_CONTRACT_PATHS = frozenset(
     {
         "scripts/verify-wiki.py",
+        "scripts/tests/test_verify_wiki.py",
     }
 )
 WIKI_CONTRACT_PREFIXES = (
@@ -66,6 +67,7 @@ WIKI_CONTRACT_PREFIXES = (
     # break a citation.
     "content/",
     ".agents/skills/wiki-curator/",
+    ".claude/skills/wiki-curator/",
 )
 PROTOCOL_CONTRACT_PATHS = frozenset(
     {

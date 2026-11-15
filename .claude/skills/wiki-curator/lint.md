@@ -123,11 +123,33 @@ If any output → routine illegally modified source material. Report and roll ba
 
 ### 10. Mandatory section presence (severity: yellow)
 
-Every page must have `## Key Claims`. Body `## Summary` is forbidden — summary lives in frontmatter; `verify.ts` enforces this.
+Every page must have `## Key Claims`. Body `## Summary` is forbidden: summary lives in frontmatter; `verify.ts` enforces this.
 
 ```bash
 for page in content/wiki/*.md; do
   grep -q "^## Key Claims" "$page" || echo "$page (no Key Claims)"
+done
+```
+
+### 11. Contract v2 rollout (severity: yellow while legacy pages remain)
+
+Report the verifier's `WARN` block: legacy pages (no `status`) and the v2 rules they would fail, such as quotes not found in their source and `## Connections` sections.
+
+```bash
+bun .claude/skills/wiki-curator/scripts/verify.ts --strict
+```
+
+### 12. Growth stages and reviews (severity: blue)
+
+Count pages by `status` and list:
+
+- `evergreen` pages whose `updated` is later than `reviewed` (the page changed after the human check; yellow).
+- `seedling` pages older than 12 months with a single source (candidates to grow, merge, or retire).
+- `confidence: low` pages.
+
+```bash
+for page in content/wiki/*.md; do
+  awk -v f="$page" '/^status:/{s=$2} /^confidence:/{c=$2} /^reviewed:/{r=$2} /^updated:/{u=$2} END{print f"\t"s"\t"c"\t"r"\t"u}' "$page"
 done
 ```
 
@@ -169,7 +191,10 @@ Output a single markdown report:
 ### Stale pages (>18 months)
 - ...
 
-### Coverage mismatches
+### Legacy pages and v2 warnings
+- ...
+
+### Evergreen pages changed after review
 - ...
 
 ### Pages missing mandatory sections
@@ -179,6 +204,11 @@ Output a single markdown report:
 
 ### Pages with contradictions
 - ...
+
+### Growth stages
+- seedling: N, budding: N, evergreen: N, legacy: N
+- Old single-source seedlings: ...
+- Low-confidence pages: ...
 
 ### Tag vocabulary
 - Single-use tags (consolidation candidates):

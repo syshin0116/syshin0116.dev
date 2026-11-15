@@ -92,7 +92,9 @@ class BoundaryClassificationTests(unittest.TestCase):
             "content/wiki/rag.md",
             "content/AI/example.md",
             ".agents/skills/wiki-curator/scripts/verify.ts",
+            ".claude/skills/wiki-curator/conventions.md",
             "scripts/verify-wiki.py",
+            "scripts/tests/test_verify_wiki.py",
             ".github/workflows/ci.yml",
             "scripts/ci_changed_components.py",
         ):
