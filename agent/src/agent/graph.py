@@ -93,7 +93,11 @@ from agent.run_liveness import (
     acquire_guest_execution_fence,
     validate_guest_execution_fencing_factory,
 )
-from agent.signed_in_budget import default_signed_in_ledger, settle_signed_in_run
+from agent.signed_in_budget import (
+    await_signed_in_settlement,
+    default_signed_in_ledger,
+    settle_signed_in_run,
+)
 from agent.tools import TOOLS
 
 DEFAULT_MODEL = OPENAI_GUEST_MODEL_SPEC
@@ -963,34 +967,38 @@ async def graph(
         raise
     finally:
         try:
-            await _await_quickjs_cleanup(quickjs_middleware)
-        except BaseException:
-            if execution_error is None:
-                raise
-            logger.exception(
-                "QuickJS cleanup failed; preserving the active graph exception"
+            try:
+                await _await_quickjs_cleanup(quickjs_middleware)
+            except BaseException:
+                if execution_error is None:
+                    raise
+                logger.exception(
+                    "QuickJS cleanup failed; preserving the active graph exception"
+                )
+        finally:
+            snapshot = budget.snapshot()
+            if settles_signed_in_spend:
+                await await_signed_in_settlement(
+                    settle_signed_in_run(
+                        default_signed_in_ledger(),
+                        identity=runtime.user.identity,
+                        snapshot=snapshot,
+                        model_spec=_settlement_model_spec(config, runtime),
+                    )
+                )
+            logger.debug(
+                (
+                    "run budget observed policy=%s model=%d tool=%d quickjs=%d "
+                    "task=%d tokens=%d count_risk=%d"
+                ),
+                snapshot.policy_id,
+                snapshot.model_calls,
+                snapshot.tool_calls,
+                snapshot.quickjs_calls,
+                snapshot.task_calls,
+                snapshot.charged_tokens,
+                snapshot.count_risk_tokens,
             )
-        snapshot = budget.snapshot()
-        if settles_signed_in_spend:
-            await settle_signed_in_run(
-                default_signed_in_ledger(),
-                identity=runtime.user.identity,
-                snapshot=snapshot,
-                model_spec=_settlement_model_spec(config, runtime),
-            )
-        logger.debug(
-            (
-                "run budget observed policy=%s model=%d tool=%d quickjs=%d "
-                "task=%d tokens=%d count_risk=%d"
-            ),
-            snapshot.policy_id,
-            snapshot.model_calls,
-            snapshot.tool_calls,
-            snapshot.quickjs_calls,
-            snapshot.task_calls,
-            snapshot.charged_tokens,
-            snapshot.count_risk_tokens,
-        )
 
 
 def _validate_aegra_registration() -> None:
