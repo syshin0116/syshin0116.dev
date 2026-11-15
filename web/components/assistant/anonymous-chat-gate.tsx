@@ -18,8 +18,8 @@ import { ANONYMOUS_AGENT_TOKEN_INTENT } from "@/lib/agent-token-intent"
 
 import { AgentRuntimeProvider } from "./agent-runtime-provider"
 import { ChatShell, SignedOutChat } from "./chat-shell"
+import { classifyAgentError } from "./runtime/error-state"
 import {
-  AnonymousBootstrapError,
   bootstrapAnonymousSession,
   resolveAnonymousChatConfig,
   type AnonymousCredential,
@@ -34,16 +34,6 @@ type GateState =
     }
   | { phase: "unavailable"; message: string }
 
-function failureMessage(error: AnonymousBootstrapError): string {
-  switch (error.kind) {
-    case "network":
-      return "네트워크 연결을 확인한 뒤 다시 시도해 주세요."
-    case "rate-limited":
-      return "공개 체험 요청이 잠시 많습니다. 잠시 뒤 다시 시도해 주세요."
-    case "unavailable":
-      return "공개 AI 체험을 지금 연결할 수 없습니다."
-  }
-}
 
 function GateCard({
   children,
@@ -116,11 +106,10 @@ export function AnonymousChatGate() {
       ) {
         return
       }
-      const sanitized =
-        error instanceof AnonymousBootstrapError
-          ? failureMessage(error)
-          : "공개 AI 체험을 지금 연결할 수 없습니다."
-      setState({ phase: "unavailable", message: sanitized })
+      setState({
+        phase: "unavailable",
+        message: classifyAgentError(error, "connection", { audience: "guest" }).message,
+      })
     }
   }, [])
 
@@ -182,7 +171,7 @@ export function AnonymousChatGate() {
   return (
     <GateCard
       icon={<Bot className="size-5" />}
-      title="공개 체험에 연결하지 못했습니다"
+      title="공개 체험에 연결하지 못했어요"
       message={state.message}
     >
       <Button

@@ -18,7 +18,10 @@ import {
   useRef,
   useState,
 } from "react"
-import type { AgentTokenIntent } from "@/lib/agent-token-intent"
+import {
+  ANONYMOUS_AGENT_TOKEN_INTENT,
+  type AgentTokenIntent,
+} from "@/lib/agent-token-intent"
 import {
   DEFAULT_AGENT_MODEL,
   normalizeAgentModel,
@@ -34,6 +37,7 @@ import { normalizeAgentApiUrl } from "./runtime/agent-config"
 import { warmAgent } from "./runtime/agent-warmup"
 import {
   reduceAgentError,
+  type AgentAudience,
   type AgentErrorRoutingState,
 } from "./runtime/error-state"
 import { withAegraRunBoundaries } from "./runtime/aegra-run-boundary"
@@ -45,6 +49,7 @@ const MAX_VISIBLE_ACTIVITIES = 24
 type InspectionAvailability = "waiting" | "live" | "past-unavailable"
 
 type AgentRuntimeUiState = AgentErrorRoutingState & {
+  audience: AgentAudience
   activities: readonly AgentActivity[]
   activeThreadId?: string
   inspectionAvailability: InspectionAvailability
@@ -109,13 +114,15 @@ function ConfiguredAgentRuntimeProvider({
     const normalized = normalizeAgentModel(model)
     setSelectedModelState(normalized)
   }, [])
+  const audience: AgentAudience =
+    tokenIntent === ANONYMOUS_AGENT_TOKEN_INTENT ? "guest" : "signed-in"
   const [errorRouting, setErrorRouting] = useState<AgentErrorRoutingState & { turnErrorThreadId?: string }>({
     connectionStatus: "connecting",
   })
   const handleAuthenticationExpired = useCallback(() => {
-    setErrorRouting((current) => reduceAgentError(current, new AgentAuthenticationError("Agent session expired", 401), "turn"))
+    setErrorRouting((current) => reduceAgentError(current, new AgentAuthenticationError("Agent session expired", 401), "turn", { audience }))
     onAuthenticationExpired?.()
-  }, [onAuthenticationExpired])
+  }, [audience, onAuthenticationExpired])
   const tokenBroker = useMemo(() => new AgentTokenBroker(identity, {
     agentOrigin: apiUrl,
     initialToken,
@@ -145,8 +152,8 @@ function ConfiguredAgentRuntimeProvider({
     ])
   }, [])
   const handleRuntimeError = useCallback((error: unknown, threadId?: string) => {
-    setErrorRouting((current) => ({ ...reduceAgentError(current, error, "turn"), turnErrorThreadId: threadId }))
-  }, [])
+    setErrorRouting((current) => ({ ...reduceAgentError(current, error, "turn", { audience }), turnErrorThreadId: threadId }))
+  }, [audience])
   const dismissTurnError = useCallback(() => {
     setErrorRouting((current) => ({
       ...current,
@@ -210,18 +217,20 @@ function ConfiguredAgentRuntimeProvider({
             error instanceof Error
               ? error
               : new Error("Agent authentication preparation failed"),
-            "connection"
+            "connection",
+            { audience }
           )
         )
       })
     return () => {
       controller.abort()
     }
-  }, [apiUrl, connectionAttempt, tokenBroker])
+  }, [apiUrl, audience, connectionAttempt, tokenBroker])
 
   const context = useMemo<AgentRuntimeUiState>(
     () => ({
       ...errorRouting,
+      audience,
       turnError: errorRouting.turnErrorThreadId === activeThreadId ? errorRouting.turnError : undefined,
       activities,
       activeThreadId,
@@ -237,6 +246,7 @@ function ConfiguredAgentRuntimeProvider({
     [
       activeThreadId,
       activities,
+      audience,
       beginTurn,
       runStartRejections,
       dismissTurnError,
