@@ -28,6 +28,12 @@ EXPECTED_AUTH = {
 EXPECTED_HTTP = {
     "app": "agent.http:app",
     "enable_custom_route_auth": False,
+    # Aegra's defaults plus Retry-After, which the chat reads on 429 and 503.
+    "cors": {
+        "allow_origins": ["*"],
+        "allow_credentials": False,
+        "expose_headers": ["Content-Location", "Location", "Retry-After"],
+    },
 }
 
 

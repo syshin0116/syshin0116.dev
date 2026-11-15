@@ -235,6 +235,26 @@ _MIGRATIONS: Sequence[tuple[str, Sequence[str]]] = (
             """,
         ),
     ),
+    (
+        "0004_signed_in_daily_spend",
+        (
+            """
+            CREATE TABLE IF NOT EXISTS agent_signed_in_daily_spend (
+                identity text NOT NULL,
+                budget_date date NOT NULL,
+                spent_micro_usd bigint NOT NULL,
+                run_count bigint NOT NULL,
+                updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT agent_signed_in_daily_spend_pkey
+                    PRIMARY KEY (identity, budget_date),
+                CONSTRAINT agent_signed_in_daily_spend_nonnegative
+                    CHECK (spent_micro_usd >= 0),
+                CONSTRAINT agent_signed_in_daily_spend_run_count_positive
+                    CHECK (run_count >= 1)
+            )
+            """,
+        ),
+    ),
 )
 
 

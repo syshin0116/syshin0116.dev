@@ -93,6 +93,7 @@ from agent.run_liveness import (
     acquire_guest_execution_fence,
     validate_guest_execution_fencing_factory,
 )
+from agent.signed_in_budget import default_signed_in_ledger, settle_signed_in_run
 from agent.tools import TOOLS
 
 DEFAULT_MODEL = OPENAI_GUEST_MODEL_SPEC
@@ -874,6 +875,22 @@ async def _await_quickjs_cleanup(middleware: BoundedQuickJSMiddleware) -> None:
         raise interrupted
 
 
+def _settlement_model_spec(
+    config: RunnableConfig,
+    runtime: ServerRuntime[Any],
+) -> str | None:
+    """Resolve the run's model for pricing; ``None`` prices at the top rate."""
+    try:
+        return (
+            _requested_owner_model_spec(
+                config, runtime, is_guest=False, injected_model=None
+            )
+            or _normalized_model_spec()
+        )
+    except (RuntimeError, ValueError):
+        return None
+
+
 @asynccontextmanager
 async def graph(
     config: RunnableConfig,
@@ -891,6 +908,12 @@ async def graph(
         or dynamic_subagents_allowed(runtime, server_enabled=True)
         or quickjs_allowed(runtime),
         subagents=is_guest or dynamic_subagents_allowed(runtime, server_enabled=True),
+    )
+    settles_signed_in_spend = (
+        not is_guest
+        and runtime.access_context == "threads.create_run"
+        and isinstance(getattr(runtime.user, "identity", None), str)
+        and bool(runtime.user.identity)
     )
     if is_guest and runtime.access_context == "threads.create_run":
         configurable = config.get("configurable")
@@ -948,6 +971,13 @@ async def graph(
                 "QuickJS cleanup failed; preserving the active graph exception"
             )
         snapshot = budget.snapshot()
+        if settles_signed_in_spend:
+            await settle_signed_in_run(
+                default_signed_in_ledger(),
+                identity=runtime.user.identity,
+                snapshot=snapshot,
+                model_spec=_settlement_model_spec(config, runtime),
+            )
         logger.debug(
             (
                 "run budget observed policy=%s model=%d tool=%d quickjs=%d "

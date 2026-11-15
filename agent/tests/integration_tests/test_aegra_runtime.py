@@ -130,6 +130,11 @@ def test_aegra_config_registers_the_compiled_graph():
         "http": {
             "app": "agent.http:app",
             "enable_custom_route_auth": False,
+            "cors": {
+                "allow_origins": ["*"],
+                "allow_credentials": False,
+                "expose_headers": ["Content-Location", "Location", "Retry-After"],
+            },
         },
     }
     assert tuple(inspect.signature(graph).parameters) == ("config", "runtime")

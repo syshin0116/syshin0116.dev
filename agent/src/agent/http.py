@@ -62,6 +62,11 @@ from agent.public_wire import (
     GuestWireProjectionError,
 )
 from agent.quarantine import guest_thread_has_unresolved_quarantine
+from agent.signed_in_budget import (
+    SignedInDailyBudgetExhaustedError,
+    SignedInSpendLedger,
+    default_signed_in_ledger,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -755,6 +760,14 @@ def _guest_route_kind(scope: Scope) -> str | None:
     return None
 
 
+def _seconds_until_next_utc_day(wall_clock: Any) -> int:
+    now = datetime.fromtimestamp(float(wall_clock()), tz=UTC)
+    next_day = (now + timedelta(days=1)).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+    return max(1, math.ceil((next_day - now).total_seconds()))
+
+
 def _is_guest_user(user: object) -> bool:
     if not isinstance(user, dict):
         return False
@@ -1360,20 +1373,7 @@ class GuestRunGuard:
                 try:
                     await self._spend_ledger.reserve_run()
                 except GuestDailyBudgetExhaustedError:
-                    now = datetime.fromtimestamp(
-                        float(self._wall_clock()),
-                        tz=UTC,
-                    )
-                    next_day = (now + timedelta(days=1)).replace(
-                        hour=0,
-                        minute=0,
-                        second=0,
-                        microsecond=0,
-                    )
-                    retry_after = max(
-                        1,
-                        math.ceil((next_day - now).total_seconds()),
-                    )
+                    retry_after = _seconds_until_next_utc_day(self._wall_clock)
                     await _json_response(
                         scope,
                         receive,
@@ -1564,11 +1564,70 @@ class GuestIngressGuard(GuestRunGuard):
 class NativeThreadGuard:
     """Enforce owner-safe APv2 mutations with guest-only PostgreSQL serialization."""
 
-    def __init__(self, app: ASGIApp, *, max_active_threads: int = 64) -> None:
+    def __init__(
+        self,
+        app: ASGIApp,
+        *,
+        max_active_threads: int = 64,
+        signed_in_ledger: SignedInSpendLedger | None = None,
+        enforce_signed_in_budget: bool = False,
+        wall_clock: Any = time.time,
+    ) -> None:
+        if not isinstance(enforce_signed_in_budget, bool):
+            raise TypeError("enforce_signed_in_budget must be a boolean")
+        if enforce_signed_in_budget and signed_in_ledger is None:
+            signed_in_ledger = default_signed_in_ledger()
         self.app = app
         self.max_active_threads = max_active_threads
+        self._signed_in_ledger = signed_in_ledger
+        self._wall_clock = wall_clock
         self._active: set[str] = set()
         self._active_owners: dict[str, str] = {}
+
+    async def _admit_signed_in_run(
+        self,
+        identity: str,
+        scope: Scope,
+        receive: Receive,
+        send: Send,
+    ) -> bool:
+        """Reject a spending command once the account spent today's limit."""
+        assert self._signed_in_ledger is not None
+        try:
+            await self._signed_in_ledger.ensure_available(identity)
+        except SignedInDailyBudgetExhaustedError:
+            await _json_response(
+                scope,
+                receive,
+                send,
+                status_code=429,
+                content={
+                    "error": "daily_budget_exhausted",
+                    "message": "Signed-in daily budget is exhausted",
+                },
+                headers={
+                    "Retry-After": str(_seconds_until_next_utc_day(self._wall_clock))
+                },
+            )
+            return False
+        except Exception as error:
+            logger.error(
+                "signed-in spend ledger read failed error_type=%s",
+                type(error).__name__,
+            )
+            await _json_response(
+                scope,
+                receive,
+                send,
+                status_code=503,
+                content={
+                    "error": "service_unavailable",
+                    "message": "Signed-in run budget is unavailable",
+                },
+                headers={"Retry-After": "60"},
+            )
+            return False
+        return True
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -1942,6 +2001,12 @@ class NativeThreadGuard:
                     },
                 )
                 return
+            if (
+                not is_guest
+                and self._signed_in_ledger is not None
+                and not await self._admit_signed_in_run(identity, scope, receive, send)
+            ):
+                return
             await self.app(scope, receive, send)
         finally:
             self._active.discard(thread_id)
@@ -2007,7 +2072,7 @@ def _validate_production_middleware_order() -> None:
 
 
 app.add_middleware(GuestRunGuard, enforce_daily_budget=True)
-app.add_middleware(NativeThreadGuard)
+app.add_middleware(NativeThreadGuard, enforce_signed_in_budget=True)
 app.add_middleware(GuestIngressGuard)
 _validate_production_middleware_order()
 

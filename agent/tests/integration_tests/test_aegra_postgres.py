@@ -94,6 +94,10 @@ from agent.run_liveness import (
     wait_for_guest_execution_fence_monitors,
 )
 from agent.schema import AgentSchemaMigrationError, migrate_agent_schema
+from agent.signed_in_budget import (
+    PostgresSignedInSpendLedger,
+    SignedInDailyBudgetExhaustedError,
+)
 
 POSTGRES_URL = os.environ.get("AEGRA_POSTGRES_TEST_URL")
 RUN_JS_SDK_E2E = os.environ.get("AEGRA_JS_SDK_E2E") == "1"
@@ -1230,6 +1234,7 @@ async def test_postgres_migration_factory_static_and_pool_restart_persistence(
             "agent_schema_migrations",
             "agent_guest_daily_budget",
             "agent_guest_execution_quarantine",
+            "agent_signed_in_daily_spend",
         } <= tables
         assert versions == ["a3f7c1d9e2b4"]
 
@@ -1816,6 +1821,47 @@ async def test_guest_interrupt_validation_reads_latest_postgres_root_state(
             await connection.execute(
                 "DELETE FROM thread WHERE thread_id = %s",
                 (thread_id,),
+            )
+        await db_manager.close()
+        aegra_orm.async_session_maker = None
+        settings.db.DATABASE_URL = previous_url
+        db_manager._database_url = previous_manager_url
+
+
+async def test_signed_in_daily_spend_is_per_account_and_blocks_after_the_limit():
+    assert POSTGRES_URL is not None
+    previous_url = settings.db.DATABASE_URL
+    previous_manager_url = db_manager._database_url
+    settings.db.DATABASE_URL = POSTGRES_URL
+    db_manager._database_url = settings.db.database_url
+    account = f"account-{uuid4().hex}"
+    other = f"account-{uuid4().hex}"
+    try:
+        await migrate_database()
+        await db_manager.initialize()
+        ledger = PostgresSignedInSpendLedger(1_000)
+
+        await ledger.ensure_available(account)
+        await ledger.settle(account, 600)
+        await ledger.ensure_available(account)
+        await ledger.settle(account, 600)
+        with pytest.raises(SignedInDailyBudgetExhaustedError):
+            await ledger.ensure_available(account)
+        # Another account keeps its own allowance.
+        await ledger.ensure_available(other)
+
+        async with await psycopg.AsyncConnection.connect(POSTGRES_URL) as connection:
+            cursor = await connection.execute(
+                "SELECT spent_micro_usd, run_count FROM agent_signed_in_daily_spend "
+                "WHERE identity = %s",
+                (account,),
+            )
+            assert await cursor.fetchall() == [(1_200, 2)]
+    finally:
+        async with await psycopg.AsyncConnection.connect(POSTGRES_URL) as connection:
+            await connection.execute(
+                "DELETE FROM agent_signed_in_daily_spend WHERE identity = ANY(%s)",
+                ([account, other],),
             )
         await db_manager.close()
         aegra_orm.async_session_maker = None

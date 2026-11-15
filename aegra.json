@@ -11,6 +11,17 @@
   },
   "http": {
     "app": "agent.http:app",
-    "enable_custom_route_auth": false
+    "enable_custom_route_auth": false,
+    "cors": {
+      "allow_origins": [
+        "*"
+      ],
+      "allow_credentials": false,
+      "expose_headers": [
+        "Content-Location",
+        "Location",
+        "Retry-After"
+      ]
+    }
   }
 }
