@@ -78,11 +78,11 @@ export const projectsTimeline: ProjectTimeline[] = [
   {
     id: "welfare-agent",
     title: "사내 복지 AI Agent + 레거시 ERP 연동 PoC",
-    period: "2026.05 ~ 진행 중",
+    period: "2026.05 ~ 2026.07",
     year: 2026,
     periodType: "H",
     periodNumber: 1,
-    isCompleted: false,
+    isCompleted: true,
     description: "대기업 사내 복지 플랫폼을 위한 사용자향 AI 에이전트. FastAPI + LangGraph + deepagents 백엔드를 스캐폴딩부터 주도 개발하고 사내 API·레거시 ERP(SAP RFC) HTTP 래퍼 연동 및 Next.js 챗 UI까지 구현.",
     tags: ["AI/ML", "LangGraph", "FastAPI", "Next.js 16", "SAP RFC"],
     category: "company",
@@ -96,7 +96,7 @@ export const projectsTimeline: ProjectTimeline[] = [
     periodType: "H",
     periodNumber: 1,
     isCompleted: false,
-    description: "대기업 SI 고객사의 PM 업무(원가 산정·RFP 분석·유사사업 추천)를 자동화하는 멀티 에이전트 시스템. Self-Correction·Self-Learning·Glass Box를 갖춘 자가진화형 구조를 기술 PoC(2026.04 완료)로 검증하고, 후속 단계(CBT·재설계 1.5)를 거쳐 2.0(~2026.10 예정)으로 이어지고 있다.",
+    description: "대기업 SI 고객사의 PM 업무(원가 산정·RFP 분석·유사사업 추천)를 자동화하는 멀티 에이전트 시스템. Self-Correction·Self-Learning·Glass Box를 갖춘 자가진화형 구조를 기술 PoC(2026.04 완료)로 검증하고, 후속 단계(CBT·재설계 1.5)를 거쳐 2.0 작업을 이어가고 있다.",
     tags: ["AI/ML", "LangGraph", "deepagents", "Azure", "Text-to-SQL"],
     category: "company",
     company: "BrainCrew"
@@ -109,8 +109,8 @@ export const projectsTimeline: ProjectTimeline[] = [
     periodType: "H",
     periodNumber: 1,
     isCompleted: false,
-    description: "팀원이 쌓은 자유 형식 메모를 AI 루틴이 cross-link된 위키 문서로 자동 정제·발행하는 Git-native 파이프라인. 사람(원본)과 AI(정제본)의 쓰기 권한을 단방향으로 분리하고 pre-commit hook + CI로 이중 강제. 레포 100커밋 중 95커밋 단독.",
-    tags: ["AI Agent", "Next.js 16", "GitHub Actions", "LLM", "자동화"],
+    description: "팀원이 쌓은 자유 형식 메모를 AI 루틴이 cross-link된 위키 문서로 자동 정제·발행하는 Git-native 파이프라인. 사람(원본)과 AI(정제본)의 쓰기 권한을 단방향으로 분리했고, 초기에는 pre-commit hook + CI로 이중 강제했다(2026.10 구조 개편에서 정리). 레포 166커밋 중 159커밋 단독.",
+    tags: ["AI Agent", "GitHub Actions", "LLM", "자동화", "Claude Code"],
     category: "company",
     company: "BrainCrew"
   },
@@ -118,15 +118,15 @@ export const projectsTimeline: ProjectTimeline[] = [
   {
     id: "autodev",
     title: "AutoDev - 자율 소프트웨어 딜리버리 시스템 설계",
-    period: "2026.06 ~ 진행 중",
+    period: "2026.06 ~ 2026.07",
     year: 2026,
     periodType: "Q",
     periodNumber: 2,
-    isCompleted: false,
+    isCompleted: true,
     description: "에이전트가 구현·리뷰·머지까지 수행하고 사람은 되돌리기 어려운 '진짜 결정'만 내리는 도구 비종속 자율 개발 시스템의 설계·스펙. 멀티모델 리뷰 건틀릿, 리스크 티어 auto-merge, 결정을 ADR로 축적하는 Evergreen Decision Graph를 문서·ADR로 정의.",
     tags: ["오픈소스", "AI Agent", "멀티 에이전트", "자동화", "ADR"],
     category: "personal",
-    github: "https://github.com/syshin0116/autodev"
+    github: "https://github.com/syshin0116/autodev-archive"
   },
   {
     id: "clidex",
@@ -136,7 +136,7 @@ export const projectsTimeline: ProjectTimeline[] = [
     periodType: "Q",
     periodNumber: 1,
     isCompleted: false,
-    description: "AI 에이전트가 CLI 도구를 검색·비교·설치할 수 있는 인덱스. 5,000+ CLI 도구를 인덱싱하고 캐시된 BM25 엔진으로 쿼리당 약 3ms 검색. Rust로 구현 (v0.4.0).",
+    description: "AI 에이전트가 CLI 도구를 검색·비교·설치할 수 있는 인덱스. 5,000+ CLI 도구를 인덱싱하고 BM25 + 시노님 + 퍼지 매칭 검색을 CLI와 MCP 서버로 제공. Rust로 구현 (v0.5.0).",
     tags: ["오픈소스", "Rust", "CLI", "AI Agent", "BM25"],
     category: "personal",
     github: "https://github.com/syshin0116/clidex"
@@ -144,21 +144,21 @@ export const projectsTimeline: ProjectTimeline[] = [
   {
     id: "syshin0116-dev",
     title: "Syshin0116.dev - 블로그 + 포트폴리오 통합",
-    period: "2026.03 ~ 진행 중",
-    year: 2026,
+    period: "2025.11 ~ 진행 중",
+    year: 2025,
     periodType: "Q",
-    periodNumber: 1,
+    periodNumber: 4,
     isCompleted: false,
-    description: "Nuartz 기반 기술 블로그와 포트폴리오. 공개 글을 검색하는 익명 AI 채팅과, 동일한 코퍼스로 검색 방법을 비교하는 RAG 평가 환경을 함께 운영.",
+    description: "Nuartz 기반 기술 블로그와 포트폴리오. 공개 글을 검색하는 AI 채팅(로그인 없이 체험 가능)과, 동일한 코퍼스로 검색 방법을 비교하는 RAG 평가 환경을 함께 운영.",
     tags: ["Full Stack", "Next.js 16", "Nuartz", "포트폴리오"],
     category: "personal",
     github: "https://github.com/syshin0116/syshin0116.dev",
-    demo: "https://syshin0116.dev"
+    demo: "https://syshin0116.vercel.app"
   },
   {
     id: "nuartz",
     title: "Nuartz - Obsidian → Next.js 오픈소스 라이브러리",
-    period: "2026.03 ~ 진행 중",
+    period: "2026.01 ~ 진행 중",
     year: 2026,
     periodType: "Q",
     periodNumber: 1,
@@ -290,14 +290,14 @@ export const projectsTimeline: ProjectTimeline[] = [
   },
   {
     id: "employment-data",
-    title: "고용노동 공공데이터 활용 공모전",
+    title: "고용노동 공공데이터 공모전 - 자립준비청년 복지 알림·상담 챗봇",
     period: "2024.06",
     year: 2024,
     periodType: "H",
     periodNumber: 1,
     isCompleted: true,
-    description: "고용노동 공공데이터 분석 및 Plotly 시각화",
-    tags: ["데이터 분석", "Plotly", "Python"],
+    description: "자립준비청년과 복지사를 위한 LLM + RAG 복지 상담 챗봇과 카카오톡 맞춤형 복지 알림 서비스 기획 및 백엔드 설계",
+    tags: ["LLM", "RAG", "FastAPI", "공공데이터"],
     category: "personal"
   },
   {
@@ -323,7 +323,8 @@ export const projectsTimeline: ProjectTimeline[] = [
     isCompleted: true,
     description: "블랙박스 영상 속 교통 법규 위반 차량 감지 시스템",
     tags: ["Computer Vision", "YOLOv8", "OCR", "PyTorch"],
-    category: "personal"
+    category: "personal",
+    github: "https://github.com/SeSAC-Men-in-Black/Men-in-Black"
   },
 ];
 
@@ -339,7 +340,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     duration: "기술 PoC 약 1개월(2026.04 완료) 포함, 이후 후속 버전 진행 중",
     role: "AI Engineer (기술 PoC 리드급)",
     team: "Team RAG (AI 기술 PoC 담당)",
-    description: "대기업 SI 고객사의 PM(프로젝트 관리) 업무 자동화를 위한 AI 에이전트. LangGraph/deepagents 기반 멀티 에이전트로 사업 원가 산정·제안요청서 분석·유사 프로젝트 추천·리스크 평가를 자동화하고, Self-Correction(생성→감사 루프)·Self-Learning(피드백 기반 스킬 개선)·Glass Box(실행 과정 투명 노출)를 검증했다. 기술 PoC를 2026.04에 완료한 뒤 CBT·재설계(1.5)를 거쳐 2.0(~2026.10 예정)으로 이어지고 있으며, 에이전트 코어부터 데이터 모델·인프라·프론트엔드까지 풀스택 영역을 담당했다.",
+    description: "대기업 SI 고객사의 PM(프로젝트 관리) 업무 자동화를 위한 AI 에이전트. LangGraph/deepagents 기반 멀티 에이전트로 사업 원가 산정·제안요청서 분석·유사 프로젝트 추천·리스크 평가를 자동화하고, Self-Correction(생성→감사 루프)·Self-Learning(피드백 기반 스킬 개선)·Glass Box(실행 과정 투명 노출)를 검증했다. 기술 PoC를 2026.04에 완료한 뒤 CBT·재설계(1.5)를 거쳐 2.0 작업을 이어가고 있으며, 에이전트 코어부터 데이터 모델·인프라·프론트엔드까지 풀스택 영역을 담당했다.",
     techStack: {
       languages: ["Python 3.12", "TypeScript", "SQL", "HCL (Terraform)"],
       aiFrameworks: ["LangGraph", "LangChain", "deepagents", "AsyncPostgresSaver"],
@@ -388,7 +389,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       }
     ],
     achievements: [
-      "기술 PoC 기간 단일 레포에 본인 커밋 317개로 데이터 모델·에이전트·인프라·프론트 전반을 구축하며 사실상 기술 리드급으로 기여",
+      "단일 레포에 본인 커밋 242개(머지 커밋 제외)로 데이터 모델·에이전트·인프라·프론트 전반을 구축하며 사실상 기술 리드급으로 기여",
       "Self-Correction + Self-Evolving + Glass Box를 갖춘 자가진화형 PM 자동화 컨셉을 동작 가능한 PoC로 검증",
       "Text-to-SQL 안전성을 정규식에서 AST 검증 + RLS read-only TX로 강화하고 멀티모델 회귀 평가로 품질 정량 측정",
       "기술 PoC 종료 후 영업 PoC와 차기 재설계까지 연속 참여하며 production 아키텍처 전환 로드맵 수립"
@@ -404,8 +405,8 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     id: "welfare-agent",
     title: "사내 복지 AI Agent + 레거시 ERP 연동 PoC",
     subtitle: "대기업 사내 복지 플랫폼 사용자향 AI 에이전트",
-    period: "2026.05 ~ 진행 중",
-    duration: "약 1개월",
+    period: "2026.05 ~ 2026.07",
+    duration: "약 2개월 (완료, 에이전트 레포 아카이브)",
     role: "AI Engineer (백엔드 주도 + 프론트/SAP 연동)",
     team: "Team RAG (사용자향 에이전트 단일 최다 기여)",
     description: "대기업 사내 복지 플랫폼을 위한 사용자향 AI 에이전트 PoC. FastAPI + LangGraph + deepagents 기반 백엔드를 스캐폴딩부터 주도 개발하고, 사내 LLM gateway(OpenAI 호환) 연동, SSE 스트리밍, 사내 API 비동기 클라이언트, 카드형 도구(skill) 설계, 레거시 ERP(SAP RFC) HTTP 래퍼 연동까지 구현했다. Next.js 16/React 19 기반 챗·신청 위저드 프론트엔드도 함께 구축했다.",
@@ -413,9 +414,9 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       languages: ["Python 3.12", "TypeScript"],
       backend: ["FastAPI", "LangGraph", "LangChain", "deepagents", "httpx (async)", "cryptography"],
       frontend: ["Next.js 16 (App Router)", "React 19", "Tailwind CSS v4", "Framer Motion"],
-      llm: ["사내 LLM gateway (OpenAI 호환)", "LangSmith", "Langfuse"],
+      llm: ["사내 LLM gateway (OpenAI 호환)", "LangSmith"],
       integration: ["사내 복지 API", "레거시 ERP(SAP RFC) via HTTP 래퍼", "사내 메일 Gateway"],
-      infra: ["Docker / docker-compose", "uv", "pnpm 10", "GitLab CI"],
+      infra: ["Docker / docker-compose", "uv", "pnpm 10"],
       tooling: ["ruff", "mypy (strict)", "pytest / pytest-asyncio"]
     },
     keyResponsibilities: [
@@ -454,7 +455,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       }
     ],
     achievements: [
-      "에이전트의 단일 최다 기여자로 약 3주만에 scaffold→데모 가능 상태까지 완성",
+      "에이전트의 단일 최다 기여자로 약 10일 만에 scaffold→데모 가능 상태까지 완성",
       "데모를 목표로 사용자향 에이전트 + 공용 UI를 실데이터 연동 가능 상태로 정비",
       "레거시 ERP를 HTTP 래퍼 + read-only Protocol로 안전하게 연동"
     ],
@@ -470,16 +471,17 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     title: "BrainCrew Wiki - LLM 팀 지식 자동화 시스템",
     subtitle: "AI 루틴 기반 Git-native 팀 위키 파이프라인",
     period: "2026.04 ~ 진행 중",
-    duration: "약 1개월",
+    duration: "2026.04~05 구축, 2026.10~11 구조 개편",
     role: "1인 설계·구현 (Team RAG)",
-    team: "사내 팀 (레포 100커밋 중 95커밋 단독)",
-    description: "LLM 기반 팀 지식 자동화 시스템을 단독 설계·구현. 팀원이 자유 형식으로 쌓은 메모를 AI 루틴이 cross-link된 위키 문서로 자동 정제·발행하는 Git-native 파이프라인으로, 사람(원본)과 AI(정제본)의 쓰기 권한을 단방향으로 분리하고 pre-commit hook + CI로 이중 강제했다. ingest/lint/reflect/migrate 4단계를 단일 실행으로 묶는 dispatcher와 결정론적 검증 게이트, auto-merge CI, Next.js 검색 웹까지 포함한다. 별도로 Team RAG 활동으로 에이전트 메모리 논문(AgeMem)의 noRL 변형을 LangGraph로 재현해 약한 LLM 백본에서만 유의미한 성능 향상이 나타나는 비용 대비 효과를 정량 분석했다.",
+    team: "사내 팀 (레포 166커밋 중 159커밋 단독)",
+    description: "LLM 기반 팀 지식 자동화 시스템을 단독 설계·구현. 팀원이 자유 형식으로 쌓은 메모를 AI 루틴이 cross-link된 위키 문서로 자동 정제·발행하는 Git-native 파이프라인으로, 사람(원본)과 AI(정제본)의 쓰기 권한을 단방향으로 분리했다. ingest/lint/reflect/migrate 4단계를 단일 실행으로 묶는 dispatcher를 만들었고, 초기 버전에는 결정론적 검증 게이트, pre-commit hook, auto-merge CI, Next.js 검색 웹이 있었으나 2026.10 구조 개편에서 정리했다. 별도로 Team RAG 활동으로 에이전트 메모리 논문(AgeMem)의 noRL 변형을 LangGraph로 재현해 2개 백본·100문항 조건에서 성능 변화를 측정했다.",
     techStack: {
       languages: ["Python", "TypeScript"],
-      frameworks: ["Next.js 16", "React 19", "LangGraph", "LangChain"],
-      tooling: ["Bun", "uv (inline script deps)", "GitHub Actions", "Anthropic Routine", "Claude Code skills", "pre-commit githooks", "pagefind", "d3", "Vercel"],
+      frameworks: ["LangGraph", "LangChain"],
+      tooling: ["uv (inline script deps)", "GitHub Actions", "Anthropic Routine", "Claude Code skills"],
       llm: ["Anthropic Claude (wiki-curator routine)"],
-      patterns: ["Karpathy LLM-wiki pattern", "single-fire dispatcher", "deterministic verify gate", "raw/wiki one-way ownership"]
+      patterns: ["Karpathy LLM-wiki pattern", "single-fire dispatcher", "raw/wiki one-way ownership"],
+      retired: ["Next.js 16 + React 19 위키 웹", "Bun", "pagefind", "d3", "Vercel", "pre-commit githooks", "verify-wiki.py"]
     },
     keyResponsibilities: [
       {
@@ -493,43 +495,43 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       {
         title: "검증 게이트 및 소유 강제",
         details: [
-          "결정론적 검증 게이트 verify-wiki.py 구현 (wikilink·frontmatter·필수 섹션 등 9종 체크, 실패 시 self-fix 후 abort)",
+          "결정론적 검증 게이트 verify-wiki.py를 구현했다 (wikilink·frontmatter·필수 섹션 등 9종 체크, 실패 시 self-fix 후 abort, 2026.10 개편에서 제거)",
           "lint·rebuild-index 스크립트를 TS→Python(uv inline-deps)로 전환",
-          "raw/wiki 단방향 소유를 pre-commit hook + path-guard CI로 이중 강제",
+          "raw/wiki 단방향 소유를 pre-commit hook + path-guard CI로 이중 강제했다 (2026.10 개편에서 제거)",
           "Routine bot을 plus-addressing git author로 식별해 봇/사람 커밋 분리"
         ]
       },
       {
         title: "CI / 온보딩 / 웹 / 연구",
         details: [
-          "routine/* PR auto-merge(squash-loop) + raw-verify CI 구성",
+          "routine/* PR auto-merge(squash-loop) + raw-verify CI를 구성했다 (2026.10 개편에서 제거)",
           "팀 공용 Claude Code skill(추가/검색) 분리 및 6단계 온보딩 스크립트 작성",
-          "Next.js 16 + Bun 위키 웹 구현·운영 (folder-index, backlink, pagefind 검색, d3 graph view, Vercel 자동 배포)",
-          "AgeMem(arXiv 2601.01885) noRL 변형을 LangGraph tool-calling 루프로 재현하고 백본 강도별 성능을 정량 평가"
+          "Next.js 16 + Bun 위키 웹을 구현했다 (folder-index, backlink, pagefind 검색, d3 graph view, Vercel 자동 배포, 2026.10 개편에서 제거)",
+          "AgeMem(arXiv 2601.01885) noRL 변형을 LangGraph tool-calling 루프로 재현하고 2개 백본에서 성능 평가"
         ]
       }
     ],
     achievements: [
-      "레포 전체 100커밋 중 95커밋을 단독 작성하며 시스템 설계부터 CI·웹 배포까지 end-to-end 구축",
+      "레포 전체 166커밋 중 159커밋을 단독 작성하며 시스템 설계부터 CI·웹 배포까지 end-to-end 구축 (2026.11 기준)",
       "단일 routine fire에서 5개 신규 위키 페이지 + 2개 cross-link 자동 생성으로 파이프라인 동작 검증",
-      "AgeMem 논문 noRL 변형을 LangGraph로 재현해 약한 LLM 백본에서만 유의미한 성능 향상(+8.7pp)을 정량 분석"
+      "AgeMem 논문 noRL 변형을 LangGraph로 재현해 +8.7pp 향상 측정 (2개 백본, n=100, 신뢰구간 약 ±4pp)"
     ],
     learnings: [
       "에이전트 자동화 설계: LLM 판단 vs 결정론적 트리거의 신뢰성 트레이드오프",
       "쓰기 권한 격리: 사람과 AI의 단방향 소유를 hook + CI로 강제하는 패턴",
-      "논문 재현 연구: 메모리 구조의 효과를 백본 강도별로 정량 비교"
+      "논문 재현 연구: 메모리 구조의 효과를 백본별로 정량 비교"
     ]
   },
   "autodev": {
     id: "autodev",
     title: "AutoDev - 자율 소프트웨어 딜리버리 시스템 설계",
     subtitle: "도구 비종속 자율 개발 시스템 설계·스펙 (design-first)",
-    period: "2026.06 ~ 진행 중",
-    duration: "진행 중 (설계·스펙 단계)",
+    period: "2026.06 ~ 2026.07",
+    duration: "약 1개월 (설계·스펙 단계에서 완료, 레포 아카이브)",
     role: "1인 설계 / 오픈소스",
     team: "개인 오픈소스 프로젝트",
     description: "에이전트가 이슈부터 구현·리뷰·머지까지 자율 수행하고, 사람은 되돌리기 어려운 '진짜 결정'만 내리는 자율 소프트웨어 딜리버리 시스템. 특정 오케스트레이터에 종속되지 않도록 Orchestrator/Runtime/Agent/Gate 추상으로 설계하고, 멀티모델 리뷰 건틀릿·리스크 티어 auto-merge·결정을 ADR로 축적하는 Evergreen Decision Graph를 문서와 ADR로 정의한 design-first 리포지토리.",
-    github: "https://github.com/syshin0116/autodev",
+    github: "https://github.com/syshin0116/autodev-archive",
     techStack: {
       architecture: ["Orchestrator/Runtime/Agent/Gate 추상", "Evergreen Decision Graph", "멀티레포 단일 docs SoT"],
       agents: ["Claude Code (구현·1차 리뷰)", "Codex (2차 리뷰)", "CI 게이트"],
@@ -572,7 +574,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       }
     ],
     achievements: [
-      "설계 문서 20여 편 + 자기 적용한 ADR 30여 건으로 시스템 스펙을 design-first로 정립",
+      "설계 문서 20여 편 + 자기 적용한 ADR 38건으로 시스템 스펙을 design-first로 정립",
       "특정 오케스트레이터에 종속되지 않는 추상 계층으로 런타임 교체 가능성 확보",
       "에스컬레이션과 지식 축적을 ADR 하나의 메커니즘으로 통합하는 Evergreen Decision Graph 개념 정의"
     ],
@@ -749,17 +751,17 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     subtitle: "국내 자동차 연구기관 RAG 기반 보고서 생성",
     period: "2024.03 ~ 2026.02",
     duration: "약 1년 11개월",
-    role: "1~2차: 1인 풀스택 개발 (7개월) / 3~4차: 메인 PL / 팀 3명",
-    team: "개발자 3명 (본인 포함)",
+    role: "1~2차: 1인 풀스택 개발 (7개월) / 3~4차: 메인 PL / 팀 4명",
+    team: "개발자 4명 (본인 포함)",
     description: "국내 자동차 연구기관의 자동차 분야 특화 RAG 기반 보고서 자동 생성 시스템 및 챗봇. 사전 공개/공개/비공개 데이터 3단계 분류 관리, 마이디스크 연동, Keycloak SSO 인증.",
     techStack: {
-      backend: ["FastAPI", "Python", "Celery", "Redis"],
+      backend: ["FastAPI", "Python", "Redis"],
       frontend: ["Next.js", "React", "TypeScript", "BlockNote Editor"],
       database: ["PostgreSQL (Kysely ORM)", "Qdrant (Vector DB)"],
       aiml: ["LangChain", "LangGraph", "OpenAI API (GPT-3.5/4/4o)", "Claude"],
       infrastructure: ["Docker", "Docker Compose", "Nginx", "Linux Server"],
       authentication: ["Keycloak (SSO)"],
-      monitoring: ["LangSmith", "DataDog"],
+      monitoring: ["LangSmith"],
       etc: ["Server-Sent Events (SSE)"]
     },
     keyFeatures: [
@@ -785,7 +787,6 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
           "사전 공개/공개/비공개 데이터 3단계 분류",
           "마이디스크 연동 파일 업로드 및 관리",
           "PDF, DOCX, PPTX 파일 자동 파싱",
-          "DALL-E 3 연동 이미지 자동 생성",
           "출처 표기 UI (PDF 페이지 번호 포함)"
         ]
       },
@@ -818,18 +819,12 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       "1인 풀스택으로 7개월간 전체 시스템 설계 및 구현",
       "Keycloak SSO 기반 보안 인증 시스템 구축",
       "3단계 데이터 분류 및 권한 관리 시스템",
-      "Flask → FastAPI 마이그레이션 성공",
-      "LangGraph 멀티 에이전트 아키텍처 구축",
-      "200+ 테스트 케이스 작성으로 시스템 안정성 확보"
+      "LangGraph 멀티 에이전트 아키텍처 구축"
     ],
     challenges: [
       {
         title: "1인 풀스택 개발",
         description: "백엔드, 프론트엔드, 인프라, AI 모델 연동까지 전체 스택 담당. 체계적인 아키텍처 설계와 단계적 구현으로 극복"
-      },
-      {
-        title: "대규모 재설계",
-        description: "3차에서 Flask를 FastAPI로 전환. API 문서 선행 작성 및 모듈별 단계적 이전으로 안전하게 완료"
       },
       {
         title: "프로젝트 동시 진행",
@@ -854,7 +849,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     team: "개발자 2명",
     description: "하수처리장의 공정 단계별 수질 예측 모델 개발 및 실시간 이상 탐지 시스템. 19개 타겟 변수에 대한 예측 모델 구축으로 품질 Hunting 최소화 및 안정 운전 지원.",
     techStack: {
-      ml: ["PyTorch", "LightGBM", "XGBoost", "CatBoost"],
+      ml: ["RandomForest (scikit-learn)", "PyTorch", "LightGBM", "XGBoost", "CatBoost"],
       anomaly: ["PyOD", "COMBO"],
       dataprocessing: ["NumPy", "Pandas", "Numba"],
       visualization: ["Matplotlib", "Seaborn", "Plotly Dash"],
@@ -866,6 +861,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       {
         title: "수질 예측 모델 개발",
         details: [
+          "RandomForest: T-N 방류수 예측 최고 성능 (R² 0.9244)",
           "LightGBM, XGBoost, CatBoost 앙상블 모델",
           "PyTorch 기반 LSTM, GRU 딥러닝 모델",
           "ARIMA, SARIMA 시계열 모델",
@@ -904,14 +900,8 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         after: "R² 0.8640",
         improvement: "CatBoost"
       },
-      {
-        metric: "이상 탐지 정확도",
-        before: "-",
-        after: "98.50%",
-        improvement: "Random Forest"
-      },
       "19개 타겟 변수 예측 모델 개발 완료",
-      "실시간 이상 탐지 시스템 구축",
+      "실시간 이상 탐지 시스템 구축 (RandomForest 분류 정확도 98.50%는 불균형 데이터 기준의 참고 지표)",
       "품질 Hunting 최소화로 안정 운전 가능"
     ],
     challenges: [
@@ -991,11 +981,11 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     duration: "약 7주",
     role: "오픈소스 컨트리뷰터",
     team: "TeddyNote 커뮤니티",
-    description: "2,000+ 커밋이 발생한 대규모 오픈소스 프로젝트에 기여. RAG(Retrieval-Augmented Generation) 관련 LangChain 튜토리얼 작성 및 번역. 한국어 개발자들이 RAG와 LangGraph를 쉽게 배울 수 있도록 지원.",
+    description: "2,000+ 커밋이 발생한 대규모 오픈소스 프로젝트에 기여. RAG(Retrieval-Augmented Generation) 관련 LangChain 튜토리얼 작성 및 번역.",
     techStack: {
       aiml: ["LangChain", "LangGraph", "RAG"],
       llm: ["OpenAI GPT-4o", "Claude"],
-      tools: ["LlamaParse", "DuckDuckGo API"],
+      tools: ["LlamaParse", "Tavily Search API"],
       development: ["Jupyter Notebook", "Python", "Google Colab"],
       collaboration: ["GitHub", "GitBook"]
     },
@@ -1031,14 +1021,9 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     achievements: [
       "3개의 튜토리얼 작성 및 GitHub/GitBook 게시",
       "대규모 오픈소스 프로젝트(2,000+ 커밋) 기여 경험",
-      "Peer Review 세션을 통한 협업 및 기술 인사이트 확장",
-      "한국어 개발자 커뮤니티에 RAG/LangGraph 지식 공유"
+      "Peer Review 세션을 통한 협업 및 기술 인사이트 확장"
     ],
     challenges: [
-      {
-        title: "번역의 어려움",
-        description: "단순 번역이 아닌 한국 개발자들이 이해하기 쉬운 설명 필요. 전문 용어, 의역, 예시 추가를 신중히 판단"
-      },
       {
         title: "초보자 눈높이",
         description: "Peer Review 피드백을 통해 초보자가 이해하기 어려운 부분 파악 및 개선"
@@ -1055,8 +1040,8 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     id: "nuartz",
     title: "Nuartz - Obsidian → Next.js 오픈소스 라이브러리",
     subtitle: "Obsidian 볼트를 Next.js 웹사이트로 퍼블리싱하는 headless 라이브러리",
-    period: "2026.03 ~ 진행 중",
-    duration: "약 2주",
+    period: "2026.01 ~ 진행 중",
+    duration: "2026.01 첫 커밋, 2026.03 npm 첫 배포 이후 지속 개발",
     role: "1인 개발 / npm 패키지 배포",
     team: "개인 오픈소스 프로젝트",
     description: "Obsidian 볼트를 Next.js 웹사이트로 서빙하기 위한 headless 데이터 레이어 라이브러리. Quartz의 한계(커스텀 UI 불가, AI 연동 어려움)를 해결하기 위해 직접 개발. npm 패키지로 배포하여 누구나 자신의 Next.js 앱에 Obsidian 기능을 통합 가능.",
@@ -1072,7 +1057,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     },
     techStack: {
       core: ["TypeScript", "unified (remark/rehype)"],
-      features: ["remark-math", "rehype-katex", "rehype-pretty-code", "FlexSearch", "D3.js"],
+      features: ["remark-math", "rehype-katex", "rehype-pretty-code", "Pagefind", "D3.js"],
       webapp: ["Next.js 16", "Tailwind CSS v4", "shadcn/ui", "next-themes"],
       build: ["Bun", "tsc"],
       deployment: ["npm registry", "Vercel", "GitHub Pages"]
@@ -1093,16 +1078,16 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         details: [
           "재귀적 마크다운 파일 탐색 및 드래프트 필터링",
           "폴더 기반 파일 트리 생성 (사이드바용)",
-          "FlexSearch 기반 전문 검색 인덱스 (CJK 지원)",
+          "Pagefind 기반 정적 전문 검색 인덱스",
           "그래프 뷰 데이터 생성 (노트-태그 관계)"
         ]
       },
       {
         title: "headless 아키텍처",
         details: [
-          "UI 없이 데이터 레이어만 제공 — 어떤 디자인이든 적용 가능",
+          "UI 없이 데이터 레이어만 제공, 어떤 디자인이든 적용 가능",
           "nuartz.config.ts로 설정 (title, baseUrl, nav 등)",
-          "SSG/ISR 모두 지원",
+          "정적 생성(SSG) 기반 페이지 빌드",
           "GitHub Pages 정적 배포 지원"
         ]
       },
@@ -1117,9 +1102,8 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       }
     ],
     achievements: [
-      "npm 패키지 배포 (nuartz@0.2.0)",
+      "npm 패키지 배포 (nuartz@0.5.0)",
       "Quartz 핵심 기능을 Next.js 생태계로 포팅",
-      "CJK(한국어/일본어/중국어) 검색 지원",
       "Vercel + GitHub Pages 양쪽 배포 지원",
       "개인 블로그로 실사용 중 (syshin0116.dev)"
     ],
@@ -1130,7 +1114,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       },
       {
         title: "CJK 검색 최적화",
-        description: "FlexSearch의 기본 토크나이저가 한국어를 제대로 분리하지 못하는 문제. CJK 전용 토크나이저 설정으로 해결"
+        description: "초기 검색 엔진이던 FlexSearch의 기본 토크나이저가 한국어를 제대로 분리하지 못하는 문제. CJK 전용 토크나이저 설정으로 대응했고, 이후 검색은 Pagefind로 전환"
       },
       {
         title: "CSS 변수 호환성",
@@ -1150,10 +1134,10 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     title: "Clidex - AI 에이전트를 위한 CLI 도구 검색",
     subtitle: "CLI 도구 검색 엔진 for AI Agents",
     period: "2026.03 ~ 진행 중",
-    duration: "약 1주",
+    duration: "2026.03 ~ 2026.11, 165커밋 (v0.5.0까지)",
     role: "1인 개발 / 오픈소스",
     team: "개인 프로젝트",
-    description: "AI 에이전트가 CLI 도구를 자연어로 검색·비교·설치할 수 있는 Rust 기반 인덱스. BM25 + 시노님 확장 + 퍼지 매칭 하이브리드 검색으로 높은 recall 달성. YAML/JSON 출력으로 LLM 친화적.",
+    description: "AI 에이전트가 CLI 도구를 자연어로 검색·비교·설치할 수 있는 Rust 기반 인덱스. BM25 + 시노님 확장 + 퍼지 매칭 하이브리드 검색으로 recall을 보완하고, YAML/JSON 출력과 MCP 서버로 에이전트가 바로 호출할 수 있다.",
     blogPost: "/blog/Projects/Clidex/01-Overview",
     package: {
       registry: "crates.io",
@@ -1166,10 +1150,11 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     },
     techStack: {
       language: ["Rust (2021 edition)"],
-      search: ["BM25 (bm25 crate)", "fuzzy-matcher (Skim algorithm)"],
-      cli: ["clap 4 (derive)", "colored 2"],
-      serialization: ["serde", "serde_yaml", "serde_json"],
-      network: ["reqwest 0.12 (rustls)", "tokio 1"],
+      search: ["BM25 (bm25 crate)", "nucleo-matcher"],
+      cli: ["clap 4 (derive)", "colored 3"],
+      mcp: ["rmcp (MCP 서버)"],
+      serialization: ["serde", "serde_norway", "serde_json"],
+      network: ["reqwest 0.13 (rustls)", "tokio 1"],
       build: ["LTO", "strip symbols", "opt-level = 'z'"]
     },
     keyFeatures: [
@@ -1177,25 +1162,26 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         title: "하이브리드 검색 알고리즘",
         details: [
           "BM25 필드별 가중치 (이름 3x, 태그/카테고리 2x, 설명 1x)",
-          "70+ 시노님 매핑 (search→find/grep/locate, http→web/api/curl 등)",
-          "퍼지 매칭 폴백 (Skim algorithm) — 오타/부분 매칭 대응",
+          "41개 시노님 매핑 (search→find/grep/locate, http→web/api/curl 등)",
+          "퍼지 매칭 폴백 (nucleo-matcher): 오타/부분 매칭 대응",
           "GitHub stars 기반 인기도 보정 (비선형 정규화)"
         ]
       },
       {
         title: "CLI 명령어 체계",
         details: [
-          "clidex \"query\" — 자연어 도구 검색 (상위 10개)",
-          "clidex info <name> — 도구 상세 정보",
-          "clidex compare <names...> — 도구 비교 테이블",
-          "clidex trending — 인기 도구 목록",
-          "clidex update — GitHub Releases에서 인덱스 갱신"
+          "clidex \"query\": 자연어 도구 검색 (상위 10개)",
+          "clidex info <name>: 도구 상세 정보",
+          "clidex compare <names...>: 도구 비교 테이블",
+          "clidex trending: 인기 도구 목록",
+          "clidex update: GitHub Releases에서 인덱스 갱신"
         ]
       },
       {
         title: "AI 에이전트 친화적 설계",
         details: [
-          "YAML/JSON 출력 포맷 — LLM이 파싱하기 쉬운 구조",
+          "YAML/JSON 출력 포맷: LLM이 파싱하기 쉬운 구조",
+          "MCP 서버(rmcp)로 에이전트에서 검색·조회 도구로 직접 호출",
           "설치 명령어 통합 (brew, apt, cargo, npm 등)",
           "도구별 docs/llms.txt 링크 제공",
           "Pretty/YAML/JSON 3가지 출력 모드"
@@ -1204,9 +1190,9 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     ],
     achievements: [
       "5,000+ CLI 도구 인덱싱 (Homebrew, awesome-cli-apps, toolleeo, npm, crates.io 등 소스 통합)",
-      "70+ CLI 도메인 시노님 매핑 구축",
+      "41개 CLI 도메인 시노님 매핑 구축",
       "최소 바이너리 사이즈 최적화 (LTO + strip)",
-      "캐시된 BM25 엔진으로 전체 인덱스에서 쿼리당 약 3ms 검색 (v0.4.0)"
+      "검색 지연: 20~28개 도구 픽스처에서 쿼리당 약 3ms, 5,277개 전체 인덱스에서 쿼리당 약 880ms"
     ],
     challenges: [
       {
@@ -1229,24 +1215,26 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     id: "syshin0116-dev",
     title: "Syshin0116.dev - 블로그 + 포트폴리오 통합",
     subtitle: "Nuartz 기반 기술 블로그와 RAG 검색 방법 평가 환경",
-    period: "2026.03 ~ 진행 중",
-    duration: "지속 개발",
+    period: "2025.11 ~ 진행 중",
+    duration: "2025.11 레포 생성 이후 지속 개발",
     role: "1인 풀스택 개발",
     team: "개인 프로젝트",
-    description: "Obsidian에 작성한 기술 글과 프로젝트 포트폴리오를 Nuartz + Next.js로 발행하는 개인 사이트. Aegra·LangGraph·Deep Agents 기반 AI 채팅을 로그인 없이 체험할 수 있다. 직접 작성한 공개 글을 코퍼스로 삼아 여러 검색 방법을 같은 조건에서 구현·비교하는 RAG 평가 환경도 함께 구축했다.",
+    description: "Obsidian에 작성한 기술 글과 프로젝트 포트폴리오를 Nuartz + Next.js로 발행하는 개인 사이트. Aegra·LangGraph·Deep Agents 기반 AI 채팅은 로그인 없이 Luna 모델로 체험할 수 있고, 로그인하면 계정별 일일 한도 안에서 모델을 고를 수 있다. 직접 작성한 공개 글을 코퍼스로 삼아 여러 검색 방법을 같은 조건에서 구현·비교하는 RAG 평가 환경도 함께 구축했다.",
+    github: "https://github.com/syshin0116/syshin0116.dev",
+    demo: "https://syshin0116.vercel.app",
     techStack: {
       frontend: ["Next.js 16 (App Router)", "React 19", "Tailwind CSS v4", "shadcn/ui", "assistant-ui"],
       content: ["Nuartz", "D3.js (그래프뷰)", "Mermaid"],
       ai: ["Aegra (Agent Protocol v2)", "LangGraph", "Deep Agents", "LangGraph SDK"],
       auth: ["Auth.js v5 (GitHub·Google OAuth)", "Neon Postgres"],
       rendering: ["KaTeX (수식)", "Shiki (코드 하이라이팅)"],
-      deployment: ["Vercel (웹)", "Cloud Run (에이전트)", "GitHub Actions", "Bun", "uv"]
+      deployment: ["Vercel (웹)", "Mac mini 홈서버 (에이전트, Docker Compose + Tailscale Funnel)", "GitHub Actions", "Bun", "uv"]
     },
     keyFeatures: [
       {
         title: "공개 AI 채팅",
         details: [
-          "로그인 없는 Luna 체험과 로그인",
+          "로그인 없이 쓰는 Luna 게스트 채팅과, 로그인 사용자의 모델 선택 및 계정별 일일 사용 한도",
           "assistant-ui 기반 스트리밍 응답과 대화 목록",
           "도구·서브에이전트 실행 상태와 검색 출처 표시",
           "익명 사용자의 실행 예산 제한과 대화 보관 기한 적용"
@@ -1289,7 +1277,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       }
     ],
     achievements: [
-      "블로그·포트폴리오와 익명 AI 채팅을 하나의 사이트에서 제공",
+      "블로그·포트폴리오와 AI 채팅(게스트·로그인)을 하나의 사이트에서 제공",
       "Nuartz의 문서 해석·렌더링·탐색 기능을 실제 사이트에 적용",
       "채팅과 오프라인 평가에서 동일한 검색 구현을 재사용하는 구조 구축",
       "검색 결과와 실행 환경을 기록하고 재현성을 검증하는 평가 파이프라인 구현"
@@ -1324,6 +1312,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     role: "팀 프로젝트 (4명) - License Plate Recognition 및 Depth Estimation 담당",
     team: "새싹 AI 부트캠프",
     description: "블랙박스 영상에서 교통 법규 위반 차량을 자동으로 감지하고 신고하는 AI 시스템. 차량 감지, 번호판 인식, 거리 추정 등 종합적인 Computer Vision 기술 적용.",
+    github: "https://github.com/SeSAC-Men-in-Black/Men-in-Black",
     techStack: {
       computervision: ["YOLOv8 (n, m)", "SORT", "EasyOCR"],
       depthestimation: ["ZoeDepth", "MiDaS v3"],
@@ -1352,8 +1341,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       {
         title: "Monocular Depth Estimation",
         details: [
-          "ZoeDepth 모델로 단일 카메라 영상에서 거리 추정",
-          "실시간 거리 추정 및 안전거리 위반 탐지"
+          "ZoeDepth 모델로 단일 카메라 영상에서 거리 추정"
         ]
       }
     ],
@@ -1388,11 +1376,11 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     period: "2024.08 ~ 2024.09",
     duration: "약 2개월",
     role: "팀장 / AI 및 백엔드 개발 (팀 4명)",
-    team: "창업 경진대회",
+    team: "팀 프로젝트 (4명)",
     description: "이동 중 터치 없이 음성만으로 맞춤형 뉴스를 청취할 수 있는 AI 서비스. 음성 인식, 자연어 처리, TTS, RAG 기술을 종합한 종합 AI 플랫폼. 고령층 및 시각장애인의 디지털 정보 접근성 향상.",
     techStack: {
       backend: ["FastAPI", "Python"],
-      frontend: ["Flutter", "React"],
+      frontend: ["Flutter (Dart)"],
       aiml: ["LangChain", "RAG", "OpenAI API", "Upstage Solar", "Google Gemma2", "Microsoft Phi 3.5", "Meta Llama 3.1"],
       speech: ["OpenAI Whisper", "ElevenLabs TTS", "TypeCast TTS"],
       data: ["Pandas", "NumPy", "Tableau", "Power BI"],
@@ -1461,60 +1449,60 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
   },
   "employment-data": {
     id: "employment-data",
-    title: "고용노동 공공데이터 활용 공모전",
-    subtitle: "데이터 분석 및 인터랙티브 시각화",
+    title: "고용노동 공공데이터 공모전 - 자립준비청년 복지 알림·상담 챗봇",
+    subtitle: "자립준비청년과 복지사를 위한 LLM + RAG 챗봇과 카카오톡 맞춤형 복지 알림",
     period: "2024.06",
     duration: "약 1개월",
-    role: "팀장 (팀 프로젝트)",
-    team: "고용노동부 공모전",
-    description: "고용노동부 공공데이터를 활용한 데이터 분석 및 시각화 서비스. 데이터 전처리 및 Plotly 기반 인터랙티브 시각화로 고용 트렌드 및 패턴 발견.",
+    role: "팀 프로젝트 (사업계획서 작성, 백엔드 구조 설계)",
+    team: "고용노동 공공데이터 활용 공모전 참가 팀",
+    description: "복지 혜택 정보가 여러 기관에 흩어져 있어 자립준비청년이 자신에게 맞는 정보를 찾기 어렵다는 문제에서 출발한 서비스. 맞춤형 복지 정보를 카카오톡으로 알려주고, LLM + RAG 챗봇이 출처 링크와 함께 상시 상담하며, 복지사는 관리자 페이지에서 담당 청년의 정보와 상담 기록을 관리한다. FastAPI·MySQL·LangChain 기반 백엔드를 Docker Compose로 구성했다.",
     techStack: {
-      dataprocessing: ["Python", "Pandas", "NumPy"],
-      visualization: ["Plotly", "Matplotlib", "Seaborn"],
-      development: ["Jupyter Notebook"]
+      backend: ["FastAPI", "SQLAlchemy", "Alembic", "Pydantic"],
+      database: ["MySQL", "Vector Store"],
+      aiml: ["LangChain", "RAG", "OpenAI API"],
+      infrastructure: ["Docker", "Docker Compose", "Nginx"]
     },
     keyFeatures: [
       {
-        title: "데이터 수집 및 전처리",
+        title: "맞춤형 복지 알림",
         details: [
-          "고용노동부 공공데이터포털 데이터 수집",
-          "Pandas 데이터 전처리 (결측치, 이상치, 정규화)",
-          "데이터 병합 및 집계 (merge, groupby, pivot_table)",
-          "NumPy 수치 연산 및 배열 처리"
+          "사용자의 선호와 이력으로 필터링한 복지 정보를 알림으로 전달",
+          "카카오톡 등 일상적으로 쓰는 메신저로 혜택 정보 제공"
         ]
       },
       {
-        title: "탐색적 데이터 분석 (EDA)",
+        title: "LLM + RAG 상담 챗봇",
         details: [
-          "기술 통계량 분석 (평균, 중앙값, 표준편차)",
-          "데이터 분포 및 상관관계 분석",
-          "시계열 데이터 트렌드 분석",
-          "지역별/산업별 고용 현황 비교"
+          "문서 검색과 생성 모델을 결합해 복지 관련 질문에 답변",
+          "답변과 함께 정보 출처 링크 제공",
+          "카카오톡 채널 형식의 상시 상담"
         ]
       },
       {
-        title: "Plotly 인터랙티브 시각화",
+        title: "복지사 관리 기능",
         details: [
-          "드롭다운, 슬라이더 필터 기능",
-          "Line Chart: 시계열 고용 트렌드",
-          "Bar Chart: 지역별/산업별 비교",
-          "Scatter Plot: 상관관계 분석",
-          "Heatmap: 데이터 분포 및 밀도",
-          "Choropleth Map: 지역별 고용 현황 지도"
+          "관리자 페이지에서 담당 청년 정보와 챗봇 상담 기록 관리",
+          "관리자·사용자 권한을 나누는 접근 제어"
+        ]
+      },
+      {
+        title: "데이터 수집과 백엔드 구조",
+        details: [
+          "여러 기관에 분산된 복지 정보를 크롤링·전처리해 DB와 벡터스토어에 적재",
+          "FastAPI 라우터(챗봇·사용자), SQLAlchemy 모델, Alembic 마이그레이션 구조 설계",
+          "backend·frontend·Nginx 프록시를 Docker Compose로 구성"
         ]
       }
     ],
     achievements: [
-      "고용노동 공공데이터 전처리 및 정제 경험",
-      "Plotly 인터랙티브 대시보드 구축",
-      "데이터 인사이트 및 결론 도출",
-      "공공데이터 활용 서비스 기획 경험"
+      "자립준비청년·복지사 대상 서비스의 목적, 기능, 차별점을 사업계획서로 정리",
+      "유사 서비스(국민비서 구삐, 온통청년)와 알림·챗봇·관리 방식 비교",
+      "FastAPI·MySQL·LangChain 기반 백엔드 디렉터리 구조와 컨테이너 구성 설계"
     ],
     learnings: [
-      "공공데이터 활용: 데이터 수집 및 정제 노하우",
-      "Plotly 마스터: 인터랙티브 시각화의 강력함",
-      "데이터 스토리텔링: 시각화로 인사이트 전달",
-      "팀 협업: 데이터 분석 프로젝트의 역할 분담"
+      "공공데이터 기반 서비스 기획: 대상 사용자의 정보 접근 문제에서 기능 도출",
+      "RAG 챗봇 설계: 답변 출처를 함께 제공해 신뢰성 확보",
+      "백엔드 구조 설계: FastAPI·SQLAlchemy·Alembic 역할 분리"
     ]
   },
   "podlybot": {
@@ -1539,8 +1527,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         details: [
           "카카오톡 단체 채팅방에서 바로 호출 가능",
           "별도 설명 없이 즉시 사용 가능한 직관적 인터페이스",
-          "메신저봇R 기반 알림 감지 및 자동 응답",
-          "채팅방별 컨텍스트 관리"
+          "메신저봇R 기반 알림 감지 및 자동 응답"
         ]
       },
       {
@@ -1573,7 +1560,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     ],
     achievements: [
       "개인용과 회사용 두 가지 버전으로 배포하여 다양한 사용 케이스 대응",
-      "개인용: 일상적인 정보 수집 및 정리 워크플로우 자동화, 지인들도 사용 요청",
+      "개인용: 일상적인 정보 수집 및 정리 워크플로우 자동화",
       "회사용: 고객사가 별도 환경 설정 없이 LLM 서비스 테스트 가능",
       "URL 공유 시 즉시 요약 및 Notion 정리로 생산성 향상",
       "단체 채팅방에서 LLM 서비스 간편하게 활용"
@@ -1581,15 +1568,15 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     challenges: [
       {
         title: "Rhino JavaScript 한계",
-        description: "최신 문법 사용 불가. async/await 대신 콜백 패턴으로 구현"
+        description: "메신저봇R의 Rhino 엔진에서는 최신 JavaScript 문법을 쓸 수 없어 그 제약 안에서 구현"
       },
       {
         title: "알림 기반 처리",
-        description: "카톡 알림 기반 이벤트 처리. 채팅방별 컨텍스트 관리 필요"
+        description: "카카오톡 API 대신 안드로이드 알림을 감지해 이벤트를 처리"
       }
     ],
     learnings: [
-      "작은 불편함 해결이 큰 가치: 개인 문제 해결이 주변 사람들 생산성 향상으로",
+      "작은 불편함 해결이 큰 가치: 반복되는 정보 정리 작업을 자동화",
       "레거시 환경 극복: Rhino JavaScript 제약 속에서 구현",
       "24/7 운영 경험: 안드로이드 공기계 활용 노하우",
       "실용주의: 수익보다 실제 문제 해결에 집중",
@@ -1655,7 +1642,7 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
     title: "이미지 선별 모델 - 이물 분석 검출 지원",
     subtitle: "PET Chip 이물 이미지 자동 분류",
     period: "2025.02.24 ~ 2025.04.03",
-    duration: "약 1개월",
+    duration: "약 6주",
     role: "Computer Vision 모델 개발",
     team: "고객사 QA·DT 담당자와 협업",
     description: "PET Chip 특성상 원통형이고 불투명하여 선별기기의 한계로 오류값 다수 발생. 이미지 분석을 통해 사람이 직접 확인해야 하는 이미지 수를 최소화하는 모델 개발.",

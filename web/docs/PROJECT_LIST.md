@@ -21,8 +21,8 @@
 ### 3. 그린텍 하수처리 수질 예측 AI
 - **기간**: 2024.07 ~ 2024.11
 - **역할**: PL (팀 2명)
-- **주요 기술**: LightGBM, XGBoost, PyTorch, PyOD
-- **성과**: 19개 타겟 변수 예측 모델 구축, 이상 탐지 98.5% 정확도
+- **주요 기술**: RandomForest, LightGBM, XGBoost, PyTorch, PyOD
+- **성과**: 19개 타겟 변수 예측 모델 구축, T-N 방류수 예측 R² 0.9244 (RandomForest)
 - **URL**: `/projects/greentech`
 
 ### 4. PROP - 제안서 작성 AI Agent
@@ -75,11 +75,11 @@
 - **성과**: 터치 없는 음성 인터페이스, 맞춤형 뉴스 큐레이션
 - **URL**: `/projects/podly`
 
-### 5. 고용노동 공공데이터 활용 공모전
+### 5. 고용노동 공공데이터 공모전 - 자립준비청년 복지 알림·상담 챗봇
 - **기간**: 2024.06
-- **역할**: 팀장
-- **주요 기술**: Pandas, Plotly, 데이터 시각화
-- **성과**: 인터랙티브 대시보드 구축, 고용 트렌드 분석
+- **역할**: 팀 프로젝트 (사업계획서 작성, 백엔드 구조 설계)
+- **주요 기술**: FastAPI, MySQL, LangChain, Docker
+- **성과**: LLM + RAG 복지 상담 챗봇과 카카오톡 맞춤형 복지 알림 서비스 기획 및 백엔드 설계
 - **URL**: `/projects/employment-data`
 
 ### 6. PodlyBot - 카카오톡 LLM 챗봇
@@ -132,7 +132,7 @@
 - **서버**: Nginx, Linux Server, Gunicorn
 - **클라우드**: Azure, AWS, GCP, Vercel, Railway, Fly.io
 - **인증**: Keycloak (SSO), better-auth, OAuth 2.0
-- **모니터링**: LangSmith, DataDog
+- **모니터링**: LangSmith
 
 ### Development Tools
 - **패키지 매니저**: Bun, npm
@@ -146,8 +146,8 @@
 
 ### 리더십 경험
 - **AI 파트 리드**: SK PharmaAIX (BCG RA 15명 + 랩큐 팀 3명 리딩)
-- **PL (Project Leader)**: 한국자동차연구원 (3명 팀), 그린텍 (2명 팀)
-- **팀장**: Podly (4명 팀), 고용노동 공모전
+- **PL (Project Leader)**: 한국자동차연구원 (4명 팀), 그린텍 (2명 팀)
+- **팀장**: Podly (4명 팀)
 
 ### 개발 역할
 - **1인 풀스택**: 한국자동차연구원 (1~2차, 7개월), AppHub, PodlyBot, LabQ Bot
@@ -165,7 +165,7 @@
 ### 성능 개선
 - **SK PharmaAIX**: 응답 속도 83% 개선, 답변 커버리지 233% 향상
 - **한국자동차연구원**: 보고서 작성 시간 98% 단축 (1시간 → 1분)
-- **그린텍**: 이상 탐지 98.5% 정확도, 19개 타겟 변수 예측 모델
+- **그린텍**: T-N 방류수 예측 R² 0.9244, 19개 타겟 변수 예측 모델
 
 ### 오픈소스 기여
 - **LangChain Open Tutorial**: 2,000+ 커밋 프로젝트 기여, 3개 튜토리얼 작성
