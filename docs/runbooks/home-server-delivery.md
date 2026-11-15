@@ -44,7 +44,7 @@ flowchart LR
 | `~/srv/agent/deployed-sha`, `deploy.log` | Last deployed revision and the deploy log |
 
 The stack mirrors the former Cloud Run production map: one uvicorn worker, Redis off,
-the guest launch tuple (`openai:gpt-5.6-luna`, 500000, 53837), and the guest maintenance
+the guest launch tuple (`openai:gpt-6-luna`, 500000, 53837), and the guest maintenance
 job as a 15-minute loop in the `maintenance` service. One Postgres role owns the database;
 the Neon runtime/migration role split does not apply here.
 
