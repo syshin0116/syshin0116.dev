@@ -51,7 +51,7 @@ A personal tech blog, portfolio, and AI chatbot - built with [Next.js 16](https:
 | AI / RAG | Aegra Agent Protocol v2, LangGraph, Deep Agents |
 | Visualization | D3.js, Mermaid, Framer Motion |
 | Auth | Auth.js v5 + Postgres (Google / GitHub OAuth) |
-| Deployment | Vercel web + home-server agent (Docker Compose, Tailscale Funnel) |
+| Deployment | Vercel web + home-server agent (Docker Compose, Tailscale Funnel); see [infrastructure overview](docs/reference/infrastructure.md) |
 | Package Manager | Bun |
 
 ## Getting Started
