@@ -63,6 +63,7 @@ const FOOTNOTE_REF_RE = /\[\^([^\]]+)\](?!:)/g
 const QUOTE_RE = /"([^"\n]*)"|“([^”\n]*)”/g
 const INLINE_CODE_RE = /`[^`\n]*`/g
 const HEADING_RE = /^(#{1,6})[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$/
+const BLOCKQUOTE_RE = /^[ \t]*(?:>[ \t]?)+/
 const FENCE_RE = /^[ \t]*(`{3,}|~{3,})(.*)$/
 // Link markup reduced to its visible text: embeds vanish, wikilinks show their alias (else the page,
 // else the heading), Markdown links show their label. One level of nested brackets or parentheses is allowed.
@@ -223,10 +224,10 @@ async function validateLocalSource(source: string): Promise<string | null> {
 
 /** Every line with its 1-based number; `prose` is false inside fenced code and on fence lines. */
 function scanLines(text: string): { line: string; number: number; prose: boolean }[] {
-  // A fence closes only on the same character, at least as long as the opener, with nothing after it.
+  // A fence (also inside a blockquote) closes only on the same character, at least as long as the opener, with nothing after it.
   let fence: string | null = null
   return text.split("\n").map((line, index) => {
-    const m = line.match(FENCE_RE)
+    const m = line.replace(BLOCKQUOTE_RE, "").match(FENCE_RE)
     if (m) {
       if (fence === null) fence = m[1]
       else if (m[1][0] === fence[0] && m[1].length >= fence.length && m[2].trim() === "") fence = null
@@ -250,7 +251,7 @@ function normalizeForMatch(text: string): string {
   const unquoted = text
     .normalize("NFC")
     .split("\n")
-    .map((line) => line.replace(/^[ \t]*(?:>[ \t]?)+/, ""))
+    .map((line) => line.replace(BLOCKQUOTE_RE, ""))
     .join("\n")
     .replace(/[“”„]/g, '"')
     .replace(/[‘’]/g, "'")
@@ -288,7 +289,7 @@ type FootnoteTarget =
 
 function footnoteTarget(definition: string): FootnoteTarget {
   let target = definition.trim()
-  const link = target.match(/^\[[^\]]*\]\(\s*(?:<([^>]*)>|([^)\s]+))/)
+  const link = target.match(/^\[[^\]]*\]\(\s*(?:<([^>]*)>|((?:[^()\s]|\([^()\s]*\))+))/)
   if (link) target = (link[1] ?? link[2]).trim()
   if (/https:\/\//i.test(target)) return { kind: "https" }
   if (/^[a-z][a-z\d+.-]*:/i.test(target)) return { kind: "none" }

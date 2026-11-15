@@ -61,6 +61,7 @@ FOOTNOTE_REF_RE = re.compile(r"\[\^([^\]]+)\](?!:)")
 QUOTE_RE = re.compile(r'"([^"\n]*)"|“([^”\n]*)”')
 INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
 HEADING_RE = re.compile(r"^(#{1,6})[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$")
+BLOCKQUOTE_RE = re.compile(r"^[ \t]*(?:>[ \t]?)+")
 FENCE_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})(.*)$")
 SPACE_RE = re.compile(r"[ \t\n\r\f\v  -   　]+")
 # Link markup reduced to its visible text: embeds vanish, wikilinks show their alias (else the page,
@@ -212,10 +213,10 @@ def validate_local_source(source: str) -> str | None:
 def scan_lines(text: str) -> list[tuple[str, int, bool]]:
     """Every line with its 1-based number; prose is False inside fenced code and on fence lines."""
     out: list[tuple[str, int, bool]] = []
-    # A fence closes only on the same character, at least as long as the opener, with nothing after it.
+    # A fence (also inside a blockquote) closes only on the same character, at least as long as the opener, with nothing after it.
     fence: str | None = None
     for index, line in enumerate(text.split("\n")):
-        match = FENCE_RE.match(line)
+        match = FENCE_RE.match(BLOCKQUOTE_RE.sub("", line, count=1))
         if match:
             marker = match.group(1)
             if fence is None:
@@ -257,9 +258,7 @@ def visible_text(text: str) -> str:
 def normalize_for_match(text: str) -> str:
     """Text used to compare a quote with its source: markup and spacing removed."""
     text = unicodedata.normalize("NFC", text)
-    text = "\n".join(
-        re.sub(r"^[ \t]*(?:>[ \t]?)+", "", line) for line in text.split("\n")
-    )
+    text = "\n".join(BLOCKQUOTE_RE.sub("", line) for line in text.split("\n"))
     text = re.sub(r"[“”„]", '"', text)
     text = re.sub(r"[‘’]", "'", text)
     text = visible_text(text)
@@ -280,7 +279,9 @@ def heading_key(text: str) -> str:
 def footnote_target(definition: str) -> tuple[str, str | None, str | None]:
     """Return ("local", file, anchor), ("https", None, None), or ("none", None, None)."""
     target = definition.strip()
-    link = re.match(r"^\[[^\]]*\]\(\s*(?:<([^>]*)>|([^)\s]+))", target)
+    link = re.match(
+        r"^\[[^\]]*\]\(\s*(?:<([^>]*)>|((?:[^()\s]|\([^()\s]*\))+))", target
+    )
     if link:
         target = (link.group(1) if link.group(1) is not None else link.group(2)).strip()
     if re.search(r"https://", target, re.IGNORECASE):
