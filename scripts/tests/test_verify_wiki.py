@@ -138,9 +138,10 @@ class WikiFixture:
         self._tmp = tempfile.TemporaryDirectory()
         self.root = Path(self._tmp.name)
         (self.root / "content" / "Tools").mkdir(parents=True)
-        (self.root / "content" / "Tools" / "source.md").write_text(
-            SOURCE, encoding="utf-8"
-        )
+        for name in ("source.md", "source_(copy).md"):
+            (self.root / "content" / "Tools" / name).write_text(
+                SOURCE, encoding="utf-8"
+            )
         wiki = self.root / "content" / "wiki"
         wiki.mkdir()
         (wiki / "other.md").write_text(
@@ -457,6 +458,22 @@ class VerifyWikiTests(unittest.TestCase):
         code, out = self.cite("Linked Text", "Quotes may span other|a wikilink alias")
         self.assertEqual(code, 1, out)
         self.assertIn("quote-not-in-source", out)
+
+    def test_fence_inside_a_blockquote_is_code(self) -> None:
+        body = VALID_BODY.replace(
+            "## 생각의 변천",
+            '> ```text\n> "short"[^example]\n> ```\n\n## 생각의 변천',
+        )
+        code, out = self.check({"page": page(body)})
+        self.assertEqual(code, 0, out)
+
+    def test_footnote_link_destination_keeps_balanced_parentheses(self) -> None:
+        body = VALID_BODY.replace(
+            "[^2]: content/Tools/source.md#keywords",
+            "[^2]: [source](content/Tools/source_(copy).md#keywords)",
+        )
+        code, out = self.check({"page": page(body)})
+        self.assertEqual(code, 0, out)
 
     def test_reported_lines_are_file_lines(self) -> None:
         text = page(VALID_BODY.replace("## Key Claims", "[[missing]]\n\n## Key Claims"))
