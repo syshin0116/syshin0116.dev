@@ -49,3 +49,9 @@
 ## [2026-10-25 14:44 UTC] update | wiki verification now runs in ci/repo
 - Updated: content/wiki/llm-wiki.md
 - Superseded: .github/workflows/wiki-verify.yml from the 2026-05-17 entry no longer exists; the `ci/repo` job in .github/workflows/ci.yml runs .agents/skills/wiki-curator/scripts/verify.ts and scripts/verify-wiki.py when content/, .agents/skills/wiki-curator/, or scripts/verify-wiki.py change.
+
+## [2026-11-15 20:09 UTC] migrate | 29 pages moved to contract v2
+- Frontmatter: added status (21 seedling, 8 budding), confidence (5 high, 24 medium), reviewed: null; removed type and author. No page is evergreen and no reviewed date is set, because no human review happened.
+- Quotes: 22 findings fixed; 2 quotes replaced with the exact source wording, the rest lost their quote marks (translations, combined paraphrases, terms).
+- Links: removed 25 related-pages sections; 11 links moved inline into sentences that discuss the target, the rest dropped (backlinks render automatically).
+- Verifier: ALLOW_LEGACY_PAGES is now false, so a page without status fails; index.md shows Status instead of Type.

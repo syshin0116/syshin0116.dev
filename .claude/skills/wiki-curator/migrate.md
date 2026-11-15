@@ -4,7 +4,7 @@ Restructure folders, types, and tag vocabulary to reflect emergent patterns. Rea
 
 ## When to run
 
-- When `lint` reports significant drift (orphan pages, parallel tag synonyms, legacy pages awaiting contract v2).
+- When `lint` reports significant drift (orphan pages, parallel tag synonyms).
 - After a backfill or large ingest batch (50+ new pages).
 - Periodically (monthly), to consolidate accumulated mess.
 - **Never** in the same routine session as ingest - they have conflicting goals (ingest preserves; migrate restructures).
@@ -17,7 +17,6 @@ migrate has broad authority over the wiki's shape:
 - **Move pages** between folders.
 - **Rename folders** to better reflect their contents.
 - **Remove folders** that no longer hold a coherent group.
-- **Convert legacy pages to contract v2** (see [below](#converting-legacy-pages-to-contract-v2)).
 - **Consolidate tag vocabulary** (e.g., `note-taking` + `notes` → `note-taking`).
 - **Update `summary:` fields** if frontmatter and body have drifted (rare; ingest should keep them in sync).
 - **Fix broken `[[wikilinks]]`** when slugs change.
@@ -25,7 +24,7 @@ migrate has broad authority over the wiki's shape:
 
 ## What migrate must NOT do
 
-- **Modify source-derived body content** (`## Key Claims`, code examples, footnotes). migrate touches metadata + location only, except for the narrow quote and link fixes the v2 conversion allows.
+- **Modify source-derived body content** (`## Key Claims`, code examples, footnotes). migrate touches metadata + location only.
 - **Delete pages.** Move to `content/wiki/.orphaned/<slug>.md` if truly unwanted; user recovers if needed.
 - **Run when sources have changed since last ingest.** Run ingest first.
 
@@ -51,7 +50,7 @@ For every page in `content/wiki/`, collect:
 ```
 - slug (filename without .md)
 - folder (parent dir relative to content/wiki/, "" if root)
-- status, confidence, reviewed (frontmatter; empty on legacy pages)
+- status, confidence, reviewed (frontmatter)
 - tags (frontmatter)
 - summary (frontmatter, first 80 chars)
 - sources count
@@ -140,25 +139,12 @@ None. Slugs unchanged, Nuartz/Obsidian resolve by filename.
 Execute the proposals in this order (so partial failure leaves wiki in a consistent state):
 
 1. **Tag consolidation** - rewrite `tags:` lists across all affected pages.
-2. **Contract v2 conversion** - per [below](#converting-legacy-pages-to-contract-v2), if legacy pages remain.
-3. **File moves** - `git mv content/wiki/<slug>.md content/wiki/<folder>/<slug>.md` (slugs unchanged so wikilinks still resolve by basename).
-4. **Cleanup** - remove leftover `coverage:` fields and empty sections.
-5. **Rebuild `index.md`** - `bun .claude/skills/wiki-curator/scripts/rebuild-index.ts`. The script reads frontmatter and emits the standard format; don't generate the table token-by-token.
-6. **Verify gate** - `bun .claude/skills/wiki-curator/scripts/verify.ts`. See [SKILL.md → Verify gate](./SKILL.md#verify-gate) for retry behavior.
+2. **File moves** - `git mv content/wiki/<slug>.md content/wiki/<folder>/<slug>.md` (slugs unchanged so wikilinks still resolve by basename).
+3. **Cleanup** - remove leftover `coverage:` fields and empty sections.
+4. **Rebuild `index.md`** - `bun .claude/skills/wiki-curator/scripts/rebuild-index.ts`. The script reads frontmatter and emits the standard format; don't generate the table token-by-token.
+5. **Verify gate** - `bun .claude/skills/wiki-curator/scripts/verify.ts`. See [SKILL.md → Verify gate](./SKILL.md#verify-gate) for retry behavior.
 
 If any step fails → halt. Do not commit a half-applied migration.
-
-### Converting legacy pages to contract v2
-
-A legacy page has no `status`. Convert it so `verify.ts --strict` passes for that page:
-
-1. **Frontmatter.** Add `status` (`seedling` for 1-2 sources, `budding` when several sources are woven into the page's own structure), `confidence` (per [conventions](./conventions.md#confidence)), and `reviewed: null`. Remove `type:` and `author:`; a page with `type: synthesis` keeps its `synthesis_query`. Set `evergreen` and a `reviewed` date only for pages a human says they checked.
-2. **Quotes.** For each `quote-*` finding, either replace the quoted text with the exact source span (same meaning, verbatim wording) or remove the quote marks and keep the sentence as a paraphrase. Do not change what the claim says.
-3. **Related-pages sections.** Move each `## Connections` link into a sentence that already discusses the target, if one exists; otherwise drop it (backlinks render automatically). Remove the heading.
-4. **Change over time.** Add `## 생각의 변천` only if the page's sources show the author's position changing; otherwise add nothing.
-5. **Page set.** A legacy page that only summarizes one post, with no concept a reader would look up, is a merge candidate: propose merging it into the concept page it belongs to rather than converting it. Merges need owner approval.
-
-Convert all pages in one PR. In the same PR, set `ALLOW_LEGACY_PAGES` to false in this skill's `scripts/verify.ts` (both mirrored trees) and in `scripts/verify-wiki.py`, and switch the `index.md` Type column to Status in `scripts/rebuild-index.ts`, so `main` never holds a legacy page under the strict gate. Rebuild `index.md` afterwards.
 
 ### 6. log.md
 

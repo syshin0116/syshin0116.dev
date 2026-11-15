@@ -1,6 +1,5 @@
 ---
 title: "정적 사이트 생성기(SSG) 비교"
-type: reference
 tags:
   - ssg
   - blog
@@ -16,9 +15,11 @@ sources:
   - content/Tools/2024-01-01-깃 블로그 생성.md
   - content/Tools/2024-01-05-Hugo 블로그 생성 연습.md
   - content/Tools/Git/2023-12-11-Git Blog Themes.md
+status: budding
+confidence: high
+reviewed: null
 created: 2026-04-26
-updated: 2026-04-26
-author: wiki-curator
+updated: 2026-11-15
 draft: false
 ---
 
@@ -53,10 +54,6 @@ url: "https://username.github.io"
 github: username
 google_analytics: "UA_TOKEN"
 ```
-
-## Connections
-
-- [[quartz-publishing]] - Quartz는 Obsidian 노트를 위한 SSG로, 마크다운 기반 블로그의 대안적 접근
 
 ## Footnotes
 

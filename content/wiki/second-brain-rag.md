@@ -1,6 +1,5 @@
 ---
 title: "Second Brain + RAG 통합"
-type: concept
 tags:
   - second-brain
   - rag
@@ -12,9 +11,11 @@ tags:
 summary: "Second Brain(개인 지식 데이터베이스)에 RAG를 적용하면 컨텍스트 기반 정보 검색과 AI 응답 품질이 동시에 향상된다. 지식이 충분히 축적되면 개인 경험을 가진 Multi-Agent 구현도 가능하다는 아이디어다."
 sources:
   - content/Tools/2024-08-02-Second-Brain-RAG.md
+status: seedling
+confidence: medium
+reviewed: null
 created: 2026-04-26
-updated: 2026-10-25
-author: wiki-curator
+updated: 2026-11-15
 draft: false
 ---
 
@@ -25,12 +26,6 @@ draft: false
 - 두 개념의 통합 효과: 개인 Second Brain에 RAG를 적용하면 개인화된 정보 검색 강화, 문맥 기반 탐색, AI 비서를 통한 프로젝트 관리와 아이디어 생성 지원이 가능해진다.[^1]
 - 목표 워크플로우: 노트 작성(Note taking) → 검색(Retrieve) → 생성(Generate) → 출판(Publish)의 반자동화.[^1]
 - 개인 지식베이스가 충분히 쌓이면 개인의 경험과 관점을 가진 Multi-Agent 구현이 가능하다는 기대.[^1]
-
-## Connections
-
-- [[zettelkasten]] - Zettelkasten은 Second Brain의 노트 연결 방법론으로, 개인 지식베이스의 구조적 기반
-- [[블로그-검색-실험]] - 한국어 블로그 포스트를 대상으로 한 실제 RAG 검색 성능 비교 실험 시리즈
-- [[llm-wiki]] - Second Brain + RAG에서 검색 중심 접근을 넘어, LLM이 지속적으로 유지하는 Markdown 정제 레이어로 발전시키는 패턴
 
 ## Footnotes
 

@@ -1,6 +1,5 @@
 ---
 title: "맥북 개발 환경 초기 설정"
-type: reference
 tags:
   - mac
   - setup
@@ -13,9 +12,11 @@ tags:
 summary: "새 맥북을 받을 때 설치할 필수 도구 목록이다. Homebrew를 기반으로 Raycast, uv(Python), fnm(Node.js), Bun, Docker Desktop을 설치하고, App Store → Homebrew → 공식 웹사이트 순서로 설치를 진행한다."
 sources:
   - content/Tools/Mac/2025-04-18-맥북 초기 세팅.md
+status: seedling
+confidence: medium
+reviewed: null
 created: 2026-04-26
-updated: 2026-10-25
-author: wiki-curator
+updated: 2026-11-15
 draft: false
 ---
 

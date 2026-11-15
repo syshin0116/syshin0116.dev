@@ -1,6 +1,5 @@
 ---
 title: "Ubuntu 서버 초기 설정"
-type: reference
 tags:
   - Ubuntu
   - server
@@ -13,9 +12,11 @@ tags:
 summary: "Ubuntu 서버를 새로 받을 때 필수 패키지를 한 번에 설치하는 bash 스크립트다. build-essential, git, curl, tmux 등 기본 도구와 함께 Python용 uv, Docker CE(공식 레포지토리 경유)를 설치하고 사용자를 docker 그룹에 추가한다."
 sources:
   - content/Tools/Ubuntu-Server-Setup.md
+status: seedling
+confidence: medium
+reviewed: null
 created: 2026-04-26
-updated: 2026-10-25
-author: wiki-curator
+updated: 2026-11-15
 draft: false
 ---
 
@@ -24,7 +25,7 @@ draft: false
 - 스크립트는 Ubuntu(Debian 계열) 전용이며 `sudo` 권한이 필요하다.[^1]
 - 기본 도구 설치: `build-essential`, `git`, `curl`, `wget`, `unzip`, `vim`, `htop`, `net-tools`, `lsof`, `tmux`.[^1]
 - Python 패키지 관리자로 `uv`를 사용한다. `pyenv + pip`의 대체재로 속도가 빠르다.[^1]
-- Docker는 Ubuntu 기본 저장소의 `docker.io`가 아닌 **Docker 공식 apt 저장소**에서 설치해야 최신 버전을 받는다.[^1]
+- [[docker|Docker]]는 Ubuntu 기본 저장소의 `docker.io`가 아닌 **Docker 공식 apt 저장소**에서 설치해야 최신 버전을 받는다.[^1]
 - Docker 설치 후 `sudo usermod -aG docker $USER`로 사용자를 docker 그룹에 추가해야 sudo 없이 docker 사용 가능. 재로그인 필요.[^1]
 
 ## Examples / Code
@@ -74,10 +75,6 @@ sudo usermod -aG docker $USER
 | `htop` | CPU/메모리 실시간 모니터링 |
 | `uv` | Python 패키지/버전 관리 (pyenv+pip 대체) |
 | `docker-compose-plugin` | Docker Compose V2 (`docker compose` 명령) |
-
-## Connections
-
-- [[docker]] - Docker CE 설치와 컨테이너 기초 개념
 
 ## Footnotes
 

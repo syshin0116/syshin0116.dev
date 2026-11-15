@@ -1,6 +1,5 @@
 ---
 title: "Agentic decision workflow"
-type: pattern
 tags:
   - AI
   - agent
@@ -24,9 +23,11 @@ sources:
   - https://github.com/prodbartist/cmds-vault
   - https://fortelabs.com/blog/para/
   - https://learn.microsoft.com/en-us/azure/search/search-document-level-access-overview
+status: budding
+confidence: medium
+reviewed: null
 created: 2026-05-17
-updated: 2026-10-25
-author: wiki-curator
+updated: 2026-11-15
 draft: false
 ---
 
@@ -34,7 +35,7 @@ draft: false
 
 - Agentic workflow의 목표는 사람을 완전히 제거하는 것이 아니라, 사람이 **decision making**에 집중하도록 반복 작업과 정리를 agent에게 넘기는 것이다.
 - Atlassian HULA 사례는 좋은 기준점을 준다. agent는 work item을 읽고 plan, code, PR까지 만들지만, engineer가 plan approval, code review, feedback을 담당한다.[^hula]
-- GitHub Agentic Workflows는 agent 자동화를 GitHub Actions 안에 넣고 permissions, logs, review boundary를 repository owner가 통제하는 방향을 제안한다. Continuous AI는 CI/CD를 대체하지 않고, 주관적·반복적 repository 작업을 보완한다.[^github-agentic]
+- GitHub Agentic Workflows는 agent 자동화를 [[github-actions-gcp-cicd|GitHub Actions]] 안에 넣고 permissions, logs, review boundary를 repository owner가 통제하는 방향을 제안한다. Continuous AI는 CI/CD를 대체하지 않고, 주관적·반복적 repository 작업을 보완한다.[^github-agentic]
 - AI coding agent PR 연구는 구조화된 PR 설명이 reviewer 부담을 줄일 수 있음을 보여준다. 하지만 설명만으로 merge가 보장되지는 않고, 코드 품질과 검증이 여전히 중심이다.[^pr-communication]
 - ADR은 decision의 context, alternatives, rationale, consequences를 남기는 lightweight 기록이다. Microsoft는 ADR을 append-only log로 다루고, 결정이 바뀌면 기존 record를 수정하지 말고 새 record가 supersede하도록 권장한다.[^ms-adr]
 - 따라서 실행 기록은 issue/PR, 결정 이유는 ADR, 최신 팀 지식은 wiki에 둔다. 이 3층을 분리해야 agent가 과거 논쟁을 반복하지 않고 현재 지식과 과거 이유를 함께 읽을 수 있다.
@@ -70,7 +71,7 @@ Permission is not a presentation concern. Source ACLs from Slack, documents, rep
 
 ## Second Brain and CMDS mapping
 
-Second Brain/PARA is useful because it organizes information around actionability: active projects, ongoing areas, reusable resources, and archives. For organizations, PARA needs additional fields for permissions, owners, source provenance, review cycle, and promotion status.
+[[second-brain-rag|Second Brain]]/PARA is useful because it organizes information around actionability: active projects, ongoing areas, reusable resources, and archives. For organizations, PARA needs additional fields for permissions, owners, source provenance, review cycle, and promotion status.
 
 구요한/Yohan Koo's CMDS vault offers a stronger process language for agentic knowledge operations. The `Connect → Merge → Develop → Share` lifecycle maps naturally to Hermes workflows:
 
@@ -137,14 +138,6 @@ A team decision becomes durable knowledge only when the wiki page includes:
 6. links to ADR, issue, PR, and relevant code paths.
 
 Without context and rejected alternatives, the wiki becomes a conclusion dump. Future agents can repeat the same debate because they cannot see why previous options were rejected.
-
-## Connections
-
-- [[llm-wiki]] - mutable semantic knowledge layer that should absorb accepted decision outcomes.
-- [[github-actions-gcp-cicd]] - deterministic CI/CD remains the verification layer; agentic workflows should complement it, not replace it.
-- [[vibe-coding]] - agentic development is safer when vibe coding is constrained by decision gates, tests, and ADRs.
-- [[second-brain-rag]] - decision-aware wiki pages make retrieval more useful because they encode rationale, not just facts.
-- [[llm-wiki]] - CMDS-style raw/source separation, index/log discipline, and query filing are useful implementation details for this workflow.
 
 ## Footnotes
 

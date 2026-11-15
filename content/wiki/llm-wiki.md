@@ -1,6 +1,5 @@
 ---
 title: "LLM Wiki 패턴"
-type: pattern
 tags:
   - llm
   - AI
@@ -19,9 +18,11 @@ sources:
   - https://atlan.com/know/llm-wiki-vs-rag-knowledge-base/
   - https://github.com/prodbartist/cmds-vault
   - https://github.com/prodbartist/cmds-vault/blob/main/90.%20Settings/91.%20Skills/cmds-llm-wiki/SKILL.md
+status: budding
+confidence: medium
+reviewed: null
 created: 2026-05-17
-updated: 2026-10-25
-author: wiki-curator
+updated: 2026-11-15
 draft: false
 ---
 
@@ -66,7 +67,7 @@ draft: false
 
 ## CMDS / CommandSpace Notes
 
-구요한/Yohan Koo의 CMDS starter vault는 LLM Wiki를 개인/팀 지식 운영으로 가져올 때 참고할 만한 구현 사례다. CMDS는 Obsidian vault 안에서 `Connect → Merge → Develop → Share`라는 지식 생애주기를 두고, `CLAUDE.md`, `AGENTS.md`, `CMDS.md`, Guide, Head Quarter 같은 system files에 precedence를 부여한다. Agent가 어느 규칙을 먼저 읽고 따라야 하는지 명시한다는 점이 중요하다.
+구요한/Yohan Koo의 CMDS starter vault는 LLM Wiki를 개인/팀 지식 운영으로 가져올 때 참고할 만한 구현 사례다. CMDS는 [[obsidian-notion-sync|Obsidian]] vault 안에서 `Connect → Merge → Develop → Share`라는 지식 생애주기를 두고, `CLAUDE.md`, `AGENTS.md`, `CMDS.md`, Guide, Head Quarter 같은 system files에 precedence를 부여한다. Agent가 어느 규칙을 먼저 읽고 따라야 하는지 명시한다는 점이 중요하다.
 
 `cmds-llm-wiki` skill은 Karpathy-style LLM Wiki를 CMDS vault 안에 통합한다. 특징은 다음과 같다.
 
@@ -75,7 +76,7 @@ draft: false
 - `Core Context.md`는 `BRAIN.md`, Head Quarter, CMDS Guide 같은 canonical 파일을 가리키는 pointer 역할을 하며, 내용을 복붙하지 않는다.
 - source가 커지면 standalone wiki로 분리할 수 있는 graduation path를 둔다.
 
-이 구조는 조직 위키에도 유효하다. 프로젝트별 context를 중앙에 복제하지 말고, 중앙 wiki는 project-local docs와 ADR을 가리키는 index와 synthesis 역할을 하는 편이 drift를 줄인다.
+이 구조는 조직 위키에도 유효하다. 프로젝트별 context를 중앙에 복제하지 말고, 중앙 wiki는 project-local docs와 [[agentic-decision-workflow|ADR]]을 가리키는 index와 synthesis 역할을 하는 편이 drift를 줄인다.
 
 ## Implementation Notes for This Repo
 
@@ -88,14 +89,6 @@ draft: false
 | PR 기반 wiki 갱신 | agent가 만든 wiki 변경을 사람이 diff로 검토 | 현재 운영 방식 |
 
 자동 ingest까지 바로 켜기보다는, 먼저 검증 게이트를 붙이고 wiki 변경이 안전하게 리뷰되는 상태를 만드는 편이 낫다.
-
-## Connections
-
-- [[second-brain-rag]] - LLM Wiki는 Second Brain + RAG 아이디어에서 검색 중심 부분을 줄이고, LLM이 유지하는 정제 Markdown 레이어를 앞세운 구현 패턴이다.
-- [[zettelkasten]] - LLM Wiki의 wikilink와 cross-reference는 Zettelkasten의 연결 중심 지식 조직을 LLM 유지보수 루프로 자동화한다.
-- [[블로그-검색-실험]] - 이 블로그의 RAG/검색 실험은 raw/source 검색 계층이고, LLM Wiki는 그 결과를 누적하는 curated synthesis 계층이다.
-- [[obsidian-notion-sync]] - Obsidian을 authoring UI로 쓰면 raw 작성 경험을 유지하면서 Git/웹 배포/LLM 정제를 붙일 수 있다.
-- [[agentic-decision-workflow]] - 프로젝트→팀→조직으로 지식을 승격할 때 LLM Wiki가 최신 semantic layer를 맡고 ADR이 decision history를 맡는다.
 
 ## Footnotes
 

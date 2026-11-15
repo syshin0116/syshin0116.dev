@@ -204,19 +204,18 @@ class VerifyWikiTests(unittest.TestCase):
         code, out = self.check({"page": page(VALID_BODY, reviewed=None)})
         self.assertEqual(code, 0, out)
 
-    def test_legacy_page_passes_with_warnings_and_fails_under_strict(self) -> None:
-        code, out = self.check({"legacy": LEGACY_PAGE})
-        self.assertEqual(code, 0, out)
-        self.assertIn("WARN - ", out)
-        for check in ("legacy-shape", "quote-too-short", "section-related"):
-            self.assertIn(f"### {check} (1)", out)
-
-        code, out = self.check({"legacy": LEGACY_PAGE}, "--strict")
-        self.assertEqual(code, 1, out)
-        self.assertIn("missing required field: status", out)
-        self.assertIn("missing required field: confidence", out)
-        self.assertIn("retired field present: type", out)
-        self.assertIn("retired field present: author", out)
+    def test_page_without_status_fails_now_that_the_migration_landed(self) -> None:
+        for args in ((), ("--strict",)):
+            with self.subTest(args=args):
+                code, out = self.check({"legacy": LEGACY_PAGE}, *args)
+                self.assertEqual(code, 1, out)
+                self.assertNotIn("WARN - ", out)
+                self.assertIn("missing required field: status", out)
+                self.assertIn("missing required field: confidence", out)
+                self.assertIn("retired field present: type", out)
+                self.assertIn("retired field present: author", out)
+                for check in ("quote-too-short", "section-related"):
+                    self.assertIn(f"### {check} (1)", out)
 
     def test_v2_page_requires_confidence(self) -> None:
         self.assert_fails(
@@ -471,6 +470,14 @@ class VerifyWikiTests(unittest.TestCase):
         body = VALID_BODY.replace(
             "[^2]: content/Tools/source.md#keywords",
             "[^2]: [source](content/Tools/source_(copy).md#keywords)",
+        )
+        code, out = self.check({"page": page(body)})
+        self.assertEqual(code, 0, out)
+
+    def test_link_title_in_quotes_is_not_a_quotation(self) -> None:
+        body = VALID_BODY.replace(
+            "- The term",
+            '- See [the post](https://example.com/post "Post")[^1] and the term',
         )
         code, out = self.check({"page": page(body)})
         self.assertEqual(code, 0, out)

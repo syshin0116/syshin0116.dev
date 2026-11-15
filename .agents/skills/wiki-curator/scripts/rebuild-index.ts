@@ -26,7 +26,7 @@ interface Page {
   slug: string
   folder: string
   title: string
-  type: string
+  status: string
   tags: string[]
   sources: string[]
   summary: string
@@ -120,7 +120,7 @@ async function readPage(file: string): Promise<Page | null> {
     slug,
     folder,
     title: getScalar(split.fm, "title") ?? slug,
-    type: getScalar(split.fm, "type") ?? "-",
+    status: getScalar(split.fm, "status") ?? "-",
     tags: getList(split.fm, "tags"),
     sources: getList(split.fm, "sources"),
     summary: getScalar(split.fm, "summary") ?? "",
@@ -136,12 +136,12 @@ function renderIndex(pages: Page[]): string {
   lines.push("")
   lines.push("## All pages")
   lines.push("")
-  lines.push("| Page | Summary | Type | Tags | Sources | Updated |")
+  lines.push("| Page | Summary | Status | Tags | Sources | Updated |")
   lines.push("|------|---------|------|------|---------|---------|")
   for (const p of pages) {
     const tagStr = p.tags.join(", ")
     lines.push(
-      `| [[${p.slug}]] | ${escapePipe(p.summary)} | ${p.type} | ${escapePipe(tagStr)} | ${p.sources.length} | ${p.updated} |`,
+      `| [[${p.slug}]] | ${escapePipe(p.summary)} | ${p.status} | ${escapePipe(tagStr)} | ${p.sources.length} | ${p.updated} |`,
     )
   }
 

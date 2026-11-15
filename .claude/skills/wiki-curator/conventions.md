@@ -64,10 +64,6 @@ Ingest creates pages as `seedling` and may move a page to `budding` when it adds
 
 Confidence is about evidence, status is about the page's maturity. A seedling can be `high` (one clear source), an evergreen can be `medium`.
 
-### Rollout (contract v2)
-
-A page that declares `status` follows this contract and the verifier enforces all of it. A page without `status` is a legacy page: `type` and `author` are still allowed and the v2-only rules are reported as warnings, not failures. The content migration converts every page and then sets `ALLOW_LEGACY_PAGES` to false in both verifiers, after which a page without `status` fails. Preview that state with `--strict`.
-
 ## Page organization
 
 The wiki uses **three complementary mechanisms** for organizing pages:
@@ -130,7 +126,7 @@ Optional. When sources disagree, list both with attribution. Do not resolve.
 | `## Contradictions`, `## Examples / Code` | Optional. |
 | Related pages | None. Do not write `## Connections`, `## Related`, `## See also`, or `## 관련 페이지`. Link inline in the body; the web page renders backlinks automatically. |
 
-Any section that would be empty is omitted; the verifier rejects empty headings on v2 pages.
+Any section that would be empty is omitted; the verifier rejects empty headings.
 
 `## Key Claims` and `## Footnotes` stay mandatory at every growth stage: a one-source seedling still states its claims and cites them, and the quote check resolves quotes through the footnotes.
 
@@ -239,10 +235,10 @@ Format:
 
 ## All pages
 
-| Page | Summary | Type | Tags | Sources | Updated |
+| Page | Summary | Status | Tags | Sources | Updated |
 |------|---------|------|------|---------|---------|
-| [[zettelkasten]] | Note-linking system focused on connection over collection. | concept | pkm, note-taking, zettelkasten | 5 | 2026-04-25 |
-| [[clidex]] | Rust CLI for tool discovery with BM25-based search. | tool | cli, rust, ai, bm25 | 2 | 2026-04-25 |
+| [[zettelkasten]] | Note-linking system focused on connection over collection. | budding | pkm, note-taking, zettelkasten | 5 | 2026-04-25 |
+| [[clidex]] | Rust CLI for tool discovery with BM25-based search. | seedling | cli, rust, ai, bm25 | 2 | 2026-04-25 |
 
 ## Sources catalog
 

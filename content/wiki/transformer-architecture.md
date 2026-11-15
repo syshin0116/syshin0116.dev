@@ -1,6 +1,5 @@
 ---
 title: "Transformer 아키텍처"
-type: concept
 tags:
   - transformer
   - attention
@@ -14,9 +13,11 @@ summary: "Transformer는 RNN의 기울기 소실과 고정 크기 컨텍스트 �
 sources:
   - content/Study/SeSAC/2023-11-29-Transformers 강의 정리.md
   - content/Study/SeSAC/2023-11-30-Transformers 실습.md
+status: seedling
+confidence: medium
+reviewed: null
 created: 2026-04-26
-updated: 2026-10-25
-author: wiki-curator
+updated: 2026-11-15
 draft: false
 ---
 
@@ -57,10 +58,6 @@ class PositionalEncoding(tf.keras.layers.Layer):
         angle_rads[:, 1::2] = cosines
         return tf.cast(tf.constant(angle_rads)[tf.newaxis, ...], tf.float32)
 ```
-
-## Connections
-
-- [[object-detection]] - Transformer의 attention 개념은 이후 Vision Transformer(ViT) 등 컴퓨터 비전에도 적용됨
 
 ## Footnotes
 

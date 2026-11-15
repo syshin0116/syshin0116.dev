@@ -1,6 +1,5 @@
 ---
 title: "관계형 데이터베이스 및 SQL 기초"
-type: concept
 tags:
   - sql
   - database
@@ -12,9 +11,11 @@ tags:
 summary: "관계형 DB는 1970년 Edgar Codd가 제안한 테이블 기반 데이터 모델로 현재 가장 널리 사용된다. 계층형 DB와 달리 복잡한 관계를 지원하며 데이터 독립성을 보장한다. MySQL 설치 및 기본 사용법도 포함한다."
 sources:
   - content/Study/SeSAC/data-analysis/2023-07-20-SeSAC-SQL로 데이터베이스 다루기-1일차.md
+status: seedling
+confidence: medium
+reviewed: null
 created: 2026-04-26
-updated: 2026-10-25
-author: wiki-curator
+updated: 2026-11-15
 draft: false
 ---
 
@@ -49,10 +50,6 @@ MySQL Workbench에서 .sql 파일 실행:
 1. 파일 다운로드 (sakila-schema.sql, sakila-data.sql)
 2. MySQL Workbench → File → Run SQL Script
 3. `SHOW DATABASES;` 로 확인
-
-## Connections
-
-- [[llm-text-to-sql]] - LLM Text-to-SQL은 관계형 DB 스키마를 기반으로 자연어 질의를 SQL로 변환하는 패턴
 
 ## Footnotes
 

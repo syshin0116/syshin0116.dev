@@ -1,6 +1,5 @@
 ---
 title: "Obsidian ↔ Notion 동기화"
-type: pattern
 tags:
   - obsidian
   - notion
@@ -12,9 +11,11 @@ tags:
 summary: "Obsidian은 개인 지식 관리에, Notion은 협업에 각각 강점이 있다. 두 도구 모두 Markdown 기반이므로 'Share to Notion' 플러그인과 Notion API Integration을 사용해 Obsidian 노트를 Notion으로 자동 동기화할 수 있다."
 sources:
   - content/Tools/2024-03-09-Obsidian to Notion 자동화.md
+status: seedling
+confidence: medium
+reviewed: null
 created: 2026-04-26
-updated: 2026-10-25
-author: wiki-curator
+updated: 2026-11-15
 draft: false
 ---
 
@@ -35,10 +36,6 @@ Notion API Integration 설정 경로:
 - 통합 생성: `https://www.notion.so/my-integrations`
 - Secret Key는 Integration 설정 페이지에서 복사
 - 페이지 권한 부여: Notion 페이지 우측 상단 `...` → Connections → Integration 추가
-
-## Connections
-
-- [[zettelkasten]] - Obsidian은 Zettelkasten 방법론의 디지털 구현 도구
 
 ## Footnotes
 
