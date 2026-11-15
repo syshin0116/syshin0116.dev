@@ -35,6 +35,24 @@ Choose keywords by asking in which situation you want to find this note again.
 
 A heading whose text is a link still anchors its own section.
 
+## [Reference Heading][ref]
+
+Reference-style link headings anchor their section too.
+
+## [Nested [inner] Heading](https://example.com/a_(b))
+
+Nested brackets and parentheses still leave the visible label.
+
+## [[other|Wiki Heading]]
+
+A wikilink heading is matched by its alias.
+
+## Linked Text
+
+Quotes may span [[other|a wikilink alias]], [[other]], and [a label](https://example.com/a_(b)) here.
+
+[ref]: https://example.com/ref
+
 ```text
 "a quote inside a source code block"
 ```
@@ -395,18 +413,50 @@ class VerifyWikiTests(unittest.TestCase):
         code, out = self.check({"page": page(body)})
         self.assertEqual(code, 0, out)
 
+    def cite(self, anchor: str, quote: str) -> tuple[int, str]:
+        body = VALID_BODY.replace("- The term", f'- "{quote}"[^3]\n- The term').replace(
+            "[^2]: content/Tools/source.md#keywords",
+            f"[^2]: content/Tools/source.md#keywords\n[^3]: content/Tools/source.md#{anchor}",
+        )
+        return self.check({"page": page(body)})
+
     def test_heading_anchor_matches_the_visible_text_of_a_linked_heading(self) -> None:
-        for anchor in ("Linked Heading", "linked-heading"):
+        cases = (
+            (
+                "Linked Heading",
+                "A heading whose text is a link still anchors its own section",
+            ),
+            (
+                "linked-heading",
+                "A heading whose text is a link still anchors its own section",
+            ),
+            (
+                "Reference Heading",
+                "Reference-style link headings anchor their section too",
+            ),
+            (
+                "Nested inner Heading",
+                "Nested brackets and parentheses still leave the visible label",
+            ),
+            (
+                "nested-inner-heading",
+                "Nested brackets and parentheses still leave the visible label",
+            ),
+            ("Wiki Heading", "A wikilink heading is matched by its alias"),
+        )
+        for anchor, quote in cases:
             with self.subTest(anchor=anchor):
-                body = VALID_BODY.replace(
-                    "- The term",
-                    '- "A heading whose text is a link still anchors its own section"[^3]\n- The term',
-                ).replace(
-                    "[^2]: content/Tools/source.md#keywords",
-                    f"[^2]: content/Tools/source.md#keywords\n[^3]: content/Tools/source.md#{anchor}",
-                )
-                code, out = self.check({"page": page(body)})
+                code, out = self.cite(anchor, quote)
                 self.assertEqual(code, 0, out)
+
+    def test_quote_matches_the_visible_text_of_wikilinks_and_links(self) -> None:
+        code, out = self.cite(
+            "Linked Text", "Quotes may span a wikilink alias, other, and a label here"
+        )
+        self.assertEqual(code, 0, out)
+        code, out = self.cite("Linked Text", "Quotes may span other|a wikilink alias")
+        self.assertEqual(code, 1, out)
+        self.assertIn("quote-not-in-source", out)
 
     def test_reported_lines_are_file_lines(self) -> None:
         text = page(VALID_BODY.replace("## Key Claims", "[[missing]]\n\n## Key Claims"))

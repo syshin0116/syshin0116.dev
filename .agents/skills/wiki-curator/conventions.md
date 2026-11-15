@@ -141,8 +141,8 @@ The Summary content lives in **frontmatter `summary:`** - the web template rende
 Double quotes (`"..."` or `“...”`) in prose mean a verbatim span from a source. A quote followed on the same line by a footnote reference is checked by the verifier against the footnote's target:
 
 - The quote must be at least 15 characters (after trimming trailing punctuation) and contain letters. A number alone, such as "2024" or "68.5k", is not a verifiable quote; state numbers as paraphrase with a footnote.
-- For a repo-local footnote (`[^1]: content/Tools/x.md`), the quote must appear in that file. Comparison ignores emphasis (`*`, `_`, backticks), link markup, blockquote markers, and whitespace differences; it does not ignore wording.
-- For a heading anchor (`[^1]: content/Tools/x.md#Heading Text`), the quote must appear inside that heading's section (up to the next heading of the same or higher level). The anchor matches the heading text or its slug, ignoring case and punctuation (`#Permanent Notes` and `#permanent-notes` both work). With nested anchors (`#A#B`), the last heading is used.
+- For a repo-local footnote (`[^1]: content/Tools/x.md`), the quote must appear in that file. Comparison uses the visible text of links (a Markdown link's label, inline or reference-style; a wikilink's alias, else its page name; embeds are dropped) and ignores emphasis (`*`, `_`, backticks), blockquote markers, and whitespace differences; it does not ignore wording.
+- For a heading anchor (`[^1]: content/Tools/x.md#Heading Text`), the quote must appear inside that heading's section (up to the next heading of the same or higher level). The anchor matches the heading's visible text (links reduced as above) or its slug, ignoring case and punctuation (`#Permanent Notes` and `#permanent-notes` both work). With nested anchors (`#A#B`), the last heading is used.
 - HTTPS footnotes are not fetched; only the length and letter rules apply.
 - One contiguous span per quote. For an elision, use two quotes.
 - Terms, titles, and short phrases are not quotes: write them plainly, in italics, or in `code`.

@@ -64,7 +64,11 @@ const QUOTE_RE = /"([^"\n]*)"|“([^”\n]*)”/g
 const INLINE_CODE_RE = /`[^`\n]*`/g
 const HEADING_RE = /^(#{1,6})[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$/
 const FENCE_RE = /^[ \t]*(`{3,}|~{3,})(.*)$/
-const LINK_RE = /!?\[([^\]\n]*)\]\([^)\n]*\)/g
+// Link markup reduced to its visible text: embeds vanish, wikilinks show their alias (else the page,
+// else the heading), Markdown links show their label. One level of nested brackets or parentheses is allowed.
+const EMBED_RE = /!\[\[[^\]\n]*\]\]/g
+const WIKILINK_TEXT_RE = /\[\[([^\]|\n]*)(?:\|([^\]\n]*))?\]\]/g
+const LINK_RE = /!?\[((?:[^[\]\n]|\[[^[\]\n]*\])*)\](?:\((?:[^()\n]|\([^()\n]*\))*\)|\[[^\]\n]*\])/g
 const SPACE_RE = /[ \t\n\r\f\v  -   　]+/g
 
 interface Finding {
@@ -243,17 +247,28 @@ function proseLines(text: string): { line: string; number: number }[] {
 
 /** Text used to compare a quote with its source: markup and spacing removed. */
 function normalizeForMatch(text: string): string {
-  return text
+  const unquoted = text
     .normalize("NFC")
     .split("\n")
     .map((line) => line.replace(/^[ \t]*(?:>[ \t]?)+/, ""))
     .join("\n")
     .replace(/[“”„]/g, '"')
     .replace(/[‘’]/g, "'")
-    .replace(LINK_RE, "$1")
+  return visibleText(unquoted)
     .replace(/[*_`]/g, "")
     .replace(SPACE_RE, " ")
     .trim()
+}
+
+function visibleText(text: string): string {
+  return text
+    .replace(EMBED_RE, "")
+    .replace(WIKILINK_TEXT_RE, (_m, target: string, alias: string | undefined) => {
+      if (alias !== undefined) return alias
+      const [page, ...heading] = target.split("#")
+      return page.trim() !== "" ? page : heading.join("#")
+    })
+    .replace(LINK_RE, "$1")
 }
 
 function normalizeQuote(text: string): string {
@@ -261,7 +276,7 @@ function normalizeQuote(text: string): string {
 }
 
 function headingKey(text: string): string {
-  return Array.from(text.replace(LINK_RE, "$1").normalize("NFC").toLowerCase())
+  return Array.from(visibleText(text).normalize("NFC").toLowerCase())
     .filter((ch) => /[\p{L}\p{N}]/u.test(ch))
     .join("")
 }

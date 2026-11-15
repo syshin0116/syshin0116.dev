@@ -63,7 +63,13 @@ INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
 HEADING_RE = re.compile(r"^(#{1,6})[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$")
 FENCE_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})(.*)$")
 SPACE_RE = re.compile(r"[ \t\n\r\f\v  -   　]+")
-LINK_RE = re.compile(r"!?\[([^\]\n]*)\]\([^)\n]*\)")
+# Link markup reduced to its visible text: embeds vanish, wikilinks show their alias (else the page,
+# else the heading), Markdown links show their label. One level of nested brackets or parentheses is allowed.
+EMBED_RE = re.compile(r"!\[\[[^\]\n]*\]\]")
+WIKILINK_TEXT_RE = re.compile(r"\[\[([^\]|\n]*)(?:\|([^\]\n]*))?\]\]")
+LINK_RE = re.compile(
+    r"!?\[((?:[^\[\]\n]|\[[^\[\]\n]*\])*)\](?:\((?:[^()\n]|\([^()\n]*\))*\)|\[[^\]\n]*\])"
+)
 DATE_RE = re.compile(r"([0-9]{4})-([0-9]{2})-([0-9]{2})")
 
 
@@ -235,6 +241,19 @@ def prose_lines(text: str) -> list[tuple[str, int]]:
     return [(line, number) for line, number, prose in scan_lines(text) if prose]
 
 
+def _wikilink_text(match: re.Match[str]) -> str:
+    if match.group(2) is not None:
+        return match.group(2)
+    page, *heading = match.group(1).split("#")
+    return page if page.strip() else "#".join(heading)
+
+
+def visible_text(text: str) -> str:
+    text = EMBED_RE.sub("", text)
+    text = WIKILINK_TEXT_RE.sub(_wikilink_text, text)
+    return LINK_RE.sub(r"\1", text)
+
+
 def normalize_for_match(text: str) -> str:
     """Text used to compare a quote with its source: markup and spacing removed."""
     text = unicodedata.normalize("NFC", text)
@@ -243,7 +262,7 @@ def normalize_for_match(text: str) -> str:
     )
     text = re.sub(r"[“”„]", '"', text)
     text = re.sub(r"[‘’]", "'", text)
-    text = LINK_RE.sub(r"\1", text)
+    text = visible_text(text)
     text = re.sub(r"[*_`]", "", text)
     return SPACE_RE.sub(" ", text).strip()
 
@@ -254,7 +273,7 @@ def normalize_quote(text: str) -> str:
 
 
 def heading_key(text: str) -> str:
-    text = unicodedata.normalize("NFC", LINK_RE.sub(r"\1", text))
+    text = unicodedata.normalize("NFC", visible_text(text))
     return "".join(ch for ch in text.lower() if ch.isalnum())
 
 
