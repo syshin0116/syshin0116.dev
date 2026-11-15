@@ -49,7 +49,7 @@ READINESS_CONTRACT_PATH = Path(__file__).with_name(
     "gcp_project_readiness_contract.json"
 )
 READINESS_CONTRACT_SHA256 = (
-    "2023140bd0d70b73b73e5da3bb711457583ec075cc75577aa2c90f0102aca61e"
+    "c9c7b820d97346f9a5952ce281c2f0a4aafd2e739569c05aee8922e78ef43dec"
 )
 
 PRODUCTION_RUNTIME_SA = f"agent-runtime@{PROJECT_ID}.iam.gserviceaccount.com"
@@ -126,7 +126,7 @@ COMMON_RUNTIME_ENV = {
     "HOST": "0.0.0.0",
     "LANGGRAPH_MAX_POOL_SIZE": "4",
     "LANGGRAPH_MIN_POOL_SIZE": "1",
-    "MODEL": "openai:gpt-5.6-luna",
+    "MODEL": "openai:gpt-6-luna",
     "REDIS_BROKER_ENABLED": "false",
     "RUN_MIGRATIONS_ON_STARTUP": "false",
     "SQLALCHEMY_MAX_OVERFLOW": "0",
@@ -141,7 +141,7 @@ PREVIEW_RUNTIME_ENV = COMMON_RUNTIME_ENV | {
 PRODUCTION_RUNTIME_ENV = COMMON_RUNTIME_ENV | {
     "AGENT_ANONYMOUS_ACCESS_ENABLED": "true",
     "GUEST_DAILY_BUDGET_MICRO_USD": "500000",
-    "GUEST_MODEL": "openai:gpt-5.6-luna",
+    "GUEST_MODEL": "openai:gpt-6-luna",
     "GUEST_RUN_RESERVATION_MICRO_USD": "53837",
     "LANGCHAIN_CALLBACKS_BACKGROUND": "false",
     "LANGCHAIN_PROJECT": "syshin0116's dev (GCP)",

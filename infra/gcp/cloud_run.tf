@@ -78,7 +78,7 @@ locals {
     HOST                      = "0.0.0.0"
     LANGGRAPH_MAX_POOL_SIZE   = "4"
     LANGGRAPH_MIN_POOL_SIZE   = "1"
-    MODEL                     = "openai:gpt-5.6-luna"
+    MODEL                     = "openai:gpt-6-luna"
     REDIS_BROKER_ENABLED      = "false"
     RUN_MIGRATIONS_ON_STARTUP = "false"
     SQLALCHEMY_MAX_OVERFLOW   = "0"
@@ -98,7 +98,7 @@ locals {
       LANGCHAIN_TRACING_V2            = "true"
       AGENT_ANONYMOUS_ACCESS_ENABLED  = "true"
       GUEST_DAILY_BUDGET_MICRO_USD    = "500000"
-      GUEST_MODEL                     = "openai:gpt-5.6-luna"
+      GUEST_MODEL                     = "openai:gpt-6-luna"
       GUEST_RUN_RESERVATION_MICRO_USD = "53837"
     })
   }

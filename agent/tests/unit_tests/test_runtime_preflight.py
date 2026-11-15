@@ -175,7 +175,7 @@ def test_runtime_accepts_exact_production_luna_launch_tuple(tmp_path):
         tmp_path,
         VALID_CONFIG,
         AGENT_ANONYMOUS_ACCESS_ENABLED="true",
-        GUEST_MODEL="openai:gpt-5.6-luna",
+        GUEST_MODEL="openai:gpt-6-luna",
         GUEST_DAILY_BUDGET_MICRO_USD="500000",
         GUEST_RUN_RESERVATION_MICRO_USD="53837",
         OPENAI_API_KEY="test-openai-runtime-key",
@@ -216,7 +216,7 @@ def test_runtime_accepts_exact_production_luna_launch_tuple(tmp_path):
         (
             {
                 "AGENT_ANONYMOUS_ACCESS_ENABLED": "true",
-                "GUEST_MODEL": "openai:gpt-5.6-luna",
+                "GUEST_MODEL": "openai:gpt-6-luna",
                 "GUEST_DAILY_BUDGET_MICRO_USD": "",
                 "GUEST_RUN_RESERVATION_MICRO_USD": "",
                 "OPENAI_API_KEY": "test-openai-runtime-key",
@@ -226,7 +226,7 @@ def test_runtime_accepts_exact_production_luna_launch_tuple(tmp_path):
         (
             {
                 "AGENT_ANONYMOUS_ACCESS_ENABLED": "true",
-                "GUEST_MODEL": "openai:gpt-5.6-luna",
+                "GUEST_MODEL": "openai:gpt-6-luna",
                 "GUEST_DAILY_BUDGET_MICRO_USD": "25000",
                 "GUEST_RUN_RESERVATION_MICRO_USD": "25001",
                 "OPENAI_API_KEY": "test-openai-runtime-key",
@@ -236,7 +236,7 @@ def test_runtime_accepts_exact_production_luna_launch_tuple(tmp_path):
         (
             {
                 "AGENT_ANONYMOUS_ACCESS_ENABLED": "true",
-                "GUEST_MODEL": "openai:gpt-5.6-luna",
+                "GUEST_MODEL": "openai:gpt-6-luna",
                 "GUEST_DAILY_BUDGET_MICRO_USD": "500000",
                 "GUEST_RUN_RESERVATION_MICRO_USD": "53837",
                 "OPENAI_API_KEY": "",
@@ -246,7 +246,7 @@ def test_runtime_accepts_exact_production_luna_launch_tuple(tmp_path):
         (
             {
                 "AGENT_ANONYMOUS_ACCESS_ENABLED": "true",
-                "GUEST_MODEL": "openai:gpt-5.6-luna",
+                "GUEST_MODEL": "openai:gpt-6-luna",
                 "GUEST_DAILY_BUDGET_MICRO_USD": "500000",
                 "GUEST_RUN_RESERVATION_MICRO_USD": "53837",
                 "OPENAI_API_KEY": " ",

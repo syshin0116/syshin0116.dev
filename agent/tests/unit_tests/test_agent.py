@@ -104,7 +104,7 @@ from agent.tools import TOOLS, keyword_search
 class ToolCapableFakeModel(FakeMessagesListChatModel):
     """Deterministic model that records each bound tool surface."""
 
-    model_name: str = "gpt-5.6-luna"
+    model_name: str = "gpt-6-luna"
     bound_tool_names: list[frozenset[str]] = Field(default_factory=list)
 
     def _get_ls_params(self, stop=None, **kwargs):
@@ -319,7 +319,7 @@ def _openai_final_message(content: str) -> AIMessage:
         content=content,
         response_metadata={
             "model_provider": "openai",
-            "model_name": "gpt-5.6-luna",
+            "model_name": "gpt-6-luna",
             "status": "completed",
         },
         usage_metadata={
@@ -348,7 +348,7 @@ def _openai_tool_message(name: str, args: dict, tool_call_id: str) -> AIMessage:
         ],
         response_metadata={
             "model_provider": "openai",
-            "model_name": "gpt-5.6-luna",
+            "model_name": "gpt-6-luna",
             "status": "completed",
         },
         usage_metadata={
@@ -880,7 +880,7 @@ def test_prebuilt_production_model_resolves_fail_closed_harness_profile(monkeypa
         _disable_general_purpose_subagent.cache_clear()
 
     assert isinstance(model, ChatOpenAI)
-    assert model.model_name == "gpt-5.6-luna"
+    assert model.model_name == "gpt-6-luna"
     assert profile.general_purpose_subagent.enabled is False
     assert "SummarizationMiddleware" in profile.excluded_middleware
     assert profile.excluded_tools == frozenset({"delete"})
@@ -983,7 +983,7 @@ def test_compiled_graph_keeps_capability_topology_stable_while_opted_out():
 def test_owner_runtime_without_model_override_defaults_to_exact_luna(monkeypatch):
     monkeypatch.delenv("MODEL", raising=False)
 
-    assert _normalized_model_spec() == "openai:gpt-5.6-luna"
+    assert _normalized_model_spec() == "openai:gpt-6-luna"
 
 
 async def test_owner_default_luna_preserves_dynamic_subagents_and_quickjs_topology(
@@ -1030,7 +1030,7 @@ async def test_owner_default_luna_preserves_dynamic_subagents_and_quickjs_topolo
     ("configured_model", "expected_model"),
     [
         (None, DEFAULT_MODEL),
-        ("openai/gpt-5.6-luna", DEFAULT_MODEL),
+        ("openai/gpt-6-luna", DEFAULT_MODEL),
     ],
     ids=["default-model", "normalized-model-override"],
 )
@@ -1061,9 +1061,9 @@ def test_create_graph_for_selected_model_keeps_declared_task_dispatch(
 @pytest.mark.parametrize(
     ("model_spec", "model_name"),
     [
-        ("openai:gpt-5.6-luna", "gpt-5.6-luna"),
-        ("openai:gpt-5.6-terra", "gpt-5.6-terra"),
-        ("openai:gpt-5.6-sol", "gpt-5.6-sol"),
+        ("openai:gpt-6-luna", "gpt-6-luna"),
+        ("openai:gpt-6.1-terra", "gpt-6.1-terra"),
+        ("openai:gpt-6.1-sol", "gpt-6.1-sol"),
     ],
 )
 def test_bounded_owner_model_uses_exact_responses_contract(
@@ -1122,7 +1122,7 @@ def test_bounded_guest_model_uses_the_lower_nonconfigurable_output_limit(monkeyp
 
     assert isinstance(resolved, ChatOpenAI)
     assert cached is resolved
-    assert resolved.model_name == "gpt-5.6-luna"
+    assert resolved.model_name == "gpt-6-luna"
     assert resolved.max_tokens == GUEST_MODEL_MAX_OUTPUT_TOKENS
     assert resolved.max_retries == 0
     assert resolved.request_timeout == MODEL_TIMEOUT_SECONDS
@@ -1357,7 +1357,7 @@ def test_seventh_root_tool_fails_graph_creation_before_compilation(monkeypatch):
     ("configured_model", "expected"),
     [
         (OPENAI_GUEST_MODEL_SPEC, OPENAI_GUEST_MODEL_SPEC),
-        ("openai/gpt-5.6-luna", OPENAI_GUEST_MODEL_SPEC),
+        ("openai/gpt-6-luna", OPENAI_GUEST_MODEL_SPEC),
     ],
 )
 def test_guest_model_is_explicit_and_canonical(monkeypatch, configured_model, expected):
@@ -1581,7 +1581,7 @@ def test_guest_model_selection_is_rejected_even_with_a_signed_override():
             config={
                 "configurable": {
                     "thread_id": "guest-model-selection",
-                    "model": "gpt-5.6-terra",
+                    "model": "gpt-6.1-terra",
                 }
             },
             model=ToolCapableFakeModel(responses=[_final_message("unused")]),
@@ -1602,7 +1602,7 @@ def test_owner_model_selection_uses_server_allowlist(monkeypatch):
         config={
             "configurable": {
                 "thread_id": "owner-model-selection",
-                "model": "gpt-5.6-terra",
+                "model": "gpt-6.1-terra",
             }
         },
         input_token_counter=_exact_anthropic_test_input_tokens,
@@ -1611,12 +1611,12 @@ def test_owner_model_selection_uses_server_allowlist(monkeypatch):
     )
 
     assert isinstance(compiled, CompiledStateGraph)
-    assert selected == ["openai:gpt-5.6-terra"]
+    assert selected == ["openai:gpt-6.1-terra"]
 
 
 @pytest.mark.parametrize(
     "requested",
-    ["openai:gpt-5.6-terra", "gpt-5.6-arbitrary", 1],
+    ["openai:gpt-6.1-terra", "gpt-5.6-arbitrary", 1],
 )
 def test_owner_model_selection_rejects_values_outside_server_allowlist(requested):
     with pytest.raises(ValueError, match="not an allowed model"):
@@ -1640,7 +1640,7 @@ def test_owner_model_selection_requires_server_permission():
             config={
                 "configurable": {
                     "thread_id": "owner-model-selection-denied",
-                    "model": "gpt-5.6-terra",
+                    "model": "gpt-6.1-terra",
                 }
             },
             model=ToolCapableFakeModel(responses=[_final_message("unused")]),
@@ -1660,7 +1660,7 @@ async def test_eval_injected_openai_contract_uses_provider_native_settlement(
         budget=budget,
         input_token_counter=_exact_openai_test_input_tokens,
         model_provider="openai",
-        expected_response_models=frozenset({"gpt-5.6-luna"}),
+        expected_response_models=frozenset({"gpt-6-luna"}),
         dynamic_subagents_enabled=False,
         quickjs_enabled=False,
     )
@@ -1684,7 +1684,7 @@ def test_provider_contract_override_requires_an_injected_exact_model():
             runtime=_server_runtime(["eval"]),
             config={"configurable": {"thread_id": "provider-without-model"}},
             model_provider="openai",
-            expected_response_models=frozenset({"gpt-5.6-luna"}),
+            expected_response_models=frozenset({"gpt-6-luna"}),
         )
 
     with pytest.raises(ValueError, match="requires exact response models"):
@@ -1727,7 +1727,7 @@ async def test_canonical_guest_runtime_rejects_a_forged_filesystem_tool_call(
                 ],
                 response_metadata={
                     "model_provider": "openai",
-                    "model_name": "gpt-5.6-luna",
+                    "model_name": "gpt-6-luna",
                     "status": "completed",
                 },
                 usage_metadata={

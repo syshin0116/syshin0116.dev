@@ -14,10 +14,12 @@ GUEST_DAILY_BUDGET_ENV = "GUEST_DAILY_BUDGET_MICRO_USD"
 GUEST_RUN_RESERVATION_ENV = "GUEST_RUN_RESERVATION_MICRO_USD"
 MAX_GUEST_BUDGET_MICRO_USD = 1_000_000_000
 _MICRO_USD_PER_USD = 1_000_000
-_OPENAI_GUEST_INPUT_USD_MICROS_PER_MILLION_TOKENS = 200_000
-_OPENAI_GUEST_CACHED_INPUT_USD_MICROS_PER_MILLION_TOKENS = 20_000
+# gpt-6-luna standard rates, https://developers.openai.com/api/docs/pricing (2026-11-15).
+# Cache write uses the 12h rate, the higher of the two retention tiers.
+_OPENAI_GUEST_INPUT_USD_MICROS_PER_MILLION_TOKENS = 100_000
+_OPENAI_GUEST_CACHED_INPUT_USD_MICROS_PER_MILLION_TOKENS = 10_000
 _OPENAI_GUEST_CACHE_WRITE_USD_MICROS_PER_MILLION_TOKENS = 250_000
-_OPENAI_GUEST_OUTPUT_USD_MICROS_PER_MILLION_TOKENS = 1_200_000
+_OPENAI_GUEST_OUTPUT_USD_MICROS_PER_MILLION_TOKENS = 500_000
 _OPENAI_GUEST_MAX_MODEL_CALLS = 8
 _OPENAI_GUEST_MAX_OUTPUT_TOKENS_PER_CALL = 768
 _OPENAI_GUEST_MAX_TOTAL_TOKENS = 64_000
@@ -95,7 +97,7 @@ def minimum_guest_run_reservation_micro_usd(
     max_total_tokens: int,
     max_count_risk_tokens: int,
 ) -> int:
-    """Return the conservative gpt-5.6-luna accounting reserve for one run.
+    """Return the conservative gpt-6-luna accounting reserve for one run.
 
     Generation uses the exact 64k token ledger. Count requests use a separate 128k
     aggregate risk ledger because their conservative preflight reservation is based
@@ -180,7 +182,7 @@ def guest_budget_config(*, required: bool) -> GuestBudgetConfig | None:
     if reservation < GUEST_MIN_RUN_RESERVATION_MICRO_USD:
         raise GuestBudgetConfigurationError(
             "guest per-run spend reservation is below the reviewed "
-            "gpt-5.6-luna conservative accounting floor"
+            "gpt-6-luna conservative accounting floor"
         )
     return GuestBudgetConfig(
         daily_limit_micro_usd=daily,

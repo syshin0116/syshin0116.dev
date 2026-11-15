@@ -1,12 +1,12 @@
 export const AGENT_MODELS = [
-  "gpt-5.6-luna",
-  "gpt-5.6-terra",
-  "gpt-5.6-sol",
+  "gpt-6-luna",
+  "gpt-6.1-terra",
+  "gpt-6.1-sol",
 ] as const
 
 export type AgentModel = (typeof AGENT_MODELS)[number]
 
-export const DEFAULT_AGENT_MODEL: AgentModel = "gpt-5.6-luna"
+export const DEFAULT_AGENT_MODEL: AgentModel = "gpt-6-luna"
 
 export function isAgentModel(value: unknown): value is AgentModel {
   return (

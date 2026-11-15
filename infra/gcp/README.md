@@ -184,7 +184,7 @@ cost.
 Production owner runs use the server-owned OpenAI default or the signed-in OpenAI
 selector. Isolated evaluation fixtures may inject the existing Anthropic path, but the
 Cloud Run runtime does not bind that secret. Anonymous Production runs use the exact
-`openai:gpt-5.6-luna / 500000 / 53837` tuple, requiring the restored
+`openai:gpt-6-luna / 500000 / 53837` tuple, requiring the restored
 `openai-api-key` resource and one positive numeric version, and combines the 21,837 µUSD
 worst generation allocation with a separate 128,000-token aggregate count-risk ledger
 priced at 32,000 µUSD. This is not a documented count price, hidden-token bound, or

@@ -20,7 +20,7 @@ from openai import AsyncOpenAI, OpenAI
 
 from agent.identity import is_anonymous_identity
 
-OPENAI_GUEST_MODEL_NAME = "gpt-5.6-luna"
+OPENAI_GUEST_MODEL_NAME = "gpt-6-luna"
 OPENAI_GUEST_MODEL_SPEC = f"openai:{OPENAI_GUEST_MODEL_NAME}"
 OPENAI_GUEST_SAFETY_IDENTIFIER_PREFIX = "guest_"
 OPENAI_GUEST_SAFETY_IDENTIFIER_LENGTH = 64
@@ -31,7 +31,7 @@ OPENAI_GUEST_RESPONSE_MODEL_NAMES = frozenset({OPENAI_GUEST_MODEL_NAME})
 # These are the only owner-visible OpenAI models accepted from the signed
 # model selector. Each selected model still uses the same reviewed Responses
 # request contract and exact input-token counting path.
-OPENAI_OWNER_MODEL_NAMES = frozenset({"gpt-5.6-luna", "gpt-5.6-terra", "gpt-5.6-sol"})
+OPENAI_OWNER_MODEL_NAMES = frozenset({"gpt-6-luna", "gpt-6.1-terra", "gpt-6.1-sol"})
 OPENAI_GUEST_MAX_OUTPUT_TOKENS = 768
 OPENAI_GUEST_TIMEOUT_SECONDS = 60.0
 

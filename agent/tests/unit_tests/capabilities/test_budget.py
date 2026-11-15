@@ -869,7 +869,7 @@ async def test_anthropic_usage_tracks_exact_provider_pricing_buckets(
 
 @pytest.mark.parametrize(
     "response_model",
-    ["gpt-5.6-luna"],
+    ["gpt-6-luna"],
 )
 async def test_openai_usage_tracks_exact_provider_pricing_buckets(response_model):
     budget = RunBudget()
@@ -884,7 +884,7 @@ async def test_openai_usage_tracks_exact_provider_pricing_buckets(response_model
         allowed_subagents=frozenset(),
         input_token_counter=exact_input_tokens,
         model_provider="openai",
-        expected_response_models=frozenset({"gpt-5.6-luna"}),
+        expected_response_models=frozenset({"gpt-6-luna"}),
     )
     request = ModelRequest(
         model=FakeMessagesListChatModel(responses=[AIMessage(content="unused")]),
@@ -933,7 +933,7 @@ async def test_openai_usage_tracks_exact_provider_pricing_buckets(response_model
     ("metadata", "input_details", "output_details"),
     [
         (
-            {"model_provider": "anthropic", "model_name": "gpt-5.6-luna"},
+            {"model_provider": "anthropic", "model_name": "gpt-6-luna"},
             {"cache_read": 40, "cache_creation": 0},
             {"reasoning": 0},
         ),
@@ -958,7 +958,7 @@ async def test_openai_usage_tracks_exact_provider_pricing_buckets(response_model
         (
             {
                 "model_provider": "openai",
-                "model_name": "gpt-5.6-luna",
+                "model_name": "gpt-6-luna",
                 "status": "completed",
             },
             {"cache_read": 40},
@@ -967,7 +967,7 @@ async def test_openai_usage_tracks_exact_provider_pricing_buckets(response_model
         (
             {
                 "model_provider": "openai",
-                "model_name": "gpt-5.6-luna",
+                "model_name": "gpt-6-luna",
                 "status": "completed",
             },
             {"cache_read": 100, "cache_creation": 21},
@@ -976,7 +976,7 @@ async def test_openai_usage_tracks_exact_provider_pricing_buckets(response_model
         (
             {
                 "model_provider": "openai",
-                "model_name": "gpt-5.6-luna",
+                "model_name": "gpt-6-luna",
                 "status": "completed",
             },
             {"cache_read": 40, "cache_creation": 0},
@@ -985,7 +985,7 @@ async def test_openai_usage_tracks_exact_provider_pricing_buckets(response_model
         (
             {
                 "model_provider": "openai",
-                "model_name": "gpt-5.6-luna",
+                "model_name": "gpt-6-luna",
                 "status": "completed",
             },
             {"cache_read": 40, "cache_creation": 0},
@@ -994,7 +994,7 @@ async def test_openai_usage_tracks_exact_provider_pricing_buckets(response_model
         (
             {
                 "model_provider": "openai",
-                "model_name": "gpt-5.6-luna",
+                "model_name": "gpt-6-luna",
                 "status": "incomplete",
                 "incomplete_details": {"reason": "max_output_tokens"},
             },
@@ -1026,7 +1026,7 @@ async def test_openai_usage_drift_fails_the_run_closed(
         allowed_subagents=frozenset(),
         input_token_counter=_zero_input_tokens,
         model_provider="openai",
-        expected_response_models=frozenset({"gpt-5.6-luna"}),
+        expected_response_models=frozenset({"gpt-6-luna"}),
     )
     request = ModelRequest(
         model=FakeMessagesListChatModel(responses=[AIMessage(content="unused")]),
@@ -1076,7 +1076,7 @@ async def test_openai_provider_input_must_equal_the_exact_precount():
         allowed_subagents=frozenset(),
         input_token_counter=_zero_input_tokens,
         model_provider="openai",
-        expected_response_models=frozenset({"gpt-5.6-luna"}),
+        expected_response_models=frozenset({"gpt-6-luna"}),
     )
     request = ModelRequest(
         model=FakeMessagesListChatModel(responses=[AIMessage(content="unused")]),
@@ -1091,7 +1091,7 @@ async def test_openai_provider_input_must_equal_the_exact_precount():
                     content="must not escape settlement",
                     response_metadata={
                         "model_provider": "openai",
-                        "model_name": "gpt-5.6-luna",
+                        "model_name": "gpt-6-luna",
                         "status": "completed",
                     },
                     usage_metadata={

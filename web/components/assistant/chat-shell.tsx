@@ -1300,9 +1300,9 @@ function NewThreadButton() {
 }
 
 const MODEL_LABELS: Record<AgentModel, string> = {
-  "gpt-5.6-luna": "Luna",
-  "gpt-5.6-terra": "Terra",
-  "gpt-5.6-sol": "Sol",
+  "gpt-6-luna": "Luna",
+  "gpt-6.1-terra": "Terra",
+  "gpt-6.1-sol": "Sol",
 }
 
 function ModelSelector() {

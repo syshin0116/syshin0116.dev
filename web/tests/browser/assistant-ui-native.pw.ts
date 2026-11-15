@@ -623,7 +623,7 @@ test.describe.serial("native assistant-ui production journey", () => {
       method: "run.start",
       params: {
         config: {
-          configurable: { model: "gpt-5.6-terra" },
+          configurable: { model: "gpt-6.1-terra" },
         },
       },
     })
@@ -926,7 +926,7 @@ test.describe.serial("native assistant-ui production journey", () => {
     const commands = (await fixtureState(page)).commands
     expect(commands).toHaveLength(2)
     for (const command of commands) {
-      expect(command).toMatchObject({ params: { config: { configurable: { model: "gpt-5.6-terra" } } } })
+      expect(command).toMatchObject({ params: { config: { configurable: { model: "gpt-6.1-terra" } } } })
     }
     await page.reload()
     await selectFixtureThread(page)

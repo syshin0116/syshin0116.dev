@@ -194,7 +194,7 @@ class StaticVerifierMutationTests(unittest.TestCase):
             5,
             cloud_run_source.count("local.production_cloud_run_environments"),
         )
-        self.assertIn('MODEL                     = "openai:gpt-5.6-luna"', production)
+        self.assertIn('MODEL                     = "openai:gpt-6-luna"', production)
 
     def test_delivery_versions_are_five_production_numeric_pins(self) -> None:
         variables = (REPO_ROOT / "infra/gcp/variables.tf").read_text(encoding="utf-8")
@@ -218,7 +218,7 @@ class StaticVerifierMutationTests(unittest.TestCase):
 
     def test_ci_container_uses_the_production_luna_secret_contract(self) -> None:
         workflow = (REPO_ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-        model_position = workflow.index("--env MODEL=openai:gpt-5.6-luna")
+        model_position = workflow.index("--env MODEL=openai:gpt-6-luna")
         docker_start = workflow.rindex(
             "          docker run",
             0,
@@ -227,7 +227,7 @@ class StaticVerifierMutationTests(unittest.TestCase):
         docker_end = workflow.index('            "$image_tag"', model_position)
         docker_runtime = workflow[docker_start:docker_end]
 
-        self.assertIn("--env MODEL=openai:gpt-5.6-luna", docker_runtime)
+        self.assertIn("--env MODEL=openai:gpt-6-luna", docker_runtime)
         self.assertIn(
             "--env OPENAI_API_KEY=ci-only-not-a-real-openai-key",
             docker_runtime,
