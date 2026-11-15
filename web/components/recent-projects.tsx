@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { projectsTimeline } from "@/data/projects";
+import { projects } from "@/data/projects";
 
 export function RecentProjects() {
-  const recent = projectsTimeline.slice(0, 3);
+  const recent = projects.slice(0, 3);
 
   return (
     <section>
@@ -27,7 +27,7 @@ export function RecentProjects() {
                   {project.title}
                 </h3>
                 <p className="text-sm leading-6 text-muted-foreground line-clamp-2">
-                  {project.description}
+                  {project.summary}
                 </p>
               </div>
             </Link>

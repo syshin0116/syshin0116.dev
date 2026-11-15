@@ -1,134 +1,55 @@
 # Project Page Structure
 
-## Overview
-프로젝트 페이지는 타임라인 형식의 메인 페이지와 각 프로젝트별 디테일 페이지로 구성되어 있습니다.
+## 데이터
 
-## 구조
+프로젝트마다 `data/projects.ts`의 `projects` 배열에 레코드 하나만 둡니다. 목록 카드(`/projects`, 홈의 최근 프로젝트)와 상세 페이지(`/projects/[projectId]`)가 같은 레코드를 읽으므로 제목, 기간, 링크가 서로 어긋나지 않습니다.
 
-### 1. 메인 프로젝트 페이지 (`/projects`)
-- **컴포넌트**: `components/project-timeline.tsx`
-- **데이터 소스**: `data/projects.ts` - `projectsTimeline` 배열
-- **특징**:
-  - 타임라인 형식으로 프로젝트 표시
-  - 애니메이션 효과 (framer-motion)
-  - 각 프로젝트 카드 클릭 시 상세 정보 확장
-  - "자세히 보기" 버튼으로 디테일 페이지 이동
+- `projectById`: id로 레코드를 찾는 조회표. 상세 페이지와 `scripts/verify-rendered-pages.ts`가 사용합니다.
+- 배열 순서는 수동입니다. 홈은 앞의 세 개를 보여 주고, 목록과 이전/다음 이동은 `period` 시작 시점 최신순(`lib/projects.ts`의 `sortByStart`)을 씁니다.
+- 상태(진행 중/완료)는 `period`가 `~ 진행 중`으로 끝나는지로 정합니다. 별도 완료 플래그는 없습니다.
+- `techStack`의 키는 `TECH_STACK_LABELS`에 있는 범주만 쓸 수 있고, 화면에는 그 라벨이 나옵니다. 새 범주가 필요하면 라벨을 먼저 추가합니다.
 
-### 2. 프로젝트 디테일 페이지 (`/projects/[projectId]`)
-- **라우트**: Next.js 동적 라우트 사용
-- **컴포넌트**: `components/project-detail-template.tsx` (재사용 가능한 템플릿)
-- **데이터 소스**: `data/projects.ts` - `projectsDetail` 객체
-- **특징**:
-  - SEO 최적화 (generateMetadata)
-  - 정적 생성 (generateStaticParams)
-  - 일관된 레이아웃 및 섹션 구조
+## 레코드 필드
 
-## 새 프로젝트 추가하기
+| 필드 | 쓰이는 곳 |
+| --- | --- |
+| `id` | URL (`/projects/<id>`). 기존 id는 바꾸지 않습니다. |
+| `title`, `subtitle` | 상세 페이지 `h1`과 그 아래 한 줄. 목록 카드 제목도 `title`입니다. |
+| `summary`, `tags`, `category`, `company` | 목록 카드 |
+| `period`, `duration`, `role`, `team` | 상세 페이지 정보 상자 |
+| `github`, `demo`, `package`, `blogPost` | 제목 아래 링크 (목록 카드에는 `github`, `demo`) |
+| `metrics` | 상단 핵심 지표 2~4개. `after`가 크게, `before`와 `improvement`가 설명으로 나옵니다. |
+| `demoImage` | 지표 아래 대표 이미지 |
+| `description`, `businessGoals` | 배경 |
+| `architectureEvolution`, `keyResponsibilities`, `keyFeatures`, `challenges`, `highlights`, `learnings` | 한 일 |
+| `techStack` | 기술 스택 |
+| `blogSeries` | 관련 글. 이 콘텐츠 폴더 바로 아래의 공개 글을 파일명 순으로 자동 나열합니다 (예: `Projects/Nuartz`). |
 
-### Step 1: 타임라인 데이터 추가
-`data/projects.ts` 파일의 `projectsTimeline` 배열에 새 프로젝트를 추가합니다:
+같은 숫자는 한 번만 씁니다. `metrics`에 올린 수치는 `highlights`, `team`, 아키텍처 결과 문장에서 반복하지 않습니다.
 
-```typescript
-{
-  id: "project-id",  // URL에 사용될 고유 ID
-  title: "프로젝트 제목",
-  period: "2024.01 ~ 2024.06",
-  year: 2024,
-  periodType: "H",  // "Q" (Quarter) 또는 "H" (Half)
-  periodNumber: 1,   // 1 또는 2
-  isCompleted: true, // 완료 여부
-  description: "프로젝트 간단한 설명",
-  tags: ["Tech1", "Tech2", "Tech3"]
-}
-```
+## 상세 페이지 순서
 
-### Step 2: 디테일 데이터 추가
-같은 파일의 `projectsDetail` 객체에 상세 정보를 추가합니다:
+1. 제목(`h1`)과 한 줄 요약, 링크
+2. 정보 상자: 기간, 역할, 팀, 상태
+3. 핵심 지표
+4. 대표 이미지
+5. 배경
+6. 한 일: 아키텍처 변화(문제, 결정, 결과), 담당 업무, 주요 기능, 문제와 해결, 결과, 배운 점
+7. 기술 스택
+8. 관련 글
+9. 이전/다음 프로젝트
 
-```typescript
-"project-id": {
-  id: "project-id",  // Step 1의 ID와 동일해야 함
-  title: "프로젝트 제목",
-  subtitle: "부제목",
-  period: "2024.01 ~ 2024.06",
-  duration: "약 6개월",
-  role: "역할",
-  team: "팀 구성",
-  description: "상세 설명",
-  techStack: {
-    backend: ["기술1", "기술2"],
-    frontend: ["기술3", "기술4"],
-    // ... 더 많은 카테고리
-  },
-  // 선택적 섹션들:
-  achievements: ["성과1", "성과2"],
-  keyFeatures: [
-    {
-      title: "기능 제목",
-      details: ["상세1", "상세2"]
-    }
-  ],
-  challenges: [
-    {
-      title: "도전 과제",
-      description: "설명"
-    }
-  ],
-  learnings: ["배운점1", "배운점2"]
-}
-```
+모든 내용은 펼친 상태로 보이고, 카드 안에 카드를 넣지 않습니다.
 
-### Step 3: 빌드 및 확인
-```bash
-npm run build
-npm run dev
-```
-
-새 프로젝트가 자동으로:
-- 타임라인에 표시됨
-- `/projects/[project-id]` 경로로 접근 가능
-- 정적 페이지로 생성됨 (SSG)
-
-## 지원하는 섹션들
-
-### 필수 섹션
-- 프로젝트 기본 정보 (제목, 기간, 역할, 팀)
-- 설명
-- 기술 스택
-
-### 선택적 섹션
-- `achievements`: 주요 성과 (문자열 배열 또는 메트릭 객체 배열)
-- `architectureEvolution`: 아키텍처 진화 과정
-- `keyResponsibilities`: 담당 업무
-- `keyFeatures`: 주요 기능
-- `businessGoals`: 비즈니스 목표
-- `challenges`: 도전 과제 및 극복
-- `learnings`: 배운 점 및 성장
-
-## 파일 구조
+## 파일
 
 ```
-/workspace
-├── app/
-│   └── projects/
-│       ├── page.tsx                    # 메인 프로젝트 페이지
-│       └── [projectId]/
-│           └── page.tsx                # 동적 디테일 페이지
-├── components/
-│   ├── project-timeline.tsx            # 타임라인 컴포넌트
-│   └── project-detail-template.tsx     # 재사용 가능한 디테일 템플릿
-└── data/
-    └── projects.ts                     # 모든 프로젝트 데이터
+web/
+├── app/projects/page.tsx                 # 목록
+├── app/projects/[projectId]/page.tsx     # 상세 라우트, 관련 글과 이전/다음 계산
+├── components/project-timeline.tsx       # 목록 카드
+├── components/project-detail-template.tsx
+├── components/recent-projects.tsx        # 홈의 최근 프로젝트
+├── data/projects.ts                      # 레코드와 기술 스택 라벨
+└── lib/projects.ts                       # 정렬, 상태, 이전/다음, 관련 글
 ```
-
-## 스타일링
-- Tailwind CSS 사용
-- shadcn/ui 컴포넌트 활용
-- 다크 모드 지원
-- 반응형 디자인
-
-## 애니메이션
-- framer-motion 사용
-- 페이드 인/아웃 효과
-- 스무스한 확장/축소
-- 호버 효과

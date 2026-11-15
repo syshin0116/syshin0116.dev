@@ -5,7 +5,7 @@ import { permalinks } from "@/lib/blog-permalinks"
 import { CONTENT_DIR } from "@/lib/content"
 import { mediaTypeForPath } from "@/lib/media"
 import { pageDescription } from "@/lib/page-description"
-import { projectsDetail } from "@/data/projects"
+import { projectById } from "@/data/projects"
 
 // Checks the prebuild output instead of crawling a server: crawling `next start`
 // concurrently produced spurious 404s, and a sequential crawl of every page takes
@@ -58,7 +58,7 @@ export function unresolvedReason(url: string, site: SiteIndex): string | undefin
   if (STATIC_ROUTES.has(trimmed)) return undefined
   if (/^\/blog\/page\/\d+$/.test(trimmed)) return undefined
   if (trimmed.startsWith("/projects/")) {
-    return Object.hasOwn(projectsDetail, trimmed.slice("/projects/".length)) ? undefined : "unknown project"
+    return Object.hasOwn(projectById, trimmed.slice("/projects/".length)) ? undefined : "unknown project"
   }
   if (trimmed.startsWith("/blog/tags/")) {
     return site.tags.has(trimmed.slice("/blog/tags/".length)) ? undefined : "unknown tag"

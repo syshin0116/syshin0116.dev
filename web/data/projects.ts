@@ -1,57 +1,110 @@
-export interface ProjectTimeline {
-  id: string;
-  title: string;
-  period: string;
-  year: number;
-  periodType: "Q" | "H";
-  periodNumber: number;
-  isCompleted: boolean;
-  description: string;
-  tags: string[];
-  category: "company" | "personal";
-  company?: string;
-  github?: string;
-  demo?: string; // 배포된 사이트 URL
+// One record per project. The /projects list card and the /projects/[id] page
+// both read these records, so a title, period, or link cannot disagree between them.
+// Client PoCs are written for public reading: no client names, internal system names, or client metrics.
+
+export const TECH_STACK_LABELS = {
+  languages: "언어",
+  language: "언어",
+  core: "코어",
+  frameworks: "프레임워크",
+  aiFrameworks: "AI 프레임워크",
+  aiml: "AI/ML",
+  ai: "AI",
+  llm: "LLM",
+  agents: "에이전트",
+  backend: "백엔드",
+  frontend: "프론트엔드",
+  webapp: "참고 웹앱",
+  content: "콘텐츠",
+  rendering: "렌더링",
+  features: "기능 라이브러리",
+  search: "검색",
+  cli: "CLI",
+  mcp: "MCP",
+  serialization: "직렬화",
+  network: "네트워크",
+  data: "데이터",
+  database: "데이터베이스",
+  datasource: "데이터 소스",
+  dataprocessing: "데이터 처리",
+  visualization: "시각화",
+  ml: "머신러닝",
+  mldl: "ML/DL",
+  anomaly: "이상 탐지",
+  timeseries: "시계열",
+  computervision: "컴퓨터 비전",
+  imageprocessing: "이미지 처리",
+  depthestimation: "깊이 추정",
+  speech: "음성",
+  integration: "연동",
+  auth: "인증",
+  authentication: "인증",
+  observability: "관측성",
+  monitoring: "모니터링",
+  infra: "인프라",
+  infrastructure: "인프라",
+  cloud: "클라우드",
+  deployment: "배포",
+  environment: "실행 환경",
+  platform: "플랫폼",
+  build: "빌드",
+  tooling: "개발 도구",
+  tools: "도구",
+  development: "개발 환경",
+  collaboration: "협업",
+  architecture: "아키텍처",
+  patterns: "설계 패턴",
+  escalation: "에스컬레이션",
+  knowledge: "지식 관리",
+  docs: "문서",
+  etc: "기타",
+  retired: "개편 전 구성 (현재 제거)",
+} as const;
+
+export type TechStackCategory = keyof typeof TECH_STACK_LABELS;
+
+/** A headline number: `after` is shown large, `before` and `improvement` give its context. */
+export interface ProjectMetric {
+  metric: string;
+  after: string;
+  before?: string;
+  improvement?: string;
 }
 
-export interface ProjectDetail {
+export interface Project {
   id: string;
   title: string;
+  /** One line under the page title. */
   subtitle: string;
+  /** Two-line summary on the list card. */
+  summary: string;
+  category: "company" | "personal";
+  company?: string;
+  /** "YYYY.MM ~ YYYY.MM" or "YYYY.MM ~ 진행 중"; the start orders the list and the end sets the status. */
   period: string;
   duration: string;
   role: string;
   team: string;
-  description: string;
+  tags: string[];
   github?: string;
   demo?: string;
-  blogPost?: string; // 블로그 Overview 글 경로 (e.g. "/blog/Projects/Nuartz/00-Overview")
   package?: {
-    registry: string; // "npm" | "crates.io" | "pypi" etc.
+    registry: string;
     name: string;
     url: string;
   };
+  /** Overview post linked next to the title, e.g. "/blog/Projects/Nuartz/00-Overview". */
+  blogPost?: string;
+  /** Content folder whose published posts are listed as the related series, e.g. "Projects/Nuartz". */
+  blogSeries?: string;
   demoImage?: {
     url: string;
     alt: string;
   };
-  techStack: {
-    [key: string]: string[];
-  };
-  achievements?: (string | {
-    metric: string;
-    before: string;
-    after: string;
-    improvement: string;
-  })[];
-  keyFeatures?: {
-    title: string;
-    details: string[];
-  }[];
-  keyResponsibilities?: {
-    title: string;
-    details: string[];
-  }[];
+  /** Background: the problem and context. */
+  description: string;
+  metrics?: ProjectMetric[];
+  highlights?: string[];
   businessGoals?: {
     title: string;
     description?: string;
@@ -64,293 +117,108 @@ export interface ProjectDetail {
     changes?: string[];
     results?: string[];
   }[];
+  keyResponsibilities?: {
+    title: string;
+    details: string[];
+  }[];
+  keyFeatures?: {
+    title: string;
+    details: string[];
+  }[];
   challenges?: {
     title: string;
     description: string;
   }[];
   learnings?: string[];
+  techStack: Partial<Record<TechStackCategory, string[]>>;
 }
 
-// Timeline data for the main projects page
-export const projectsTimeline: ProjectTimeline[] = [
-  // 진행 중인 프로젝트 (최신순)
-  // --- BrainCrew (테디노트랩 Team RAG), 2026.03 ~ 현재 ---
+// Manual order: the home page shows the first three.
+export const projects: Project[] = [
   {
     id: "welfare-agent",
     title: "사내 복지 AI Agent + 레거시 ERP 연동 PoC",
+    subtitle: "대기업 사내 복지 플랫폼 사용자향 AI 에이전트",
+    summary: "대기업 사내 복지 플랫폼을 위한 사용자향 AI 에이전트. FastAPI + LangGraph + deepagents 백엔드를 스캐폴딩부터 주도 개발하고 사내 API·레거시 ERP(SAP RFC) HTTP 래퍼 연동 및 Next.js 챗 UI까지 구현.",
+    category: "company",
+    company: "BrainCrew",
     period: "2026.05 ~ 2026.07",
-    year: 2026,
-    periodType: "H",
-    periodNumber: 1,
-    isCompleted: true,
-    description: "대기업 사내 복지 플랫폼을 위한 사용자향 AI 에이전트. FastAPI + LangGraph + deepagents 백엔드를 스캐폴딩부터 주도 개발하고 사내 API·레거시 ERP(SAP RFC) HTTP 래퍼 연동 및 Next.js 챗 UI까지 구현.",
+    duration: "약 2개월 (완료, 에이전트 레포 아카이브)",
+    role: "AI Engineer (백엔드 주도 + 프론트/SAP 연동)",
+    team: "Team RAG (사용자향 에이전트 단일 최다 기여)",
     tags: ["AI/ML", "LangGraph", "FastAPI", "Next.js 16", "SAP RFC"],
-    category: "company",
-    company: "BrainCrew"
+    description: "대기업 사내 복지 플랫폼을 위한 사용자향 AI 에이전트 PoC. FastAPI + LangGraph + deepagents 기반 백엔드를 스캐폴딩부터 주도 개발하고, 사내 LLM gateway(OpenAI 호환) 연동, SSE 스트리밍, 사내 API 비동기 클라이언트, 카드형 도구(skill) 설계, 레거시 ERP(SAP RFC) HTTP 래퍼 연동까지 구현했다. Next.js 16/React 19 기반 챗·신청 위저드 프론트엔드도 함께 구축했다.",
+    highlights: [
+      "에이전트의 단일 최다 기여자로 약 10일 만에 scaffold→데모 가능 상태까지 완성",
+      "데모를 목표로 사용자향 에이전트 + 공용 UI를 실데이터 연동 가능 상태로 정비",
+      "레거시 ERP를 HTTP 래퍼 + read-only Protocol로 안전하게 연동"
+    ],
+    keyResponsibilities: [
+      {
+        title: "에이전트 백엔드 주도 개발",
+        details: [
+          "에이전트를 scaffold부터 데모까지 단일 최다 기여자로 주도 (FastAPI + LangGraph deepagent)",
+          "사내 API 4종 래핑 비동기 클라이언트(httpx) 구현 및 user 식별자를 RunnableConfig로 주입",
+          "LLM 노출 표면을 raw tool에서 카드 wrapper skill(show/start/submit) + blocks envelope로 재설계",
+          "SSE /stream + 단발 /invoke·/entry 등 엔드포인트 구현"
+        ]
+      },
+      {
+        title: "사내 게이트웨이 / 메일 연동",
+        details: [
+          "사내 LLM gateway OpenAI-호환 endpoint로 전환 (SSL 토글, 강제 streaming)",
+          "사내 메일 Gateway 연동: 암호화 메일 클라이언트 구현",
+          "fail-fast 타임아웃 + PII-guard 로깅 토글로 운영 견고성 확보"
+        ]
+      },
+      {
+        title: "레거시 ERP(SAP RFC) 연동",
+        details: [
+          "SAP RFC를 사내 HTTP 래퍼 경유로 붙이는 클라이언트 구현",
+          "조회(R) 구현, 신청/취소(W)는 Spec 대기 stub로 분리",
+          "read-only Protocol로 쓰기 호출이 새지 않도록 타입 경계 분리"
+        ]
+      },
+      {
+        title: "프론트엔드 구현",
+        details: ["Next.js 16/React 19/Tailwind v4 기반 챗 UI 구현", "4단계 신청 위저드 + 마이페이지", "사내 시스템에서 넘어온 파라미터로 신청 폼 자동 채움"]
+      }
+    ],
+    learnings: [
+      "사용자향 에이전트 도구 설계: raw API보다 카드형 skill의 시나리오 커버리지",
+      "레거시 시스템 통합: SAP RFC를 HTTP로 추상화하고 타입으로 쓰기 경계 강제",
+      "데모 안정화: 실데이터 연동 시 발생하는 엣지케이스 방어 픽스",
+      "보안: 사내 메일 암호화와 PII 가드 로깅"
+    ],
+    techStack: {
+      languages: ["Python 3.12", "TypeScript"],
+      backend: ["FastAPI", "LangGraph", "LangChain", "deepagents", "httpx (async)", "cryptography"],
+      frontend: ["Next.js 16 (App Router)", "React 19", "Tailwind CSS v4", "Framer Motion"],
+      llm: ["사내 LLM gateway (OpenAI 호환)", "LangSmith"],
+      integration: ["사내 복지 API", "레거시 ERP(SAP RFC) via HTTP 래퍼", "사내 메일 Gateway"],
+      infra: ["Docker / docker-compose", "uv", "pnpm 10"],
+      tooling: ["ruff", "mypy (strict)", "pytest / pytest-asyncio"]
+    }
   },
   {
-    id: "pm-automation-agent",
-    title: "PM 업무 자동화 - 멀티 에이전트 원가 생성",
-    period: "2026.04 ~ 진행 중",
-    year: 2026,
-    periodType: "H",
-    periodNumber: 1,
-    isCompleted: false,
-    description: "대기업 SI 고객사의 PM 업무(원가 산정·RFP 분석·유사사업 추천)를 자동화하는 멀티 에이전트 시스템. Self-Correction·Self-Learning·Glass Box를 갖춘 자가진화형 구조를 기술 PoC(2026.04 완료)로 검증하고, 후속 단계(CBT·재설계 1.5)를 거쳐 2.0 작업을 이어가고 있다.",
-    tags: ["AI/ML", "LangGraph", "deepagents", "Azure", "Text-to-SQL"],
-    category: "company",
-    company: "BrainCrew"
-  },
-  {
-    id: "braincrew-wiki",
-    title: "BrainCrew Wiki - LLM 팀 지식 자동화 시스템",
-    period: "2026.04 ~ 진행 중",
-    year: 2026,
-    periodType: "H",
-    periodNumber: 1,
-    isCompleted: false,
-    description: "팀원이 쌓은 자유 형식 메모를 AI 루틴이 cross-link된 위키 문서로 자동 정제·발행하는 Git-native 파이프라인. 사람(원본)과 AI(정제본)의 쓰기 권한을 단방향으로 분리했고, 초기에는 pre-commit hook + CI로 이중 강제했다(2026.10 구조 개편에서 정리). 레포 166커밋 중 159커밋 단독.",
-    tags: ["AI Agent", "GitHub Actions", "LLM", "자동화", "Claude Code"],
-    category: "company",
-    company: "BrainCrew"
-  },
-  // --- 개인 오픈소스 ---
-  {
-    id: "autodev",
-    title: "AutoDev - 자율 소프트웨어 딜리버리 시스템 설계",
-    period: "2026.06 ~ 2026.07",
-    year: 2026,
-    periodType: "Q",
-    periodNumber: 2,
-    isCompleted: true,
-    description: "에이전트가 구현·리뷰·머지까지 수행하고 사람은 되돌리기 어려운 '진짜 결정'만 내리는 도구 비종속 자율 개발 시스템의 설계·스펙. 멀티모델 리뷰 건틀릿, 리스크 티어 auto-merge, 결정을 ADR로 축적하는 Evergreen Decision Graph를 문서·ADR로 정의.",
-    tags: ["오픈소스", "AI Agent", "멀티 에이전트", "자동화", "ADR"],
-    category: "personal",
-    github: "https://github.com/syshin0116/autodev-archive"
-  },
-  {
-    id: "clidex",
-    title: "Clidex - AI 에이전트를 위한 CLI 도구 검색",
-    period: "2026.03 ~ 진행 중",
-    year: 2026,
-    periodType: "Q",
-    periodNumber: 1,
-    isCompleted: false,
-    description: "AI 에이전트가 CLI 도구를 검색·비교·설치할 수 있는 인덱스. 5,000+ CLI 도구를 인덱싱하고 BM25 + 시노님 + 퍼지 매칭 검색을 CLI와 MCP 서버로 제공. Rust로 구현 (v0.5.0).",
-    tags: ["오픈소스", "Rust", "CLI", "AI Agent", "BM25"],
-    category: "personal",
-    github: "https://github.com/syshin0116/clidex"
-  },
-  {
-    id: "syshin0116-dev",
-    title: "Syshin0116.dev - 블로그 + 포트폴리오 통합",
-    period: "2025.11 ~ 진행 중",
-    year: 2025,
-    periodType: "Q",
-    periodNumber: 4,
-    isCompleted: false,
-    description: "Nuartz 기반 기술 블로그와 포트폴리오. 공개 글을 검색하는 AI 채팅(로그인 없이 체험 가능)과, 동일한 코퍼스로 검색 방법을 비교하는 RAG 평가 환경을 함께 운영.",
-    tags: ["Full Stack", "Next.js 16", "Nuartz", "포트폴리오"],
-    category: "personal",
-    github: "https://github.com/syshin0116/syshin0116.dev",
-    demo: "https://syshin0116.vercel.app"
-  },
-  {
-    id: "nuartz",
-    title: "Nuartz - Obsidian → Next.js 오픈소스 라이브러리",
-    period: "2026.01 ~ 진행 중",
-    year: 2026,
-    periodType: "Q",
-    periodNumber: 1,
-    isCompleted: false,
-    description: "Obsidian 볼트를 Next.js 웹사이트로 퍼블리싱하는 headless 라이브러리. 위키링크, 백링크, 그래프뷰, 검색 등 Obsidian 기능을 Next.js에서 구현. npm 패키지로 배포.",
-    tags: ["오픈소스", "Next.js 16", "TypeScript", "Obsidian", "npm"],
-    category: "personal",
-    github: "https://github.com/syshin0116/nuartz",
-    demo: "https://nuartz.vercel.app"
-  },
-  {
-    id: "sk-pharmaaix",
-    title: "MR Assistant - 제약 영업 지원 AI 챗봇",
-    period: "2025.07 ~ 2026.02",
-    year: 2025,
-    periodType: "H",
-    periodNumber: 2,
-    isCompleted: true,
-    description: "대형 제약 그룹 MR 조직을 위한 RAG 기반 질의응답 시스템",
-    tags: ["AI/ML", "LangGraph", "FastAPI", "Azure"],
-    category: "company",
-    company: "LabQ"
-  },
-  {
-    id: "katech-ai-agent",
-    title: "자동차 지식 에이전트 - 보고서 자동 생성 AI",
-    period: "2024.03 ~ 2026.02",
-    year: 2024,
-    periodType: "H",
-    periodNumber: 1,
-    isCompleted: true,
-    description: "국내 자동차 연구기관의 RAG 기반 보고서 자동 생성 시스템 및 챗봇",
-    tags: ["Full Stack", "RAG", "Next.js", "FastAPI"],
-    category: "company",
-    company: "LabQ"
-  },
-
-  // 화학 공정 AI/ML 프로젝트
-  {
-    id: "sk-cooh-prediction",
-    title: "Copolyester COOH 예측 모델",
-    period: "2025.04 ~ 2025.07",
-    year: 2025,
-    periodType: "H",
-    periodNumber: 1,
-    isCompleted: true,
-    description: "반응 공정 COOH 변화 예측으로 온도/유량 사전 Action 가능, Polymer 반응성 안정 운전 지원",
-    tags: ["AI/ML", "Python", "LightGBM", "XGBoost", "시계열"],
-    category: "company",
-    company: "LabQ"
-  },
-  {
-    id: "sk-qa-image-classification",
-    title: "이미지 선별 모델 - 이물 분석 검출 지원",
-    period: "2025.02 ~ 2025.04",
-    year: 2025,
-    periodType: "Q",
-    periodNumber: 1,
-    isCompleted: true,
-    description: "PET Chip 이물 이미지 자동 선별 모델로 QA팀 업무 Load 감소",
-    tags: ["Computer Vision", "Python", "이미지 분류", "PDF 처리"],
-    category: "company",
-    company: "LabQ"
-  },
-
-  // 완료된 프로젝트 (최신순)
-  {
-    id: "naver-hackathon",
-    title: "네이버 부스트캠프 기업 해커톤",
-    period: "2025.01 ~ 2025.02",
-    year: 2025,
-    periodType: "Q",
-    periodNumber: 1,
-    isCompleted: true,
-    description: "기업 평가 챗봇 개발 해커톤 기획 및 운영",
-    tags: ["해커톤", "멘토링", "챗봇"],
-    category: "company",
-    company: "LabQ"
-  },
-  {
-    id: "langchain-tutorial",
-    title: "LangChain Open Tutorial",
-    period: "2025.01 ~ 2025.02",
-    year: 2025,
-    periodType: "Q",
-    periodNumber: 1,
-    isCompleted: true,
-    description: "2,000+ 커밋 오픈소스 프로젝트에 RAG 튜토리얼 작성",
-    tags: ["오픈소스", "LangChain", "RAG", "LangGraph"],
-    category: "personal",
-    github: "https://github.com/LangChain-OpenTutorial/LangChain-OpenTutorial"
-  },
-  {
-    id: "greentech",
-    title: "그린텍 하수처리 수질 예측 AI",
-    period: "2024.07 ~ 2024.11",
-    year: 2024,
-    periodType: "H",
-    periodNumber: 2,
-    isCompleted: true,
-    description: "하수처리 공정 수질 예측 및 이상탐지 AI 시스템",
-    tags: ["AI/ML", "LightGBM", "PyTorch", "Time Series"],
-    category: "company",
-    company: "LabQ"
-  },
-  {
-    id: "podlybot",
-    title: "PodlyBot - 카카오톡 LLM 챗봇",
-    period: "2024.09",
-    year: 2024,
-    periodType: "H",
-    periodNumber: 2,
-    isCompleted: true,
-    description: "개인 비서 & 회사 업무용 LLM 챗봇 - URL 요약, Notion 자동 정리, 회사 LLM 서비스 연동",
-    tags: ["챗봇", "LLM", "Notion API", "JavaScript"],
-    category: "personal"
-  },
-  {
-    id: "podly",
-    title: "Podly - AI 음성 뉴스 서비스",
-    period: "2024.08 ~ 2024.09",
-    year: 2024,
-    periodType: "H",
-    periodNumber: 2,
-    isCompleted: true,
-    description: "AI 기반 맞춤형 음성 뉴스 및 관심사 정보 제공 서비스",
-    tags: ["AI/ML", "RAG", "TTS", "Flutter"],
-    category: "personal"
-  },
-  {
-    id: "employment-data",
-    title: "고용노동 공공데이터 공모전 - 자립준비청년 복지 알림·상담 챗봇",
-    period: "2024.06",
-    year: 2024,
-    periodType: "H",
-    periodNumber: 1,
-    isCompleted: true,
-    description: "자립준비청년과 복지사를 위한 LLM + RAG 복지 상담 챗봇과 카카오톡 맞춤형 복지 알림 서비스 기획 및 백엔드 설계",
-    tags: ["LLM", "RAG", "FastAPI", "공공데이터"],
-    category: "personal"
-  },
-  {
-    id: "prop",
-    title: "PROP - 제안서 작성 AI Agent",
-    period: "2024.03 ~ 2024.04",
-    year: 2024,
-    periodType: "Q",
-    periodNumber: 1,
-    isCompleted: true,
-    description: "제안서 및 문서 생성 자동화 시스템",
-    tags: ["AI/ML", "OpenAI API", "Flask"],
-    category: "company",
-    company: "LabQ"
-  },
-  {
-    id: "men-in-black",
-    title: "Men-in-Black - 교통 법규 위반 감지",
-    period: "2023.10 ~ 2023.12",
-    year: 2023,
-    periodType: "H",
-    periodNumber: 2,
-    isCompleted: true,
-    description: "블랙박스 영상 속 교통 법규 위반 차량 감지 시스템",
-    tags: ["Computer Vision", "YOLOv8", "OCR", "PyTorch"],
-    category: "personal",
-    github: "https://github.com/SeSAC-Men-in-Black/Men-in-Black"
-  },
-];
-
-// Detailed project data for individual project pages
-export const projectsDetail: { [key: string]: ProjectDetail } = {
-  // ===== BrainCrew (테디노트랩 Team RAG), 2026.03 ~ 현재 =====
-  // 고객 PoC는 고객사명·내부 시스템명·수치를 제거한 공개용 서술입니다.
-  "pm-automation-agent": {
     id: "pm-automation-agent",
     title: "PM 업무 자동화 - 멀티 에이전트 원가 생성",
     subtitle: "대기업 SI 고객사 PM 업무 자동화",
+    summary: "대기업 SI 고객사의 PM 업무(원가 산정·RFP 분석·유사사업 추천)를 자동화하는 멀티 에이전트 시스템. Self-Correction·Self-Learning·Glass Box를 갖춘 자가진화형 구조를 기술 PoC(2026.04 완료)로 검증하고, 후속 단계(CBT·재설계 1.5)를 거쳐 2.0 작업을 이어가고 있다.",
+    category: "company",
+    company: "BrainCrew",
     period: "2026.04 ~ 진행 중",
     duration: "기술 PoC 약 1개월(2026.04 완료) 포함, 이후 후속 버전 진행 중",
     role: "AI Engineer (기술 PoC 리드급)",
     team: "Team RAG (AI 기술 PoC 담당)",
+    tags: ["AI/ML", "LangGraph", "deepagents", "Azure", "Text-to-SQL"],
     description: "대기업 SI 고객사의 PM(프로젝트 관리) 업무 자동화를 위한 AI 에이전트. LangGraph/deepagents 기반 멀티 에이전트로 사업 원가 산정·제안요청서 분석·유사 프로젝트 추천·리스크 평가를 자동화하고, Self-Correction(생성→감사 루프)·Self-Learning(피드백 기반 스킬 개선)·Glass Box(실행 과정 투명 노출)를 검증했다. 기술 PoC를 2026.04에 완료한 뒤 CBT·재설계(1.5)를 거쳐 2.0 작업을 이어가고 있으며, 에이전트 코어부터 데이터 모델·인프라·프론트엔드까지 풀스택 영역을 담당했다.",
-    techStack: {
-      languages: ["Python 3.12", "TypeScript", "SQL", "HCL (Terraform)"],
-      aiFrameworks: ["LangGraph", "LangChain", "deepagents", "AsyncPostgresSaver"],
-      llm: ["Claude", "GPT (Azure OpenAI)", "Gemini"],
-      backend: ["FastAPI", "ARQ (Redis worker)", "alembic", "pglast (AST 검증)"],
-      data: ["PostgreSQL", "pgvector", "PostgreSQL RLS", "Kiwi BM25 + 벡터 RRF", "Redis"],
-      frontend: ["React 19", "Vite 7", "TailwindCSS v4", "shadcn", "zustand"],
-      observability: ["Langfuse (self-host on AKS)", "LangSmith"],
-      infra: ["Azure AKS", "Azure PostgreSQL", "Azure Blob", "Terraform", "Helm", "GitHub Actions"]
-    },
+    highlights: [
+      "단일 레포에 본인 커밋 242개(머지 커밋 제외)로 데이터 모델·에이전트·인프라·프론트 전반을 구축하며 사실상 기술 리드급으로 기여",
+      "Self-Correction + Self-Evolving + Glass Box를 갖춘 자가진화형 PM 자동화 컨셉을 동작 가능한 PoC로 검증",
+      "Text-to-SQL 안전성을 정규식에서 AST 검증 + RLS read-only TX로 강화하고 멀티모델 회귀 평가로 품질 정량 측정",
+      "기술 PoC 종료 후 영업 PoC와 차기 재설계까지 연속 참여하며 production 아키텍처 전환 로드맵 수립"
+    ],
     keyResponsibilities: [
       {
         title: "에이전트 코어 설계",
@@ -388,101 +256,52 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         ]
       }
     ],
-    achievements: [
-      "단일 레포에 본인 커밋 242개(머지 커밋 제외)로 데이터 모델·에이전트·인프라·프론트 전반을 구축하며 사실상 기술 리드급으로 기여",
-      "Self-Correction + Self-Evolving + Glass Box를 갖춘 자가진화형 PM 자동화 컨셉을 동작 가능한 PoC로 검증",
-      "Text-to-SQL 안전성을 정규식에서 AST 검증 + RLS read-only TX로 강화하고 멀티모델 회귀 평가로 품질 정량 측정",
-      "기술 PoC 종료 후 영업 PoC와 차기 재설계까지 연속 참여하며 production 아키텍처 전환 로드맵 수립"
-    ],
     learnings: [
       "멀티 에이전트 설계: subagents 분리에서 단일 agent + tool로의 단순화 트레이드오프",
       "에이전트 안전성: Text-to-SQL의 AST 검증과 RLS read-only 경계",
       "관찰가능성: trace 파편화 해소와 메타데이터 기반 디버깅",
       "클라우드 운영: Azure AKS 기반 self-host 관찰가능성 스택 구성"
-    ]
-  },
-  "welfare-agent": {
-    id: "welfare-agent",
-    title: "사내 복지 AI Agent + 레거시 ERP 연동 PoC",
-    subtitle: "대기업 사내 복지 플랫폼 사용자향 AI 에이전트",
-    period: "2026.05 ~ 2026.07",
-    duration: "약 2개월 (완료, 에이전트 레포 아카이브)",
-    role: "AI Engineer (백엔드 주도 + 프론트/SAP 연동)",
-    team: "Team RAG (사용자향 에이전트 단일 최다 기여)",
-    description: "대기업 사내 복지 플랫폼을 위한 사용자향 AI 에이전트 PoC. FastAPI + LangGraph + deepagents 기반 백엔드를 스캐폴딩부터 주도 개발하고, 사내 LLM gateway(OpenAI 호환) 연동, SSE 스트리밍, 사내 API 비동기 클라이언트, 카드형 도구(skill) 설계, 레거시 ERP(SAP RFC) HTTP 래퍼 연동까지 구현했다. Next.js 16/React 19 기반 챗·신청 위저드 프론트엔드도 함께 구축했다.",
+    ],
     techStack: {
-      languages: ["Python 3.12", "TypeScript"],
-      backend: ["FastAPI", "LangGraph", "LangChain", "deepagents", "httpx (async)", "cryptography"],
-      frontend: ["Next.js 16 (App Router)", "React 19", "Tailwind CSS v4", "Framer Motion"],
-      llm: ["사내 LLM gateway (OpenAI 호환)", "LangSmith"],
-      integration: ["사내 복지 API", "레거시 ERP(SAP RFC) via HTTP 래퍼", "사내 메일 Gateway"],
-      infra: ["Docker / docker-compose", "uv", "pnpm 10"],
-      tooling: ["ruff", "mypy (strict)", "pytest / pytest-asyncio"]
-    },
-    keyResponsibilities: [
-      {
-        title: "에이전트 백엔드 주도 개발",
-        details: [
-          "에이전트를 scaffold부터 데모까지 단일 최다 기여자로 주도 (FastAPI + LangGraph deepagent)",
-          "사내 API 4종 래핑 비동기 클라이언트(httpx) 구현 및 user 식별자를 RunnableConfig로 주입",
-          "LLM 노출 표면을 raw tool에서 카드 wrapper skill(show/start/submit) + blocks envelope로 재설계",
-          "SSE /stream + 단발 /invoke·/entry 등 엔드포인트 구현"
-        ]
-      },
-      {
-        title: "사내 게이트웨이 / 메일 연동",
-        details: [
-          "사내 LLM gateway OpenAI-호환 endpoint로 전환 (SSL 토글, 강제 streaming)",
-          "사내 메일 Gateway 연동: 암호화 메일 클라이언트 구현",
-          "fail-fast 타임아웃 + PII-guard 로깅 토글로 운영 견고성 확보"
-        ]
-      },
-      {
-        title: "레거시 ERP(SAP RFC) 연동",
-        details: [
-          "SAP RFC를 사내 HTTP 래퍼 경유로 붙이는 클라이언트 구현",
-          "조회(R) 구현, 신청/취소(W)는 Spec 대기 stub로 분리",
-          "read-only Protocol로 쓰기 호출이 새지 않도록 타입 경계 분리"
-        ]
-      },
-      {
-        title: "프론트엔드 구현",
-        details: [
-          "Next.js 16/React 19/Tailwind v4 기반 챗 UI 구현",
-          "4단계 신청 위저드 + 마이페이지",
-          "사내 시스템에서 넘어온 파라미터로 신청 폼 자동 채움"
-        ]
-      }
-    ],
-    achievements: [
-      "에이전트의 단일 최다 기여자로 약 10일 만에 scaffold→데모 가능 상태까지 완성",
-      "데모를 목표로 사용자향 에이전트 + 공용 UI를 실데이터 연동 가능 상태로 정비",
-      "레거시 ERP를 HTTP 래퍼 + read-only Protocol로 안전하게 연동"
-    ],
-    learnings: [
-      "사용자향 에이전트 도구 설계: raw API보다 카드형 skill의 시나리오 커버리지",
-      "레거시 시스템 통합: SAP RFC를 HTTP로 추상화하고 타입으로 쓰기 경계 강제",
-      "데모 안정화: 실데이터 연동 시 발생하는 엣지케이스 방어 픽스",
-      "보안: 사내 메일 암호화와 PII 가드 로깅"
-    ]
+      languages: ["Python 3.12", "TypeScript", "SQL", "HCL (Terraform)"],
+      aiFrameworks: ["LangGraph", "LangChain", "deepagents", "AsyncPostgresSaver"],
+      llm: ["Claude", "GPT (Azure OpenAI)", "Gemini"],
+      backend: ["FastAPI", "ARQ (Redis worker)", "alembic", "pglast (AST 검증)"],
+      data: ["PostgreSQL", "pgvector", "PostgreSQL RLS", "Kiwi BM25 + 벡터 RRF", "Redis"],
+      frontend: ["React 19", "Vite 7", "TailwindCSS v4", "shadcn", "zustand"],
+      observability: ["Langfuse (self-host on AKS)", "LangSmith"],
+      infra: ["Azure AKS", "Azure PostgreSQL", "Azure Blob", "Terraform", "Helm", "GitHub Actions"]
+    }
   },
-  "braincrew-wiki": {
+  {
     id: "braincrew-wiki",
     title: "BrainCrew Wiki - LLM 팀 지식 자동화 시스템",
     subtitle: "AI 루틴 기반 Git-native 팀 위키 파이프라인",
+    summary: "팀원이 쌓은 자유 형식 메모를 AI 루틴이 cross-link된 위키 문서로 자동 정제·발행하는 Git-native 파이프라인. 사람(원본)과 AI(정제본)의 쓰기 권한을 단방향으로 분리했고, 초기에는 pre-commit hook + CI로 이중 강제했다(2026.10 구조 개편에서 정리). 레포 166커밋 중 159커밋 단독.",
+    category: "company",
+    company: "BrainCrew",
     period: "2026.04 ~ 진행 중",
     duration: "2026.04~05 구축, 2026.10~11 구조 개편",
     role: "1인 설계·구현 (Team RAG)",
-    team: "사내 팀 (레포 166커밋 중 159커밋 단독)",
+    team: "사내 팀 (단독 설계·구현)",
+    tags: ["AI Agent", "GitHub Actions", "LLM", "자동화", "Claude Code"],
     description: "LLM 기반 팀 지식 자동화 시스템을 단독 설계·구현. 팀원이 자유 형식으로 쌓은 메모를 AI 루틴이 cross-link된 위키 문서로 자동 정제·발행하는 Git-native 파이프라인으로, 사람(원본)과 AI(정제본)의 쓰기 권한을 단방향으로 분리했다. ingest/lint/reflect/migrate 4단계를 단일 실행으로 묶는 dispatcher를 만들었고, 초기 버전에는 결정론적 검증 게이트, pre-commit hook, auto-merge CI, Next.js 검색 웹이 있었으나 2026.10 구조 개편에서 정리했다. 별도로 Team RAG 활동으로 에이전트 메모리 논문(AgeMem)의 noRL 변형을 LangGraph로 재현해 2개 백본·100문항 조건에서 성능 변화를 측정했다.",
-    techStack: {
-      languages: ["Python", "TypeScript"],
-      frameworks: ["LangGraph", "LangChain"],
-      tooling: ["uv (inline script deps)", "GitHub Actions", "Anthropic Routine", "Claude Code skills"],
-      llm: ["Anthropic Claude (wiki-curator routine)"],
-      patterns: ["Karpathy LLM-wiki pattern", "single-fire dispatcher", "raw/wiki one-way ownership"],
-      retired: ["Next.js 16 + React 19 위키 웹", "Bun", "pagefind", "d3", "Vercel", "pre-commit githooks", "verify-wiki.py"]
-    },
+    metrics: [
+      {
+        metric: "레포 커밋 중 단독 작성",
+        after: "159 / 166",
+        improvement: "2026.11 기준"
+      },
+      {
+        metric: "AgeMem noRL 재현 성능 변화",
+        after: "+8.7pp",
+        improvement: "2개 백본, n=100, 신뢰구간 약 ±4pp"
+      }
+    ],
+    highlights: [
+      "시스템 설계부터 CI·웹 배포까지 end-to-end로 단독 구축",
+      "단일 routine fire에서 5개 신규 위키 페이지 + 2개 cross-link 자동 생성으로 파이프라인 동작 검증"
+    ],
     keyResponsibilities: [
       {
         title: "wiki-curator 파이프라인",
@@ -511,34 +330,56 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         ]
       }
     ],
-    achievements: [
-      "레포 전체 166커밋 중 159커밋을 단독 작성하며 시스템 설계부터 CI·웹 배포까지 end-to-end 구축 (2026.11 기준)",
-      "단일 routine fire에서 5개 신규 위키 페이지 + 2개 cross-link 자동 생성으로 파이프라인 동작 검증",
-      "AgeMem 논문 noRL 변형을 LangGraph로 재현해 +8.7pp 향상 측정 (2개 백본, n=100, 신뢰구간 약 ±4pp)"
-    ],
     learnings: [
       "에이전트 자동화 설계: LLM 판단 vs 결정론적 트리거의 신뢰성 트레이드오프",
       "쓰기 권한 격리: 사람과 AI의 단방향 소유를 hook + CI로 강제하는 패턴",
       "논문 재현 연구: 메모리 구조의 효과를 백본별로 정량 비교"
-    ]
+    ],
+    techStack: {
+      languages: ["Python", "TypeScript"],
+      frameworks: ["LangGraph", "LangChain"],
+      tooling: ["uv (inline script deps)", "GitHub Actions", "Anthropic Routine", "Claude Code skills"],
+      llm: ["Anthropic Claude (wiki-curator routine)"],
+      patterns: ["Karpathy LLM-wiki pattern", "single-fire dispatcher", "raw/wiki one-way ownership"],
+      retired: [
+        "Next.js 16 + React 19 위키 웹",
+        "Bun",
+        "pagefind",
+        "d3",
+        "Vercel",
+        "pre-commit githooks",
+        "verify-wiki.py"
+      ]
+    }
   },
-  "autodev": {
+  {
     id: "autodev",
     title: "AutoDev - 자율 소프트웨어 딜리버리 시스템 설계",
     subtitle: "도구 비종속 자율 개발 시스템 설계·스펙 (design-first)",
+    summary: "에이전트가 구현·리뷰·머지까지 수행하고 사람은 되돌리기 어려운 '진짜 결정'만 내리는 도구 비종속 자율 개발 시스템의 설계·스펙. 멀티모델 리뷰 건틀릿, 리스크 티어 auto-merge, 결정을 ADR로 축적하는 Evergreen Decision Graph를 문서·ADR로 정의.",
+    category: "personal",
     period: "2026.06 ~ 2026.07",
     duration: "약 1개월 (설계·스펙 단계에서 완료, 레포 아카이브)",
     role: "1인 설계 / 오픈소스",
     team: "개인 오픈소스 프로젝트",
-    description: "에이전트가 이슈부터 구현·리뷰·머지까지 자율 수행하고, 사람은 되돌리기 어려운 '진짜 결정'만 내리는 자율 소프트웨어 딜리버리 시스템. 특정 오케스트레이터에 종속되지 않도록 Orchestrator/Runtime/Agent/Gate 추상으로 설계하고, 멀티모델 리뷰 건틀릿·리스크 티어 auto-merge·결정을 ADR로 축적하는 Evergreen Decision Graph를 문서와 ADR로 정의한 design-first 리포지토리.",
+    tags: ["오픈소스", "AI Agent", "멀티 에이전트", "자동화", "ADR"],
     github: "https://github.com/syshin0116/autodev-archive",
-    techStack: {
-      architecture: ["Orchestrator/Runtime/Agent/Gate 추상", "Evergreen Decision Graph", "멀티레포 단일 docs SoT"],
-      agents: ["Claude Code (구현·1차 리뷰)", "Codex (2차 리뷰)", "CI 게이트"],
-      escalation: ["Slack DM", "모바일 push/Telegram", "decision card"],
-      knowledge: ["ADR (proposed→accepted)", "Git + Markdown 지식 그래프"],
-      docs: ["Markdown docs-as-SoT", "roadmap", "MIT"]
-    },
+    description: "에이전트가 이슈부터 구현·리뷰·머지까지 자율 수행하고, 사람은 되돌리기 어려운 '진짜 결정'만 내리는 자율 소프트웨어 딜리버리 시스템. 특정 오케스트레이터에 종속되지 않도록 Orchestrator/Runtime/Agent/Gate 추상으로 설계하고, 멀티모델 리뷰 건틀릿·리스크 티어 auto-merge·결정을 ADR로 축적하는 Evergreen Decision Graph를 문서와 ADR로 정의한 design-first 리포지토리.",
+    metrics: [
+      {
+        metric: "자기 적용한 ADR",
+        after: "38건"
+      },
+      {
+        metric: "설계 문서",
+        after: "20여 편"
+      }
+    ],
+    highlights: [
+      "코드보다 문서·ADR를 먼저 쓰는 design-first 방식으로 시스템 스펙 정립",
+      "특정 오케스트레이터에 종속되지 않는 추상 계층으로 런타임 교체 가능성 확보",
+      "에스컬레이션과 지식 축적을 ADR 하나의 메커니즘으로 통합하는 Evergreen Decision Graph 개념 정의"
+    ],
     keyFeatures: [
       {
         title: "멀티모델 리뷰 건틀릿",
@@ -573,11 +414,6 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         ]
       }
     ],
-    achievements: [
-      "설계 문서 20여 편 + 자기 적용한 ADR 38건으로 시스템 스펙을 design-first로 정립",
-      "특정 오케스트레이터에 종속되지 않는 추상 계층으로 런타임 교체 가능성 확보",
-      "에스컬레이션과 지식 축적을 ADR 하나의 메커니즘으로 통합하는 Evergreen Decision Graph 개념 정의"
-    ],
     challenges: [
       {
         title: "완전 자동화와 안전성의 균형",
@@ -593,24 +429,334 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       "멀티모델 교차 리뷰로 단일 모델 편향을 줄이는 리뷰 건틀릿 설계",
       "에스컬레이션을 지식 자산으로 전환하는 ADR 기반 결정 루프",
       "design-first: 코드보다 문서·ADR를 SoT로 두는 멀티레포 운영"
-    ]
+    ],
+    techStack: {
+      architecture: ["Orchestrator/Runtime/Agent/Gate 추상", "Evergreen Decision Graph", "멀티레포 단일 docs SoT"],
+      agents: ["Claude Code (구현·1차 리뷰)", "Codex (2차 리뷰)", "CI 게이트"],
+      escalation: ["Slack DM", "모바일 push/Telegram", "decision card"],
+      knowledge: ["ADR (proposed→accepted)", "Git + Markdown 지식 그래프"],
+      docs: ["Markdown docs-as-SoT", "roadmap", "MIT"]
+    }
   },
-  "sk-pharmaaix": {
+  {
+    id: "clidex",
+    title: "Clidex - AI 에이전트를 위한 CLI 도구 검색",
+    subtitle: "CLI 도구 검색 엔진 for AI Agents",
+    summary: "AI 에이전트가 CLI 도구를 검색·비교·설치할 수 있는 인덱스. 5,000+ CLI 도구를 인덱싱하고 BM25 + 시노님 + 퍼지 매칭 검색을 CLI와 MCP 서버로 제공. Rust로 구현 (v0.5.0).",
+    category: "personal",
+    period: "2026.03 ~ 진행 중",
+    duration: "2026.03 ~ 2026.11, 165커밋 (v0.5.0까지)",
+    role: "1인 개발 / 오픈소스",
+    team: "개인 프로젝트",
+    tags: ["오픈소스", "Rust", "CLI", "AI Agent", "BM25"],
+    github: "https://github.com/syshin0116/clidex",
+    package: {
+      registry: "crates.io",
+      name: "clidex",
+      url: "https://crates.io/crates/clidex"
+    },
+    blogPost: "/blog/Projects/Clidex/01-Overview",
+    blogSeries: "Projects/Clidex",
+    demoImage: {
+      url: "https://raw.githubusercontent.com/syshin0116/clidex/main/assets/demo.gif",
+      alt: "Clidex 터미널 데모"
+    },
+    description: "AI 에이전트가 CLI 도구를 자연어로 검색·비교·설치할 수 있는 Rust 기반 인덱스. BM25 + 시노님 확장 + 퍼지 매칭 하이브리드 검색으로 recall을 보완하고, YAML/JSON 출력과 MCP 서버로 에이전트가 바로 호출할 수 있다.",
+    metrics: [
+      {
+        metric: "인덱싱한 CLI 도구",
+        after: "5,000+",
+        improvement: "Homebrew, awesome-cli-apps, toolleeo, npm, crates.io 등 통합"
+      },
+      {
+        metric: "CLI 도메인 시노님 매핑",
+        after: "41개"
+      }
+    ],
+    highlights: [
+      "최소 바이너리 사이즈 최적화 (LTO + strip)",
+      "검색 지연: 20~28개 도구 픽스처에서 쿼리당 약 3ms, 5,277개 전체 인덱스에서 쿼리당 약 880ms"
+    ],
+    keyFeatures: [
+      {
+        title: "하이브리드 검색 알고리즘",
+        details: [
+          "BM25 필드별 가중치 (이름 3x, 태그/카테고리 2x, 설명 1x)",
+          "도메인 시노님 매핑 (search→find/grep/locate, http→web/api/curl 등)",
+          "퍼지 매칭 폴백 (nucleo-matcher): 오타/부분 매칭 대응",
+          "GitHub stars 기반 인기도 보정 (비선형 정규화)"
+        ]
+      },
+      {
+        title: "CLI 명령어 체계",
+        details: [
+          "clidex \"query\": 자연어 도구 검색 (상위 10개)",
+          "clidex info <name>: 도구 상세 정보",
+          "clidex compare <names...>: 도구 비교 테이블",
+          "clidex trending: 인기 도구 목록",
+          "clidex update: GitHub Releases에서 인덱스 갱신"
+        ]
+      },
+      {
+        title: "AI 에이전트 친화적 설계",
+        details: [
+          "YAML/JSON 출력 포맷: LLM이 파싱하기 쉬운 구조",
+          "MCP 서버(rmcp)로 에이전트에서 검색·조회 도구로 직접 호출",
+          "설치 명령어 통합 (brew, apt, cargo, npm 등)",
+          "도구별 docs/llms.txt 링크 제공",
+          "Pretty/YAML/JSON 3가지 출력 모드"
+        ]
+      }
+    ],
+    challenges: [
+      {
+        title: "검색 정확도와 recall 균형",
+        description: "BM25 단독으로는 'find files' → 'fd' 같은 시노님 매칭 불가. 도메인 특화 시노님 확장 + 퍼지 매칭 하이브리드로 해결"
+      },
+      {
+        title: "인기도 편향 방지",
+        description: "GitHub stars가 높은 도구가 관련성 낮은 쿼리에서도 상위 노출. 비선형 정규화 (10k stars 이상 diminishing returns)로 해결"
+      }
+    ],
+    learnings: [
+      "Rust 실전 프로젝트: clap, serde, tokio 활용",
+      "정보 검색 알고리즘: BM25 + 시노님 확장의 효과",
+      "AI 에이전트 도구 설계: 구조화된 출력의 중요성",
+      "CLI 도구 생태계 이해: 패키지 매니저별 설치 방식"
+    ],
+    techStack: {
+      language: ["Rust (2021 edition)"],
+      search: ["BM25 (bm25 crate)", "nucleo-matcher"],
+      cli: ["clap 4 (derive)", "colored 3"],
+      mcp: ["rmcp (MCP 서버)"],
+      serialization: ["serde", "serde_norway", "serde_json"],
+      network: ["reqwest 0.13 (rustls)", "tokio 1"],
+      build: ["LTO", "strip symbols", "opt-level = 'z'"]
+    }
+  },
+  {
+    id: "syshin0116-dev",
+    title: "Syshin0116.dev - 블로그 + 포트폴리오 통합",
+    subtitle: "Nuartz 기반 기술 블로그와 RAG 검색 방법 평가 환경",
+    summary: "Nuartz 기반 기술 블로그와 포트폴리오. 공개 글을 검색하는 AI 채팅(로그인 없이 체험 가능)과, 동일한 코퍼스로 검색 방법을 비교하는 RAG 평가 환경을 함께 운영.",
+    category: "personal",
+    period: "2025.11 ~ 진행 중",
+    duration: "2025.11 레포 생성 이후 지속 개발",
+    role: "1인 풀스택 개발",
+    team: "개인 프로젝트",
+    tags: ["Full Stack", "Next.js 16", "Nuartz", "포트폴리오"],
+    github: "https://github.com/syshin0116/syshin0116.dev",
+    demo: "https://syshin0116.vercel.app",
+    blogSeries: "Projects/syshin0116-dev",
+    description: "Obsidian에 작성한 기술 글과 프로젝트 포트폴리오를 Nuartz + Next.js로 발행하는 개인 사이트. Aegra·LangGraph·Deep Agents 기반 AI 채팅은 로그인 없이 Luna 모델로 체험할 수 있고, 로그인하면 계정별 일일 한도 안에서 모델을 고를 수 있다. 직접 작성한 공개 글을 코퍼스로 삼아 여러 검색 방법을 같은 조건에서 구현·비교하는 RAG 평가 환경도 함께 구축했다.",
+    highlights: [
+      "블로그·포트폴리오와 AI 채팅(게스트·로그인)을 하나의 사이트에서 제공",
+      "Nuartz의 문서 해석·렌더링·탐색 기능을 실제 사이트에 적용",
+      "채팅과 오프라인 평가에서 동일한 검색 구현을 재사용하는 구조 구축",
+      "검색 결과와 실행 환경을 기록하고 재현성을 검증하는 평가 파이프라인 구현"
+    ],
+    keyFeatures: [
+      {
+        title: "공개 AI 채팅",
+        details: [
+          "로그인 없이 쓰는 Luna 게스트 채팅과, 로그인 사용자의 모델 선택 및 계정별 일일 사용 한도",
+          "assistant-ui 기반 스트리밍 응답과 대화 목록",
+          "도구·서브에이전트 실행 상태와 검색 출처 표시",
+          "익명 사용자의 실행 예산 제한과 대화 보관 기한 적용"
+        ]
+      },
+      {
+        title: "RAG 검색 방법 평가",
+        details: [
+          "채팅과 오프라인 평가가 같은 검색 인터페이스와 공개 글 코퍼스 사용",
+          "BM25, 필드 가중 BM25, 문자 n-gram, RRF 조합의 재현 가능한 비교 실행",
+          "코퍼스·질의셋·검색 방법의 식별 정보와 질의별 순위 기록",
+          "주제별 정답셋 검토와 공개 가능한 평가 결과 확정은 후속 과제"
+        ]
+      },
+      {
+        title: "Obsidian 호환 블로그",
+        details: [
+          "위키링크, 백링크, 콜아웃과 지식 그래프",
+          "제목·경로·본문·태그 검색과 태그 필터·정렬",
+          "링크 호버 프리뷰, 읽기 모드, 읽는 시간과 모바일 목차",
+          "Mermaid 다이어그램, 수식, 코드 하이라이팅과 복사"
+        ]
+      },
+      {
+        title: "프로젝트 포트폴리오",
+        details: ["업무·개인 프로젝트를 나눈 목록", "프로젝트별 역할, 기술 스택, 성과와 해결 과제", "홈의 최근 글·프로젝트와 GitHub·데모 링크"]
+      },
+      {
+        title: "콘텐츠 발행과 운영",
+        details: [
+          "원본 글과 정리된 Wiki를 분리하고 공개 글만 검색 코퍼스에 포함",
+          "JSON-LD, Open Graph, sitemap과 RSS 피드",
+          "Giscus 댓글, Vercel Analytics와 Speed Insights",
+          "웹·에이전트·평가 및 프로토콜 호환성을 CI에서 검증"
+        ]
+      }
+    ],
+    challenges: [
+      {
+        title: "공개 콘텐츠 경계 유지",
+        description: "블로그와 에이전트가 서로 다른 글을 노출하지 않도록 공개 글만 포함한 코퍼스를 빌드 시 생성하고, 에이전트와 평가가 같은 산출물을 사용하도록 구성"
+      },
+      {
+        title: "스트리밍 대화와 실행 상태 연결",
+        description: "Aegra의 Agent Protocol v2와 assistant-ui 런타임을 연결해 메시지, 도구 호출, 서브에이전트 활동과 검색 출처를 화면에 반영"
+      },
+      {
+        title: "검색 방법 비교의 재현성",
+        description: "코퍼스와 질의셋, 검색 구현의 식별 정보를 실행 결과에 묶고 질의별 순위를 재검증. 자동 생성한 질의셋과 소유자가 검토한 정답셋을 구분해 평가 결과의 해석 범위를 제한"
+      }
+    ],
+    learnings: [
+      "실제 콘텐츠로 Nuartz의 문서 처리와 탐색 기능 검증",
+      "검색 구현을 공유하면서 온라인 채팅과 오프라인 평가의 실행 환경 분리",
+      "익명 AI 체험에 필요한 사용자 격리, 비용 제한과 보관 정책 구현",
+      "검색 정확도뿐 아니라 데이터 출처와 재현 조건까지 포함하는 평가 설계"
+    ],
+    techStack: {
+      frontend: ["Next.js 16 (App Router)", "React 19", "Tailwind CSS v4", "shadcn/ui", "assistant-ui"],
+      content: ["Nuartz", "D3.js (그래프뷰)", "Mermaid"],
+      ai: ["Aegra (Agent Protocol v2)", "LangGraph", "Deep Agents", "LangGraph SDK"],
+      auth: ["Auth.js v5 (GitHub·Google OAuth)", "Neon Postgres"],
+      rendering: ["KaTeX (수식)", "Shiki (코드 하이라이팅)"],
+      deployment: ["Vercel (웹)", "Mac mini 홈서버 (에이전트, Docker Compose + Tailscale Funnel)", "GitHub Actions", "Bun", "uv"]
+    }
+  },
+  {
+    id: "nuartz",
+    title: "Nuartz - Obsidian → Next.js 오픈소스 라이브러리",
+    subtitle: "Obsidian 볼트를 Next.js 웹사이트로 퍼블리싱하는 headless 라이브러리",
+    summary: "Obsidian 볼트를 Next.js 웹사이트로 퍼블리싱하는 headless 라이브러리. 위키링크, 백링크, 그래프뷰, 검색 등 Obsidian 기능을 Next.js에서 구현. npm 패키지로 배포.",
+    category: "personal",
+    period: "2026.01 ~ 진행 중",
+    duration: "2026.01 첫 커밋, 2026.03 npm 첫 배포 이후 지속 개발",
+    role: "1인 개발 / npm 패키지 배포",
+    team: "개인 오픈소스 프로젝트",
+    tags: ["오픈소스", "Next.js 16", "TypeScript", "Obsidian", "npm"],
+    github: "https://github.com/syshin0116/nuartz",
+    demo: "https://nuartz.vercel.app",
+    package: {
+      registry: "npm",
+      name: "nuartz",
+      url: "https://www.npmjs.com/package/nuartz"
+    },
+    blogPost: "/blog/Projects/Nuartz/00-Overview",
+    blogSeries: "Projects/Nuartz",
+    demoImage: {
+      url: "https://raw.githubusercontent.com/syshin0116/nuartz/main/assets/nuartz-homepage.png",
+      alt: "Nuartz 데모 사이트 스크린샷"
+    },
+    description: "Obsidian 볼트를 Next.js 웹사이트로 서빙하기 위한 headless 데이터 레이어 라이브러리. Quartz의 한계(커스텀 UI 불가, AI 연동 어려움)를 해결하기 위해 직접 개발. npm 패키지로 배포하여 누구나 자신의 Next.js 앱에 Obsidian 기능을 통합 가능.",
+    highlights: [
+      "npm 패키지 배포 (nuartz@0.5.0)",
+      "Quartz 핵심 기능을 Next.js 생태계로 포팅",
+      "Vercel + GitHub Pages 양쪽 배포 지원",
+      "개인 블로그로 실사용 중 (syshin0116.dev)"
+    ],
+    keyFeatures: [
+      {
+        title: "Obsidian 호환 마크다운 렌더링",
+        details: [
+          "위키링크 ([[note]], [[note|alias]]) 파싱 및 라우팅",
+          "양방향 백링크 인덱스 자동 생성",
+          "콜아웃 블록 (> [!note], > [!warning] 등)",
+          "하이라이트 (==text==), 코멘트 (%%text%%), 화살표 (->)",
+          "LaTeX 수식 렌더링 ($...$, $$...$$)"
+        ]
+      },
+      {
+        title: "콘텐츠 유틸리티",
+        details: [
+          "재귀적 마크다운 파일 탐색 및 드래프트 필터링",
+          "폴더 기반 파일 트리 생성 (사이드바용)",
+          "Pagefind 기반 정적 전문 검색 인덱스",
+          "그래프 뷰 데이터 생성 (노트-태그 관계)"
+        ]
+      },
+      {
+        title: "headless 아키텍처",
+        details: [
+          "UI 없이 데이터 레이어만 제공, 어떤 디자인이든 적용 가능",
+          "nuartz.config.ts로 설정 (title, baseUrl, nav 등)",
+          "정적 생성(SSG) 기반 페이지 빌드",
+          "GitHub Pages 정적 배포 지원"
+        ]
+      },
+      {
+        title: "참고 웹앱 (apps/web)",
+        details: [
+          "shadcn/ui + Tailwind v4 기반 모던 UI",
+          "다크모드, 반응형 레이아웃",
+          "그래프뷰 (D3.js), 목차, 검색 (cmdk)",
+          "OG 이미지 자동 생성, RSS 피드"
+        ]
+      }
+    ],
+    challenges: [
+      {
+        title: "Quartz 플러그인 시스템 재해석",
+        description: "Quartz의 Preact 기반 정적 사이트 생성기를 Next.js의 unified 파이프라인으로 재설계. remark/rehype 플러그인으로 위키링크, 콜아웃 등을 직접 구현"
+      },
+      {
+        title: "CJK 검색 최적화",
+        description: "초기 검색 엔진이던 FlexSearch의 기본 토크나이저가 한국어를 제대로 분리하지 못하는 문제. CJK 전용 토크나이저 설정으로 대응했고, 이후 검색은 Pagefind로 전환"
+      },
+      {
+        title: "CSS 변수 호환성",
+        description: "Tailwind v4의 oklch 색상 체계와 D3.js SVG 렌더링 간 호환 문제. hsl() 래퍼 제거하고 CSS 변수 직접 참조로 해결"
+      }
+    ],
+    learnings: [
+      "unified 생태계 깊이 이해: remark/rehype 플러그인 직접 작성",
+      "npm 패키지 배포 및 버전 관리 실무 경험",
+      "모노레포 구조 설계: packages/nuartz (라이브러리) + apps/web (참고 앱)",
+      "headless 라이브러리 설계 철학: UI와 데이터 레이어의 분리",
+      "오픈소스 프로젝트 운영: README, CHANGELOG, 문서화의 중요성"
+    ],
+    techStack: {
+      core: ["TypeScript", "unified (remark/rehype)"],
+      features: ["remark-math", "rehype-katex", "rehype-pretty-code", "Pagefind", "D3.js"],
+      webapp: ["Next.js 16", "Tailwind CSS v4", "shadcn/ui", "next-themes"],
+      build: ["Bun", "tsc"],
+      deployment: ["npm registry", "Vercel", "GitHub Pages"]
+    }
+  },
+  {
     id: "sk-pharmaaix",
     title: "MR Assistant - 제약 영업 지원 AI 챗봇",
     subtitle: "대형 제약 그룹 MR 영업 지원",
+    summary: "대형 제약 그룹 MR 조직을 위한 RAG 기반 질의응답 시스템",
+    category: "company",
+    company: "LabQ",
     period: "2025.07 ~ 2026.02",
     duration: "약 7개월",
     role: "AI 파트 리드 / 팀 PL",
     team: "팀원 3명 + 글로벌 컨설팅사 RA 5~6명 리딩",
+    tags: ["AI/ML", "LangGraph", "FastAPI", "Azure"],
     description: "대형 제약 그룹의 MR 조직을 위한 AI 챗봇. 영업활동 기록, 제품 정보 검색, 고성과자 노하우 공유를 통한 성과 향상 지원. 제약 도메인 특화 RAG 기반 질의응답 시스템.",
-    techStack: {
-      backend: ["FastAPI", "Python"],
-      database: ["MariaDB", "Qdrant (Vector DB)", "AWS Redshift", "Redis"],
-      aiml: ["LangChain", "LangGraph", "Azure OpenAI API"],
-      infrastructure: ["Azure", "Docker"],
-      collaboration: ["Slack", "Jira", "Confluence"]
-    },
+    metrics: [
+      {
+        metric: "응답 속도",
+        before: "평균 3분 이상",
+        after: "평균 30초",
+        improvement: "83% 개선"
+      },
+      {
+        metric: "답변 커버리지",
+        before: "30%",
+        after: "100%",
+        improvement: "233% 향상"
+      },
+      {
+        metric: "답변 품질",
+        after: "고객 정성 평가 통과",
+        improvement: "반복 개선 후 승인"
+      }
+    ],
     businessGoals: [
       {
         title: "생산성 향상 목표",
@@ -626,26 +772,6 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         ]
       }
     ],
-    achievements: [
-      {
-        metric: "응답 속도",
-        before: "평균 3분 이상",
-        after: "평균 30초",
-        improvement: "83% 개선"
-      },
-      {
-        metric: "답변 커버리지",
-        before: "30%",
-        after: "100%",
-        improvement: "233% 향상"
-      },
-      {
-        metric: "답변 품질",
-        before: "-",
-        after: "고객 정성 평가 통과",
-        improvement: "반복 개선 후 승인"
-      }
-    ],
     architectureEvolution: [
       {
         version: "V1",
@@ -653,35 +779,20 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         problems: [
           "Orchestrator + Chain 방식으로 지나치게 지엽적",
           "설계된 specific한 질문만 답변 가능",
-          "대부분의 실제 사용자 질의에 대답 불가",
-          "응답 속도 3분 이상, 커버리지 30% 수준"
+          "대부분의 실제 사용자 질의에 대답 불가"
         ]
       },
       {
         version: "V2",
         title: "Multi-Agent Supervisor 전환",
-        changes: [
-          "Agentic Supervisor Multi-Agent 아키텍처로 전환",
-          "Supervisor가 사용자 질문 분석 후 적절한 Agent 호출"
-        ],
-        problems: [
-          "많은 개발자들이 설계 의도대로 구현하지 못함",
-          "아키텍처 이해도 부족으로 인한 구현 오류"
-        ]
+        changes: ["Agentic Supervisor Multi-Agent 아키텍처로 전환", "Supervisor가 사용자 질문 분석 후 적절한 Agent 호출"],
+        problems: ["많은 개발자들이 설계 의도대로 구현하지 못함", "아키텍처 이해도 부족으로 인한 구현 오류"]
       },
       {
         version: "V3",
         title: "완전 재설계",
-        changes: [
-          "Agent 구조, init, tool까지 직접 제작하여 배포",
-          "개발자들이 그대로 사용할 수 있도록 완성된 형태로 제공",
-          "Chain + Agentic 하이브리드 구조"
-        ],
-        results: [
-          "응답 속도 83% 개선 (3분 → 30초)",
-          "답변 커버리지 233% 향상 (30% → 100%)",
-          "고객 정성 평가에서 답변 품질 승인"
-        ]
+        changes: ["Agent 구조, init, tool까지 직접 제작하여 배포", "개발자들이 그대로 사용할 수 있도록 완성된 형태로 제공", "Chain + Agentic 하이브리드 구조"],
+        results: ["상단 핵심 지표(응답 속도, 답변 커버리지, 답변 품질)가 이 구조에서 달성됨"]
       }
     ],
     keyResponsibilities: [
@@ -743,43 +854,50 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       "성능 최적화 경험: 병목 지점 정확히 파악하고 단계적으로 개선",
       "멀티 팀 협업: 각 분야 최고 전문가들의 일하는 방식을 직접 관찰하고 배움",
       "기술 깊이의 중요성: LLM 고유명사 오표기 문제를 토크나이저 레벨까지 분석"
-    ]
+    ],
+    techStack: {
+      backend: ["FastAPI", "Python"],
+      database: ["MariaDB", "Qdrant (Vector DB)", "AWS Redshift", "Redis"],
+      aiml: ["LangChain", "LangGraph", "Azure OpenAI API"],
+      infrastructure: ["Azure", "Docker"],
+      collaboration: ["Slack", "Jira", "Confluence"]
+    }
   },
-  "katech-ai-agent": {
+  {
     id: "katech-ai-agent",
     title: "자동차 지식 에이전트 - 보고서 자동 생성 AI",
     subtitle: "국내 자동차 연구기관 RAG 기반 보고서 생성",
+    summary: "국내 자동차 연구기관의 RAG 기반 보고서 자동 생성 시스템 및 챗봇",
+    category: "company",
+    company: "LabQ",
     period: "2024.03 ~ 2026.02",
     duration: "약 1년 11개월",
     role: "1~2차: 1인 풀스택 개발 (7개월) / 3~4차: 메인 PL / 팀 4명",
     team: "개발자 4명 (본인 포함)",
+    tags: ["Full Stack", "RAG", "Next.js", "FastAPI"],
     description: "국내 자동차 연구기관의 자동차 분야 특화 RAG 기반 보고서 자동 생성 시스템 및 챗봇. 사전 공개/공개/비공개 데이터 3단계 분류 관리, 마이디스크 연동, Keycloak SSO 인증.",
-    techStack: {
-      backend: ["FastAPI", "Python", "Redis"],
-      frontend: ["Next.js", "React", "TypeScript", "BlockNote Editor"],
-      database: ["PostgreSQL (Kysely ORM)", "Qdrant (Vector DB)"],
-      aiml: ["LangChain", "LangGraph", "OpenAI API (GPT-3.5/4/4o)", "Claude"],
-      infrastructure: ["Docker", "Docker Compose", "Nginx", "Linux Server"],
-      authentication: ["Keycloak (SSO)"],
-      monitoring: ["LangSmith"],
-      etc: ["Server-Sent Events (SSE)"]
-    },
+    metrics: [
+      {
+        metric: "보고서 작성 시간",
+        before: "1시간",
+        after: "1분",
+        improvement: "98% 단축"
+      }
+    ],
+    highlights: [
+      "1인 풀스택으로 7개월간 전체 시스템 설계 및 구현",
+      "Keycloak SSO 기반 보안 인증 시스템 구축",
+      "3단계 데이터 분류 및 권한 관리 시스템",
+      "LangGraph 멀티 에이전트 아키텍처 구축"
+    ],
     keyFeatures: [
       {
         title: "서버 인프라 구축 및 배포",
-        details: [
-          "Docker Compose 기반 멀티 컨테이너 환경 구축",
-          "HTTPS 적용 및 고객 도메인 연결",
-          "VPN 및 SSH 접속 환경 설정"
-        ]
+        details: ["Docker Compose 기반 멀티 컨테이너 환경 구축", "HTTPS 적용 및 고객 도메인 연결", "VPN 및 SSH 접속 환경 설정"]
       },
       {
         title: "인증 및 권한 관리",
-        details: [
-          "Keycloak 기반 SSO(Single Sign-On) 로그인 시스템",
-          "OAuth 2.0 토큰 관리",
-          "세션 기반 사용자 인증 및 권한 검증"
-        ]
+        details: ["Keycloak 기반 SSO(Single Sign-On) 로그인 시스템", "OAuth 2.0 토큰 관리", "세션 기반 사용자 인증 및 권한 검증"]
       },
       {
         title: "RAG 기반 보고서 자동 생성",
@@ -809,18 +927,6 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         ]
       }
     ],
-    achievements: [
-      {
-        metric: "보고서 작성 시간",
-        before: "1시간",
-        after: "1분",
-        improvement: "98% 단축"
-      },
-      "1인 풀스택으로 7개월간 전체 시스템 설계 및 구현",
-      "Keycloak SSO 기반 보안 인증 시스템 구축",
-      "3단계 데이터 분류 및 권한 관리 시스템",
-      "LangGraph 멀티 에이전트 아키텍처 구축"
-    ],
     challenges: [
       {
         title: "1인 풀스택 개발",
@@ -837,158 +943,181 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       "데이터 권한 관리: 3단계 분류 및 세밀한 권한 제어",
       "프로젝트 관리: 1인 개발에서 팀 PL로 역할 전환 경험",
       "단계별 개선의 힘: MVP부터 시작하여 지속적으로 개선"
-    ]
-  },
-  "greentech": {
-    id: "greentech",
-    title: "그린텍 하수처리 수질 예측 AI",
-    subtitle: "하수처리공정 수질 예측 및 이상탐지",
-    period: "2024.07 ~ 2024.11",
-    duration: "약 4개월",
-    role: "PL (팀 2명: 본인 포함)",
-    team: "개발자 2명",
-    description: "하수처리장의 공정 단계별 수질 예측 모델 개발 및 실시간 이상 탐지 시스템. 19개 타겟 변수에 대한 예측 모델 구축으로 품질 Hunting 최소화 및 안정 운전 지원.",
+    ],
     techStack: {
-      ml: ["RandomForest (scikit-learn)", "PyTorch", "LightGBM", "XGBoost", "CatBoost"],
-      anomaly: ["PyOD", "COMBO"],
-      dataprocessing: ["NumPy", "Pandas", "Numba"],
-      visualization: ["Matplotlib", "Seaborn", "Plotly Dash"],
-      backend: ["Flask", "Gunicorn"],
-      timeseries: ["statsmodels"],
-      deployment: ["Docker"]
-    },
-    keyFeatures: [
+      backend: ["FastAPI", "Python", "Redis"],
+      frontend: ["Next.js", "React", "TypeScript", "BlockNote Editor"],
+      database: ["PostgreSQL (Kysely ORM)", "Qdrant (Vector DB)"],
+      aiml: ["LangChain", "LangGraph", "OpenAI API (GPT-3.5/4/4o)", "Claude"],
+      infrastructure: ["Docker", "Docker Compose", "Nginx", "Linux Server"],
+      authentication: ["Keycloak (SSO)"],
+      monitoring: ["LangSmith"],
+      etc: ["Server-Sent Events (SSE)"]
+    }
+  },
+  {
+    id: "sk-cooh-prediction",
+    title: "Copolyester COOH 예측 모델",
+    subtitle: "Copolyester 생산 공정 COOH 예측",
+    summary: "반응 공정 COOH 변화 예측으로 온도/유량 사전 Action 가능, Polymer 반응성 안정 운전 지원",
+    category: "company",
+    company: "LabQ",
+    period: "2025.04 ~ 2025.07",
+    duration: "약 3개월",
+    role: "ML 모델 개발",
+    team: "고객사 데이터 조직과 협업",
+    tags: ["AI/ML", "Python", "LightGBM", "XGBoost", "시계열"],
+    description: "반응 공정 COOH 변화에 따라 Polymer 반응성이 변하여 제품 품질 Hunting이 발생하는 문제를 해결. COOH 변화 예측으로 온도/유량 사전 Action이 가능하게 하여 안정 운전 지원.",
+    highlights: ["품질 Hunting 최소화로 안정 운전 가능", "온도/유량 사전 Action으로 불량률 감소"],
+    businessGoals: [
       {
-        title: "수질 예측 모델 개발",
-        details: [
-          "RandomForest: T-N 방류수 예측 최고 성능 (R² 0.9244)",
-          "LightGBM, XGBoost, CatBoost 앙상블 모델",
-          "PyTorch 기반 LSTM, GRU 딥러닝 모델",
-          "ARIMA, SARIMA 시계열 모델",
-          "Optuna 하이퍼파라미터 튜닝"
-        ]
+        title: "As-is",
+        description: "반응 공정 COOH 변화에 따라 Polymer 반응성이 변하여 제품 품질 Hunting 발생"
       },
       {
-        title: "이상 탐지 시스템",
-        details: [
-          "PyOD 기반 10+ 알고리즘 실험 (Isolation Forest, LOF, CBLOF)",
-          "COMBO 앙상블 이상 탐지",
-          "이상치 스코어 계산 및 임계값 설정",
-          "실시간 모니터링 및 알림"
-        ]
-      },
-      {
-        title: "시각화 대시보드",
-        details: [
-          "Plotly Dash 기반 실시간 모니터링",
-          "공정 단계별 수질 예측값 및 실측값 시각화",
-          "이상 탐지 알림 표시",
-          "자동 분석 리포트 생성"
-        ]
+        title: "To-be",
+        description: "반응 공정 COOH 변화 예측으로 온도/유량 사전 Action 가능, 안정 운전"
       }
     ],
-    achievements: [
+    keyResponsibilities: [
       {
-        metric: "T-N 방류수 예측",
-        before: "-",
-        after: "R² 0.9244",
-        improvement: "RandomForest"
+        title: "공정 데이터 분석 및 전처리",
+        details: [
+          "반응 설비 온도, 레벨, 압력, (열매/물) 유량 등 인풋 데이터 분석",
+          "반응 공정 COOH 분석값 기반 피처 엔지니어링",
+          "공정 실시간 데이터와 ERP 데이터 통합 및 전처리"
+        ]
       },
       {
-        metric: "TOC 방류수 예측",
-        before: "-",
-        after: "R² 0.8640",
-        improvement: "CatBoost"
+        title: "COOH 예측 ML 모델 개발",
+        details: ["다양한 ML 모델 실험 (LightGBM, XGBoost 등)", "모델 성능 평가 및 하이퍼파라미터 튜닝", "예측값 기반 Action 가이드 제공"]
+      }
+    ],
+    learnings: [
+      "화학 공정 도메인 지식: Copolyester 반응 메커니즘 이해",
+      "공정 데이터 특성: 공정 실시간 데이터·ERP 전처리 노하우",
+      "예측 모델의 실제 현장 적용: 모델 결과를 운전자 Action으로 연결"
+    ],
+    techStack: {
+      ml: ["scikit-learn", "LightGBM", "XGBoost"],
+      dataprocessing: ["Python", "Pandas", "NumPy"],
+      datasource: ["공정 실시간 데이터", "ERP"]
+    }
+  },
+  {
+    id: "sk-qa-image-classification",
+    title: "이미지 선별 모델 - 이물 분석 검출 지원",
+    subtitle: "PET Chip 이물 이미지 자동 분류",
+    summary: "PET Chip 이물 이미지 자동 선별 모델로 QA팀 업무 Load 감소",
+    category: "company",
+    company: "LabQ",
+    period: "2025.02.24 ~ 2025.04.03",
+    duration: "약 6주",
+    role: "Computer Vision 모델 개발",
+    team: "고객사 QA·DT 담당자와 협업",
+    tags: ["Computer Vision", "Python", "이미지 분류", "PDF 처리"],
+    description: "PET Chip 특성상 원통형이고 불투명하여 선별기기의 한계로 오류값 다수 발생. 이미지 분석을 통해 사람이 직접 확인해야 하는 이미지 수를 최소화하는 모델 개발.",
+    highlights: ["사람이 확인해야 하는 이미지 수 대폭 감소", "다른 생산 거점으로 확대 가능성 확인"],
+    businessGoals: [
+      {
+        title: "As-is",
+        description: "PET Chip 특성상 원통형이고 불투명하여 선별기기의 한계로 오류값 다수 발생, 사람이 직접 선별 시 업무 Load 과다"
       },
-      "19개 타겟 변수 예측 모델 개발 완료",
-      "실시간 이상 탐지 시스템 구축 (RandomForest 분류 정확도 98.50%는 불균형 데이터 기준의 참고 지표)",
-      "품질 Hunting 최소화로 안정 운전 가능"
+      {
+        title: "To-be",
+        description: "이미지 분석을 통해 사람이 직접 확인해야 하는 이미지 수 최소화"
+      }
+    ],
+    keyResponsibilities: [
+      {
+        title: "PDF 파일에서 이미지 추출 및 전처리",
+        details: ["선별기기 결과 Report (PDF 파일)에서 이미지 추출", "이미지 전처리 및 정규화"]
+      },
+      {
+        title: "이물 검출 이미지 분류 모델 개발",
+        details: ["Binary Classification (정상/이물 분류)", "선별기기 결과를 1차 필터링하는 모델 개발", "모델 성능 평가 (정확도, 재현율, F1-score)"]
+      }
+    ],
+    keyFeatures: [
+      {
+        title: "이물 검출 파이프라인",
+        details: [
+          "선별기기 결과 → 이미지 선별 모델 1차 필터링 → 사람 최종 선별",
+          "PDF Report에서 자동 이미지 추출",
+          "Binary Classification 기반 정상/이물 분류"
+        ]
+      }
     ],
     challenges: [
       {
-        title: "시계열 데이터 처리",
-        description: "결측치, 이상치가 많은 공정 데이터. 도메인 지식 기반 전처리 및 피처 엔지니어링으로 해결"
-      },
-      {
-        title: "모델 선택",
-        description: "다양한 ML/DL 모델 실험 필요. 체계적인 실험 관리 및 성능 비교로 최적 모델 도출"
+        title: "PET Chip 이미지 특성",
+        description: "원통형이고 불투명한 PET Chip 특성으로 선별기기 오류값 다수. 이미지 전처리 및 모델 최적화로 해결"
       }
     ],
     learnings: [
-      "앙상블 모델의 강력함: 단일 모델 대비 성능 향상",
-      "도메인 지식의 중요성: 하수처리 공정 이해가 피처 엔지니어링에 핵심",
-      "실시간 시스템 구축: 배치 예측과 실시간 모니터링의 차이",
-      "클라이언트 커뮤니케이션: 기술 용어를 비즈니스 가치로 전달"
-    ]
-  },
-  "prop": {
-    id: "prop",
-    title: "PROP - 제안서 작성 AI Agent",
-    subtitle: "제안서 및 문서 생성 자동화 시스템",
-    period: "2024.03 ~ 2024.04",
-    duration: "약 2개월",
-    role: "유지보수 및 추가 개발",
-    team: "사내 자체 프로젝트",
-    description: "AI 기반 사업 제안서, 기술 제안서 자동 생성 시스템. 템플릿 기반 문서 구조 생성 및 사용자 정의 프롬프트 지원. Celery 기반 비동기 작업 처리로 사용자 경험 개선.",
+      "제조업 도메인 CV 적용: 선별기기 한계를 AI로 보완",
+      "Binary Classification 실전: 정밀도와 재현율 균형",
+      "PDF 기반 데이터 파이프라인: 비정형 데이터에서 이미지 추출"
+    ],
     techStack: {
-      backend: ["Flask", "Celery", "Redis", "MySQL"],
-      frontend: ["HTML", "JavaScript (Vanilla JS)"],
-      ai: ["OpenAI API (GPT-3.5-turbo, GPT-4, GPT-4o)"]
-    },
+      ml: ["Python", "Computer Vision"],
+      imageprocessing: ["OpenCV", "PyTorch"],
+      dataprocessing: ["PyPDF2", "pdf2image"]
+    }
+  },
+  {
+    id: "naver-hackathon",
+    title: "네이버 부스트캠프 기업 해커톤",
+    subtitle: "기업 평가 챗봇 개발 해커톤",
+    summary: "기업 평가 챗봇 개발 해커톤 기획 및 운영",
+    category: "company",
+    company: "LabQ",
+    period: "2025.01 ~ 2025.02",
+    duration: "약 1개월",
+    role: "기획, 운영, 평가",
+    team: "네이버 부스트캠프",
+    tags: ["해커톤", "멘토링", "챗봇"],
+    description: "네이버 부스트캠프 주최 기업 해커톤에서 기업 평가 챗봇 개발 과제를 기획하고 운영. 참가 팀 멘토링 및 기술 지원, 최종 평가 진행.",
+    highlights: ["해커톤 과제 기획 및 평가 기준 수립 경험", "참가 팀 멘토링으로 기술 지식 공유", "해커톤 운영 및 결과 평가 참여"],
     keyFeatures: [
       {
-        title: "제안서 생성 엔진",
-        details: [
-          "템플릿 기반 문서 구조 자동 생성",
-          "프롬프트 엔지니어링을 통한 품질 향상",
-          "섹션별 생성 로직 개선",
-          "GPT-4/GPT-4o 업그레이드"
-        ]
+        title: "해커톤 과제 기획",
+        details: ["기업 평가 챗봇 과제 설계", "평가 기준 수립 (기술성, 창의성, 완성도)", "참가 팀 가이드라인 작성"]
       },
       {
-        title: "비동기 작업 처리",
-        details: [
-          "Celery 기반 문서 생성 비동기 처리",
-          "Redis 작업 큐 관리",
-          "생성 진행 상황 실시간 업데이트"
-        ]
+        title: "멘토링 및 기술 지원",
+        details: ["참가 팀 멘토링", "기술적 질문 답변", "중간 피드백 제공"]
       },
       {
-        title: "사용자 관리",
-        details: [
-          "MySQL 기반 사용자 정보 관리",
-          "사용자별 생성 이력 저장",
-          "사용 통계 수집 (생성 횟수, 토큰 사용량)"
-        ]
+        title: "해커톤 운영 및 평가",
+        details: ["해커톤 일정 관리", "최종 결과 평가", "우수 팀 시상"]
       }
     ],
-    achievements: [
-      "OpenAI API 업데이트로 제안서 품질 향상",
-      "Celery 비동기 처리로 사용자 경험 개선",
-      "사용자 가입 및 사용 현황 모니터링 시스템 구축"
-    ],
-    learnings: [
-      "기존 시스템 유지보수 경험: 레거시 코드 이해 및 개선",
-      "비동기 작업 처리: Celery + Redis 활용 노하우",
-      "프롬프트 엔지니어링: 생성 품질 향상을 위한 프롬프트 최적화"
-    ]
+    learnings: ["해커톤 기획 및 운영 노하우", "멘토링 스킬: 기술 지식 효과적 전달", "평가 기준 설계: 공정하고 명확한 평가", "커뮤니티 기여: 후배 개발자 성장 지원"],
+    techStack: {
+      aiml: ["LangChain", "RAG", "챗봇"],
+      collaboration: ["GitHub", "Notion", "Slack"]
+    }
   },
-  "langchain-tutorial": {
+  {
     id: "langchain-tutorial",
     title: "LangChain Open Tutorial",
     subtitle: "RAG 및 LangGraph 튜토리얼 작성",
+    summary: "2,000+ 커밋 오픈소스 프로젝트에 RAG 튜토리얼 작성",
+    category: "personal",
     period: "2025.01 ~ 2025.02",
     duration: "약 7주",
     role: "오픈소스 컨트리뷰터",
     team: "TeddyNote 커뮤니티",
+    tags: ["오픈소스", "LangChain", "RAG", "LangGraph"],
+    github: "https://github.com/LangChain-OpenTutorial/LangChain-OpenTutorial",
+    blogSeries: "Projects/LangChain Open Tutorial",
     description: "2,000+ 커밋이 발생한 대규모 오픈소스 프로젝트에 기여. RAG(Retrieval-Augmented Generation) 관련 LangChain 튜토리얼 작성 및 번역.",
-    techStack: {
-      aiml: ["LangChain", "LangGraph", "RAG"],
-      llm: ["OpenAI GPT-4o", "Claude"],
-      tools: ["LlamaParse", "Tavily Search API"],
-      development: ["Jupyter Notebook", "Python", "Google Colab"],
-      collaboration: ["GitHub", "GitBook"]
-    },
+    highlights: [
+      "3개의 튜토리얼 작성 및 GitHub/GitBook 게시",
+      "대규모 오픈소스 프로젝트(2,000+ 커밋) 기여 경험",
+      "Peer Review 세션을 통한 협업 및 기술 인사이트 확장"
+    ],
     keyFeatures: [
       {
         title: "LlamaParse 튜토리얼",
@@ -1018,11 +1147,6 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         ]
       }
     ],
-    achievements: [
-      "3개의 튜토리얼 작성 및 GitHub/GitBook 게시",
-      "대규모 오픈소스 프로젝트(2,000+ 커밋) 기여 경험",
-      "Peer Review 세션을 통한 협업 및 기술 인사이트 확장"
-    ],
     challenges: [
       {
         title: "초보자 눈높이",
@@ -1034,501 +1158,120 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       "설명의 명확성: '왜'와 '어떻게'를 함께 전달하는 법",
       "협업의 가치: Peer Review로 더 나은 콘텐츠 완성",
       "기술 블로그 운영: 지식 공유의 선순환"
-    ]
-  },
-  "nuartz": {
-    id: "nuartz",
-    title: "Nuartz - Obsidian → Next.js 오픈소스 라이브러리",
-    subtitle: "Obsidian 볼트를 Next.js 웹사이트로 퍼블리싱하는 headless 라이브러리",
-    period: "2026.01 ~ 진행 중",
-    duration: "2026.01 첫 커밋, 2026.03 npm 첫 배포 이후 지속 개발",
-    role: "1인 개발 / npm 패키지 배포",
-    team: "개인 오픈소스 프로젝트",
-    description: "Obsidian 볼트를 Next.js 웹사이트로 서빙하기 위한 headless 데이터 레이어 라이브러리. Quartz의 한계(커스텀 UI 불가, AI 연동 어려움)를 해결하기 위해 직접 개발. npm 패키지로 배포하여 누구나 자신의 Next.js 앱에 Obsidian 기능을 통합 가능.",
-    blogPost: "/blog/Projects/Nuartz/00-Overview",
-    package: {
-      registry: "npm",
-      name: "nuartz",
-      url: "https://www.npmjs.com/package/nuartz"
-    },
-    demoImage: {
-      url: "https://raw.githubusercontent.com/syshin0116/nuartz/main/assets/nuartz-homepage.png",
-      alt: "Nuartz 데모 사이트 스크린샷"
-    },
+    ],
     techStack: {
-      core: ["TypeScript", "unified (remark/rehype)"],
-      features: ["remark-math", "rehype-katex", "rehype-pretty-code", "Pagefind", "D3.js"],
-      webapp: ["Next.js 16", "Tailwind CSS v4", "shadcn/ui", "next-themes"],
-      build: ["Bun", "tsc"],
-      deployment: ["npm registry", "Vercel", "GitHub Pages"]
-    },
-    keyFeatures: [
+      aiml: ["LangChain", "LangGraph", "RAG"],
+      llm: ["OpenAI GPT-4o", "Claude"],
+      tools: ["LlamaParse", "Tavily Search API"],
+      development: ["Jupyter Notebook", "Python", "Google Colab"],
+      collaboration: ["GitHub", "GitBook"]
+    }
+  },
+  {
+    id: "greentech",
+    title: "그린텍 하수처리 수질 예측 AI",
+    subtitle: "하수처리공정 수질 예측 및 이상탐지",
+    summary: "하수처리 공정 수질 예측 및 이상탐지 AI 시스템",
+    category: "company",
+    company: "LabQ",
+    period: "2024.07 ~ 2024.11",
+    duration: "약 4개월",
+    role: "PL (팀 2명: 본인 포함)",
+    team: "개발자 2명",
+    tags: ["AI/ML", "LightGBM", "PyTorch", "Time Series"],
+    description: "하수처리장의 공정 단계별 수질 예측 모델 개발 및 실시간 이상 탐지 시스템. 19개 타겟 변수에 대한 예측 모델 구축으로 품질 Hunting 최소화 및 안정 운전 지원.",
+    metrics: [
       {
-        title: "Obsidian 호환 마크다운 렌더링",
-        details: [
-          "위키링크 ([[note]], [[note|alias]]) 파싱 및 라우팅",
-          "양방향 백링크 인덱스 자동 생성",
-          "콜아웃 블록 (> [!note], > [!warning] 등)",
-          "하이라이트 (==text==), 코멘트 (%%text%%), 화살표 (->)",
-          "LaTeX 수식 렌더링 ($...$, $$...$$)"
-        ]
+        metric: "T-N 방류수 예측",
+        after: "R² 0.9244",
+        improvement: "RandomForest"
       },
       {
-        title: "콘텐츠 유틸리티",
-        details: [
-          "재귀적 마크다운 파일 탐색 및 드래프트 필터링",
-          "폴더 기반 파일 트리 생성 (사이드바용)",
-          "Pagefind 기반 정적 전문 검색 인덱스",
-          "그래프 뷰 데이터 생성 (노트-태그 관계)"
-        ]
-      },
-      {
-        title: "headless 아키텍처",
-        details: [
-          "UI 없이 데이터 레이어만 제공, 어떤 디자인이든 적용 가능",
-          "nuartz.config.ts로 설정 (title, baseUrl, nav 등)",
-          "정적 생성(SSG) 기반 페이지 빌드",
-          "GitHub Pages 정적 배포 지원"
-        ]
-      },
-      {
-        title: "참고 웹앱 (apps/web)",
-        details: [
-          "shadcn/ui + Tailwind v4 기반 모던 UI",
-          "다크모드, 반응형 레이아웃",
-          "그래프뷰 (D3.js), 목차, 검색 (cmdk)",
-          "OG 이미지 자동 생성, RSS 피드"
-        ]
+        metric: "TOC 방류수 예측",
+        after: "R² 0.8640",
+        improvement: "CatBoost"
       }
     ],
-    achievements: [
-      "npm 패키지 배포 (nuartz@0.5.0)",
-      "Quartz 핵심 기능을 Next.js 생태계로 포팅",
-      "Vercel + GitHub Pages 양쪽 배포 지원",
-      "개인 블로그로 실사용 중 (syshin0116.dev)"
+    highlights: [
+      "19개 타겟 변수 예측 모델 개발 완료",
+      "실시간 이상 탐지 시스템 구축 (RandomForest 분류 정확도 98.50%는 불균형 데이터 기준의 참고 지표)",
+      "품질 Hunting 최소화로 안정 운전 가능"
+    ],
+    keyFeatures: [
+      {
+        title: "수질 예측 모델 개발",
+        details: [
+          "RandomForest 회귀 모델: T-N 방류수 예측에서 가장 높은 성능",
+          "LightGBM, XGBoost, CatBoost 앙상블 모델",
+          "PyTorch 기반 LSTM, GRU 딥러닝 모델",
+          "ARIMA, SARIMA 시계열 모델",
+          "Optuna 하이퍼파라미터 튜닝"
+        ]
+      },
+      {
+        title: "이상 탐지 시스템",
+        details: [
+          "PyOD 기반 10+ 알고리즘 실험 (Isolation Forest, LOF, CBLOF)",
+          "COMBO 앙상블 이상 탐지",
+          "이상치 스코어 계산 및 임계값 설정",
+          "실시간 모니터링 및 알림"
+        ]
+      },
+      {
+        title: "시각화 대시보드",
+        details: ["Plotly Dash 기반 실시간 모니터링", "공정 단계별 수질 예측값 및 실측값 시각화", "이상 탐지 알림 표시", "자동 분석 리포트 생성"]
+      }
     ],
     challenges: [
       {
-        title: "Quartz 플러그인 시스템 재해석",
-        description: "Quartz의 Preact 기반 정적 사이트 생성기를 Next.js의 unified 파이프라인으로 재설계. remark/rehype 플러그인으로 위키링크, 콜아웃 등을 직접 구현"
+        title: "시계열 데이터 처리",
+        description: "결측치, 이상치가 많은 공정 데이터. 도메인 지식 기반 전처리 및 피처 엔지니어링으로 해결"
       },
       {
-        title: "CJK 검색 최적화",
-        description: "초기 검색 엔진이던 FlexSearch의 기본 토크나이저가 한국어를 제대로 분리하지 못하는 문제. CJK 전용 토크나이저 설정으로 대응했고, 이후 검색은 Pagefind로 전환"
-      },
-      {
-        title: "CSS 변수 호환성",
-        description: "Tailwind v4의 oklch 색상 체계와 D3.js SVG 렌더링 간 호환 문제. hsl() 래퍼 제거하고 CSS 변수 직접 참조로 해결"
+        title: "모델 선택",
+        description: "다양한 ML/DL 모델 실험 필요. 체계적인 실험 관리 및 성능 비교로 최적 모델 도출"
       }
     ],
     learnings: [
-      "unified 생태계 깊이 이해: remark/rehype 플러그인 직접 작성",
-      "npm 패키지 배포 및 버전 관리 실무 경험",
-      "모노레포 구조 설계: packages/nuartz (라이브러리) + apps/web (참고 앱)",
-      "headless 라이브러리 설계 철학: UI와 데이터 레이어의 분리",
-      "오픈소스 프로젝트 운영: README, CHANGELOG, 문서화의 중요성"
-    ]
-  },
-  "clidex": {
-    id: "clidex",
-    title: "Clidex - AI 에이전트를 위한 CLI 도구 검색",
-    subtitle: "CLI 도구 검색 엔진 for AI Agents",
-    period: "2026.03 ~ 진행 중",
-    duration: "2026.03 ~ 2026.11, 165커밋 (v0.5.0까지)",
-    role: "1인 개발 / 오픈소스",
-    team: "개인 프로젝트",
-    description: "AI 에이전트가 CLI 도구를 자연어로 검색·비교·설치할 수 있는 Rust 기반 인덱스. BM25 + 시노님 확장 + 퍼지 매칭 하이브리드 검색으로 recall을 보완하고, YAML/JSON 출력과 MCP 서버로 에이전트가 바로 호출할 수 있다.",
-    blogPost: "/blog/Projects/Clidex/01-Overview",
-    package: {
-      registry: "crates.io",
-      name: "clidex",
-      url: "https://crates.io/crates/clidex"
-    },
-    demoImage: {
-      url: "https://raw.githubusercontent.com/syshin0116/clidex/main/assets/demo.gif",
-      alt: "Clidex 터미널 데모"
-    },
+      "앙상블 모델의 강력함: 단일 모델 대비 성능 향상",
+      "도메인 지식의 중요성: 하수처리 공정 이해가 피처 엔지니어링에 핵심",
+      "실시간 시스템 구축: 배치 예측과 실시간 모니터링의 차이",
+      "클라이언트 커뮤니케이션: 기술 용어를 비즈니스 가치로 전달"
+    ],
     techStack: {
-      language: ["Rust (2021 edition)"],
-      search: ["BM25 (bm25 crate)", "nucleo-matcher"],
-      cli: ["clap 4 (derive)", "colored 3"],
-      mcp: ["rmcp (MCP 서버)"],
-      serialization: ["serde", "serde_norway", "serde_json"],
-      network: ["reqwest 0.13 (rustls)", "tokio 1"],
-      build: ["LTO", "strip symbols", "opt-level = 'z'"]
-    },
-    keyFeatures: [
-      {
-        title: "하이브리드 검색 알고리즘",
-        details: [
-          "BM25 필드별 가중치 (이름 3x, 태그/카테고리 2x, 설명 1x)",
-          "41개 시노님 매핑 (search→find/grep/locate, http→web/api/curl 등)",
-          "퍼지 매칭 폴백 (nucleo-matcher): 오타/부분 매칭 대응",
-          "GitHub stars 기반 인기도 보정 (비선형 정규화)"
-        ]
-      },
-      {
-        title: "CLI 명령어 체계",
-        details: [
-          "clidex \"query\": 자연어 도구 검색 (상위 10개)",
-          "clidex info <name>: 도구 상세 정보",
-          "clidex compare <names...>: 도구 비교 테이블",
-          "clidex trending: 인기 도구 목록",
-          "clidex update: GitHub Releases에서 인덱스 갱신"
-        ]
-      },
-      {
-        title: "AI 에이전트 친화적 설계",
-        details: [
-          "YAML/JSON 출력 포맷: LLM이 파싱하기 쉬운 구조",
-          "MCP 서버(rmcp)로 에이전트에서 검색·조회 도구로 직접 호출",
-          "설치 명령어 통합 (brew, apt, cargo, npm 등)",
-          "도구별 docs/llms.txt 링크 제공",
-          "Pretty/YAML/JSON 3가지 출력 모드"
-        ]
-      }
-    ],
-    achievements: [
-      "5,000+ CLI 도구 인덱싱 (Homebrew, awesome-cli-apps, toolleeo, npm, crates.io 등 소스 통합)",
-      "41개 CLI 도메인 시노님 매핑 구축",
-      "최소 바이너리 사이즈 최적화 (LTO + strip)",
-      "검색 지연: 20~28개 도구 픽스처에서 쿼리당 약 3ms, 5,277개 전체 인덱스에서 쿼리당 약 880ms"
-    ],
-    challenges: [
-      {
-        title: "검색 정확도와 recall 균형",
-        description: "BM25 단독으로는 'find files' → 'fd' 같은 시노님 매칭 불가. 도메인 특화 시노님 확장 + 퍼지 매칭 하이브리드로 해결"
-      },
-      {
-        title: "인기도 편향 방지",
-        description: "GitHub stars가 높은 도구가 관련성 낮은 쿼리에서도 상위 노출. 비선형 정규화 (10k stars 이상 diminishing returns)로 해결"
-      }
-    ],
-    learnings: [
-      "Rust 실전 프로젝트: clap, serde, tokio 활용",
-      "정보 검색 알고리즘: BM25 + 시노님 확장의 효과",
-      "AI 에이전트 도구 설계: 구조화된 출력의 중요성",
-      "CLI 도구 생태계 이해: 패키지 매니저별 설치 방식"
-    ]
+      ml: ["RandomForest (scikit-learn)", "PyTorch", "LightGBM", "XGBoost", "CatBoost"],
+      anomaly: ["PyOD", "COMBO"],
+      dataprocessing: ["NumPy", "Pandas", "Numba"],
+      visualization: ["Matplotlib", "Seaborn", "Plotly Dash"],
+      backend: ["Flask", "Gunicorn"],
+      timeseries: ["statsmodels"],
+      deployment: ["Docker"]
+    }
   },
-  "syshin0116-dev": {
-    id: "syshin0116-dev",
-    title: "Syshin0116.dev - 블로그 + 포트폴리오 통합",
-    subtitle: "Nuartz 기반 기술 블로그와 RAG 검색 방법 평가 환경",
-    period: "2025.11 ~ 진행 중",
-    duration: "2025.11 레포 생성 이후 지속 개발",
-    role: "1인 풀스택 개발",
-    team: "개인 프로젝트",
-    description: "Obsidian에 작성한 기술 글과 프로젝트 포트폴리오를 Nuartz + Next.js로 발행하는 개인 사이트. Aegra·LangGraph·Deep Agents 기반 AI 채팅은 로그인 없이 Luna 모델로 체험할 수 있고, 로그인하면 계정별 일일 한도 안에서 모델을 고를 수 있다. 직접 작성한 공개 글을 코퍼스로 삼아 여러 검색 방법을 같은 조건에서 구현·비교하는 RAG 평가 환경도 함께 구축했다.",
-    github: "https://github.com/syshin0116/syshin0116.dev",
-    demo: "https://syshin0116.vercel.app",
-    techStack: {
-      frontend: ["Next.js 16 (App Router)", "React 19", "Tailwind CSS v4", "shadcn/ui", "assistant-ui"],
-      content: ["Nuartz", "D3.js (그래프뷰)", "Mermaid"],
-      ai: ["Aegra (Agent Protocol v2)", "LangGraph", "Deep Agents", "LangGraph SDK"],
-      auth: ["Auth.js v5 (GitHub·Google OAuth)", "Neon Postgres"],
-      rendering: ["KaTeX (수식)", "Shiki (코드 하이라이팅)"],
-      deployment: ["Vercel (웹)", "Mac mini 홈서버 (에이전트, Docker Compose + Tailscale Funnel)", "GitHub Actions", "Bun", "uv"]
-    },
-    keyFeatures: [
-      {
-        title: "공개 AI 채팅",
-        details: [
-          "로그인 없이 쓰는 Luna 게스트 채팅과, 로그인 사용자의 모델 선택 및 계정별 일일 사용 한도",
-          "assistant-ui 기반 스트리밍 응답과 대화 목록",
-          "도구·서브에이전트 실행 상태와 검색 출처 표시",
-          "익명 사용자의 실행 예산 제한과 대화 보관 기한 적용"
-        ]
-      },
-      {
-        title: "RAG 검색 방법 평가",
-        details: [
-          "채팅과 오프라인 평가가 같은 검색 인터페이스와 공개 글 코퍼스 사용",
-          "BM25, 필드 가중 BM25, 문자 n-gram, RRF 조합의 재현 가능한 비교 실행",
-          "코퍼스·질의셋·검색 방법의 식별 정보와 질의별 순위 기록",
-          "주제별 정답셋 검토와 공개 가능한 평가 결과 확정은 후속 과제"
-        ]
-      },
-      {
-        title: "Obsidian 호환 블로그",
-        details: [
-          "위키링크, 백링크, 콜아웃과 지식 그래프",
-          "제목·경로·본문·태그 검색과 태그 필터·정렬",
-          "링크 호버 프리뷰, 읽기 모드, 읽는 시간과 모바일 목차",
-          "Mermaid 다이어그램, 수식, 코드 하이라이팅과 복사"
-        ]
-      },
-      {
-        title: "프로젝트 포트폴리오",
-        details: [
-          "업무·개인 프로젝트를 나눈 목록",
-          "프로젝트별 역할, 기술 스택, 성과와 해결 과제",
-          "홈의 최근 글·프로젝트와 GitHub·데모 링크"
-        ]
-      },
-      {
-        title: "콘텐츠 발행과 운영",
-        details: [
-          "원본 글과 정리된 Wiki를 분리하고 공개 글만 검색 코퍼스에 포함",
-          "JSON-LD, Open Graph, sitemap과 RSS 피드",
-          "Giscus 댓글, Vercel Analytics와 Speed Insights",
-          "웹·에이전트·평가 및 프로토콜 호환성을 CI에서 검증"
-        ]
-      }
-    ],
-    achievements: [
-      "블로그·포트폴리오와 AI 채팅(게스트·로그인)을 하나의 사이트에서 제공",
-      "Nuartz의 문서 해석·렌더링·탐색 기능을 실제 사이트에 적용",
-      "채팅과 오프라인 평가에서 동일한 검색 구현을 재사용하는 구조 구축",
-      "검색 결과와 실행 환경을 기록하고 재현성을 검증하는 평가 파이프라인 구현"
-    ],
-    challenges: [
-      {
-        title: "공개 콘텐츠 경계 유지",
-        description: "블로그와 에이전트가 서로 다른 글을 노출하지 않도록 공개 글만 포함한 코퍼스를 빌드 시 생성하고, 에이전트와 평가가 같은 산출물을 사용하도록 구성"
-      },
-      {
-        title: "스트리밍 대화와 실행 상태 연결",
-        description: "Aegra의 Agent Protocol v2와 assistant-ui 런타임을 연결해 메시지, 도구 호출, 서브에이전트 활동과 검색 출처를 화면에 반영"
-      },
-      {
-        title: "검색 방법 비교의 재현성",
-        description: "코퍼스와 질의셋, 검색 구현의 식별 정보를 실행 결과에 묶고 질의별 순위를 재검증. 자동 생성한 질의셋과 소유자가 검토한 정답셋을 구분해 평가 결과의 해석 범위를 제한"
-      }
-    ],
-    learnings: [
-      "실제 콘텐츠로 Nuartz의 문서 처리와 탐색 기능 검증",
-      "검색 구현을 공유하면서 온라인 채팅과 오프라인 평가의 실행 환경 분리",
-      "익명 AI 체험에 필요한 사용자 격리, 비용 제한과 보관 정책 구현",
-      "검색 정확도뿐 아니라 데이터 출처와 재현 조건까지 포함하는 평가 설계"
-    ]
-  },
-  "men-in-black": {
-    id: "men-in-black",
-    title: "Men-in-Black - 교통 법규 위반 감지",
-    subtitle: "블랙박스 영상 속 교통 법규 위반 차량 감지",
-    period: "2023.10 ~ 2023.12",
-    duration: "약 3개월",
-    role: "팀 프로젝트 (4명) - License Plate Recognition 및 Depth Estimation 담당",
-    team: "새싹 AI 부트캠프",
-    description: "블랙박스 영상에서 교통 법규 위반 차량을 자동으로 감지하고 신고하는 AI 시스템. 차량 감지, 번호판 인식, 거리 추정 등 종합적인 Computer Vision 기술 적용.",
-    github: "https://github.com/SeSAC-Men-in-Black/Men-in-Black",
-    techStack: {
-      computervision: ["YOLOv8 (n, m)", "SORT", "EasyOCR"],
-      depthestimation: ["ZoeDepth", "MiDaS v3"],
-      mldl: ["PyTorch", "TensorFlow", "OpenCV"],
-      backend: ["FastAPI"],
-      environment: ["NVIDIA GPU", "AWS", "Ubuntu", "Anaconda"]
-    },
-    keyFeatures: [
-      {
-        title: "차량 및 번호판 감지",
-        details: [
-          "YOLOv8n, YOLOv8m 기반 차량 감지 (COCO Dataset)",
-          "SORT 알고리즘으로 실시간 2D 다중 객체 추적",
-          "YOLOv8m 기반 번호판 감지 (Roboflow Dataset 24,242 images)",
-          "Data Augmentation: Flip, Crop, Rotation, Shear, Grayscale 등"
-        ]
-      },
-      {
-        title: "OCR (번호판 텍스트 인식)",
-        details: [
-          "EasyOCR 활용 번호판 텍스트 인식",
-          "Preprocessing: Grayscale, CLAHE, Gaussian Blur, Canny Edge",
-          "Perspective Transformation으로 번호판 영역 추출"
-        ]
-      },
-      {
-        title: "Monocular Depth Estimation",
-        details: [
-          "ZoeDepth 모델로 단일 카메라 영상에서 거리 추정"
-        ]
-      }
-    ],
-    achievements: [
-      "YOLOv8 기반 차량 및 번호판 실시간 감지 구현",
-      "EasyOCR을 활용한 번호판 텍스트 인식",
-      "ZoeDepth 기반 차량 간 거리 추정",
-      "종합적인 Computer Vision 프로젝트 경험"
-    ],
-    challenges: [
-      {
-        title: "낮은 화질",
-        description: "블랙박스 영상의 낮은 화질로 인한 OCR 정확도 저하. Preprocessing 최적화로 개선"
-      },
-      {
-        title: "상대 속도",
-        description: "상대 속도가 빠를수록 인식률 감소. 향후 Segmentation 시도 필요"
-      }
-    ],
-    learnings: [
-      "Object Detection: YOLO 시리즈 실전 활용",
-      "Object Tracking: SORT 알고리즘 이해 및 적용",
-      "OCR: EasyOCR과 Preprocessing 최적화",
-      "Depth Estimation: Monocular 방식의 한계와 가능성",
-      "팀 협업: 모듈별 역할 분담 및 통합"
-    ]
-  },
-  "podly": {
-    id: "podly",
-    title: "Podly - AI 기반 맞춤형 음성 뉴스 서비스",
-    subtitle: "AI 음성 뉴스 및 관심사 정보 제공",
-    period: "2024.08 ~ 2024.09",
-    duration: "약 2개월",
-    role: "팀장 / AI 및 백엔드 개발 (팀 4명)",
-    team: "팀 프로젝트 (4명)",
-    description: "이동 중 터치 없이 음성만으로 맞춤형 뉴스를 청취할 수 있는 AI 서비스. 음성 인식, 자연어 처리, TTS, RAG 기술을 종합한 종합 AI 플랫폼. 고령층 및 시각장애인의 디지털 정보 접근성 향상.",
-    techStack: {
-      backend: ["FastAPI", "Python"],
-      frontend: ["Flutter (Dart)"],
-      aiml: ["LangChain", "RAG", "OpenAI API", "Upstage Solar", "Google Gemma2", "Microsoft Phi 3.5", "Meta Llama 3.1"],
-      speech: ["OpenAI Whisper", "ElevenLabs TTS", "TypeCast TTS"],
-      data: ["Pandas", "NumPy", "Tableau", "Power BI"],
-      cloud: ["GCP"]
-    },
-    keyFeatures: [
-      {
-        title: "음성 인식 및 자연어 처리",
-        details: [
-          "OpenAI Whisper 음성→텍스트 변환",
-          "다양한 LLM 모델 테스트 (GPT, Solar, Gemma2, Phi, Llama)",
-          "실시간 질의응답 및 콘텐츠 생성",
-          "개인화 추천 시스템"
-        ]
-      },
-      {
-        title: "RAG 기반 뉴스 큐레이션",
-        details: [
-          "외부 문서에서 관련 정보 검색",
-          "실시간 주요 뉴스 요약",
-          "맞춤형 뉴스 큐레이션 (사용자 관심사 기반)",
-          "심층 질의응답 (Q&A): 뉴스 원문 기반 답변"
-        ]
-      },
-      {
-        title: "TTS 및 목소리 변환",
-        details: [
-          "ElevenLabs, TypeCast 고급 TTS",
-          "자연스럽고 감정이 담긴 음성 생성",
-          "다양한 목소리 옵션 (성우, 유명인)"
-        ]
-      },
-      {
-        title: "공공데이터 활용",
-        details: [
-          "정부 및 공공기관 데이터 수집",
-          "Pandas, NumPy 데이터 분석",
-          "Tableau, Power BI 시각화",
-          "위치 기반 날씨, 개인 일정 반영"
-        ]
-      }
-    ],
-    achievements: [
-      "음성 명령 기반 뉴스 서비스로 터치 없는 정보 소비 경험 제공",
-      "RAG 기법으로 최신 정보와 개인화 추천 결합",
-      "다양한 LLM 모델 테스트 및 최적 모델 선택 경험",
-      "공공데이터 활용 신뢰성 높은 콘텐츠 제작"
-    ],
-    challenges: [
-      {
-        title: "LLM 모델 선택",
-        description: "다양한 LLM 모델(GPT, Solar, Gemma2, Phi, Llama) 비교 실험. 비용, 속도, 품질 균형 찾기"
-      },
-      {
-        title: "TTS 품질",
-        description: "자연스러운 음성 생성. ElevenLabs와 TypeCast 조합으로 해결"
-      }
-    ],
-    learnings: [
-      "음성 인터페이스 설계: 터치 없는 경험의 UX",
-      "다양한 LLM 모델 비교 및 선택 기준",
-      "TTS 기술: 자연스러운 음성 생성의 어려움",
-      "사회적 가치: 디지털 격차 해소 및 접근성 향상",
-      "시장성 분석: 음성 인식 및 LLM 시장 전망"
-    ]
-  },
-  "employment-data": {
-    id: "employment-data",
-    title: "고용노동 공공데이터 공모전 - 자립준비청년 복지 알림·상담 챗봇",
-    subtitle: "자립준비청년과 복지사를 위한 LLM + RAG 챗봇과 카카오톡 맞춤형 복지 알림",
-    period: "2024.06",
-    duration: "약 1개월",
-    role: "팀 프로젝트 (사업계획서 작성, 백엔드 구조 설계)",
-    team: "고용노동 공공데이터 활용 공모전 참가 팀",
-    description: "복지 혜택 정보가 여러 기관에 흩어져 있어 자립준비청년이 자신에게 맞는 정보를 찾기 어렵다는 문제에서 출발한 서비스. 맞춤형 복지 정보를 카카오톡으로 알려주고, LLM + RAG 챗봇이 출처 링크와 함께 상시 상담하며, 복지사는 관리자 페이지에서 담당 청년의 정보와 상담 기록을 관리한다. FastAPI·MySQL·LangChain 기반 백엔드를 Docker Compose로 구성했다.",
-    techStack: {
-      backend: ["FastAPI", "SQLAlchemy", "Alembic", "Pydantic"],
-      database: ["MySQL", "Vector Store"],
-      aiml: ["LangChain", "RAG", "OpenAI API"],
-      infrastructure: ["Docker", "Docker Compose", "Nginx"]
-    },
-    keyFeatures: [
-      {
-        title: "맞춤형 복지 알림",
-        details: [
-          "사용자의 선호와 이력으로 필터링한 복지 정보를 알림으로 전달",
-          "카카오톡 등 일상적으로 쓰는 메신저로 혜택 정보 제공"
-        ]
-      },
-      {
-        title: "LLM + RAG 상담 챗봇",
-        details: [
-          "문서 검색과 생성 모델을 결합해 복지 관련 질문에 답변",
-          "답변과 함께 정보 출처 링크 제공",
-          "카카오톡 채널 형식의 상시 상담"
-        ]
-      },
-      {
-        title: "복지사 관리 기능",
-        details: [
-          "관리자 페이지에서 담당 청년 정보와 챗봇 상담 기록 관리",
-          "관리자·사용자 권한을 나누는 접근 제어"
-        ]
-      },
-      {
-        title: "데이터 수집과 백엔드 구조",
-        details: [
-          "여러 기관에 분산된 복지 정보를 크롤링·전처리해 DB와 벡터스토어에 적재",
-          "FastAPI 라우터(챗봇·사용자), SQLAlchemy 모델, Alembic 마이그레이션 구조 설계",
-          "backend·frontend·Nginx 프록시를 Docker Compose로 구성"
-        ]
-      }
-    ],
-    achievements: [
-      "자립준비청년·복지사 대상 서비스의 목적, 기능, 차별점을 사업계획서로 정리",
-      "유사 서비스(국민비서 구삐, 온통청년)와 알림·챗봇·관리 방식 비교",
-      "FastAPI·MySQL·LangChain 기반 백엔드 디렉터리 구조와 컨테이너 구성 설계"
-    ],
-    learnings: [
-      "공공데이터 기반 서비스 기획: 대상 사용자의 정보 접근 문제에서 기능 도출",
-      "RAG 챗봇 설계: 답변 출처를 함께 제공해 신뢰성 확보",
-      "백엔드 구조 설계: FastAPI·SQLAlchemy·Alembic 역할 분리"
-    ]
-  },
-  "podlybot": {
+  {
     id: "podlybot",
     title: "PodlyBot - 카카오톡 LLM 챗봇",
     subtitle: "개인 비서 & 회사 업무용 LLM 챗봇",
+    summary: "개인 비서 & 회사 업무용 LLM 챗봇 - URL 요약, Notion 자동 정리, 회사 LLM 서비스 연동",
+    category: "personal",
     period: "2024.09",
     duration: "약 1개월",
     role: "1인 개발 (기획, 개발, 운영)",
     team: "개인 프로젝트 + 회사 내부 프로젝트",
+    tags: ["챗봇", "LLM", "Notion API", "JavaScript"],
+    blogSeries: "Projects/PodlyBot",
     description: "안드로이드 폰에 구현한 카카오톡 기반 LLM 챗봇. 개인용(PodlyBot)과 회사용 두 가지 버전으로 배포. 단체 채팅방에서 즉시 호출 가능한 LLM 서비스. URL 요약 및 Notion 자동 정리 기능으로 정보 수집 워크플로우 자동화. 회사용은 자체 LLM 서비스 연동 및 고객사 테스트 환경 제공.",
-    techStack: {
-      platform: ["메신저봇R (Android)"],
-      language: ["JavaScript (Rhino JavaScript Engine)"],
-      ai: ["LLM API (OpenAI GPT 등)", "회사 자체 LLM 서비스"],
-      integration: ["Notion API (개인/회사 워크스페이스)", "Web Scraping"],
-      deployment: ["안드로이드 공기계"]
-    },
+    highlights: [
+      "개인용과 회사용 두 가지 버전으로 배포하여 다양한 사용 케이스 대응",
+      "개인용: 일상적인 정보 수집 및 정리 워크플로우 자동화",
+      "회사용: 고객사가 별도 환경 설정 없이 LLM 서비스 테스트 가능",
+      "URL 공유 시 즉시 요약 및 Notion 정리로 생산성 향상",
+      "단체 채팅방에서 LLM 서비스 간편하게 활용"
+    ],
     keyFeatures: [
       {
         title: "공통 기능: LLM 대화 기능",
-        details: [
-          "카카오톡 단체 채팅방에서 바로 호출 가능",
-          "별도 설명 없이 즉시 사용 가능한 직관적 인터페이스",
-          "메신저봇R 기반 알림 감지 및 자동 응답"
-        ]
+        details: ["카카오톡 단체 채팅방에서 바로 호출 가능", "별도 설명 없이 즉시 사용 가능한 직관적 인터페이스", "메신저봇R 기반 알림 감지 및 자동 응답"]
       },
       {
         title: "공통 기능: URL 요약 및 Notion 정리",
@@ -1558,13 +1301,6 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
         ]
       }
     ],
-    achievements: [
-      "개인용과 회사용 두 가지 버전으로 배포하여 다양한 사용 케이스 대응",
-      "개인용: 일상적인 정보 수집 및 정리 워크플로우 자동화",
-      "회사용: 고객사가 별도 환경 설정 없이 LLM 서비스 테스트 가능",
-      "URL 공유 시 즉시 요약 및 Notion 정리로 생산성 향상",
-      "단체 채팅방에서 LLM 서비스 간편하게 활용"
-    ],
     challenges: [
       {
         title: "Rhino JavaScript 한계",
@@ -1583,176 +1319,252 @@ export const projectsDetail: { [key: string]: ProjectDetail } = {
       "확장 가능한 설계: 같은 기술 베이스로 개인용과 회사용 두 버전 배포",
       "회사 내부 시스템 연동: 자체 LLM 서비스와 Notion 워크스페이스 통합",
       "고객사 지원: 간편한 테스트 환경 제공의 가치"
-    ]
-  },
-  "sk-cooh-prediction": {
-    id: "sk-cooh-prediction",
-    title: "Copolyester COOH 예측 모델",
-    subtitle: "Copolyester 생산 공정 COOH 예측",
-    period: "2025.04 ~ 2025.07",
-    duration: "약 3개월",
-    role: "ML 모델 개발",
-    team: "고객사 데이터 조직과 협업",
-    description: "반응 공정 COOH 변화에 따라 Polymer 반응성이 변하여 제품 품질 Hunting이 발생하는 문제를 해결. COOH 변화 예측으로 온도/유량 사전 Action이 가능하게 하여 안정 운전 지원.",
+    ],
     techStack: {
-      ml: ["scikit-learn", "LightGBM", "XGBoost"],
-      dataprocessing: ["Python", "Pandas", "NumPy"],
-      datasource: ["공정 실시간 데이터", "ERP"]
-    },
-    businessGoals: [
-      {
-        title: "As-is",
-        description: "반응 공정 COOH 변화에 따라 Polymer 반응성이 변하여 제품 품질 Hunting 발생"
-      },
-      {
-        title: "To-be",
-        description: "반응 공정 COOH 변화 예측으로 온도/유량 사전 Action 가능, 안정 운전"
-      }
-    ],
-    keyResponsibilities: [
-      {
-        title: "공정 데이터 분석 및 전처리",
-        details: [
-          "반응 설비 온도, 레벨, 압력, (열매/물) 유량 등 인풋 데이터 분석",
-          "반응 공정 COOH 분석값 기반 피처 엔지니어링",
-          "공정 실시간 데이터와 ERP 데이터 통합 및 전처리"
-        ]
-      },
-      {
-        title: "COOH 예측 ML 모델 개발",
-        details: [
-          "다양한 ML 모델 실험 (LightGBM, XGBoost 등)",
-          "모델 성능 평가 및 하이퍼파라미터 튜닝",
-          "예측값 기반 Action 가이드 제공"
-        ]
-      }
-    ],
-    achievements: [
-      "품질 Hunting 최소화로 안정 운전 가능",
-      "온도/유량 사전 Action으로 불량률 감소"
-    ],
-    learnings: [
-      "화학 공정 도메인 지식: Copolyester 반응 메커니즘 이해",
-      "공정 데이터 특성: 공정 실시간 데이터·ERP 전처리 노하우",
-      "예측 모델의 실제 현장 적용: 모델 결과를 운전자 Action으로 연결"
-    ]
+      platform: ["메신저봇R (Android)"],
+      language: ["JavaScript (Rhino JavaScript Engine)"],
+      ai: ["LLM API (OpenAI GPT 등)", "회사 자체 LLM 서비스"],
+      integration: ["Notion API (개인/회사 워크스페이스)", "Web Scraping"],
+      deployment: ["안드로이드 공기계"]
+    }
   },
-  "sk-qa-image-classification": {
-    id: "sk-qa-image-classification",
-    title: "이미지 선별 모델 - 이물 분석 검출 지원",
-    subtitle: "PET Chip 이물 이미지 자동 분류",
-    period: "2025.02.24 ~ 2025.04.03",
-    duration: "약 6주",
-    role: "Computer Vision 모델 개발",
-    team: "고객사 QA·DT 담당자와 협업",
-    description: "PET Chip 특성상 원통형이고 불투명하여 선별기기의 한계로 오류값 다수 발생. 이미지 분석을 통해 사람이 직접 확인해야 하는 이미지 수를 최소화하는 모델 개발.",
-    techStack: {
-      ml: ["Python", "Computer Vision"],
-      imageprocessing: ["OpenCV", "PyTorch"],
-      dataprocessing: ["PyPDF2", "pdf2image"]
-    },
-    businessGoals: [
-      {
-        title: "As-is",
-        description: "PET Chip 특성상 원통형이고 불투명하여 선별기기의 한계로 오류값 다수 발생, 사람이 직접 선별 시 업무 Load 과다"
-      },
-      {
-        title: "To-be",
-        description: "이미지 분석을 통해 사람이 직접 확인해야 하는 이미지 수 최소화"
-      }
-    ],
-    keyResponsibilities: [
-      {
-        title: "PDF 파일에서 이미지 추출 및 전처리",
-        details: [
-          "선별기기 결과 Report (PDF 파일)에서 이미지 추출",
-          "이미지 전처리 및 정규화"
-        ]
-      },
-      {
-        title: "이물 검출 이미지 분류 모델 개발",
-        details: [
-          "Binary Classification (정상/이물 분류)",
-          "선별기기 결과를 1차 필터링하는 모델 개발",
-          "모델 성능 평가 (정확도, 재현율, F1-score)"
-        ]
-      }
+  {
+    id: "podly",
+    title: "Podly - AI 기반 맞춤형 음성 뉴스 서비스",
+    subtitle: "AI 음성 뉴스 및 관심사 정보 제공",
+    summary: "AI 기반 맞춤형 음성 뉴스 및 관심사 정보 제공 서비스",
+    category: "personal",
+    period: "2024.08 ~ 2024.09",
+    duration: "약 2개월",
+    role: "팀장 / AI 및 백엔드 개발 (팀 4명)",
+    team: "팀 프로젝트 (4명)",
+    tags: ["AI/ML", "RAG", "TTS", "Flutter"],
+    blogSeries: "Projects/Podly",
+    description: "이동 중 터치 없이 음성만으로 맞춤형 뉴스를 청취할 수 있는 AI 서비스. 음성 인식, 자연어 처리, TTS, RAG 기술을 종합한 종합 AI 플랫폼. 고령층 및 시각장애인의 디지털 정보 접근성 향상.",
+    highlights: [
+      "음성 명령 기반 뉴스 서비스로 터치 없는 정보 소비 경험 제공",
+      "RAG 기법으로 최신 정보와 개인화 추천 결합",
+      "다양한 LLM 모델 테스트 및 최적 모델 선택 경험",
+      "공공데이터 활용 신뢰성 높은 콘텐츠 제작"
     ],
     keyFeatures: [
       {
-        title: "이물 검출 파이프라인",
+        title: "음성 인식 및 자연어 처리",
         details: [
-          "선별기기 결과 → 이미지 선별 모델 1차 필터링 → 사람 최종 선별",
-          "PDF Report에서 자동 이미지 추출",
-          "Binary Classification 기반 정상/이물 분류"
+          "OpenAI Whisper 음성→텍스트 변환",
+          "다양한 LLM 모델 테스트 (GPT, Solar, Gemma2, Phi, Llama)",
+          "실시간 질의응답 및 콘텐츠 생성",
+          "개인화 추천 시스템"
         ]
+      },
+      {
+        title: "RAG 기반 뉴스 큐레이션",
+        details: ["외부 문서에서 관련 정보 검색", "실시간 주요 뉴스 요약", "맞춤형 뉴스 큐레이션 (사용자 관심사 기반)", "심층 질의응답 (Q&A): 뉴스 원문 기반 답변"]
+      },
+      {
+        title: "TTS 및 목소리 변환",
+        details: ["ElevenLabs, TypeCast 고급 TTS", "자연스럽고 감정이 담긴 음성 생성", "다양한 목소리 옵션 (성우, 유명인)"]
+      },
+      {
+        title: "공공데이터 활용",
+        details: ["정부 및 공공기관 데이터 수집", "Pandas, NumPy 데이터 분석", "Tableau, Power BI 시각화", "위치 기반 날씨, 개인 일정 반영"]
       }
-    ],
-    achievements: [
-      "사람이 확인해야 하는 이미지 수 대폭 감소",
-      "다른 생산 거점으로 확대 가능성 확인"
     ],
     challenges: [
       {
-        title: "PET Chip 이미지 특성",
-        description: "원통형이고 불투명한 PET Chip 특성으로 선별기기 오류값 다수. 이미지 전처리 및 모델 최적화로 해결"
+        title: "LLM 모델 선택",
+        description: "다양한 LLM 모델(GPT, Solar, Gemma2, Phi, Llama) 비교 실험. 비용, 속도, 품질 균형 찾기"
+      },
+      {
+        title: "TTS 품질",
+        description: "자연스러운 음성 생성. ElevenLabs와 TypeCast 조합으로 해결"
       }
     ],
     learnings: [
-      "제조업 도메인 CV 적용: 선별기기 한계를 AI로 보완",
-      "Binary Classification 실전: 정밀도와 재현율 균형",
-      "PDF 기반 데이터 파이프라인: 비정형 데이터에서 이미지 추출"
-    ]
-  },
-  "naver-hackathon": {
-    id: "naver-hackathon",
-    title: "네이버 부스트캠프 기업 해커톤",
-    subtitle: "기업 평가 챗봇 개발 해커톤",
-    period: "2025.01 ~ 2025.02",
-    duration: "약 1개월",
-    role: "기획, 운영, 평가",
-    team: "네이버 부스트캠프",
-    description: "네이버 부스트캠프 주최 기업 해커톤에서 기업 평가 챗봇 개발 과제를 기획하고 운영. 참가 팀 멘토링 및 기술 지원, 최종 평가 진행.",
+      "음성 인터페이스 설계: 터치 없는 경험의 UX",
+      "다양한 LLM 모델 비교 및 선택 기준",
+      "TTS 기술: 자연스러운 음성 생성의 어려움",
+      "사회적 가치: 디지털 격차 해소 및 접근성 향상",
+      "시장성 분석: 음성 인식 및 LLM 시장 전망"
+    ],
     techStack: {
-      aiml: ["LangChain", "RAG", "챗봇"],
-      collaboration: ["GitHub", "Notion", "Slack"]
-    },
+      backend: ["FastAPI", "Python"],
+      frontend: ["Flutter (Dart)"],
+      aiml: [
+        "LangChain",
+        "RAG",
+        "OpenAI API",
+        "Upstage Solar",
+        "Google Gemma2",
+        "Microsoft Phi 3.5",
+        "Meta Llama 3.1"
+      ],
+      speech: ["OpenAI Whisper", "ElevenLabs TTS", "TypeCast TTS"],
+      data: ["Pandas", "NumPy", "Tableau", "Power BI"],
+      cloud: ["GCP"]
+    }
+  },
+  {
+    id: "employment-data",
+    title: "고용노동 공공데이터 공모전 - 자립준비청년 복지 알림·상담 챗봇",
+    subtitle: "자립준비청년과 복지사를 위한 LLM + RAG 챗봇과 카카오톡 맞춤형 복지 알림",
+    summary: "자립준비청년과 복지사를 위한 LLM + RAG 복지 상담 챗봇과 카카오톡 맞춤형 복지 알림 서비스 기획 및 백엔드 설계",
+    category: "personal",
+    period: "2024.06",
+    duration: "약 1개월",
+    role: "팀 프로젝트 (사업계획서 작성, 백엔드 구조 설계)",
+    team: "고용노동 공공데이터 활용 공모전 참가 팀",
+    tags: ["LLM", "RAG", "FastAPI", "공공데이터"],
+    blogSeries: "Projects/고용노동 공공데이터 활용 공모전",
+    description: "복지 혜택 정보가 여러 기관에 흩어져 있어 자립준비청년이 자신에게 맞는 정보를 찾기 어렵다는 문제에서 출발한 서비스. 맞춤형 복지 정보를 카카오톡으로 알려주고, LLM + RAG 챗봇이 출처 링크와 함께 상시 상담하며, 복지사는 관리자 페이지에서 담당 청년의 정보와 상담 기록을 관리한다. FastAPI·MySQL·LangChain 기반 백엔드를 Docker Compose로 구성했다.",
+    highlights: [
+      "자립준비청년·복지사 대상 서비스의 목적, 기능, 차별점을 사업계획서로 정리",
+      "유사 서비스(국민비서 구삐, 온통청년)와 알림·챗봇·관리 방식 비교",
+      "FastAPI·MySQL·LangChain 기반 백엔드 디렉터리 구조와 컨테이너 구성 설계"
+    ],
     keyFeatures: [
       {
-        title: "해커톤 과제 기획",
-        details: [
-          "기업 평가 챗봇 과제 설계",
-          "평가 기준 수립 (기술성, 창의성, 완성도)",
-          "참가 팀 가이드라인 작성"
-        ]
+        title: "맞춤형 복지 알림",
+        details: ["사용자의 선호와 이력으로 필터링한 복지 정보를 알림으로 전달", "카카오톡 등 일상적으로 쓰는 메신저로 혜택 정보 제공"]
       },
       {
-        title: "멘토링 및 기술 지원",
-        details: [
-          "참가 팀 멘토링",
-          "기술적 질문 답변",
-          "중간 피드백 제공"
-        ]
+        title: "LLM + RAG 상담 챗봇",
+        details: ["문서 검색과 생성 모델을 결합해 복지 관련 질문에 답변", "답변과 함께 정보 출처 링크 제공", "카카오톡 채널 형식의 상시 상담"]
       },
       {
-        title: "해커톤 운영 및 평가",
+        title: "복지사 관리 기능",
+        details: ["관리자 페이지에서 담당 청년 정보와 챗봇 상담 기록 관리", "관리자·사용자 권한을 나누는 접근 제어"]
+      },
+      {
+        title: "데이터 수집과 백엔드 구조",
         details: [
-          "해커톤 일정 관리",
-          "최종 결과 평가",
-          "우수 팀 시상"
+          "여러 기관에 분산된 복지 정보를 크롤링·전처리해 DB와 벡터스토어에 적재",
+          "FastAPI 라우터(챗봇·사용자), SQLAlchemy 모델, Alembic 마이그레이션 구조 설계",
+          "backend·frontend·Nginx 프록시를 Docker Compose로 구성"
         ]
       }
     ],
-    achievements: [
-      "해커톤 과제 기획 및 평가 기준 수립 경험",
-      "참가 팀 멘토링으로 기술 지식 공유",
-      "해커톤 운영 및 결과 평가 참여"
+    learnings: [
+      "공공데이터 기반 서비스 기획: 대상 사용자의 정보 접근 문제에서 기능 도출",
+      "RAG 챗봇 설계: 답변 출처를 함께 제공해 신뢰성 확보",
+      "백엔드 구조 설계: FastAPI·SQLAlchemy·Alembic 역할 분리"
+    ],
+    techStack: {
+      backend: ["FastAPI", "SQLAlchemy", "Alembic", "Pydantic"],
+      database: ["MySQL", "Vector Store"],
+      aiml: ["LangChain", "RAG", "OpenAI API"],
+      infrastructure: ["Docker", "Docker Compose", "Nginx"]
+    }
+  },
+  {
+    id: "prop",
+    title: "PROP - 제안서 작성 AI Agent",
+    subtitle: "제안서 및 문서 생성 자동화 시스템",
+    summary: "제안서 및 문서 생성 자동화 시스템",
+    category: "company",
+    company: "LabQ",
+    period: "2024.03 ~ 2024.04",
+    duration: "약 2개월",
+    role: "유지보수 및 추가 개발",
+    team: "사내 자체 프로젝트",
+    tags: ["AI/ML", "OpenAI API", "Flask"],
+    description: "AI 기반 사업 제안서, 기술 제안서 자동 생성 시스템. 템플릿 기반 문서 구조 생성 및 사용자 정의 프롬프트 지원. Celery 기반 비동기 작업 처리로 사용자 경험 개선.",
+    highlights: ["OpenAI API 업데이트로 제안서 품질 향상", "Celery 비동기 처리로 사용자 경험 개선", "사용자 가입 및 사용 현황 모니터링 시스템 구축"],
+    keyFeatures: [
+      {
+        title: "제안서 생성 엔진",
+        details: ["템플릿 기반 문서 구조 자동 생성", "프롬프트 엔지니어링을 통한 품질 향상", "섹션별 생성 로직 개선", "GPT-4/GPT-4o 업그레이드"]
+      },
+      {
+        title: "비동기 작업 처리",
+        details: ["Celery 기반 문서 생성 비동기 처리", "Redis 작업 큐 관리", "생성 진행 상황 실시간 업데이트"]
+      },
+      {
+        title: "사용자 관리",
+        details: ["MySQL 기반 사용자 정보 관리", "사용자별 생성 이력 저장", "사용 통계 수집 (생성 횟수, 토큰 사용량)"]
+      }
     ],
     learnings: [
-      "해커톤 기획 및 운영 노하우",
-      "멘토링 스킬: 기술 지식 효과적 전달",
-      "평가 기준 설계: 공정하고 명확한 평가",
-      "커뮤니티 기여: 후배 개발자 성장 지원"
-    ]
+      "기존 시스템 유지보수 경험: 레거시 코드 이해 및 개선",
+      "비동기 작업 처리: Celery + Redis 활용 노하우",
+      "프롬프트 엔지니어링: 생성 품질 향상을 위한 프롬프트 최적화"
+    ],
+    techStack: {
+      backend: ["Flask", "Celery", "Redis", "MySQL"],
+      frontend: ["HTML", "JavaScript (Vanilla JS)"],
+      ai: ["OpenAI API (GPT-3.5-turbo, GPT-4, GPT-4o)"]
+    }
+  },
+  {
+    id: "men-in-black",
+    title: "Men-in-Black - 교통 법규 위반 감지",
+    subtitle: "블랙박스 영상 속 교통 법규 위반 차량 감지",
+    summary: "블랙박스 영상 속 교통 법규 위반 차량 감지 시스템",
+    category: "personal",
+    period: "2023.10 ~ 2023.12",
+    duration: "약 3개월",
+    role: "팀 프로젝트 (4명) - License Plate Recognition 및 Depth Estimation 담당",
+    team: "새싹 AI 부트캠프",
+    tags: ["Computer Vision", "YOLOv8", "OCR", "PyTorch"],
+    github: "https://github.com/SeSAC-Men-in-Black/Men-in-Black",
+    blogSeries: "Projects/Men-in-Black",
+    description: "블랙박스 영상에서 교통 법규 위반 차량을 자동으로 감지하고 신고하는 AI 시스템. 차량 감지, 번호판 인식, 거리 추정 등 종합적인 Computer Vision 기술 적용.",
+    highlights: [
+      "YOLOv8 기반 차량 및 번호판 실시간 감지 구현",
+      "EasyOCR을 활용한 번호판 텍스트 인식",
+      "ZoeDepth 기반 차량 간 거리 추정",
+      "종합적인 Computer Vision 프로젝트 경험"
+    ],
+    keyFeatures: [
+      {
+        title: "차량 및 번호판 감지",
+        details: [
+          "YOLOv8n, YOLOv8m 기반 차량 감지 (COCO Dataset)",
+          "SORT 알고리즘으로 실시간 2D 다중 객체 추적",
+          "YOLOv8m 기반 번호판 감지 (Roboflow Dataset 24,242 images)",
+          "Data Augmentation: Flip, Crop, Rotation, Shear, Grayscale 등"
+        ]
+      },
+      {
+        title: "OCR (번호판 텍스트 인식)",
+        details: [
+          "EasyOCR 활용 번호판 텍스트 인식",
+          "Preprocessing: Grayscale, CLAHE, Gaussian Blur, Canny Edge",
+          "Perspective Transformation으로 번호판 영역 추출"
+        ]
+      },
+      {
+        title: "Monocular Depth Estimation",
+        details: ["ZoeDepth 모델로 단일 카메라 영상에서 거리 추정"]
+      }
+    ],
+    challenges: [
+      {
+        title: "낮은 화질",
+        description: "블랙박스 영상의 낮은 화질로 인한 OCR 정확도 저하. Preprocessing 최적화로 개선"
+      },
+      {
+        title: "상대 속도",
+        description: "상대 속도가 빠를수록 인식률 감소. 향후 Segmentation 시도 필요"
+      }
+    ],
+    learnings: [
+      "Object Detection: YOLO 시리즈 실전 활용",
+      "Object Tracking: SORT 알고리즘 이해 및 적용",
+      "OCR: EasyOCR과 Preprocessing 최적화",
+      "Depth Estimation: Monocular 방식의 한계와 가능성",
+      "팀 협업: 모듈별 역할 분담 및 통합"
+    ],
+    techStack: {
+      computervision: ["YOLOv8 (n, m)", "SORT", "EasyOCR"],
+      depthestimation: ["ZoeDepth", "MiDaS v3"],
+      mldl: ["PyTorch", "TensorFlow", "OpenCV"],
+      backend: ["FastAPI"],
+      environment: ["NVIDIA GPU", "AWS", "Ubuntu", "Anaconda"]
+    }
   }
-};
+];
+
+export const projectById: Readonly<Record<string, Project>> = Object.fromEntries(
+  projects.map((project) => [project.id, project])
+);
