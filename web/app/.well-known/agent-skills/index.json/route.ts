@@ -6,7 +6,7 @@ const skills = [
     name: "portfolio-overview",
     type: "resource",
     description:
-      "Overview of Syshin's AI portfolio, projects, technical expertise, and professional experience. Available as llms.txt for LLM consumption.",
+      "Overview of syshin0116.dev: blog, wiki, projects, and the RAG evaluation chat agent. Available as llms.txt for LLM consumption.",
     url: "https://syshin0116.dev/llms.txt",
   },
   {

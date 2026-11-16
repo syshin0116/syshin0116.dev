@@ -53,7 +53,7 @@ const webmcpScript = `
       },
       {
         name: "contact_owner",
-        description: "Navigate to the about page to find contact and professional information about Syshin.",
+        description: "Navigate to the about page to find contact and professional information about syshin0116.",
         inputSchema: {
           type: "object",
           properties: {}
