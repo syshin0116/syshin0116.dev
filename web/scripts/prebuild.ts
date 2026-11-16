@@ -15,6 +15,7 @@ import { blogPath, permalinks } from "../lib/blog-permalinks"
  *   pages/{slug}.json    - per-page data (html, toc, frontmatter, backlinks, etc.)
  *   folders/{slug}.json  - folder listing data
  *   preview-index.json   - popover previews (also in public/)
+ *   wiki-hub.json        - wiki pages grouped by status
  */
 
 import path from "node:path"
@@ -38,6 +39,7 @@ import { isAllowedMediaPath } from "../lib/media"
 import { createLinkResolver } from "../lib/note-resolver"
 import { rewriteRenderedLinks } from "../lib/rendered-links"
 import { findTagSpellingVariants, tagPath } from "../lib/tag"
+import { wikiCitationsBySource, wikiHub, type WikiCitation, type WikiNote } from "../lib/wiki"
 
 const ROOT = path.join(import.meta.dir, "..")
 const CONTENT_DIR = path.join(ROOT, "..", "content")
@@ -51,6 +53,7 @@ interface PageData {
   tags: string[]
   links: string[]
   backlinks: { slug: string; title: string; excerpt: string }[]
+  wikiCitations: WikiCitation[]
   prevNext: {
     prev: { slug: string; title: string } | null
     next: { slug: string; title: string } | null
@@ -218,6 +221,14 @@ async function main() {
       if (!existing.some(candidate => candidate.slug === file.slug)) backlinkIndex.set(resolved, [...existing, entry])
     }
   }
+
+  // 4b. Wiki pages cite source posts through `sources:` frontmatter
+  const wikiNotes: WikiNote[] = files.map(file => ({
+    slug: file.slug,
+    sourcePath: path.relative(path.dirname(CONTENT_DIR), path.resolve(CONTENT_DIR, file.filePath)),
+    frontmatter: file.frontmatter,
+  }))
+  const wikiCitations = wikiCitationsBySource(wikiNotes)
 
   // 5. Build prev/next nav
   const filesByFolder = new Map<string, typeof files>()
@@ -429,6 +440,8 @@ async function main() {
     writeJSON(path.join(PUBLIC_DIR, "preview-index.json"), previewIndex)
   )
 
+  writes.push(writeJSON(path.join(OUT_DIR, "wiki-hub.json"), wikiHub(wikiNotes)))
+
   // Per-page JSON files
   for (const { file, result } of rendered) {
     const slugStr = file.slug
@@ -462,6 +475,7 @@ async function main() {
       tags: result.tags,
       links: result.links,
       backlinks: backlinkIndex.get(slugStr) ?? [],
+      wikiCitations: wikiCitations.get(slugStr) ?? [],
       prevNext: {
         prev: prev
           ? {
