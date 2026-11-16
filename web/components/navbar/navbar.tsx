@@ -27,13 +27,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { activeNavHref, NAV_LINKS } from "@/lib/nav-links";
 
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/blog", label: "Blog" },
-  { href: "/projects", label: "Projects" },
-  { href: "/about", label: "About" },
-];
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -220,13 +215,13 @@ export default function Navbar() {
               {/* Site nav links */}
               <nav aria-label="모바일 주요 내비게이션" className="flex flex-col gap-1 px-4 pt-4">
                 {NAV_LINKS.map(({ href, label }) => {
-                  const isActive =
-                    href === "/" ? pathname === "/" : pathname.startsWith(href);
+                  const isActive = activeNavHref(pathname) === href;
                   return (
                     <Link
                       key={href}
                       href={href}
                       onClick={href === "/" ? handleHomeClick : undefined}
+                      aria-current={isActive ? "page" : undefined}
                       className={`rounded-md px-3 py-2.5 text-base transition-colors ${
                         isActive
                           ? "font-semibold text-foreground bg-accent"

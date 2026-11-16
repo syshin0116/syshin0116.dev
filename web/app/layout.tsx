@@ -17,13 +17,13 @@ export const metadata: Metadata = {
     default: "Syshin0116 Dev",
     template: "%s | Syshin0116 Dev",
   },
-  description: "Syshin0116 Dev — AI Research Engineer · Blog · Projects",
+  description: "syshin0116.dev: AI Research Engineer · Blog · Projects",
   keywords: [
     "Portfolio",
     "AI Research Engineer",
     "RAG",
     "LangGraph",
-    "Syshin",
+    "syshin0116",
     "Blog",
     "Projects",
     "Technical Portfolio",
@@ -46,11 +46,11 @@ export const metadata: Metadata = {
   },
   authors: [
     {
-      name: "Syshin",
+      name: "syshin0116",
       url: "https://github.com/syshin0116",
     },
   ],
-  creator: "Syshin",
+  creator: "syshin0116",
   icons: [
     {
       rel: "icon",
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
 const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "Syshin Portfolio",
+  name: "syshin0116.dev",
   url: SITE_URL,
   sameAs: ["https://github.com/syshin0116", "https://twitter.com/syshin0116"],
 };
@@ -82,7 +82,7 @@ const websiteJsonLd = {
 const personJsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
-  name: "Syshin",
+  name: "syshin0116",
   url: SITE_URL,
   jobTitle: "Software Developer",
   sameAs: ["https://github.com/syshin0116", "https://twitter.com/syshin0116"],

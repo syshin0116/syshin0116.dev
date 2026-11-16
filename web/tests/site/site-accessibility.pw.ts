@@ -87,6 +87,9 @@ test.beforeEach(async ({ page }) => {
     if (message.type() === "warning" && message.text() === "Unrecognized feature: 'web-share'.") return
     // Next.js preloads route CSS when links enter the viewport, before navigation.
     if (message.type() === "warning" && message.text().startsWith(`The resource ${SITE_ORIGIN}/_next/static/`) && message.text().includes(".css was preloaded using link preload but not used")) return
+    // The giscus comments iframe sometimes logs a failed fetch to its own API.
+    // Only that third-party failure is ignored; the stack must start in giscus code.
+    if (message.type() === "error" && /^TypeError: Failed to fetch\n\s+at [^\n]*\(https:\/\/giscus\.app\//.test(message.text())) return
     if (message.type() === "error" || message.type() === "warning") {
       diagnostics.consoleProblems.push(`${message.type()}: ${message.text()}`)
     }
@@ -637,6 +640,15 @@ test("wiki hub groups pages by status and cited posts link back to their wiki pa
   await page.goto("/blog/wiki")
 
   await expect(page.getByRole("heading", { level: 1, name: "위키" })).toBeVisible()
+  if (testInfo.project.name === "site-mobile") {
+    await page.getByRole("button", { name: "메뉴 열기" }).click()
+    const mobileNav = page.getByRole("navigation", { name: "모바일 주요 내비게이션" })
+    await expect(mobileNav.getByRole("link", { name: "Wiki" })).toHaveAttribute("aria-current", "page")
+    await expect(mobileNav.getByRole("link", { name: "Blog" })).not.toHaveAttribute("aria-current", "page")
+    await page.keyboard.press("Escape")
+  } else {
+    await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Wiki" })).toHaveAttribute("href", "/blog/wiki")
+  }
   const statusHeadings = page.getByRole("heading", { level: 2 })
   await expect(statusHeadings.first()).toContainText(/Evergreen|Budding|Seedling/)
   const docker = page.getByRole("main").getByRole("link", { name: /Docker 컨테이너 기초/ })
