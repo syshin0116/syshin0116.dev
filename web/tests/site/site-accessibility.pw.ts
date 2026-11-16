@@ -631,3 +631,26 @@ test("tag pages resolve Hangul and spaced tags, redirect merged spellings, and r
     expect((await request.get(target)).status(), target).toBe(404)
   }
 })
+
+test("wiki hub groups pages by status and cited posts link back to their wiki pages", async ({ page }, testInfo) => {
+  await stubSignedOutSession(page)
+  await page.goto("/blog/wiki")
+
+  await expect(page.getByRole("heading", { level: 1, name: "위키" })).toBeVisible()
+  const statusHeadings = page.getByRole("heading", { level: 2 })
+  await expect(statusHeadings.first()).toContainText(/Evergreen|Budding|Seedling/)
+  const docker = page.getByRole("main").getByRole("link", { name: /Docker 컨테이너 기초/ })
+  await expect(docker).toContainText("Docker는 OS 커널을 공유하는")
+  await expectNoHorizontalOverflow(page)
+  await expectA11yClean(page)
+  await attachScreenshot(page, testInfo, "wiki-hub")
+
+  await page.goto(blogPath("Tools/Docker/2023-05-08-Docker와 VM 차이"))
+  const citations = page.getByRole("region", { name: /이 글을 인용한 위키/ })
+  await citations.scrollIntoViewIfNeeded()
+  await expectNoHorizontalOverflow(page)
+  await attachScreenshot(page, testInfo, "post-wiki-citations")
+  await citations.getByRole("link", { name: /Docker 컨테이너 기초/ }).click()
+  await expect(page).toHaveURL(new RegExp(`${blogPath("wiki/docker")}$`))
+  await expect(page.getByRole("heading", { level: 1, name: "Docker 컨테이너 기초" })).toBeVisible()
+})

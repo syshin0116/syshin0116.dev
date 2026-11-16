@@ -13,6 +13,10 @@ import { Breadcrumb } from "@/components/blog/breadcrumb"
 import { TableOfContents } from "@/components/blog/toc"
 import { ReaderModeToggle } from "@/components/blog/reader-mode-toggle"
 import { Backlinks } from "@/components/blog/backlinks"
+import { WikiCitations } from "@/components/wiki/wiki-citations"
+import { WikiHub } from "@/components/wiki/wiki-hub"
+import { WIKI_FOLDER, type WikiHubGroup } from "@/lib/wiki"
+import wikiHubData from "@/.generated/wiki-hub.json"
 import { MermaidRendererDynamic } from "@/components/blog/mermaid-renderer-dynamic"
 import { GraphViewDynamic } from "@/components/blog/graph-view-dynamic"
 import { HeadingAnchors } from "@/components/blog/heading-anchors"
@@ -92,6 +96,13 @@ export async function generateMetadata({
   const pageData = await loadPageData(permalinks.sourceSlug(slugStr))
 
   if (!pageData) {
+    if (slugStr === WIKI_FOLDER) {
+      return {
+        title: "위키",
+        description: "블로그 글을 출처로 삼아 주제별로 정리한 지식 페이지를 성숙도별로 모았습니다.",
+        alternates: { canonical: "/blog/wiki" },
+      }
+    }
     // Folder listing pages
     const folderData = await loadFolderData(slugStr)
     if (folderData) {
@@ -143,6 +154,8 @@ export default async function BlogPostPage({
 
   // Check if it's a folder
   if (!pageData) {
+    if (slugStr === WIKI_FOLDER) return <WikiHub groups={wikiHubData as WikiHubGroup[]} />
+
     const folderData = await loadFolderData(slugStr)
     if (folderData) {
       return (
@@ -177,7 +190,7 @@ export default async function BlogPostPage({
     notFound()
   }
 
-  const { html, frontmatter, toc, tags, backlinks, prevNext, readingTime: rt, date, modifiedDate } = pageData
+  const { html, frontmatter, toc, tags, backlinks, wikiCitations, prevNext, readingTime: rt, date, modifiedDate } = pageData
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -273,6 +286,8 @@ export default async function BlogPostPage({
             ))}
           </nav>
         )}
+
+        <WikiCitations citations={wikiCitations ?? []} />
 
         <Backlinks backlinks={backlinks} />
 
