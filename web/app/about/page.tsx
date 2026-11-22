@@ -11,10 +11,10 @@ import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Learn about Syshin and their work",
+  description: "Learn about syshin0116 and their work",
   openGraph: {
-    title: "About Syshin",
-    description: "Learn about Syshin and their work",
+    title: "About syshin0116",
+    description: "Learn about syshin0116 and their work",
     url: `${SITE_URL}/about`,
     type: "profile",
   },

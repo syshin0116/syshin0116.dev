@@ -71,6 +71,15 @@ async function attachScreenshot(
   })
 }
 
+function isGiscusDiscussionNotFound(text: string, sourceUrl: string): boolean {
+  if (!sourceUrl.startsWith("https://giscus.app/")) return false
+  if (text.startsWith("[giscus] Discussion not found")) return true
+  return (
+    sourceUrl.startsWith("https://giscus.app/api/discussions") &&
+    text === "Failed to load resource: the server responded with a status of 404 ()"
+  )
+}
+
 test.beforeEach(async ({ page }) => {
   const diagnostics: BrowserDiagnostics = {
     consoleProblems: [],
@@ -90,6 +99,10 @@ test.beforeEach(async ({ page }) => {
     // The giscus comments iframe sometimes logs a failed fetch to its own API.
     // Only that third-party failure is ignored; the stack must start in giscus code.
     if (message.type() === "error" && /^TypeError: Failed to fetch\n\s+at [^\n]*\(https:\/\/giscus\.app\//.test(message.text())) return
+    // A post with no comments yet has no giscus discussion: giscus.app answers its
+    // discussion lookup with 404 and logs that from its own frame. Both logs are
+    // ignored only when Chromium attributes them to giscus.app.
+    if (message.type() === "error" && isGiscusDiscussionNotFound(message.text(), message.location().url)) return
     if (message.type() === "error" || message.type() === "warning") {
       diagnostics.consoleProblems.push(`${message.type()}: ${message.text()}`)
     }
