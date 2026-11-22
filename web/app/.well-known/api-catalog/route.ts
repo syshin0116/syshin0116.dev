@@ -1,28 +1,29 @@
 import { NextResponse } from "next/server";
+import { SITE_URL } from "@/lib/site";
 
 export function GET() {
   const catalog = {
     linkset: [
       {
-        anchor: "https://syshin0116.dev/",
+        anchor: `${SITE_URL}/`,
         "service-doc": [
           {
-            href: "https://syshin0116.dev/llms.txt",
+            href: `${SITE_URL}/llms.txt`,
             type: "text/plain",
           },
         ],
       },
       {
-        anchor: "https://syshin0116.dev/blog/api/content/",
+        anchor: `${SITE_URL}/blog/api/content/`,
         "service-desc": [
           {
-            href: "https://syshin0116.dev/blog/api/content/",
+            href: `${SITE_URL}/blog/api/content/`,
             type: "application/json",
           },
         ],
         "service-doc": [
           {
-            href: "https://syshin0116.dev/llms.txt",
+            href: `${SITE_URL}/llms.txt`,
             type: "text/plain",
           },
         ],

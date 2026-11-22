@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { SITE_URL } from "@/lib/site";
 
 export function GET() {
   const serverCard = {
@@ -7,7 +8,7 @@ export function GET() {
       name: "syshin0116-portfolio",
       version: "1.0.0",
       description:
-        "AI Research Engineer portfolio & blog by Syshin. Browse projects, read blog posts, and learn about technical expertise in AI/ML, RAG, and LangGraph.",
+        "AI Research Engineer portfolio & blog by syshin0116. Browse projects, read blog posts, and learn about technical expertise in AI/ML, RAG, and LangGraph.",
     },
     capabilities: {
       resources: true,
@@ -15,8 +16,8 @@ export function GET() {
       prompts: false,
     },
     links: {
-      homepage: "https://syshin0116.dev",
-      documentation: "https://syshin0116.dev/llms.txt",
+      homepage: SITE_URL,
+      documentation: `${SITE_URL}/llms.txt`,
       source: "https://github.com/syshin0116/syshin0116.dev",
     },
   };

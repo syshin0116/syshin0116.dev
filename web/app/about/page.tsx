@@ -7,6 +7,7 @@ import { ExternalLink } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import Link from "next/link";
 import { Metadata } from "next";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "About",
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "About Syshin",
     description: "Learn about Syshin and their work",
-    url: "https://syshin0116.dev/about",
+    url: `${SITE_URL}/about`,
     type: "profile",
   },
 };
