@@ -4,7 +4,7 @@
 
 ## What this repo is
 
-Personal blog for syshin0116 at https://syshin0116.dev (also deployed at https://syshin0116.vercel.app), used as a testbed for two things:
+Personal blog for syshin0116 at https://syshin0116.vercel.app (canonical until a custom domain is bought), used as a testbed for two things:
 
 1. **The LLM Wiki pattern.**
    - Existing posts under `content/AI/`, `content/Dev/`, `content/Tools/`, etc. are **immutable source material**.
