@@ -587,7 +587,7 @@ export function sourcesFromContent(content: unknown): InspectionSource[] {
 }
 
 /** Hostname the blog's own posts are served from. */
-const SITE_HOSTNAME = "syshin0116.dev"
+const SITE_HOSTNAME = new URL(SITE_URL).hostname
 
 /**
  * Path to route in-app, or undefined when the source lives elsewhere. Citations to

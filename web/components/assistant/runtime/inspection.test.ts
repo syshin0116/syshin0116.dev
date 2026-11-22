@@ -61,7 +61,7 @@ describe("InspectionProjector", () => {
           key: "AI/fixture.md",
           docId: "AI/fixture.md",
           title: "Fixture",
-          url: "https://syshin0116.dev/blog/AI/fixture",
+          url: "https://syshin0116.vercel.app/blog/AI/fixture",
           rank: 1,
           score: 1,
           provenance: {
@@ -329,7 +329,7 @@ describe("InspectionProjector", () => {
 describe("internalSourcePath", () => {
   test("returns an app path for the blog's own host", () => {
     expect(
-      internalSourcePath("https://syshin0116.dev/blog/AI/rag?x=1#s")
+      internalSourcePath("https://syshin0116.vercel.app/blog/AI/rag?x=1#s")
     ).toBe("/blog/AI/rag?x=1#s")
   })
 
@@ -340,9 +340,15 @@ describe("internalSourcePath", () => {
     expect(internalSourcePath(undefined)).toBeUndefined()
   })
 
+  test("treats the unregistered custom domain as external", () => {
+    expect(
+      internalSourcePath("https://syshin0116.dev/blog/AI/rag")
+    ).toBeUndefined()
+  })
+
   test("does not treat a lookalike host as internal", () => {
     expect(
-      internalSourcePath("https://syshin0116.dev.evil.test/blog/AI/rag")
+      internalSourcePath("https://syshin0116.vercel.app.evil.test/blog/AI/rag")
     ).toBeUndefined()
   })
 })

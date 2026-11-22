@@ -30,9 +30,9 @@ export async function GET() {
       const title = escapeXml(String(post.title))
       const description = escapeXml(String(post.description ?? ""))
       const url = `${BASE_URL}${blogPath(post.slug)}`
-      // Subscribers stored the pre-permalink path on the old origin. Both the
-      // short address and the canonical domain are newer than that, so neither
-      // may reach the guid.
+      // Subscribers stored the pre-permalink path on the guid origin. The short
+      // address is newer than that, and the canonical origin may move again, so
+      // neither may reach the guid.
       const guid = `${LEGACY_FEED_ORIGIN}${permalinks.originalPath(post.slug)}`
       const pubDate = post.dateRaw
         ? new Date(post.dateRaw).toUTCString()
