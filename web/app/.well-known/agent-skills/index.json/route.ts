@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createHash } from "crypto";
+import { SITE_URL } from "@/lib/site";
 
 const skills = [
   {
@@ -7,27 +8,27 @@ const skills = [
     type: "resource",
     description:
       "Overview of syshin0116.dev: blog, wiki, projects, and the RAG evaluation chat agent. Available as llms.txt for LLM consumption.",
-    url: "https://syshin0116.dev/llms.txt",
+    url: `${SITE_URL}/llms.txt`,
   },
   {
     name: "project-browser",
     type: "resource",
     description:
       "Browse detailed information about AI/ML projects including RAG systems, LangGraph agents, and computer vision applications.",
-    url: "https://syshin0116.dev/projects",
+    url: `${SITE_URL}/projects`,
   },
   {
     name: "blog-content",
     type: "resource",
     description:
       "Technical blog posts on AI, machine learning, RAG, LangChain, and software development.",
-    url: "https://syshin0116.dev/blog",
+    url: `${SITE_URL}/blog`,
   },
   {
     name: "api-catalog",
     type: "discovery",
     description: "RFC 9727 API catalog for automated API discovery.",
-    url: "https://syshin0116.dev/.well-known/api-catalog",
+    url: `${SITE_URL}/.well-known/api-catalog`,
   },
 ];
 
