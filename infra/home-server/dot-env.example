@@ -1,3 +1,9 @@
 # Copy to ~/srv/agent/.env on the home server (chmod 600). Compose interpolation only.
 POSTGRES_PASSWORD=
 AGENT_PORT=18080
+
+# Optional Tailscale sidecar (docs/runbooks/home-server-delivery.md#sidecar-origin).
+# Leave TS_AUTHKEY empty to keep the host Funnel only. The key is only read on first login;
+# node state then lives in the tailscale-state volume.
+TS_AUTHKEY=
+TS_HOSTNAME=syshin0116-agent

@@ -1,5 +1,7 @@
 # Production agent on the Mac mini home server. See docs/runbooks/home-server-delivery.md.
-# The agent listens on loopback only; Tailscale Funnel publishes it over HTTPS.
+# The agent listens on loopback only; the host's Tailscale Funnel publishes it over HTTPS.
+# The opt-in `tailscale` profile adds a sidecar node that Funnels :443 to the agent over
+# the compose network instead, so the host port can go once the cutover is verified.
 name: syshin0116-agent
 
 x-agent: &agent
@@ -49,5 +51,49 @@ services:
     <<: *agent
     entrypoint: ["sh", "-c", "while true; do python -m agent.maintenance || echo 'maintenance failed' >&2; sleep 900; done"]
 
+  # Opt-in (profile `tailscale`): deploy.sh starts it only when TS_AUTHKEY is set in .env.
+  # Userspace networking, so no /dev/net/tun or extra capabilities are needed.
+  tailscale:
+    image: tailscale/tailscale:v1.104.7@sha256:72c1e19e0aedca96b8533bbb0b4368564410ff20b17e53b804eb6c1f04a31be4
+    profiles: [tailscale]
+    hostname: ${TS_HOSTNAME:-syshin0116-agent}
+    environment:
+      TS_AUTHKEY: ${TS_AUTHKEY:-}
+      TS_HOSTNAME: ${TS_HOSTNAME:-syshin0116-agent}
+      TS_STATE_DIR: /var/lib/tailscale
+      TS_SERVE_CONFIG: /config/serve.json
+      TS_ENABLE_HEALTH_CHECK: "true"
+      TS_LOCAL_ADDR_PORT: 127.0.0.1:9002
+    configs:
+      - source: tailscale-serve
+        target: /config/serve.json
+    volumes:
+      - tailscale-state:/var/lib/tailscale
+    depends_on:
+      agent:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:9002/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    restart: unless-stopped
+
+configs:
+  # `$$` keeps compose from interpolating; tailscaled substitutes its own cert domain.
+  tailscale-serve:
+    content: |
+      {
+        "TCP": {"443": {"HTTPS": true}},
+        "Web": {
+          "$${TS_CERT_DOMAIN}:443": {
+            "Handlers": {"/": {"Proxy": "http://agent:8080"}}
+          }
+        },
+        "AllowFunnel": {"$${TS_CERT_DOMAIN}:443": true}
+      }
+
 volumes:
   postgres-data:
+  tailscale-state:

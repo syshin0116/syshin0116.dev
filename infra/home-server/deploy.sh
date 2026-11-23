@@ -55,6 +55,13 @@ main() {
     exit 1
   fi
 
+  # Opt-in sidecar origin. It only fronts the agent, so a failure here is logged and
+  # does not fail the deploy; the host Funnel keeps serving.
+  if grep -qE '^TS_AUTHKEY=.+' "$STATE_DIR/.env"; then
+    compose --profile tailscale up -d --wait tailscale \
+      || log "warn $short: tailscale sidecar is not healthy"
+  fi
+
   echo "$sha" > "$STATE_DIR/deployed-sha"
   # The launchd job runs the copy in STATE_DIR; refresh it from the deployed revision.
   install -m 755 "$REPO_DIR/infra/home-server/deploy.sh" "$STATE_DIR/deploy.sh"
