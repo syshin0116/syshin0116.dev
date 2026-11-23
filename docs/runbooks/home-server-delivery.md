@@ -8,7 +8,7 @@ when_to_read: >
   AGENT_AUTH_SECRET or the OpenAI key, moving the public origin, or rolling back a deploy.
 tags: [operations, home-server, aegra, docker-compose, tailscale, launchd]
 status: stable
-updated: "2026-11-15"
+updated: "2026-11-23"
 owners: ["@syshin0116"]
 refs:
   - ../../infra/home-server/compose.yaml
@@ -38,7 +38,7 @@ flowchart LR
 | Path | Contents |
 | --- | --- |
 | `~/srv/syshin0116.dev` | Detached checkout of the deployed `origin/main` revision |
-| `~/srv/agent/.env` | `POSTGRES_PASSWORD`, `AGENT_PORT` (from `infra/home-server/dot-env.example`), mode 600 |
+| `~/srv/agent/.env` | `POSTGRES_PASSWORD`, `AGENT_PORT`, optional `TS_AUTHKEY` and `TS_HOSTNAME` (from `infra/home-server/dot-env.example`), mode 600 |
 | `~/srv/agent/agent.env` | Runtime env (from `infra/home-server/agent.env.example`), mode 600 |
 | `~/srv/agent/deploy.sh` | Copy run by launchd; each deploy refreshes it from the repo |
 | `~/srv/agent/deployed-sha`, `deploy.log` | Last deployed revision and the deploy log |
@@ -79,6 +79,43 @@ tailnet-only apps and must stay off Funnel. Vercel Production and Preview set
 value is inlined at build time. Move to a custom domain (Cloudflare Tunnel) once one is
 registered.
 
+## Sidecar origin
+
+The `tailscale` compose profile runs a sidecar that joins the tailnet as its own node
+(`syshin0116-agent`, tag `tag:agent`) and Funnels `https://syshin0116-agent.tail8d4638.ts.net`
+on 443 to `http://agent:8080` over the compose network, so the Mac mini needs no host port.
+It is off until `TS_AUTHKEY` is set in `~/srv/agent/.env`; `deploy.sh` then starts it after
+each deploy. A sidecar failure logs `warn ... tailscale sidecar is not healthy` and leaves
+the host Funnel serving. Tailscale's free Personal plan covers this.
+
+Cutover (owner steps, in order):
+
+1. In the admin console, Access controls, add to the tailnet policy:
+
+   ```json
+   "tagOwners": { "tag:agent": ["autogroup:admin"] },
+   "nodeAttrs": [ { "target": ["tag:agent"], "attr": ["funnel"] } ]
+   ```
+
+   Merge into existing `tagOwners` and `nodeAttrs` keys if they already exist.
+2. Settings, Keys: generate an auth key with tag `tag:agent`, not ephemeral. Reusable is
+   optional; the key is only read on first login, after which the `tailscale-state` volume
+   holds the node identity.
+3. On the Mac mini, set `TS_AUTHKEY=<key>` in `~/srv/agent/.env` (mode 600) and run
+   `~/srv/agent/deploy.sh --force`.
+4. Check `curl -fsS https://syshin0116-agent.tail8d4638.ts.net/ready` from outside the
+   tailnet (Funnel DNS can take a few minutes after the first login).
+5. Set Vercel Production and Preview `NEXT_PUBLIC_AGENT_API_URL` to
+   `https://syshin0116-agent.tail8d4638.ts.net` and redeploy the web. Confirm a real chat.
+6. After a few days on the new origin, remove the old path: `tailscale funnel --https=10000 off`
+   on the host, then in a PR drop the agent `ports:` mapping and move the `deploy.sh` smoke
+   checks to the sidecar origin.
+
+Roll back by pointing `NEXT_PUBLIC_AGENT_API_URL` at the `:10000` origin again and
+redeploying the web. To stop the sidecar, clear `TS_AUTHKEY` and run
+`docker compose ... --profile tailscale stop tailscale`; delete the node in the admin
+console only if it should not come back.
+
 ## Secrets
 
 `AGENT_AUTH_SECRET` in `agent.env` must equal Vercel Production `AGENT_AUTH_SECRET`
@@ -99,5 +136,6 @@ A real chat on https://syshin0116.vercel.app is the end-to-end check. Headless b
 ## Known gaps
 
 - No off-host Postgres backup yet; guest threads expire anyway, signed-in threads do not.
+- Until the sidecar cutover, the agent holds host port `127.0.0.1:18080`.
 - A reboot restarts the stack (`restart: unless-stopped`, OrbStack at login), but Funnel
   and launchd need the user session; enable auto-login on the Mac mini.
